@@ -1,5 +1,6 @@
 ### Methodological factors in forecast performance: the influence of model structure and target specificity on the performance of real time COVID-19 forecasts (provisional title)
 Kath Sherratt*, others TBC, and Sebastian Funk*
+
 *London School of Hygiene and Tropical Medicine
 
 Performance of forecasts in capturing observed data varies in time and space with no overall "best" forecast. Two varying features of forecasting methods include the forecaster’s approach to model structure; and whether the forecaster tunes their model to each target. We investigate forecasts of weekly incident deaths for 32 countries submitted to the European COVID-19 Forecast Hub between March 2021 and March 2023. 
