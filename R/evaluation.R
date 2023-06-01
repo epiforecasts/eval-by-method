@@ -25,7 +25,7 @@ get_scores <- function(local = TRUE) {
   return(scores)
 }
 
-pairwise_scoring <- function(scores,
+pairwise_scoring <- function(scores = NULL,
                              baseline_model = "EuroCOVIDhub-baseline",
                              by_variables = "horizon") {
   # pairwise comparisons against ensemble
@@ -33,7 +33,8 @@ pairwise_scoring <- function(scores,
   pairwise <- scores |>
     filter(n_quantiles == 23) |>
     select(model, horizon, location, location_name,
-           forecast_date, interval_score = wis) |>
+           forecast_date, interval_score = wis,
+           all_of(by_variables)) |>
     pairwise_comparison(
       metric = "interval_score",
       baseline = baseline_model,
@@ -41,9 +42,9 @@ pairwise_scoring <- function(scores,
     )
 
   rel_wis <- pairwise |>
-    filter(compare_against == !!!baseline_model) |>
-    select(model, horizon,
-           rel_wis = scaled_rel_skill)
+    filter(compare_against == baseline_model) |>
+    select(rel_wis = scaled_rel_skill,
+           all_of(by_variables))
 
   return(rel_wis)
 }
