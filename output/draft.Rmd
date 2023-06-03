@@ -1,0 +1,19 @@
+---
+title: "Draft"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+### Methods
+
+We use forecasts from the European COVID-19 Forecast Hub, an open platform for modellers to contribute real-time weekly forecasts of COVID-19 for 32 European countries. From March 2021, over 40 modelling teams contributed independent prospective forecasts for between one and four weeks ahead, alongside a standard set of metadata describing their team and model.
+
+We downloaded all forecasts from 8 March 2021 to 10 March 2023. We excluded forecasts after this date in order to use a single consistent data source against which to evaluate forecasts. We used data collated by Johns Hopkins University comprising cumulative reported deaths reported daily for each of the 32 European countries [#jhu]. We calculated the incident weekly number of deaths and used the dataset available as of 10 March 2023, when JHU stopped reporting new data. 
+
+Real-time data are frequently updated retrospectively, adding unavoidable inaccuracy to prospective forecasts made based on the original data. This biases the evaluation of forecasts made for inaccurate data points. We noted where each observed data point in our dataset had seen a revision of over 5% to its final reported value. We excluded forecasts for these data points and for up to 3 weeks after the inaccurate data point had been reported.
+
+Forecasts typically express uncertainty around a predicted future value. To evaluate probabilistic forecasts, we used the interval score [#bracher]. For each forecast, this combines each prediction’s overprediction or underprediction against a single observed data point, with the width of the spread of predictions, or sharpness, of the whole probabilistic forecast. Forecasters contributing to the Hub were able to express uncertainty by reporting values for each target across 23 probabilistic quantiles. We excluded forecasts that did not report the full set of 23 quantiles. 
+
+Each forecast’s interval score is reported as an absolute value, on the scale of the original data (i.e. incident count). This is inappropriate for comparison across countries given epidemic sizes varied with population and time across Europe. Therefore we scaled the interval score of each forecasting model against the score of an ensemble of all forecasts for that target. This was an unweighted median of all predictions with the median calculated at each quantile.
+
+We assessed each model in terms of model structure and target specificity using the metadata provided by each modelling team. For model structure, we categorised each model as one of the following: “Empirical”, “Mechanistic”, “Semi-mechanistic”, “Ensemble”. We based this on teams’ short description of their methods included in metadata, and any additional links provided by teams, such as citations or websites with model details.
