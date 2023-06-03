@@ -5,7 +5,7 @@ library(here)
 library(arrow)
 library(dplyr)
 library(ggplot2)
-source(here("R", "evaluation.R"))
+source(here("R", "get-scores.R"))
 
 # Get evaluation data for each model by week and target
 scores_raw <- get_scores()

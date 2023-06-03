@@ -2,7 +2,7 @@
 library(here)
 library(ggplot2)
 source(here("R", "get-metadata.R"))
-source(here("R", "evaluation.R"))
+source(here("R", "get-scores.R"))
 
 # Get scores and metadata ------------------------------
 metadata <- get_metadata_processed() |>
