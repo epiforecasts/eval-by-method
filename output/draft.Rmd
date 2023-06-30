@@ -1,19 +1,260 @@
 ---
 title: "Draft"
 output: html_document
-date: "`r Sys.Date()`"
+---
+```{r set-up, include=FALSE}
+library(here)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+theme_set(theme_bw())
+knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
+                      message = FALSE, warning = FALSE)
+quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
+```
+
+Notes
+
+- Could group horizons into short (1-2 week) and mid (3-4) before scoring
+- Epidemic phase differences?
+
+## Data preparation
+```{r, eval=FALSE}
+## NOT RUN
+## Get observed data and all Hub forecasts; exclude forecasts
+# source(here("R", "import-data.R"))
+## Score forecasts on the log and natural scales
+# source(here("R", "score.R"))
+## Get metadata from googlesheet
+# source(here("R", "get-metadata.R"))
+# get_metadata_processed() # write csv
+```
+
+Forecast inclusion criteria:
+
+- Forecast date on or after 2021-03-07
+- Projection target date before 2023-03-10
+- Forecast includes 23 quantile predictions
+- Forecast is not for an observed data anomaly
+
+```{r load-scores}
+# Load score data
+scores_raw <- read_csv(here("data", "scores-raw.csv"))
+scores_pairwise <- read_csv(here("data", "scores-pw.csv"))|> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model))
+scores_pairwise_date <- read_csv(here("data", "scores-pw-target-date.csv")) |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model))
+scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))|> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model))
+```
+
+
+## Data description
+
+```{r all-scores, fig.height = 6, fig.width = 10}
+scale_cols <- c("natural" = "#7fcdbb", "log" = "#2c7fb8")
+# All scores ----------------------
+plot_all_scores <- scores_pairwise |> 
+  arrange(rel_wis) |> 
+  mutate(model = forcats::fct_inorder(model)) |> 
+  ggplot(aes(x = model, y = rel_wis, col = scale)) +
+  geom_point(position = position_dodge(width = 0.05)) +
+  geom_hline(aes(yintercept = 1), lty = 2) +
+  coord_flip() +
+  scale_colour_manual(values = scale_cols, aesthetics = c("fill", "colour")) +
+  labs(y = "Relative WIS", x = NULL, col = "Scale") +
+  theme(legend.position = "bottom")
+
+# Plot over time ----------------------------------
+scores_time <- scores_pairwise_date |>
+  group_by(target_end_date, scale, target_variable) |>
+  summarise(
+    n = n(),
+    value = quantile(rel_wis, quantiles),
+    quantile = paste0("q", quantiles),
+    model = "All models",
+    .groups = "drop")
+
+plot_all_scores_time <- scores_time |>
+  pivot_wider(names_from = quantile) |>
+  ggplot(aes(x = target_end_date, col = scale, fill = scale)) +
+  geom_line(aes(y = q0.5), alpha = 0.5) +
+  geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
+              alpha = 0.5, col = NA) +
+  geom_hline(aes(yintercept = 1), lty = 2) +
+  scale_colour_manual(values = scale_cols, aesthetics = c("fill", "colour")) +
+  labs(x = "Forecast target date", y = "Relative WIS", col = "Scale", fill = "Scale") +
+  theme(legend.position = "bottom")
+
+# Combine plots
+plot_all_scores +
+  plot_all_scores_time +
+  patchwork::plot_annotation(tag_levels = "A") +
+  patchwork::plot_layout(nrow = 1, widths = c(0.5, 1), guides = "collect") &
+  theme(legend.position = "bottom")
+
+```
+
+Relative weighted interval scores (WIS) scored on a log or natural scale across 39 models. Relative WIS are the geometric mean of the interval score standardised relative to the ensemble (dashed line, 1), across any of 32 locations and up to 4 week forecast horizons. (A) Overall scores of each model across all forecast targets (predicting any of 32 locations, up to 4 weeks ahead, for 104 weeks). (B) Interquartile range across 38 models' scores by projection target date. Showing median (line) and 50% quantile interval (ribbon) across models.
+
 ---
 
-### Methods
+## Categorisation
+```{r describe-categories}
+# Get method types
+metadata <- read_csv(here("data", "model-classification.csv")) |>
+  select(model, method_type = classification)
 
-We use forecasts from the European COVID-19 Forecast Hub, an open platform for modellers to contribute real-time weekly forecasts of COVID-19 for 32 European countries. From March 2021, over 40 modelling teams contributed independent prospective forecasts for between one and four weeks ahead, alongside a standard set of metadata describing their team and model.
+# Identify number of targets for each model by week -----------------
+freq_targets <- scores_raw |>
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
+  select(model, forecast_date, location) |>
+  distinct() |>
+  ungroup() |>
+  group_by(model, forecast_date) |>
+  summarise(target_count = n()) |>
+  mutate(target_type = ifelse(target_count <= 2, "Single-country", "Multi-country")) |>
+  ungroup()
+# Assign target type by whether model has ever forecast for >1 target
+targets_by_model <- freq_targets |>
+  group_by(model) |>
+  summarise(target_type = all(target_count <= 2)) |>
+  mutate(target_type = factor(target_type,
+                              levels = c(TRUE, FALSE),
+                              labels = c("Single-country", "Multi-country")))
 
-We downloaded all forecasts from 8 March 2021 to 10 March 2023. We excluded forecasts after this date in order to use a single consistent data source against which to evaluate forecasts. We used data collated by Johns Hopkins University comprising cumulative reported deaths reported daily for each of the 32 European countries [#jhu]. We calculated the incident weekly number of deaths and used the dataset available as of 10 March 2023, when JHU stopped reporting new data. 
 
-Real-time data are frequently updated retrospectively, adding unavoidable inaccuracy to prospective forecasts made based on the original data. This biases the evaluation of forecasts made for inaccurate data points. We noted where each observed data point in our dataset had seen a revision of over 5% to its final reported value. We excluded forecasts for these data points and for up to 3 weeks after the inaccurate data point had been reported.
+# Scores by method and target 
+scores_pairwise |> 
+  filter(scale == "log") |> 
+  left_join(targets_by_model) |> 
+  group_by(method_type) |>
+  summarise(
+    n = n(),
+    value = quantile(rel_wis, quantiles),
+    quantile = paste0("q", quantiles),
+    .groups = "drop")
+```
 
-Forecasts typically express uncertainty around a predicted future value. To evaluate probabilistic forecasts, we used the interval score [#bracher]. For each forecast, this combines each prediction’s overprediction or underprediction against a single observed data point, with the width of the spread of predictions, or sharpness, of the whole probabilistic forecast. Forecasters contributing to the Hub were able to express uncertainty by reporting values for each target across 23 probabilistic quantiles. We excluded forecasts that did not report the full set of 23 quantiles. 
+---
 
-Each forecast’s interval score is reported as an absolute value, on the scale of the original data (i.e. incident count). This is inappropriate for comparison across countries given epidemic sizes varied with population and time across Europe. Therefore we scaled the interval score of each forecasting model against the score of an ensemble of all forecasts for that target. This was an unweighted median of all predictions with the median calculated at each quantile.
+## Model structure
 
-We assessed each model in terms of model structure and target specificity using the metadata provided by each modelling team. For model structure, we categorised each model as one of the following: “Empirical”, “Mechanistic”, “Semi-mechanistic”, “Ensemble”. We based this on teams’ short description of their methods included in metadata, and any additional links provided by teams, such as citations or websites with model details.
+Forecasting models over time by model method, including empirical (13), semi-mechanistic (9), mechanistic (12), and other (5). "Other" includes 3 human judgement ensembles and 2 ABM models.
+
+```{r method-scores, fig.height=4, fig.width=4}
+# Plot relative WIS, by groupings of model method type
+scores_method <- scores_pairwise_horizon |>
+  left_join(metadata, by = "model") |> 
+  # exclude ensembles & ABMs
+  filter(!grepl("Other", method_type) &
+           scale == "log")
+
+plot_scores_method <- scores_method |> 
+  group_by(method_type, horizon) |>
+  summarise(
+    n = n(),
+    value = quantile(rel_wis, quantiles),
+    quantile = paste0("q", quantiles),
+    .groups = "drop")
+plot_scores_method <- plot_scores_method |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "bottom")
+```
+
+---
+
+## Target specificity
+
+Single country models includes models that forecast for at most 2 countries at any time. Multi-country models includes more than 2 countries, in practice, this was a minimum of 14 and up to 32 countries.
+
+```{r eval-by-target}
+# Get countries with single target models
+scores_targets <- scores_raw |>
+  left_join(targets_by_model, by = c("model"))
+target_single <- scores_targets |>
+  filter(target_type == "Single-country") |>
+  group_by(location) |>
+  summarise(models = n_distinct(model)) |>
+  arrange(desc(models))
+cat("16 single target models were for: ")
+cat(paste0(target_single$location, " (", target_single$models, "),"))
+target_multi <- scores_targets |>
+  filter(target_type == "Multi-country") |>
+  group_by(model) |>
+  summarise(locations = n_distinct(location)) |>
+  arrange(desc(locations))
+cat(paste(nrow(target_multi), "multi-country models."))
+```
+
+```{r scores-by-target, fig.height=4, fig.width=4}
+scores_targets <- scores_pairwise_horizon |>
+  left_join(targets_by_model, by = "model") 
+
+plot_scores_targets <- scores_targets |> 
+  filter(scale == "log") |>
+  group_by(target_type, horizon) |>
+  summarise(
+    n = n(),
+    value = quantile(rel_wis, quantiles),
+    quantile = paste0("q", quantiles),
+    .groups = "drop")
+plot_scores_targets <- plot_scores_targets |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = target_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "none")
+```
+
+Performance by horizon and model target type, where single-country indicates a model only forecast for at most 2 countries at any time.
+
+```{r scores-by-both, fig.height=4, fig.width=8}
+plot_scores_method +
+  plot_scores_targets +
+  patchwork::plot_annotation(tag_levels = "A") +
+  patchwork::plot_layout(nrow = 1, guides = "collect") &
+  theme(legend.position = "bottom")
+```
+
+Range of scores by type of model and forecast horizon, showing 50% and 99% quantile interval.
+
+---
+
+```{r scores-by-rt, eval=FALSE}
+rt_lin <- read_csv(here("data", "rt_lin.csv.zip")) |>
+  filter(resolution == "country") |>
+  select(target_end_date = date_lag, location_name = dispID,
+         rt_lower, rt, rt_upper) |>
+  left_join(read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-locations/locations_eu.csv") |>
+              select(location_name, location))
+
+# categorise Rt
+rt_lin <- rt_lin |>
+  mutate(rt_cat = case_when(rt_lower < 1 & rt_upper > 1 ~ "Cross",
+                            rt_lower >= 1 & rt_upper > 1 ~ "Over",
+                            rt_lower <= 1 & rt_upper <= 1 ~ "Under"))
+```
