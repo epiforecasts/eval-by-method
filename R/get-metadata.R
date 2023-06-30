@@ -10,12 +10,7 @@ library(yaml)
 library(googlesheets4)
 
 # get metadata raw as submitted by teams
-get_metadata_raw <- function(local = TRUE) {
-
-  if (local) {
-    metadata <- read_csv(here("data", "metadata-raw.csv"))
-
-  } else {
+get_metadata_raw <- function() {
     # Get model names / dates from github ---
     # get names of all models available
     cat("Fetching metadata from Github")
@@ -49,14 +44,7 @@ get_metadata_raw <- function(local = TRUE) {
     metadata_raw <- map_dfr(unique(model_names_dates$model),
                         ~ read_yaml(paste0("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/",
                                            .x, ".yml")))
-
-    ## TODO check: inclusion criteria: model not designated secondary or other
-    ## using this would exclude:
-    ## --- "Secondary": 8 models (including epiforecasts epinow2, weekly growth)
-    ## --- "Other": 3 models (1 arima variation, 2 EpiExpert variations)
-    # metadata <- metadata_raw |>
-    #   filter(!team_model_designation %in% c("secondary", "other"))
-
+aa
     # TODO pull out contributor details separately to get institution location
     ctb <- metadata_raw |>
       select(model_abbr, model_contributors)
@@ -78,20 +66,16 @@ get_metadata_raw <- function(local = TRUE) {
     # save local copy
     cat("Writing csv to local /data")
     write_csv(metadata, here("data", "metadata-raw.csv"))
-  }
 
   return(metadata)
 }
 
 # get metadata with qualitative coding of model type/methods
-get_metadata_processed <- function(local = TRUE) {
-  if (local) {
-    metadata <- read_csv(here("data", "metadata-processed.csv"))
-  } else {
+get_metadata_processed <- function() {
     sheet_url <- "https://docs.google.com/spreadsheets/d/1XgXLYBCpdtjztJFhWDJz6G7A_Uw92dnnr-WFqGAFGn4/edit#gid=0"
-    metadata <- read_sheet(sheet_url, sheet = "metadata-processed")
+    metadata <- read_sheet(sheet_url, sheet = "model-classification")
     # save local copy
-    write_csv(metadata, here("data", "metadata-processed.csv"))
-  }
+    write_csv(metadata, here("data", "model-classification.csv"))
   return(metadata)
 }
+
