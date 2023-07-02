@@ -1,28 +1,10 @@
 locations <- read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-locations/locations_eu.csv") |>
   select(location_name, location)
-
-
-# Get Rt estimates
-# from: https://github.com/lin-lab/COVID19-Viz/tree/master/clean_data_pois
-# download.file("https://hsph-covid-study.s3.us-east-2.amazonaws.com/website_files_pois/rt_table_export.csv.zip",
-#                        destfile = here("data", "rt_lin.csv.zip"))
-
-rt_lin <- read_csv(here("data", "rt_lin.csv.zip")) |>
-  filter(resolution == "country") |>
-  select(target_end_date = date_lag, location_name = dispID,
-         rt_lower, rt, rt_upper) |>
-  left_join()
-
-# categorise Rt
-rt_lin <- rt_lin |>
-  mutate(rt_cat = case_when(rt_lower < 1 & rt_upper > 1 ~ "Cross",
-                            rt_lower >= 1 & rt_upper > 1 ~ "Over",
-                            rt_lower <= 1 & rt_upper <= 1 ~ "Under"))
+scores_raw <- read_csv(here("data", "scores-raw.csv"))
 
 # Epinow2 estimates -------------------------------------------------------
-source(here("R", "get-rt.R"))
-
 # Rt
+source(here("R", "get-rt.R"))
 # median_estimates <- get_covid19_nowcasts(dataset = "national/deaths", variable = "rt",
 #                           earliest_date = "2021-03-07")
 # median_estimates <- median_estimates |>
@@ -43,8 +25,7 @@ growth_rate <- growth_rate |>
   filter(country %in% locations$location_name)
 write_csv(growth_rate, here("data", "gr-epiforecasts-covid.csv"))
 
-# Estimates made for European Hub Submissions ---------------------------------
-scores_raw <- read_csv(here("data", "scores-raw.csv"))
+# Estimates made for European Hub Submissions
 dates <- gh(paste0("/repos/epiforecasts/europe-covid-forecast/contents/",
                    "rt-forecast/data/summary/cases?recursive=1"))
 dates <- transpose(dates)
@@ -73,9 +54,8 @@ hub <- rt |>
     .groups = "drop") |>
   mutate(source = "hub-submissions")
 
-# Compare ----------------------------------------------------
+# Compare
 rt_source <- bind_rows(median_estimates, hub)
-
 rt_source |>
   ggplot(aes(x = target_date, col = source, fill = source)) +
   geom_ribbon(aes(ymin = lower_20, ymax = upper_20), alpha = 0.8, col = NA) +
@@ -85,3 +65,58 @@ rt_source |>
   facet_grid(rows = vars(region), scales = "free") +
   theme(legend.position = "bottom")
 ggsave("rt-by-source.pdf", height = 30, width = 5)
+
+# Rt phase -------
+# categorise Rt
+rt <- rt |>
+  mutate(rt_cat = case_when(rt_lower < 1 & rt_upper > 1 ~ "Cross",
+                            rt_lower >= 1 & rt_upper > 1 ~ "Over",
+                            rt_lower <= 1 & rt_upper <= 1 ~ "Under"))
+
+# Variants --------------------------------------------------------------
+source("https://gist.githubusercontent.com/kathsherratt/a534bff397f0824403a2e81ba83ddbb9/raw/7dd2f9f96f0edd8e55af2ff9a35b7900f4be8055/download_variant_introduction.R")
+variant_names <- c("B.1.617.2" = "Delta", "B.1.1.529" = "Omicron")
+
+variants <- download_variant_introduction(country_names = NULL,
+                                          variant_codes = NULL)
+
+
+
+rt <- read_csv(here("data", "rt-epiforecasts-covid.csv")) |>
+  rename(target_end_date = date, location_name = country) |>
+  mutate(epiyearweek = paste0(lubridate::epiyear(target_end_date), "-",
+                              lubridate::epiweek(target_end_date))) |>
+  filter(between(target_end_date,
+                 min(scores_raw$target_end_date),
+                 min(scores_raw$target_end_date)+365)) |>
+  group_by(location_name, epiyearweek) |>
+  summarise(across(lower_20:upper_90, median),
+            target_end_date = max(target_end_date),
+            n = n(),
+            .groups = "drop") |>
+  filter(n == 7)
+
+
+
+
+
+
+
+# -------------------------------------------------------------------------
+
+
+# Plot all Rt estimates
+plot_rt <- rt |>
+  mutate(change = ifelse(change, 1, NA)) |>
+  ggplot(aes(x = target_end_date)) +
+  geom_ribbon(aes(ymin = lower_20, ymax = upper_20), alpha = 0.8, col = NA) +
+  geom_ribbon(aes(ymin = lower_90, ymax = upper_90), alpha = 0.5, col = NA) +
+  geom_point(aes(y = change)) +
+  geom_hline(yintercept = 1, lty = 2) +
+  labs(x = NULL) +
+  facet_grid(rows = vars(location_name), scales = "free") +
+  theme(legend.position = "bottom")
+ggsave(filename = here("output", "rt.pdf"),
+       plot = plot_rt,
+       height = 30, width = 5)
+

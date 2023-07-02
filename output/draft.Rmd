@@ -249,42 +249,36 @@ Range of scores by type of model and forecast horizon, showing 50% and 99% quant
 ```{r scores-by-rt}
 rt <- read_csv(here("data", "rt-epiforecasts-covid.csv")) |>
   rename(target_end_date = date, location_name = country) |> 
+  mutate(epiyearweek = paste0(lubridate::epiyear(target_end_date), "-",
+                              lubridate::epiweek(target_end_date))) |> 
   filter(between(target_end_date, 
                  min(scores_raw$target_end_date), 
                  min(scores_raw$target_end_date)+365))
-plot_rt <- rt |>
-  ggplot(aes(x = target_end_date)) +
-  geom_ribbon(aes(ymin = lower_20, ymax = upper_20), alpha = 0.8, col = NA) +
-  geom_ribbon(aes(ymin = lower_90, ymax = upper_90), alpha = 0.5, col = NA) +
-  geom_hline(yintercept = 1, lty = 2) +
-  labs(x = NULL) +
-  facet_grid(rows = vars(location_name), scales = "free") +
-  theme(legend.position = "bottom")
-
-ggsave(filename = here("output", "rt.pdf"), 
-       plot = plot_rt, 
-       height = 30, width = 5)
 
 # categorise Rt
 rt <- rt |>
-  mutate(rt_cat = case_when(rt_lower < 1 & rt_upper > 1 ~ "Cross",
-                            rt_lower >= 1 & rt_upper > 1 ~ "Over",
-                            rt_lower <= 1 & rt_upper <= 1 ~ "Under"))
-
-
+  group_by(location_name, epiyearweek) |> 
+  summarise(across(lower_20:upper_90, median),
+            target_end_date = max(target_end_date)) |> 
+  mutate(rt_cat = case_when(lower_20 < 1 & upper_20 > 1 ~ "Cross",
+                            lower_20 >= 1 & upper_20 > 1 ~ "Over",
+                            lower_20 <= 1 & lower_20 <= 1 ~ "Under")) |> 
+  select(location_name, target_end_date, rt_cat) |> 
+  left_join(read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-locations/locations_eu.csv") |>
+              select(location_name, location))
 
 # Get scores ----------------------------------------
-scores_raw <- read_csv(here("data", "scores-raw.csv"))
 scores_raw_rt <- scores_raw |>
-  left_join(rt_lin, by = c("target_end_date", "location"))
+  left_join(rt, by = c("target_end_date", "location")) |> 
+  filter(scale == "log" &
+           !is.na(rt_cat))
 
 # Score all forecasts relative to each other (pairwise)
-score_by <- c("rt_cat", "model", "target_variable", "scale")
+score_by <- c("rt_cat", "model")
 
 scores_pairwise_rt <- scores_raw_rt |>
-  select(model, horizon, location, forecast_date, target_variable,
-         interval_score, scale,
-         rt_cat) |>
+  select(model, horizon, location, forecast_date,
+         interval_score, rt_cat) |>
   pairwise_comparison(
     metric = "interval_score",
     baseline = "EuroCOVIDhub-ensemble",
@@ -296,22 +290,34 @@ scores_pairwise_rt <- scores_pairwise_rt |>
          rel_wis = scaled_rel_skill) |>
   mutate(rt_cat = factor(rt_cat, levels = c("Under", "Cross", "Over")))
 
-# visualise all scores
-scores_pairwise_rt |>
-  ggplot(aes(y = rel_wis, x = rt_cat)) +
-  geom_point() +
-  geom_boxplot() +
-  facet_wrap("scale")
-
 # visualise by method
 metadata <- read_csv(here("data", "model-classification.csv")) |>
   select(model, method_type = classification)
 
-by_method_data <- scores_pairwise_rt |>
+by_method_rt <- scores_pairwise_rt |>
   left_join(metadata) |>
-  # exclude ensembles
-  filter(!grepl("Other", method_type)) |>
-  # regroup to any mechanistic
-  mutate(any_mechanistic = ifelse(grepl("(m|M)echanistic", method_type),
-                                  "Semi/fully mechanistic", method_type))
+  filter(!grepl("Other", method_type) & !is.na(method_type))
+
+plot_method_rt <- by_method_rt |> 
+  group_by(method_type, rt_cat) |>
+  summarise(
+    n = n(),
+    value = quantile(rel_wis, quantiles),
+    quantile = paste0("q", quantiles),
+    .groups = "drop") |> 
+  pivot_wider(names_from = quantile) |>
+  ggplot(aes(y = method_type, col = rt_cat, fill = rt_cat)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Weekly Rt estimate",
+       fill = "Weekly Rt estimate") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "bottom")
+
+plot_method_rt
 ```
