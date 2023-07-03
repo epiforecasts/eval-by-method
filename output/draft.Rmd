@@ -122,6 +122,7 @@ targets_by_model <- scores_raw |>
   mutate(target_type = factor(target_type,
                               levels = c(TRUE, FALSE),
                               labels = c("Single-country", "Multi-country")))
+write_csv(targets_by_model, here("data", "targets-by-model.csv"))
 
 # Scores by method and target 
 scores_pairwise |> 
@@ -241,83 +242,3 @@ plot_scores_method +
 ```
 
 Range of scores by type of model and forecast horizon, showing 50% and 99% quantile interval.
-
----
-
-## Rt
-
-```{r scores-by-rt}
-rt <- read_csv(here("data", "rt-epiforecasts-covid.csv")) |>
-  rename(target_end_date = date, location_name = country) |> 
-  mutate(epiyearweek = paste0(lubridate::epiyear(target_end_date), "-",
-                              lubridate::epiweek(target_end_date))) |> 
-  filter(between(target_end_date, 
-                 min(scores_raw$target_end_date), 
-                 min(scores_raw$target_end_date)+365))
-
-# categorise Rt
-rt <- rt |>
-  group_by(location_name, epiyearweek) |> 
-  summarise(across(lower_20:upper_90, median),
-            target_end_date = max(target_end_date)) |> 
-  mutate(rt_cat = case_when(lower_20 < 1 & upper_20 > 1 ~ "Cross",
-                            lower_20 >= 1 & upper_20 > 1 ~ "Over",
-                            lower_20 <= 1 & lower_20 <= 1 ~ "Under")) |> 
-  select(location_name, target_end_date, rt_cat) |> 
-  left_join(read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-locations/locations_eu.csv") |>
-              select(location_name, location))
-
-# Get scores ----------------------------------------
-scores_raw_rt <- scores_raw |>
-  left_join(rt, by = c("target_end_date", "location")) |> 
-  filter(scale == "log" &
-           !is.na(rt_cat))
-
-# Score all forecasts relative to each other (pairwise)
-score_by <- c("rt_cat", "model")
-
-scores_pairwise_rt <- scores_raw_rt |>
-  select(model, horizon, location, forecast_date,
-         interval_score, rt_cat) |>
-  pairwise_comparison(
-    metric = "interval_score",
-    baseline = "EuroCOVIDhub-ensemble",
-    by = score_by)
-
-scores_pairwise_rt <- scores_pairwise_rt |>
-  filter(compare_against == "EuroCOVIDhub-ensemble") |>
-  select(model, all_of(score_by),
-         rel_wis = scaled_rel_skill) |>
-  mutate(rt_cat = factor(rt_cat, levels = c("Under", "Cross", "Over")))
-
-# visualise by method
-metadata <- read_csv(here("data", "model-classification.csv")) |>
-  select(model, method_type = classification)
-
-by_method_rt <- scores_pairwise_rt |>
-  left_join(metadata) |>
-  filter(!grepl("Other", method_type) & !is.na(method_type))
-
-plot_method_rt <- by_method_rt |> 
-  group_by(method_type, rt_cat) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop") |> 
-  pivot_wider(names_from = quantile) |>
-  ggplot(aes(y = method_type, col = rt_cat, fill = rt_cat)) +
-  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                 alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                 alpha = 0.2, position = position_dodge(width = 1)) +
-  geom_vline(xintercept = 1, lty = 2) +
-    labs(y = NULL, x = NULL,
-       col = "Weekly Rt estimate",
-       fill = "Weekly Rt estimate") +
-  scale_color_viridis_d(direction = 1) +
-  theme(legend.position = "bottom")
-
-plot_method_rt
-```
