@@ -4,7 +4,9 @@
 scores_raw <- read_csv(here("data", "scores-raw.csv"))
 
 # Get variant introduction dates: 5-50%
-source("https://gist.githubusercontent.com/kathsherratt/a534bff397f0824403a2e81ba83ddbb9/raw/7dd2f9f96f0edd8e55af2ff9a35b7900f4be8055/download_variant_introduction.R")
+# source data:
+# variants <- read_csv("https://opendata.ecdc.europa.eu/covid19/virusvariant/csv/data.csv", progress = FALSE, show_col_types = FALSE)
+source(here("attic", "get-variants.R"))
 variant_names <- c("B.1.617.2" = "Delta",
                    "B.1.1.529" = "Omicron",
                    "BA.1" = "Omicron-BA1")

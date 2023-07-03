@@ -1,6 +1,9 @@
 ---
 title: "Draft"
 output: html_document
+params:
+    scale: log
+    save_dir: output
 ---
 ```{r set-up, include=FALSE}
 library(here)
@@ -15,10 +18,12 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
 ```
 
-Notes
-
-- Could group horizons into short (1-2 week) and mid (3-4) before scoring
-- Epidemic phase differences?
+```{r supplement, eval =FALSE, include = FALSE}
+rmarkdown::render(here("output", "draft.Rmd"), 
+                  params = list(scale = "natural",
+                                save_dir = "supplement"), 
+                  output_dir = params$save_dir)
+```
 
 ## Data preparation
 ```{r, eval=FALSE}
@@ -89,12 +94,13 @@ plot_all_scores_time <- scores_time |>
   theme(legend.position = "bottom")
 
 # Combine plots
-plot_all_scores +
+plot_all <- plot_all_scores +
   plot_all_scores_time +
   patchwork::plot_annotation(tag_levels = "A") +
   patchwork::plot_layout(nrow = 1, widths = c(0.5, 1), guides = "collect") &
   theme(legend.position = "bottom")
 
+ggsave(plot = plot_all, filename = here("output", "plot-all-time.jpg"), height = 6, width = 10)
 ```
 
 Relative weighted interval scores (WIS) scored on a log or natural scale across 39 models. Relative WIS are the geometric mean of the interval score standardised relative to the ensemble (dashed line, 1), across any of 32 locations and up to 4 week forecast horizons. (A) Overall scores of each model across all forecast targets (predicting any of 32 locations, up to 4 weeks ahead, for 104 weeks). (B) Interquartile range across 38 models' scores by projection target date. Showing median (line) and 50% quantile interval (ribbon) across models.
@@ -151,7 +157,7 @@ scores_method <- scores_pairwise_horizon |>
   left_join(metadata, by = "model") |> 
   # exclude ensembles & ABMs
   filter(!grepl("Other", method_type) &
-           scale == "log")
+           scale == params$scale)
 
 plot_scores_method <- scores_method |> 
   group_by(method_type, horizon) |>
@@ -207,7 +213,7 @@ scores_targets <- scores_pairwise_horizon |>
   left_join(targets_by_model, by = "model") 
 
 plot_scores_targets <- scores_targets |> 
-  filter(scale == "log") |>
+  filter(scale == params$scale) |>
   group_by(target_type, horizon) |>
   summarise(
     n = n(),
@@ -234,11 +240,17 @@ plot_scores_targets <- plot_scores_targets |>
 Performance by horizon and model target type, where single-country indicates a model only forecast for at most 2 countries at any time.
 
 ```{r scores-by-both, fig.height=4, fig.width=8}
-plot_scores_method +
+plot_method_target <- plot_scores_method +
   plot_scores_targets +
   patchwork::plot_annotation(tag_levels = "A") +
   patchwork::plot_layout(nrow = 1, guides = "collect") &
   theme(legend.position = "bottom")
+
+ggsave(plot = plot_method_target, 
+       filename = here(params$save_dir, "plot-method-target.jpg"),
+       height = 4, width = 8)
+
+plot_method_target
 ```
 
 Range of scores by type of model and forecast horizon, showing 50% and 99% quantile interval.
