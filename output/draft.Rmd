@@ -5,6 +5,7 @@ params:
     scale: log
     save_dir: output
 ---
+
 ```{r set-up, include=FALSE}
 library(here)
 library(dplyr)
@@ -18,23 +19,19 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
 ```
 
-```{r supplement, eval =FALSE, include = FALSE}
-rmarkdown::render(here("output", "draft.Rmd"), 
-                  params = list(scale = "natural",
-                                save_dir = "supplement"), 
-                  output_dir = params$save_dir)
-```
-
 ## Data preparation
 ```{r, eval=FALSE}
 ## NOT RUN
+## Data creation pipeline
+## Get metadata from googlesheet; save to data/
+# source(here("R", "get-metadata.R"))
+# get_metadata_processed()
 ## Get observed data and all Hub forecasts; exclude forecasts
 # source(here("R", "import-data.R"))
-## Score forecasts on the log and natural scales
+## Create ensembles per method category; add to forecasts; save to data/
+# source(here("R", "create-ensembles.R"))
+## Score forecasts & ensembles on the log and natural scales; save to data/
 # source(here("R", "score.R"))
-## Get metadata from googlesheet
-# source(here("R", "get-metadata.R"))
-# get_metadata_processed() # write csv
 ```
 
 Forecast inclusion criteria:
@@ -56,25 +53,30 @@ scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))|>
 ```
 
 
-## Data description
+## Distribution of scores
 
 ```{r all-scores, fig.height = 6, fig.width = 10}
-scale_cols <- c("natural" = "#7fcdbb", "log" = "#2c7fb8")
+scale_cols <- c("natural" = "#d95f02", "log" = "#1b9e77")
 # All scores ----------------------
 plot_all_scores <- scores_pairwise |> 
   arrange(rel_wis) |> 
   mutate(model = forcats::fct_inorder(model)) |> 
-  ggplot(aes(x = model, y = rel_wis, col = scale)) +
-  geom_point(position = position_dodge(width = 0.05)) +
+  pivot_wider(names_from = scale, values_from = rel_wis) |> 
+  ggplot(aes(x = model)) +
+  geom_point(aes(y = natural), 
+             colour = scale_cols[["natural"]]) +
+  geom_point(aes(y = log), 
+             colour = scale_cols[["log"]]) +
+  geom_linerange(aes(ymin = log, ymax = natural), 
+                 colour = "grey70") +
   geom_hline(aes(yintercept = 1), lty = 2) +
   coord_flip() +
-  scale_colour_manual(values = scale_cols, aesthetics = c("fill", "colour")) +
-  labs(y = "Relative WIS", x = NULL, col = "Scale") +
-  theme(legend.position = "bottom")
+  labs(y = "Relative WIS", x = NULL) +
+  theme(legend.position = "none")
 
 # Plot over time ----------------------------------
 scores_time <- scores_pairwise_date |>
-  group_by(target_end_date, scale, target_variable) |>
+  group_by(target_end_date, scale) |>
   summarise(
     n = n(),
     value = quantile(rel_wis, quantiles),
@@ -87,23 +89,30 @@ plot_all_scores_time <- scores_time |>
   ggplot(aes(x = target_end_date, col = scale, fill = scale)) +
   geom_line(aes(y = q0.5), alpha = 0.5) +
   geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-              alpha = 0.5, col = NA) +
+              alpha = 0.3, col = NA) +
+    geom_ribbon(aes(ymin = q0.01, ymax = q0.99),
+              alpha = 0.1, col = NA) +
   geom_hline(aes(yintercept = 1), lty = 2) +
-  scale_colour_manual(values = scale_cols, aesthetics = c("fill", "colour")) +
-  labs(x = "Forecast target date", y = "Relative WIS", col = "Scale", fill = "Scale") +
+  scale_y_log10() +
+  scale_x_date(date_labels = "%b %Y") +
+  scale_colour_manual(values = scale_cols, 
+                      aesthetics = c("fill", "colour")) +
+  labs(x = "Forecast target date", 
+       y = "Relative WIS (log10)", 
+       col = "Scale", fill = "Scale") +
   theme(legend.position = "bottom")
 
 # Combine plots
 plot_all <- plot_all_scores +
   plot_all_scores_time +
   patchwork::plot_annotation(tag_levels = "A") +
-  patchwork::plot_layout(nrow = 1, widths = c(0.5, 1), guides = "collect") &
-  theme(legend.position = "bottom")
+  patchwork::plot_layout(nrow = 1, widths = c(0.5, 1))
 
 ggsave(plot = plot_all, filename = here("output", "plot-all-time.jpg"), height = 6, width = 10)
+plot_all
 ```
 
-Relative weighted interval scores (WIS) scored on a log or natural scale across 39 models. Relative WIS are the geometric mean of the interval score standardised relative to the ensemble (dashed line, 1), across any of 32 locations and up to 4 week forecast horizons. (A) Overall scores of each model across all forecast targets (predicting any of 32 locations, up to 4 weeks ahead, for 104 weeks). (B) Interquartile range across 38 models' scores by projection target date. Showing median (line) and 50% quantile interval (ribbon) across models.
+Relative weighted interval scores (WIS) scored on a log or natural scale across 39 models. Relative WIS are the geometric mean of the interval score standardised relative to the ensemble (dashed line, 1), across any of 32 locations and up to 4 week forecast horizons. (A) Overall scores of each model across all forecast targets (predicting any of 32 locations, up to 4 weeks ahead, for 104 weeks). (B) Interquartile range across 39 models' scores by projection target date. Showing median (line) and 50% quantile interval (ribbon) across models.
 
 ---
 
@@ -129,44 +138,45 @@ targets_by_model <- scores_raw |>
                               levels = c(TRUE, FALSE),
                               labels = c("Single-country", "Multi-country")))
 write_csv(targets_by_model, here("data", "targets-by-model.csv"))
-
-# Scores by method and target 
-scores_pairwise |> 
-  filter(scale == "log") |> 
-  left_join(metadata) |> 
-  left_join(targets_by_model) |> 
-  group_by(#method_type, 
-           target_type
-           ) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop")
+head(targets_by_model)
 ```
 
 ---
 
 ## Model structure
 
-Forecasting models over time by model method, including empirical (13), semi-mechanistic (9), mechanistic (12), and other (5). "Other" includes 3 human judgement ensembles and 2 ABM models.
+Forecasting models over time by model method, including statistical (13), semi-mechanistic (9), mechanistic (12), and other (5). "Other" includes 3 human judgement ensembles and 2 ABM models.
 
 ```{r method-scores, fig.height=4, fig.width=4}
 # Plot relative WIS, by groupings of model method type
+method_factor <- c("Qualitative", "ABM", 
+                   "Mechanistic", "Semi-mechanistic",
+                   "Statistical")
+names(method_factor) <- method_factor
+
 scores_method <- scores_pairwise_horizon |>
   left_join(metadata, by = "model") |> 
-  # exclude ensembles & ABMs
-  filter(!grepl("Other", method_type) &
-           scale == params$scale)
+  filter(scale == params$scale) |> 
+  mutate(method_type = factor(method_type, 
+                              method_factor, names(method_factor),
+                              ordered = TRUE)) 
 
-plot_scores_method <- scores_method |> 
+scores_method_all <- scores_method |> 
+  filter(!grepl("ABM|Qualitative", method_type)) |> 
   group_by(method_type, horizon) |>
   summarise(
     n = n(),
     value = quantile(rel_wis, quantiles),
     quantile = paste0("q", quantiles),
     .groups = "drop")
-plot_scores_method <- plot_scores_method |> 
+
+scores_method_other <- scores_method |> 
+  filter(grepl("ABM|Qualitative", method_type)) |> 
+  select(model, method_type, horizon, value = rel_wis) |> 
+  mutate(quantile = "q0.5", n = 1)
+
+plot_scores_method <- scores_method_all |> 
+  bind_rows(scores_method_other) |> 
   pivot_wider(names_from = quantile) |>
   mutate(horizon = as.factor(horizon)) |> 
   ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
@@ -254,3 +264,10 @@ plot_method_target
 ```
 
 Range of scores by type of model and forecast horizon, showing 50% and 99% quantile interval.
+
+```{r supplement, eval=FALSE, include = FALSE}
+rmarkdown::render(here("output", "draft.Rmd"), 
+                  params = list(scale = "natural",
+                                save_dir = "supplement"), 
+                  output_dir = params$save_dir)
+```
