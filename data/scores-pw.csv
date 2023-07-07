@@ -1,81 +1,93 @@
-model,target_variable,scale,rel_wis
-EuroCOVIDhub-baseline,inc death,log,1.8777772811713789
-EuroCOVIDhub-ensemble,inc death,log,1
-FIAS_FZJ-Epi1Ger,inc death,log,1.834589563042437
-HZI-AgeExtendedSEIR,inc death,log,1.0662805898287175
-ICM-agentModel,inc death,log,1.918341477092645
-IEM_Health-CovidProject,inc death,log,1.6047414988208124
-ILM-EKF,inc death,log,1.2634323953456208
-ITWW-county_repro,inc death,log,1.4253624440554464
-Imperial-DeCa,inc death,log,1.8895180563702296
-Imperial-RtI0,inc death,log,2.333237946917286
-Imperial-sbkp,inc death,log,1.9200659742532296
-JBUD-HMXK,inc death,log,3.134454085260571
-Karlen-pypm,inc death,log,1.3492401140605186
-LANL-GrowthRate,inc death,log,1.4387127842665128
-LeipzigIMISE-SECIR,inc death,log,1.8594217730579998
-MIMUW-StochSEIR,inc death,log,0.9412976826980622
-MIT_CovidAnalytics-DELPHI,inc death,log,1.6207427276459174
-MOCOS-agent1,inc death,log,0.8849494045664967
-MUNI-ARIMA,inc death,log,1.659672248679239
-MUNI-LaggedRegARIMA,inc death,log,1.3288319578460643
-MUNI-VAR,inc death,log,1.513614634785159
-MUNI_DMS-SEIAR,inc death,log,2.0728544155353608
-RobertWalraven-ESG,inc death,log,1.6377752565010355
-SDSC_ISG-TrendModel,inc death,log,1.775591472513594
-UB-BSLCoV,inc death,log,1.346357917383314
-ULZF-SEIRC19SI,inc death,log,1.1510240810809054
-UMass-MechBayes,inc death,log,1.2123054062511986
-UMass-SemiMech,inc death,log,1.4274916910530304
-UNED-PreCoV2,inc death,log,1.579646506420137
-USC-SIkJalpha,inc death,log,1.290839264362764
-UpgUmibUsi-MultiBayes,inc death,log,1.2638988657541494
-bisop-seirfilter,inc death,log,1.3475645631041135
-bisop-seirfilterlite,inc death,log,2.152650968634176
-epiMOX-SUIHTER,inc death,log,0.758014615825996
-epiforecasts-EpiExpert,inc death,log,1.460238770766311
-epiforecasts-EpiExpert_Rt,inc death,log,1.8421172912190906
-epiforecasts-EpiExpert_direct,inc death,log,1.2302770822113693
-epiforecasts-EpiNow2,inc death,log,1.4373405985196324
-itwm-dSEIR,inc death,log,1.3736438312766643
-prolix-euclidean,inc death,log,3.1296593384892537
-EuroCOVIDhub-baseline,inc death,natural,1.7417741465133987
-EuroCOVIDhub-ensemble,inc death,natural,1
-FIAS_FZJ-Epi1Ger,inc death,natural,3.227759407591627
-HZI-AgeExtendedSEIR,inc death,natural,1.2264335445377397
-ICM-agentModel,inc death,natural,1.8696887140442768
-IEM_Health-CovidProject,inc death,natural,2.132080244086188
-ILM-EKF,inc death,natural,7.986067091441059
-ITWW-county_repro,inc death,natural,1.9809177411752223
-Imperial-DeCa,inc death,natural,2.099369250337232
-Imperial-RtI0,inc death,natural,2.3490279807164818
-Imperial-sbkp,inc death,natural,2.133510310508837
-JBUD-HMXK,inc death,natural,2.5475652507432027
-Karlen-pypm,inc death,natural,1.913610281994446
-LANL-GrowthRate,inc death,natural,1.3547361556022601
-LeipzigIMISE-SECIR,inc death,natural,2.9111913197644563
-MIMUW-StochSEIR,inc death,natural,1.3336891723756454
-MIT_CovidAnalytics-DELPHI,inc death,natural,1.5287828048381062
-MOCOS-agent1,inc death,natural,0.9818879287069702
-MUNI-ARIMA,inc death,natural,1.4069986745582548
-MUNI-LaggedRegARIMA,inc death,natural,1.6217063273451011
-MUNI-VAR,inc death,natural,1.7711955123224639
-MUNI_DMS-SEIAR,inc death,natural,1.7695674469010532
-RobertWalraven-ESG,inc death,natural,1.4942149273665193
-SDSC_ISG-TrendModel,inc death,natural,1.5240921595692998
-UB-BSLCoV,inc death,natural,2.7594883526176006
-ULZF-SEIRC19SI,inc death,natural,1.2994575836768312
-UMass-MechBayes,inc death,natural,1.5407277280800644
-UMass-SemiMech,inc death,natural,1.655865137647409
-UNED-PreCoV2,inc death,natural,1.7714865515763996
-USC-SIkJalpha,inc death,natural,1.4443484770162016
-UpgUmibUsi-MultiBayes,inc death,natural,1.503344756531312
-bisop-seirfilter,inc death,natural,1.697601293090427
-bisop-seirfilterlite,inc death,natural,2.1950722975479273
-epiMOX-SUIHTER,inc death,natural,0.7697950188772735
-epiforecasts-EpiExpert,inc death,natural,1.9294687573762817
-epiforecasts-EpiExpert_Rt,inc death,natural,2.106415051498859
-epiforecasts-EpiExpert_direct,inc death,natural,1.6435108116596489
-epiforecasts-EpiNow2,inc death,natural,2.0385945074824305
-itwm-dSEIR,inc death,natural,1.70806718118194
-prolix-euclidean,inc death,natural,1.607360613416567
+model,scale,rel_wis
+EuroCOVIDhub-baseline,log,1.883709037345935
+EuroCOVIDhub-ensemble,log,1
+EuroCOVIDhub-ensemble_mean_Mechanistic,log,0.9820871353730787
+EuroCOVIDhub-ensemble_mean_Semi-mechanistic,log,1.1066497002710385
+EuroCOVIDhub-ensemble_mean_Statistical,log,1.3336113500628004
+EuroCOVIDhub-ensemble_median_Mechanistic,log,0.9266361489459615
+EuroCOVIDhub-ensemble_median_Semi-mechanistic,log,1.0596494519504447
+EuroCOVIDhub-ensemble_median_Statistical,log,1.4091240733002712
+FIAS_FZJ-Epi1Ger,log,1.8687270469140194
+HZI-AgeExtendedSEIR,log,1.110555081600528
+ICM-agentModel,log,1.9223348364318014
+IEM_Health-CovidProject,log,1.597845338425777
+ILM-EKF,log,1.266525954587062
+ITWW-county_repro,log,1.4305089464113048
+Imperial-DeCa,log,1.8808172928465725
+Imperial-RtI0,log,2.351838309210447
+Imperial-sbkp,log,1.9332804487975837
+JBUD-HMXK,log,3.1658876381948047
+Karlen-pypm,log,1.335505901781529
+LANL-GrowthRate,log,1.457894953507568
+LeipzigIMISE-SECIR,log,1.860544823087954
+MIMUW-StochSEIR,log,0.955798800001736
+MIT_CovidAnalytics-DELPHI,log,1.639093087569348
+MOCOS-agent1,log,0.8846373242383702
+MUNI-ARIMA,log,1.6625725480432438
+MUNI-LaggedRegARIMA,log,1.313004559198507
+MUNI-VAR,log,1.5255101498202277
+MUNI_DMS-SEIAR,log,2.0551854721334832
+RobertWalraven-ESG,log,1.6462350344303514
+SDSC_ISG-TrendModel,log,1.8258307431785785
+UB-BSLCoV,log,1.4354555335686543
+ULZF-SEIRC19SI,log,1.1790903237425874
+UMass-MechBayes,log,1.1988273883153457
+UMass-SemiMech,log,1.4093448883536603
+UNED-PreCoV2,log,1.6075172019569415
+USC-SIkJalpha,log,1.2858810397413707
+UpgUmibUsi-MultiBayes,log,1.2788037109939645
+bisop-seirfilter,log,1.3455286220366536
+bisop-seirfilterlite,log,2.1273949045591167
+epiMOX-SUIHTER,log,0.7611302529541605
+epiforecasts-EpiExpert,log,1.4531073648852257
+epiforecasts-EpiExpert_Rt,log,1.8359613556010146
+epiforecasts-EpiExpert_direct,log,1.268166359591397
+epiforecasts-EpiNow2,log,1.4311420626620937
+itwm-dSEIR,log,1.4055775729411923
+prolix-euclidean,log,3.2762067741303715
+EuroCOVIDhub-baseline,natural,1.730191767799313
+EuroCOVIDhub-ensemble,natural,1
+EuroCOVIDhub-ensemble_mean_Mechanistic,natural,1.3473824828014445
+EuroCOVIDhub-ensemble_mean_Semi-mechanistic,natural,5.586142120727981
+EuroCOVIDhub-ensemble_mean_Statistical,natural,1.2479850535041508
+EuroCOVIDhub-ensemble_median_Mechanistic,natural,1.2906279285604632
+EuroCOVIDhub-ensemble_median_Semi-mechanistic,natural,1.295150488275918
+EuroCOVIDhub-ensemble_median_Statistical,natural,1.2852575952565095
+FIAS_FZJ-Epi1Ger,natural,3.5916954227455924
+HZI-AgeExtendedSEIR,natural,1.3485457456616596
+ICM-agentModel,natural,1.9899324041867579
+IEM_Health-CovidProject,natural,2.139467637016753
+ILM-EKF,natural,10.54312119994457
+ITWW-county_repro,natural,2.160826326448541
+Imperial-DeCa,natural,2.273644963060478
+Imperial-RtI0,natural,2.5384109466129874
+Imperial-sbkp,natural,2.335927780685506
+JBUD-HMXK,natural,2.4028798254054196
+Karlen-pypm,natural,2.0581566301860095
+LANL-GrowthRate,natural,1.4548243052578775
+LeipzigIMISE-SECIR,natural,3.2015960658127445
+MIMUW-StochSEIR,natural,1.4316565788484543
+MIT_CovidAnalytics-DELPHI,natural,1.6424359100626922
+MOCOS-agent1,natural,1.0766376988653474
+MUNI-ARIMA,natural,1.385340644645093
+MUNI-LaggedRegARIMA,natural,1.7347794352916897
+MUNI-VAR,natural,1.9189695923486745
+MUNI_DMS-SEIAR,natural,1.8470093967646772
+RobertWalraven-ESG,natural,1.4941529524855128
+SDSC_ISG-TrendModel,natural,1.4573789459881965
+UB-BSLCoV,natural,3.161359869872862
+ULZF-SEIRC19SI,natural,1.4410409208371442
+UMass-MechBayes,natural,1.6111865199032678
+UMass-SemiMech,natural,1.7912351929679942
+UNED-PreCoV2,natural,1.8945118701034345
+USC-SIkJalpha,natural,1.4566206424486172
+UpgUmibUsi-MultiBayes,natural,1.6373956199175923
+bisop-seirfilter,natural,1.8357415445300294
+bisop-seirfilterlite,natural,2.3732849347681597
+epiMOX-SUIHTER,natural,0.8336531074708772
+epiforecasts-EpiExpert,natural,2.030053039014845
+epiforecasts-EpiExpert_Rt,natural,2.2227842994373694
+epiforecasts-EpiExpert_direct,natural,1.8300713992087223
+epiforecasts-EpiNow2,natural,2.0785805278160465
+itwm-dSEIR,natural,1.8798809186457626
+prolix-euclidean,natural,1.7274947930065623
