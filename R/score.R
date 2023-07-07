@@ -9,11 +9,9 @@ source(here("R", "create-ensembles.R"))
 # forecasts <- import_forecasts()
 # arrow::write_parquet(forecasts, here("data", "forecasts.parquet"))
 forecasts <- arrow::read_parquet(here("data", "forecasts.parquet"))
-
 # create mean/median ensembles by method type
 ensembles <- create_ensembles(forecasts)
 forecasts <- bind_rows(forecasts, ensembles)
-
 # add observed data
 forecasts <- join_obs(forecasts, remove_anomalies = TRUE)
 

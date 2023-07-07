@@ -1,10 +1,17 @@
 ---
-title: "Draft"
+title: "Results"
 output: html_document
 params:
     scale: log
     save_dir: output
 ---
+```{r supplement, eval=FALSE, include=FALSE}
+rmarkdown::render(here("output", "draft.Rmd"), 
+                  params = list(scale = "natural",
+                                save_dir = "supplement"), 
+                  output_dir = params$save_dir)
+```
+
 
 ```{r set-up, include=FALSE}
 library(here)
@@ -51,7 +58,6 @@ scores_pairwise_date <- read_csv(here("data", "scores-pw-target-date.csv")) |>
 scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))|> 
   filter(!grepl("EuroCOVIDhub-ensemble", model))
 ```
-
 
 ## Distribution of scores
 
@@ -116,86 +122,21 @@ Relative weighted interval scores (WIS) scored on a log or natural scale across 
 
 ---
 
-## Categorisation
+## Categorisation of models
+
 ```{r describe-categories}
 # Get method types
 metadata <- read_csv(here("data", "model-classification.csv")) |>
   select(model, method_type = classification)
-
 # Identify number of targets for each model by week -----------------
-targets_by_model <- scores_raw |>
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
-  select(model, forecast_date, location) |>
-  distinct() |>
-  ungroup() |>
-  group_by(model, forecast_date) |>
-  summarise(target_count = n()) |>
-  mutate(target_type = ifelse(target_count <= 2, "Single-country", "Multi-country")) |>
-  ungroup() |>
-  group_by(model) |>
-  summarise(target_type = all(target_count <= 2)) |>
-  mutate(target_type = factor(target_type,
-                              levels = c(TRUE, FALSE),
-                              labels = c("Single-country", "Multi-country")))
-write_csv(targets_by_model, here("data", "targets-by-model.csv"))
-head(targets_by_model)
+targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
 ```
 
----
-
-## Model structure
+### Model structure
 
 Forecasting models over time by model method, including statistical (13), semi-mechanistic (9), mechanistic (12), and other (5). "Other" includes 3 human judgement ensembles and 2 ABM models.
 
-```{r method-scores, fig.height=4, fig.width=4}
-# Plot relative WIS, by groupings of model method type
-method_factor <- c("Qualitative", "ABM", 
-                   "Mechanistic", "Semi-mechanistic",
-                   "Statistical")
-names(method_factor) <- method_factor
-
-scores_method <- scores_pairwise_horizon |>
-  left_join(metadata, by = "model") |> 
-  filter(scale == params$scale) |> 
-  mutate(method_type = factor(method_type, 
-                              method_factor, names(method_factor),
-                              ordered = TRUE)) 
-
-scores_method_all <- scores_method |> 
-  filter(!grepl("ABM|Qualitative", method_type)) |> 
-  group_by(method_type, horizon) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop")
-
-scores_method_other <- scores_method |> 
-  filter(grepl("ABM|Qualitative", method_type)) |> 
-  select(model, method_type, horizon, value = rel_wis) |> 
-  mutate(quantile = "q0.5", n = 1)
-
-plot_scores_method <- scores_method_all |> 
-  bind_rows(scores_method_other) |> 
-  pivot_wider(names_from = quantile) |>
-  mutate(horizon = as.factor(horizon)) |> 
-  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
-  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                 alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                 alpha = 0.2, position = position_dodge(width = 1)) +
-  geom_vline(xintercept = 1, lty = 2) +
-    labs(y = NULL, x = NULL,
-       col = "Week ahead forecast horizon",
-       fill = "Week ahead forecast horizon") +
-  scale_color_viridis_d(direction = 1) +
-  theme(legend.position = "bottom")
-```
-
----
-
-## Target specificity
+### Target specificity
 
 Single country models includes models that forecast for at most 2 countries at any time. Multi-country models includes more than 2 countries, in practice, this was a minimum of 14 and up to 32 countries.
 
@@ -218,10 +159,64 @@ target_multi <- scores_targets |>
 cat(paste(nrow(target_multi), "multi-country models."))
 ```
 
-```{r scores-by-target, fig.height=4, fig.width=4}
-scores_targets <- scores_pairwise_horizon |>
-  left_join(targets_by_model, by = "model") 
+## Scores by categorisation
 
+```{r plot-scores-by-method, fig.height=4, fig.width=4}
+# Set up method types
+method_factor <- c("Qualitative", "ABM", 
+                   "Mechanistic", "Semi-mechanistic",
+                   "Statistical")
+names(method_factor) <- method_factor
+
+# Get scores by method type and horizon
+scores_method <- scores_pairwise_horizon |>
+  left_join(metadata, by = "model") |> 
+  filter(scale == params$scale) |> 
+  mutate(method_type = factor(method_type, 
+                              method_factor, names(method_factor),
+                              ordered = TRUE)) 
+
+# Summarise by quantiles across Stat/Semi-/Mech models, point-score for others
+scores_method_all <- scores_method |> 
+  filter(!grepl("ABM|Qualitative", method_type) &
+           !grepl("EuroCOVIDhub-ensemble", model) |> 
+  group_by(method_type, horizon) |>
+  summarise(
+    n = n(),
+    value = quantile(rel_wis, quantiles),
+    quantile = paste0("q", quantiles),
+    .groups = "drop")
+scores_method_other <- scores_method |> 
+  filter(grepl("ABM|Qualitative", method_type)) |> 
+  select(model, method_type, horizon, value = rel_wis) |> 
+  mutate(quantile = "q0.5", n = 1)
+
+# Plot
+plot_scores_method <- scores_method_all |> 
+  bind_rows(scores_method_other) |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "bottom")
+```
+
+```{r plot-scores-by-target, fig.height=4, fig.width=4}
+# Get scores by target type and horizon
+scores_targets <- scores_pairwise_horizon |>
+  left_join(targets_by_model, by = "model") |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model))
+
+# Summarise quantiles
 plot_scores_targets <- scores_targets |> 
   filter(scale == params$scale) |>
   group_by(target_type, horizon) |>
@@ -230,6 +225,8 @@ plot_scores_targets <- scores_targets |>
     value = quantile(rel_wis, quantiles),
     quantile = paste0("q", quantiles),
     .groups = "drop")
+
+# Plot
 plot_scores_targets <- plot_scores_targets |> 
   pivot_wider(names_from = quantile) |>
   mutate(horizon = as.factor(horizon)) |> 
@@ -247,9 +244,8 @@ plot_scores_targets <- plot_scores_targets |>
   theme(legend.position = "none")
 ```
 
-Performance by horizon and model target type, where single-country indicates a model only forecast for at most 2 countries at any time.
-
-```{r scores-by-both, fig.height=4, fig.width=8}
+```{r plot-scores-by-both, fig.height=4, fig.width=8}
+# Join plots for method and target type
 plot_method_target <- plot_scores_method +
   plot_scores_targets +
   patchwork::plot_annotation(tag_levels = "A") +
@@ -263,11 +259,44 @@ ggsave(plot = plot_method_target,
 plot_method_target
 ```
 
-Range of scores by type of model and forecast horizon, showing 50% and 99% quantile interval.
+Performance by horizon and model target type, where single-country indicates a model only forecast for at most 2 countries at any time.
 
-```{r supplement, eval=FALSE, include = FALSE}
-rmarkdown::render(here("output", "draft.Rmd"), 
-                  params = list(scale = "natural",
-                                save_dir = "supplement"), 
-                  output_dir = params$save_dir)
+#### Summary scores
+
+```{r table-scores-by-method}
+# Numbers used in text
+summary_quantiles <- c(0.5, 0.01, 0.99)
+scores_pairwise |> 
+  filter(scale == "log") |> 
+  left_join(metadata) |> 
+  filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
+  group_by(method_type) |>
+  summarise(
+    n = n(),
+    value = round(quantile(rel_wis, summary_quantiles), 2),
+    quantile = paste0("q", summary_quantiles),
+    .groups = "drop") |> 
+  pivot_wider(names_from = quantile) |> 
+  knitr::kable()
+```
+
+```{r table-scores-by-target}
+scores_pairwise |> 
+  filter(scale == "log") |> 
+  left_join(targets_by_model) |> 
+  filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
+  group_by(method_type) |>
+  summarise(
+    n = n(),
+    value = round(quantile(rel_wis, summary_quantiles), 2),
+    quantile = paste0("q", summary_quantiles),
+    .groups = "drop") |> 
+  pivot_wider(names_from = quantile) |> 
+  knitr::kable()
+```
+
+# Ensemble variations
+
+```{r ensembles}
+
 ```
