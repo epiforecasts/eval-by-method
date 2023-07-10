@@ -1,17 +1,7 @@
 ---
 title: "Results"
 output: html_document
-params:
-    scale: log
-    save_dir: output
 ---
-```{r supplement, eval=FALSE, include=FALSE}
-rmarkdown::render(here("output", "draft.Rmd"), 
-                  params = list(scale = "natural",
-                                save_dir = "supplement"), 
-                  output_dir = params$save_dir)
-```
-
 
 ```{r set-up, include=FALSE}
 library(here)
@@ -51,12 +41,9 @@ Forecast inclusion criteria:
 ```{r load-scores}
 # Load score data
 scores_raw <- read_csv(here("data", "scores-raw.csv"))
-scores_pairwise <- read_csv(here("data", "scores-pw.csv"))|> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model))
-scores_pairwise_date <- read_csv(here("data", "scores-pw-target-date.csv")) |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model))
-scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))|> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model))
+scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
+scores_pairwise_date <- read_csv(here("data", "scores-pw-target-date.csv")) 
+scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))
 ```
 
 ## Distribution of scores
@@ -65,6 +52,7 @@ scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))|>
 scale_cols <- c("natural" = "#d95f02", "log" = "#1b9e77")
 # All scores ----------------------
 plot_all_scores <- scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   arrange(rel_wis) |> 
   mutate(model = forcats::fct_inorder(model)) |> 
   pivot_wider(names_from = scale, values_from = rel_wis) |> 
@@ -81,7 +69,8 @@ plot_all_scores <- scores_pairwise |>
   theme(legend.position = "none")
 
 # Plot over time ----------------------------------
-scores_time <- scores_pairwise_date |>
+scores_time <- scores_pairwise_date |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   group_by(target_end_date, scale) |>
   summarise(
     n = n(),
@@ -114,7 +103,7 @@ plot_all <- plot_all_scores +
   patchwork::plot_annotation(tag_levels = "A") +
   patchwork::plot_layout(nrow = 1, widths = c(0.5, 1))
 
-ggsave(plot = plot_all, filename = here("output", "plot-all-time.jpg"), height = 6, width = 10)
+ggsave(plot = plot_all, filename = here("output", "figure-1.jpg"), height = 6, width = 10)
 plot_all
 ```
 
@@ -142,7 +131,8 @@ Single country models includes models that forecast for at most 2 countries at a
 
 ```{r eval-by-target}
 # Get countries with single target models
-scores_targets <- scores_raw |>
+scores_targets <- scores_raw |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
   left_join(targets_by_model, by = c("model"))
 target_single <- scores_targets |>
   filter(target_type == "Single-country") |>
@@ -169,18 +159,17 @@ method_factor <- c("Qualitative", "ABM",
 names(method_factor) <- method_factor
 
 # Get scores by method type and horizon
-scores_method <- scores_pairwise_horizon |>
+scores_method <- scores_pairwise_horizon |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
   left_join(metadata, by = "model") |> 
-  filter(scale == params$scale) |> 
   mutate(method_type = factor(method_type, 
                               method_factor, names(method_factor),
                               ordered = TRUE)) 
 
 # Summarise by quantiles across Stat/Semi-/Mech models, point-score for others
 scores_method_all <- scores_method |> 
-  filter(!grepl("ABM|Qualitative", method_type) &
-           !grepl("EuroCOVIDhub-ensemble", model) |> 
-  group_by(method_type, horizon) |>
+  filter(!grepl("ABM|Qualitative", method_type)) |> 
+  group_by(method_type, horizon, scale) |>
   summarise(
     n = n(),
     value = quantile(rel_wis, quantiles),
@@ -194,6 +183,7 @@ scores_method_other <- scores_method |>
 # Plot
 plot_scores_method <- scores_method_all |> 
   bind_rows(scores_method_other) |> 
+  filter(scale == "log") |> 
   pivot_wider(names_from = quantile) |>
   mutate(horizon = as.factor(horizon)) |> 
   ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
@@ -212,14 +202,13 @@ plot_scores_method <- scores_method_all |>
 
 ```{r plot-scores-by-target, fig.height=4, fig.width=4}
 # Get scores by target type and horizon
-scores_targets <- scores_pairwise_horizon |>
-  left_join(targets_by_model, by = "model") |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model))
+scores_targets <- scores_pairwise_horizon |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
+  left_join(targets_by_model, by = "model")
 
 # Summarise quantiles
-plot_scores_targets <- scores_targets |> 
-  filter(scale == params$scale) |>
-  group_by(target_type, horizon) |>
+scores_targets <- scores_targets |> 
+  group_by(target_type, horizon, scale) |>
   summarise(
     n = n(),
     value = quantile(rel_wis, quantiles),
@@ -227,7 +216,8 @@ plot_scores_targets <- scores_targets |>
     .groups = "drop")
 
 # Plot
-plot_scores_targets <- plot_scores_targets |> 
+plot_scores_targets <- scores_targets |> 
+  filter(scale == "log") |> 
   pivot_wider(names_from = quantile) |>
   mutate(horizon = as.factor(horizon)) |> 
   ggplot(aes(y = target_type, col = horizon, fill = horizon)) +
@@ -253,7 +243,7 @@ plot_method_target <- plot_scores_method +
   theme(legend.position = "bottom")
 
 ggsave(plot = plot_method_target, 
-       filename = here(params$save_dir, "plot-method-target.jpg"),
+       filename = here("output", "figure-2.jpg"),
        height = 4, width = 8)
 
 plot_method_target
@@ -266,7 +256,9 @@ Performance by horizon and model target type, where single-country indicates a m
 ```{r table-scores-by-method}
 # Numbers used in text
 summary_quantiles <- c(0.5, 0.01, 0.99)
+# Summary by method
 scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   filter(scale == "log") |> 
   left_join(metadata) |> 
   filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
@@ -281,11 +273,12 @@ scores_pairwise |>
 ```
 
 ```{r table-scores-by-target}
+# Summary by target
 scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   filter(scale == "log") |> 
-  left_join(targets_by_model) |> 
-  filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
-  group_by(method_type) |>
+  left_join(targets_by_model) |>  
+  group_by(target_type) |>
   summarise(
     n = n(),
     value = round(quantile(rel_wis, summary_quantiles), 2),
@@ -295,8 +288,123 @@ scores_pairwise |>
   knitr::kable()
 ```
 
-# Ensemble variations
+# Supplement
 
-```{r ensembles}
+## Ensemble variations
 
+```{r ensembles, fig.height=6, fig.width=10}
+# Ensemble variation scores by scale
+ens_plot_all_scores <- scores_pairwise |> 
+  filter(grepl("EuroCOVIDhub-ensemble", model) &
+           model != "EuroCOVIDhub-ensemble") |> 
+  tidyr::separate(model, 
+                  into = c("ensemble", "average_type", "method_type"),
+                  sep = "_", remove = FALSE) |> 
+  filter(average_type == "median") |> 
+  arrange(rel_wis) |> 
+  mutate(method_type = forcats::fct_inorder(method_type)) |> 
+  pivot_wider(names_from = scale, values_from = rel_wis) |> 
+  ggplot(aes(x = method_type)) +
+  geom_point(aes(y = natural), 
+             colour = scale_cols[["natural"]]) +
+  geom_point(aes(y = log), 
+             colour = scale_cols[["log"]]) +
+  geom_linerange(aes(ymin = log, ymax = natural), 
+                 colour = "grey70") +
+  geom_hline(aes(yintercept = 1), lty = 2) +
+  coord_flip() +
+  labs(y = "Relative WIS", x = NULL) +
+  theme(legend.position = "bottom")
+
+# Plot scores of variations on median ensemble over time ---------------------
+ens_plot_all_scores_time <- scores_pairwise_date |> 
+  filter(grepl("EuroCOVIDhub-ensemble", model) &
+           model != "EuroCOVIDhub-ensemble") |> 
+  tidyr::separate(model, 
+                  into = c("ensemble", "average_type", "method_type"),
+                  sep = "_", remove = FALSE) |> 
+  filter(average_type == "median" & scale == "log") |>
+  ggplot(aes(x = target_end_date, 
+             col = method_type, fill = method_type)) +
+  geom_line(aes(y = rel_wis), alpha = 0.5) +
+  geom_hline(aes(yintercept = 1), lty = 2) +
+  scale_x_date(date_labels = "%b %Y") +
+  labs(x = "Forecast target date", 
+       y = "Relative WIS", 
+       col = "Component method type", fill = "Component method type") +
+  theme(legend.position = "bottom")
+
+# Combine plots
+ens_plot_all <- ens_plot_all_scores +
+  ens_plot_all_scores_time +
+  patchwork::plot_annotation(tag_levels = "A") +
+  patchwork::plot_layout(nrow = 1, widths = c(0.5, 1))
+
+ggsave(plot = ens_plot_all, 
+       filename = here("output", "supplement", "ensemble-all-time.jpg"), 
+       height = 6, width = 10)
+
+ens_plot_all
+```
+
+## Scores on the natural scale
+
+```{r natural-scale-plot-scores, fig.height=4, fig.width=8}
+# Plot by method
+nat_plot_scores_method <- scores_method_all |> 
+  bind_rows(scores_method_other) |> 
+  filter(scale == "natural") |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "bottom")
+  
+# Plot by target
+nat_plot_scores_targets <- scores_targets |> 
+  filter(scale == "natural") |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = target_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "none")
+
+# Join plots for method and target type
+nat_plot_method_target <- nat_plot_scores_method +
+  nat_plot_scores_targets +
+  patchwork::plot_annotation(tag_levels = "A") +
+  patchwork::plot_layout(nrow = 1, guides = "collect") &
+  theme(legend.position = "bottom")
+
+ggsave(plot = nat_plot_method_target, 
+       filename = here("output", "supplement", "plot-method-target.jpg"),
+       height = 4, width = 8)
+```
+
+### Team metadata
+
+```{r metadata-table}
+metadata |> 
+  left_join(targets_by_model) |> 
+  arrange(method_type, target_type, model) |> 
+  mutate(metadata = paste0("[Link](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", model, ".yml)")) |> 
+  knitr::kable()
 ```

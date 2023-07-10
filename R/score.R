@@ -9,6 +9,18 @@ source(here("R", "create-ensembles.R"))
 # forecasts <- import_forecasts()
 # arrow::write_parquet(forecasts, here("data", "forecasts.parquet"))
 forecasts <- arrow::read_parquet(here("data", "forecasts.parquet"))
+
+
+
+# number of models over time for the ensembles
+forecasts |>
+  filter(!grepl("EuroCOVIDhub-ensemble", model) &
+         quantile == 0.5) |>
+  left_join(metadata, by = "model") |>
+  group_by(location, horizon, method_type, target_end_date) |>
+  summarise(n = n())
+
+
 # create mean/median ensembles by method type
 ensembles <- create_ensembles(forecasts)
 forecasts <- bind_rows(forecasts, ensembles)
