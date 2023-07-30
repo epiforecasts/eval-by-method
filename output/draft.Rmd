@@ -42,8 +42,10 @@ Forecast inclusion criteria:
 # Load score data
 scores_raw <- read_csv(here("data", "scores-raw.csv"))
 scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
-scores_pairwise_date <- read_csv(here("data", "scores-pw-target-date.csv")) 
-scores_pairwise_horizon <- read_csv(here("data", "scores-pw-horizon.csv"))
+scores_pairwise_date <- read_csv(here("data",
+                                      "scores-pw-target-date.csv")) 
+scores_pairwise_horizon <- read_csv(here("data",
+                                         "scores-pw-horizon.csv"))
 ```
 
 ## Distribution of scores
@@ -113,23 +115,38 @@ Relative weighted interval scores (WIS) scored on a log or natural scale across 
 
 ## Categorisation of models
 
-```{r describe-categories}
+```{r get-categories}
 # Get method types
 metadata <- read_csv(here("data", "model-classification.csv")) |>
   select(model, method_type = classification)
-# Identify number of targets for each model by week -----------------
+# Identify number of targets for each model by week
 targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
 ```
 
-### Model structure
+### By method
 
-Forecasting models over time by model method, including statistical (13), semi-mechanistic (9), mechanistic (12), and other (5). "Other" includes 3 human judgement ensembles and 2 ABM models.
+```{r table-scores-by-method}
+# Numbers used in text
+summary_quantiles <- c(0.5, 0.01, 0.99)
+# Summary by method
+scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
+  filter(scale == "log") |> 
+  left_join(metadata) |> 
+  filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
+  group_by(method_type) |>
+  summarise(
+    n = n(),
+    value = round(quantile(rel_wis, summary_quantiles), 2),
+    quantile = paste0("q", summary_quantiles),
+    .groups = "drop") |> 
+  pivot_wider(names_from = quantile) |> 
+  knitr::kable()
+```
 
-### Target specificity
+### By target
 
-Single country models includes models that forecast for at most 2 countries at any time. Multi-country models includes more than 2 countries, in practice, this was a minimum of 14 and up to 32 countries.
-
-```{r eval-by-target}
+```{r n-by-target}
 # Get countries with single target models
 scores_targets <- scores_raw |> 
   filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
@@ -149,13 +166,26 @@ target_multi <- scores_targets |>
 cat(paste(nrow(target_multi), "multi-country models."))
 ```
 
-## Scores by categorisation
+```{r table-scores-by-target}
+# Summary by target
+scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
+  filter(scale == "log") |> 
+  left_join(targets_by_model) |>  
+  group_by(target_type) |>
+  summarise(
+    n = n(),
+    value = round(quantile(rel_wis, summary_quantiles), 2),
+    quantile = paste0("q", summary_quantiles),
+    .groups = "drop") |> 
+  pivot_wider(names_from = quantile) |> 
+  knitr::kable()
+```
 
 ```{r plot-scores-by-method, fig.height=4, fig.width=4}
 # Set up method types
 method_factor <- c("Qualitative", "ABM", 
-                   "Mechanistic", "Semi-mechanistic",
-                   "Statistical")
+                   "Mechanistic", "Semi-mechanistic", "Statistical")
 names(method_factor) <- method_factor
 
 # Get scores by method type and horizon
@@ -251,101 +281,8 @@ plot_method_target
 
 Performance by horizon and model target type, where single-country indicates a model only forecast for at most 2 countries at any time.
 
-#### Summary scores
-
-```{r table-scores-by-method}
-# Numbers used in text
-summary_quantiles <- c(0.5, 0.01, 0.99)
-# Summary by method
-scores_pairwise |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  filter(scale == "log") |> 
-  left_join(metadata) |> 
-  filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
-  group_by(method_type) |>
-  summarise(
-    n = n(),
-    value = round(quantile(rel_wis, summary_quantiles), 2),
-    quantile = paste0("q", summary_quantiles),
-    .groups = "drop") |> 
-  pivot_wider(names_from = quantile) |> 
-  knitr::kable()
-```
-
-```{r table-scores-by-target}
-# Summary by target
-scores_pairwise |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  filter(scale == "log") |> 
-  left_join(targets_by_model) |>  
-  group_by(target_type) |>
-  summarise(
-    n = n(),
-    value = round(quantile(rel_wis, summary_quantiles), 2),
-    quantile = paste0("q", summary_quantiles),
-    .groups = "drop") |> 
-  pivot_wider(names_from = quantile) |> 
-  knitr::kable()
-```
 
 # Supplement
-
-## Ensemble variations
-
-```{r ensembles, fig.height=6, fig.width=10}
-# Ensemble variation scores by scale
-ens_plot_all_scores <- scores_pairwise |> 
-  filter(grepl("EuroCOVIDhub-ensemble", model) &
-           model != "EuroCOVIDhub-ensemble") |> 
-  tidyr::separate(model, 
-                  into = c("ensemble", "average_type", "method_type"),
-                  sep = "_", remove = FALSE) |> 
-  filter(average_type == "median") |> 
-  arrange(rel_wis) |> 
-  mutate(method_type = forcats::fct_inorder(method_type)) |> 
-  pivot_wider(names_from = scale, values_from = rel_wis) |> 
-  ggplot(aes(x = method_type)) +
-  geom_point(aes(y = natural), 
-             colour = scale_cols[["natural"]]) +
-  geom_point(aes(y = log), 
-             colour = scale_cols[["log"]]) +
-  geom_linerange(aes(ymin = log, ymax = natural), 
-                 colour = "grey70") +
-  geom_hline(aes(yintercept = 1), lty = 2) +
-  coord_flip() +
-  labs(y = "Relative WIS", x = NULL) +
-  theme(legend.position = "bottom")
-
-# Plot scores of variations on median ensemble over time ---------------------
-ens_plot_all_scores_time <- scores_pairwise_date |> 
-  filter(grepl("EuroCOVIDhub-ensemble", model) &
-           model != "EuroCOVIDhub-ensemble") |> 
-  tidyr::separate(model, 
-                  into = c("ensemble", "average_type", "method_type"),
-                  sep = "_", remove = FALSE) |> 
-  filter(average_type == "median" & scale == "log") |>
-  ggplot(aes(x = target_end_date, 
-             col = method_type, fill = method_type)) +
-  geom_line(aes(y = rel_wis), alpha = 0.5) +
-  geom_hline(aes(yintercept = 1), lty = 2) +
-  scale_x_date(date_labels = "%b %Y") +
-  labs(x = "Forecast target date", 
-       y = "Relative WIS", 
-       col = "Component method type", fill = "Component method type") +
-  theme(legend.position = "bottom")
-
-# Combine plots
-ens_plot_all <- ens_plot_all_scores +
-  ens_plot_all_scores_time +
-  patchwork::plot_annotation(tag_levels = "A") +
-  patchwork::plot_layout(nrow = 1, widths = c(0.5, 1))
-
-ggsave(plot = ens_plot_all, 
-       filename = here("output", "supplement", "ensemble-all-time.jpg"), 
-       height = 6, width = 10)
-
-ens_plot_all
-```
 
 ## Scores on the natural scale
 
@@ -397,7 +334,38 @@ nat_plot_method_target <- nat_plot_scores_method +
 ggsave(plot = nat_plot_method_target, 
        filename = here("output", "supplement", "plot-method-target.jpg"),
        height = 4, width = 8)
+
+nat_plot_method_target
 ```
+
+## Ensemble variations
+
+```{r ensembles, fig.height=6, fig.width=8}
+# Plot scores of variations on median ensemble over time
+ens_plot_all_scores_time <- scores_pairwise_date |> 
+  filter(grepl("EuroCOVIDhub-ensemble", model) &
+           model != "EuroCOVIDhub-ensemble") |> 
+  tidyr::separate(model, 
+                  into = c("ensemble", "average_type", "method_type"),
+                  sep = "_", remove = FALSE) |> 
+  filter(average_type == "median" & scale == "log") |>
+  ggplot(aes(x = target_end_date, 
+             col = method_type, fill = method_type)) +
+  geom_line(aes(y = rel_wis), alpha = 0.5) +
+  geom_hline(aes(yintercept = 1), lty = 2) +
+  scale_x_date(date_labels = "%b %Y") +
+  labs(x = "Forecast target date", 
+       y = "Relative WIS", 
+       col = "Component method type", fill = "Component method type") +
+  theme(legend.position = "bottom")
+
+ggsave(plot = ens_plot_all_scores_time, 
+       filename = here("output", "supplement", "ensemble-all-time.jpg"), 
+       height = 6, width = 8)
+
+ens_plot_all_scores_time
+```
+
 
 ### Team metadata
 
