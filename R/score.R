@@ -85,4 +85,3 @@ scores_pairwise_origin <- score_pairwise(scores,
                                                "model", "scale"))
 write_csv(scores_pairwise_origin, here("data", "scores-pw-forecast-date.csv"))
 
-

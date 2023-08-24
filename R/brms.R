@@ -1,9 +1,12 @@
+# Simple model: pairwise relative WIS by ~ target type; ~ method type
+
 library(here)
 library(dplyr)
 library(readr)
 library(tidyr)
 library(brms)
 library(tidybayes)
+library(ggplot2)
 theme_set(theme_classic())
 
 # Predictors ----
