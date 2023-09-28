@@ -2,7 +2,7 @@ model,KS,RB,SF,agreement,classification,Kath notes
 bisop-seirfilter,Semi-mechanistic,Mechanistic,Mechanistic,FALSE,Mechanistic,Marginal but I think it was the VAR element that led me to semi-mech. Abstract: https://www.medrxiv.org/content/10.1101/2021.02.16.21251834v1.full.pdf
 bisop-seirfilterlite,Semi-mechanistic,Mechanistic,Mechanistic,FALSE,Mechanistic,As above
 prolix-euclidean,Semi-mechanistic,Semi-mechanistic,Semi-mechanistic,TRUE,Semi-mechanistic,Updated
-UMass-SemiMech,Semi-mechanistic,Mechanistic,Semi-mechanistic,FALSE,Semi-mechanistic,"I was going off the model name for self-identification as semi mech (they also have a ""MechBayes"" model)"
+UMass-SemiMech,Semi-mechanistic,Mechanistic,Semi-mechanistic,FALSE,Semi-mechanistic,NA
 USC-SIkJalpha,Semi-mechanistic,Mechanistic,Mechanistic,FALSE,Mechanistic,NA
 UpgUmibUsi-MultiBayes,Semi-mechanistic,#N/A,Statistical,FALSE,Semi-mechanistic,"Emphasis on AR statistical, but also to me sounded like they have compartments with transition probabilities (so classified as semi-mech). I may be misunderstanding their description though"
 IEM_Health-CovidProject,Mechanistic,Mechanistic,Mechanistic,TRUE,Mechanistic,"Originally classified as semi-mech, but I think I agree this is basically just mechanistic"
@@ -11,8 +11,8 @@ Imperial-DeCa,Semi-mechanistic,#N/A,Semi-mechanistic,TRUE,Semi-mechanistic,Updat
 Imperial-RtI0,Semi-mechanistic,#N/A,Semi-mechanistic,TRUE,Semi-mechanistic,NA
 Imperial-sbkp,Semi-mechanistic,#N/A,Semi-mechanistic,TRUE,Semi-mechanistic,NA
 EuroCOVIDhub-baseline,Statistical,Statistical,Statistical,TRUE,Statistical,NA
-ICM-agentModel,ABM,ABM,#N/A,TRUE,ABM,NA
-MOCOS-agent1,ABM,ABM,#N/A,TRUE,ABM,NA
+ICM-agentModel,ABM,ABM,#N/A,TRUE,Mechanistic,NA
+MOCOS-agent1,ABM,ABM,#N/A,TRUE,Mechanistic,NA
 epiforecasts-EpiExpert,Qualitative,Qualitative,#N/A,TRUE,Qualitative,NA
 epiforecasts-EpiExpert_direct,Qualitative,Qualitative,#N/A,TRUE,Qualitative,NA
 epiforecasts-EpiExpert_Rt,Qualitative,Qualitative,#N/A,TRUE,Qualitative,NA
