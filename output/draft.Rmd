@@ -133,7 +133,7 @@ scores_pairwise |>
   filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   filter(scale == "log") |> 
   left_join(metadata) |> 
-  filter(!grepl("ABM|Qualitative", method_type) & !is.na(method_type)) |> 
+  filter(!grepl("Qualitative", method_type) & !is.na(method_type)) |> 
   group_by(method_type) |>
   summarise(
     n = n(),
@@ -184,7 +184,7 @@ scores_pairwise |>
 
 ```{r plot-scores-by-method, fig.height=4, fig.width=4}
 # Set up method types
-method_factor <- c("Qualitative", "ABM", 
+method_factor <- c("Qualitative",
                    "Mechanistic", "Semi-mechanistic", "Statistical")
 names(method_factor) <- method_factor
 
@@ -198,7 +198,7 @@ scores_method <- scores_pairwise_horizon |>
 
 # Summarise by quantiles across Stat/Semi-/Mech models, point-score for others
 scores_method_all <- scores_method |> 
-  filter(!grepl("ABM|Qualitative", method_type)) |> 
+  filter(!grepl("Qualitative", method_type)) |> 
   group_by(method_type, horizon, scale) |>
   summarise(
     n = n(),
@@ -206,7 +206,7 @@ scores_method_all <- scores_method |>
     quantile = paste0("q", quantiles),
     .groups = "drop")
 scores_method_other <- scores_method |> 
-  filter(grepl("ABM|Qualitative", method_type)) |> 
+  filter(grepl("Qualitative", method_type)) |> 
   select(model, method_type, horizon, value = rel_wis) |> 
   mutate(quantile = "q0.5", n = 1)
 
