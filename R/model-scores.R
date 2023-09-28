@@ -5,9 +5,10 @@ library(readr)
 library(tidyr)
 library(brms)
 library(tidybayes)
+library(bayestestR)
+library(loo)
 library(ggplot2)
 theme_set(theme_classic())
-
 
 # DV: all horizons' pairwise tournament score -------------------------
 # Get data
@@ -60,17 +61,20 @@ tgt_fit <- brm(#sample_prior = "only", # explore prior
                chains = 4, cores = 4)
 
 # --- Evaluation ---
-## check posterior sample fit
-pp_check(tgt_fit, ndraws = 100)
-fixef(tgt_fit)
-conditional_effects(tgt_fit)
-plot(tgt_fit) # plot chains
 summary(tgt_fit)
 
-tgt_posterior <- as_draws_df(tgt_fit) |>
-  # transform back to original scale
-  mutate(across(b_target_f1:sigma, ~ exp(.)))
+# Check posterior sample fit
+pp_check(tgt_fit, ndraws = 100) # plot fit
+plot(tgt_fit) # plot chains
+loo(tgt_fit) # check LOO out-of-sample prediction accuracy
 
+# Effects
+# (log scale)
+fixef(tgt_fit)
+conditional_effects(tgt_fit)
+# transform back to original scale
+tgt_posterior <- as_draws_df(tgt_fit) |>
+  mutate(across(b_target_f1:sigma, ~ exp(.)))
 # Contrast
 tgt_contrast <- tgt_posterior |>
   # take difference
@@ -78,7 +82,8 @@ tgt_contrast <- tgt_posterior |>
   pivot_longer(cols = c(b_target_f1:sigma, diff)) |>
   group_by(name) |>
   # summarise difference
-  mean_qi(value, .width = .95)
+  mean_qi(value, .width = .95) |>
+  mutate(across(value:.upper, ~ round(., 2)))
 
 # Method type ----------------------------------------------------------
 # --- Data ---
@@ -86,7 +91,6 @@ tgt_contrast <- tgt_posterior |>
 methods <- read_csv(here("data", "model-classification.csv")) |>
   select(model, method_type = classification) |>
   mutate(method_f = case_when(method_type == "Qualitative" ~ NA,
-                              method_type == "ABM" ~ NA,
                               method_type == "Mechanistic" ~ 1,
                               method_type == "Semi-mechanistic" ~ 2,
                               method_type == "Statistical"~ 3),
@@ -122,33 +126,27 @@ mtd_fit <- brm(
   iter = 2000, warmup = 1000,
   chains = 4, cores = 4)
 
-# divergent transitions:
-#
-
 # --- Evaluation ---
+summary(mtd_fit)
+
 # check posterior sample fit
-pp_check(mtd_fit, ndraws = 100)
+pp_check(mtd_fit, ndraws = 100) # posterior
+plot(mtd_fit) # chains
+loo(mtd_fit) # LOO
+conditional_effects(mtd_fit)
 
 # transform back to original scale
 mtd_post <- as_draws_df(mtd_fit) |>
   mutate(across(b_method_f1:sigma, ~ exp(.)))
 
-fixef(mtd_fit)
-mcmc_plot(mtd_fit)
-conditional_effects(mtd_fit)
-plot(mtd_fit) # plot chains
-summary(mtd_fit)
-
 # Contrast
 mtd_contrast <- mtd_post |>
   # take difference
-  mutate(diff = b_method_f1 - b_method_f3) |> # mechanistic v statistical
-  pivot_longer(cols = c(b_method_f1:sigma, diff)) |>
+  mutate(diff_1_3 = b_method_f1 - b_method_f3) |> # mechanistic - statistical
+  pivot_longer(cols = c(b_method_f1:sigma, diff_1_3)) |>
   group_by(name) |>
   # summarise difference
-  mean_qi(value, .width = .95)
+  mean_qi(value, .width = .95) |>
+  mutate(across(value:.upper, ~ round(., 2)))
 
-# HDI
-
-# ROPE
 
