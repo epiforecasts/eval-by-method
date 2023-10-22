@@ -1,15 +1,19 @@
+# Functions to import and save data for predictions and observations
+# TODO: add data on variant introduction per country
+# Examples:
+# obs <- import_observed()
+# write_csv(obs, here("data", "observed.csv"))
+# forecasts <- import_forecasts()
+# arrow::write_parquet(data, here("data", "forecasts.parquet"))
+
 library(here)
 library(dplyr)
 library(readr)
 library(lubridate)
 library(arrow)
 library(tidyr)
-
-# Import and save data
-# obs <- import_obs()
-# write_csv(obs, here("data", "observed.csv"))
-# forecasts <- import_forecasts()
-# arrow::write_parquet(data, here("data", "forecasts.parquet"))
+library(ggplot2)
+theme_set(theme_minimal())
 
 # Prediction data  ------------------------------------------------------
 import_forecasts <- function() {
@@ -56,8 +60,9 @@ import_forecasts <- function() {
   return(forecasts)
 }
 
-# Observed data ---------------------------------
-import_obs <- function() {
+# Observed data ---------------------------------------------------------
+# Get raw values
+import_observed <- function() {
   obs <- read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-truth/JHU/truth_JHU-Incident%20Deaths.csv") |>
     # aggregate to weekly incidence
     mutate(year = epiyear(date),
@@ -67,22 +72,74 @@ import_obs <- function() {
               true_value = sum(value, na.rm = TRUE)) |>
     ungroup() |>
     select(-year, -week)
+
+  # Remove <0 values
+  obs <- obs |>
+    group_by(location) |>
+    arrange(target_end_date) |>
+    mutate(observed = ifelse(true_value < 0, NA, true_value))
+
+  # Add "trend" as change in 3-week moving average
+  obs <- obs |>
+    mutate(ma = zoo::rollmean(observed,
+                              align = "right", k = 3, fill = NA),
+           trend = ma / lag(ma, n=1),
+           trend = as.factor(ifelse(is.nan(trend), "Stable",
+                                    ifelse(trend >= 1.05, "Increasing",
+                                           ifelse(trend <= 0.95, "Decreasing",
+                                                  "Stable")))))
+  obs <- obs |>
+    select(location, target_end_date, observed, trend)
   return(obs)
 }
 
-# Join forecasts to observations, remove anomalies
-join_obs <- function(forecasts, remove_anomalies = TRUE) {
-  obs <- import_obs()
-  forecasts <- left_join(forecasts, obs,
-                    by = c("location", "target_end_date"))
-  if (remove_anomalies) {
-    # remove anomalies (detected as of March 4th 2023, pre-data change)
-    anomalies <- read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/5a2a8d48e018888f652e981c95de0bf05a838135/data-truth/anomalies/anomalies.csv") |>
-      filter(target_variable == "inc death")
-    forecasts <- anti_join(forecasts, anomalies,
-                      by = c("target_end_date", "location"))
-    # remove any true values <0
-    forecasts <- filter(forecasts, true_value >= 0)
-    }
-return(forecasts)
+# Plot observed data and trend classification
+plot_observed <- function() {
+  obs <- import_observed()
+  obs |>
+    ggplot(aes(x = target_end_date, y = log(observed))) +
+    geom_point(col = trend) +
+    geom_line(alpha = 0.3) +
+    scale_x_date() +
+    labs(x = NULL, y = "Log observed", col = "Trend",
+         caption = "Trend (coloured points) of weekly change in 3-week moving average") +
+    theme(legend.position = "bottom", ) +
+    facet_wrap(facets = "location", ncol = 1,
+               strip.position = "left")
+
+  ggsave(filename = here("output/fig-trends.pdf"),
+         height = 50, width = 15, limitsize = FALSE)
+}
+
+# Anomalies
+import_anomalies <- function() {
+  read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/5a2a8d48e018888f652e981c95de0bf05a838135/data-truth/anomalies/anomalies.csv") |>
+    filter(target_variable == "inc death") |>
+    select(-target_variable) |>
+    mutate(anomaly = TRUE)
+}
+
+# Plot anomaliesß
+plot_anomalies <- function() {
+  obs <- import_observed()
+  anomalies <- import_anomalies()
+
+  obs <- left_join(obs, anomalies) |>
+    group_by(location) |>
+    mutate(anomaly = replace_na(anomaly, FALSE))
+
+  obs |>
+    ggplot(aes(x = target_end_date,
+               y = log(observed),
+               col = anomaly)) +
+    geom_line() +
+    geom_point(size = 0.3) +
+    scale_x_date() +
+    labs(x = NULL, y = "Log observed") +
+    theme(legend.position = "bottom", ) +
+    facet_wrap(facets = "location", ncol = 1,
+               strip.position = "left")
+
+  ggsave(filename = here("output/fig-anomalies.pdf"),
+         height = 50, width = 15, limitsize = FALSE)
 }

@@ -21,8 +21,16 @@ forecasts |>
 # create mean/median ensembles by method type
 ensembles <- create_ensembles(forecasts)
 forecasts <- bind_rows(forecasts, ensembles)
-# add observed data
-forecasts <- join_obs(forecasts, remove_anomalies = TRUE)
+
+# Observed data
+# TODO: score without anomaly removal; anomaly detection not useful, see plot
+obs <- read_csv(here("data", "observed.csv"))
+forecasts <- left_join(forecasts, obs,
+                       by = c("location", "target_end_date"))
+# remove anomalies (as of March 4th 2023, pre-data change)
+anomalies <- import_anomalies()
+forecasts <- anti_join(forecasts, anomalies,
+                        by = c("target_end_date", "location"))
 
 # Score forecasts on natural and log scales -----
 scores <- forecasts |>
