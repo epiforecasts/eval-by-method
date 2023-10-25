@@ -20,7 +20,7 @@ theme_set(theme_classic())
 # Get raw WIS
 wis <- read_csv(here("data", "scores-raw.csv")) |>
   # Select log or natural scale for WIS ?
-  filter(scale == "natural") |>
+  filter(scale == "log") |>
   filter(!grepl("EuroCOVIDhub", model))
 
 # Extra explanatory vars ------
@@ -43,15 +43,24 @@ obs <- read_csv(here("data", "observed.csv")) |>
                              trend == "Decreasing" ~ 3),
          trend_f = factor(trend_f))
 
-# ---------------------------------------------------------------------
+# --------------------------------------------------------------
 m.data <- wis |>
   left_join(obs, by = c("location", "target_end_date")) |>
   left_join(targets, by = "model") |>
   left_join(methods, by = "model") |>
+  mutate(model = as.factor(model),
+         location = as.factor(location)) |>
   mutate(score = ifelse(interval_score == 0, 0.1, interval_score),
          score = log(score))
 # Plot pdf
 plot(density(m.data$score))
+
+
+
+# sample rows
+set.seed(1234)
+m.data_sample <- slice_sample(m.data,
+                              n = round(0.01*nrow(m.data)))
 
 # --- Model ---
 # Formula
@@ -82,9 +91,9 @@ m.priors <- c(
 
 # Estimate
 m.fit <- brm(
-  sample_prior = "only", # test on simulated data
+  #sample_prior = "only", # test on simulated data
   formula = m.formula,
-  data = m.data,
+  data = m.data_sample,
   prior = m.priors,
   family = m.family,
   iter = 2000, warmup = 1000,
