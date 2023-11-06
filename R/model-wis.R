@@ -11,6 +11,7 @@ library(readr)
 library(tidyr)
 library(mgcv)
 library(broom)
+library(ggplot2)
 theme_set(theme_classic())
 
 prep_data <- function() {
@@ -48,9 +49,8 @@ prep_data <- function() {
            horizon_f = ordered(horizon,
                                levels = 1:4,
                                labels = 1:4),
-           log_interval_score = ifelse(interval_score == 0, 0.1,
-                                   interval_score),
-           log_interval_score = log(log_interval_score)
+           log_interval_score = log(interval_score + 0.01),
+           log_observed = log(observed + 0.01)
     )
   return(m.data)
 }
@@ -62,14 +62,14 @@ m.data <- prep_data()
 
 # --- Model ---
 m.formula <- log_interval_score ~
-  # Method: linear factor
-  method_f +
-  # Target: linear factor
-  target_f +
+  # Method: random effect
+  s(method_f, bs = "re") +
+  # Target: random effect
+  s(target_f, bs = "re") +
   # 3-week trend of observed deaths: linear factor
-  trend_f +
-  # Observed deaths: smoothed continuous
-  s(observed)  +
+  s(trend_f, bs = "re") +
+  # Observed deaths: smoothed interacting with trend (factor smooth)
+  s(observed, by = trend_f)  +
   # Horizon: smoothed ordinal factor
   s(horizon_f, bs = "fs") +
   # Model: random effect (per model)
@@ -91,14 +91,16 @@ concurvity(m.fit, full = F)
 broom::glance(m.fit)
 
 # --- Visualise ---
-plot(m.fit, all.terms = TRUE,
-     # exponentiate because we log-transformed earlier
+plot(m.fit,
+     #all.terms = TRUE,
+     # exponentiate
      trans = exp,
      # Shift by intercept
      shift = coef(m.fit)[1],
      # combine uncertainty with SE of model intercept
      seWithMean = TRUE,
-     pages = 1)
+     #pages = 1
+     )
 
 vis.gam(m.fit)
 vis.gam(m.fit,
@@ -122,7 +124,9 @@ plot(m.fit,
 library(gratia)
 # plot smooth terms
 draw(m.fit)
+
 appraise(m.fit)
 draw.evaluated_re_smooth(m.fit)
-m.smooths <- smooth_estimates(m.fit, smooth = "horizon", partial_match = T)
+m.smooths <- smooth_estimates(m.fit, smooth = "horizon",
+                              partial_match = T)
 draw(m.smooths)
