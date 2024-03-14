@@ -7,4 +7,10 @@ Performance of forecasts in capturing observed data varies in time and space wit
 We use teams’ provided metadata to categorise models by their structure (mechanistic, semi-mechanistic, statistical), and by their specificity (the number of locations each team targets; and whether the target location is the same as the team’s institutional location, as a proxy for adaptation of model parameters to local conditions). We evaluate forecasts using the weighted interval score, scaled relative to a baseline of the median ensemble of all models.
 
 See analysis plan: 
-https://docs.google.com/document/d/1k3rhId4HqNl-acDaK9OVSX7Id27ELa7F4h4BkBGAXjo/edit
+
+- https://docs.google.com/document/d/1k3rhId4HqNl-acDaK9OVSX7Id27ELa7F4h4BkBGAXjo/edit
+
+Reproduce results:
+
+- Descriptive: [draft.Rmd](./output/draft.Rmd)
+- GAMM (draft): [model-wis.R](./R/model-wis.R)

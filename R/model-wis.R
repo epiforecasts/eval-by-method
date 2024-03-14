@@ -10,6 +10,7 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(mgcv)
+library(gratia) # devtools::install_github('gavinsimpson/gratia')
 library(broom)
 library(ggplot2)
 theme_set(theme_classic())
@@ -33,7 +34,7 @@ prep_data <- function() {
                                 method_type == "Semi-mechanistic" ~ 2,
                                 method_type == "Statistical"~ 3),
            method_f = factor(method_f))
-  # Incidence level + trend
+  # Incidence level + trend (see: R/import-data.r)
   obs <- read_csv(here("data", "observed.csv")) |>
     mutate(trend_f = case_when(trend == "Stable" ~ 1,
                                trend == "Increasing" ~ 2,
@@ -66,20 +67,26 @@ m.formula <- log_interval_score ~
   s(method_f, bs = "re") +
   # Target: random effect
   s(target_f, bs = "re") +
-  # 3-week trend of observed deaths: linear factor
+  # 3-wk trend (Stable/Incr/Decreasing) of observed deaths: random effect
   s(trend_f, bs = "re") +
   # Observed deaths: smoothed interacting with trend (factor smooth)
   s(observed, by = trend_f)  +
   # Horizon: smoothed ordinal factor
-  s(horizon_f, bs = "fs") +
-  # Model: random effect (per model)
-  s(model_f, bs = "re")
+  s(horizon_f, bs = "fs")
+#+
+#  # Model: random effect (per model)
+#  s(model_f, bs = "re")
 
-# Fit GAM
+# Fit GAMM with normal distribution
 m.fit <- bam(formula = m.formula,
              data = m.data,
              family = gaussian(link = "identity"),
              method = "REML")
+
+
+# Model checking ----------------------------------------------------------
+# https://r.qcbs.ca/workshop08/book-en/gam-model-checking.html
+# https://noamross.github.io/gams-in-r-course/chapter2
 
 # Check output
 summary(m.fit)
@@ -87,20 +94,52 @@ broom::tidy(m.fit)
 
 # Check fit
 gam.check(m.fit)
-concurvity(m.fit, full = F)
+conc <- concurvity(m.fit, full = FALSE)
 broom::glance(m.fit)
 
-# --- Visualise ---
-plot(m.fit,
-     #all.terms = TRUE,
-     # exponentiate
-     trans = exp,
-     # Shift by intercept
-     shift = coef(m.fit)[1],
-     # combine uncertainty with SE of model intercept
-     seWithMean = TRUE,
-     #pages = 1
-     )
+# extract the variance components: the random effects as their equivalent variance components that you’d see in a mixed model output
+variance_comp(m.fit)
+
+# Compare with/without interaction between incidence/trend
+m.formula_no.interact <- log_interval_score ~
+  s(method_f, bs = "re") + s(target_f, bs = "re") +
+  s(trend_f, bs = "re") +
+  s(observed)  +
+  s(horizon_f, bs = "fs") + s(model_f, bs = "re")
+m.fit_no.interact <- bam(formula = m.formula_no.interact,
+             data = m.data,
+             family = gaussian(link = "identity"),
+             method = "REML")
+BIC(m.fit, m.fit_no.interact) # compare BIC
+
+# Visualisation -----------------------------------------------------------
+library(itsadug)
+par(mfrow = c(1, 2), cex = 1.1)
+# Plot the summed effect of x0 (without random effects)
+plot_smooth(m.fit, view = "observed",
+            rm.ranef = TRUE)
+# Plot each level of the random effect
+plot_smooth(m.fit, view = "observed",
+            rm.ranef = FALSE, cond = list(method_f = "1"),
+            col = "orange")
+plot_smooth(m.fit, view = "observed",
+            rm.ranef = FALSE, cond = list(method_f = "2"),
+            add = TRUE, col = "red")
+plot_smooth(m.fit, view = "observed",
+            rm.ranef = FALSE, cond = list(method_f = "3"),
+            add = TRUE, col = "purple")
+
+#------
+
+
+
+m.smooths <- smooth_estimates(object = m.fit)
+draw(m.smooths)
+# QQ plot, residuals
+appraise(m.fit)
+
+
+
 
 vis.gam(m.fit)
 vis.gam(m.fit,
@@ -116,17 +155,17 @@ plot(m.fit,
      shade = TRUE,
      rug = TRUE,
      residuals = TRUE,
-     #pch = 1, cex = 0.1,
+     # pch = 1, cex = 0.1,
      pages = 1)
 
-# Alternative visualisation
-# devtools::install_github('gavinsimpson/gratia')
-library(gratia)
-# plot smooth terms
-draw(m.fit)
 
-appraise(m.fit)
-draw.evaluated_re_smooth(m.fit)
-m.smooths <- smooth_estimates(m.fit, smooth = "horizon",
-                              partial_match = T)
-draw(m.smooths)
+
+
+# Next steps
+# - Plot GAM
+# - Model under/over dispersion separately / together?
+# - Model cases?
+
+# Interpretation:
+# Trend:
+# 1 = Stable, 2 = Increasing, 3 = Decreasing
