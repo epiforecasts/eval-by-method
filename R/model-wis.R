@@ -1,20 +1,16 @@
-# Model:
-# WIS (log-transformed for normality) ~
-# target type + method type,
-# + level of incidence : fixed effect
-# + trend of incidence : fixed effect
-# + horizon: fixed effect
-# + model : group effect
+# Aim: use a GAMM to model the effects of model structure and country target type on WIS (calculated on log scale)
 library(here)
 library(dplyr)
 library(readr)
 library(tidyr)
 library(mgcv)
 library(gratia) # devtools::install_github('gavinsimpson/gratia')
+library(itsadug)
 library(broom)
 library(ggplot2)
 theme_set(theme_classic())
 
+# --- Get data ---
 prep_data <- function() {
   # Get raw WIS
   wis <- read_csv(here("data", "scores-raw.csv")) |>
@@ -46,36 +42,30 @@ prep_data <- function() {
     left_join(targets, by = "model") |>
     left_join(methods, by = "model") |>
     mutate(model_f = as.factor(model),
-           location_f = as.factor(location),
            horizon_f = ordered(horizon,
-                               levels = 1:4,
-                               labels = 1:4),
-           log_interval_score = log(interval_score + 0.01),
-           log_observed = log(observed + 0.01)
+                               levels = 1:4, labels = 1:4),
+           log_interval_score = log(interval_score + 0.01)
     )
   return(m.data)
 }
-
-# --- Get data ---
 m.data <- prep_data()
-# Plot pdf
-# plot(density(m.data$log_interval_score))
+# plot(density(m.data$log_interval_score)) # Plot pdf
 
 # --- Model ---
+# Formula
 m.formula <- log_interval_score ~
-  # Method: random effect
+  # Method (3 levels*): random effect
   s(method_f, bs = "re") +
-  # Target: random effect
+  # Number of target countries (2 levels*): random effect
   s(target_f, bs = "re") +
-  # 3-wk trend (Stable/Incr/Decreasing) of observed deaths: random effect
-  s(trend_f, bs = "re") +
-  # Observed deaths: smoothed interacting with trend (factor smooth)
+  # Observed incidence: interacting with trend
   s(observed, by = trend_f)  +
-  # Horizon: smoothed ordinal factor
-  s(horizon_f, bs = "fs")
-#+
-#  # Model: random effect (per model)
-#  s(model_f, bs = "re")
+  # Trend (3 levels*): random effect
+  s(trend_f, bs = "re") +
+  # Horizon (4 levels, ordinal): smoothed factor
+  s(horizon_f, bs = "fs") +
+  # Individual model (35 levels*): random effect
+  s(model_f, bs = "re")
 
 # Fit GAMM with normal distribution
 m.fit <- bam(formula = m.formula,
@@ -83,89 +73,39 @@ m.fit <- bam(formula = m.formula,
              family = gaussian(link = "identity"),
              method = "REML")
 
-
-# Model checking ----------------------------------------------------------
-# https://r.qcbs.ca/workshop08/book-en/gam-model-checking.html
-# https://noamross.github.io/gams-in-r-course/chapter2
+# Model checking ----------------------------------------
+# * Key to factors:
+# Method: 1 = Mechanistic, 2 = Semi-mech, 3 = Statistical
+# Target: 1 = Single country, 2 = Multi-country
+# Trend: 1 = Stable, 2 = Increasing, 3 = Decreasing
+# Model: 35 included (excl. 3 qualitative models)
 
 # Check output
 summary(m.fit)
-broom::tidy(m.fit)
 
 # Check fit
-gam.check(m.fit)
-conc <- concurvity(m.fit, full = FALSE)
-broom::glance(m.fit)
+glance(m.fit)
 
-# extract the variance components: the random effects as their equivalent variance components that you’d see in a mixed model output
-variance_comp(m.fit)
+# Plot smooth terms
+draw(m.fit)
 
-# Compare with/without interaction between incidence/trend
-m.formula_no.interact <- log_interval_score ~
-  s(method_f, bs = "re") + s(target_f, bs = "re") +
-  s(trend_f, bs = "re") +
-  s(observed)  +
-  s(horizon_f, bs = "fs") + s(model_f, bs = "re")
-m.fit_no.interact <- bam(formula = m.formula_no.interact,
-             data = m.data,
-             family = gaussian(link = "identity"),
-             method = "REML")
-BIC(m.fit, m.fit_no.interact) # compare BIC
+# Get the smooth estimates
+smooth_estimates(m.fit)
 
-# Visualisation -----------------------------------------------------------
-library(itsadug)
-par(mfrow = c(1, 2), cex = 1.1)
-# Plot the summed effect of x0 (without random effects)
-plot_smooth(m.fit, view = "observed",
-            rm.ranef = TRUE)
-# Plot each level of the random effect
-plot_smooth(m.fit, view = "observed",
-            rm.ranef = FALSE, cond = list(method_f = "1"),
-            col = "orange")
-plot_smooth(m.fit, view = "observed",
-            rm.ranef = FALSE, cond = list(method_f = "2"),
-            add = TRUE, col = "red")
-plot_smooth(m.fit, view = "observed",
-            rm.ranef = FALSE, cond = list(method_f = "3"),
-            add = TRUE, col = "purple")
-
-#------
-
-
-
-m.smooths <- smooth_estimates(object = m.fit)
-draw(m.smooths)
 # QQ plot, residuals
 appraise(m.fit)
 
+# Concurvity: checking for (generalisation of) collinearity
+concurvity(m.fit, full = FALSE)
 
+# Random effects as their equivalent variance components
+variance_comp(m.fit)
 
+# Model selection -------
+# Tested alternative model terms using REML
+# - Removing trend as separate term [s(trend_f, bs = "re")]
+# - Re-specifying interaction as factor smooth [s(observed, trend_f, bs = "fs")]
+# - Removing model as a term [s(model_f, bs = "re")]
 
-vis.gam(m.fit)
-vis.gam(m.fit,
-        plot.type = "pers",
-        phi = 30,
-        theta = 300
-        )
-points(m.data)
+# Usual model selection scores (AIC/BIC) don't work well for smooths [?gam.selection]
 
-
-plot(m.fit,
-     trans = exp,
-     shade = TRUE,
-     rug = TRUE,
-     residuals = TRUE,
-     # pch = 1, cex = 0.1,
-     pages = 1)
-
-
-
-
-# Next steps
-# - Plot GAM
-# - Model under/over dispersion separately / together?
-# - Model cases?
-
-# Interpretation:
-# Trend:
-# 1 = Stable, 2 = Increasing, 3 = Decreasing
