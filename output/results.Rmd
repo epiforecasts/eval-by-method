@@ -288,7 +288,7 @@ fig2_cap <- "Performance of forecasting models by forecast horizon, by (A) model
 plot_method_target
 ```
 
-
+\newpage
 
 <!--- Model rWIS --->
 
@@ -309,4 +309,16 @@ source(here("R", "model-wis.R"))
 # appraise(m.fit) # QQ plot, residuals
 # concurvity(m.fit, full = FALSE) # Concurvity
 # variance_comp(m.fit) # Random effects as their equivalent variance components
+```
+
+!!! *Temporary results*
+
+We found no substantial effect on forecast performance from either model structure or the number of countries forecast.
+
+```{r print-gamm}
+tidy(m.fit)
+```
+
+```{r plot-gamm}
+draw(m.fit)
 ```
