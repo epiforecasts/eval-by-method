@@ -1,0 +1,120 @@
+---
+title: "Supplement"
+output: html_document
+---
+
+```{r set-up, include=FALSE}
+library(here)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+theme_set(theme_bw())
+knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
+                      message = FALSE, warning = FALSE)
+quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
+```
+
+```{r load-scores}
+# Load score data
+scores_raw <- read_csv(here("data", "scores-raw.csv"))
+scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
+scores_pairwise_date <- read_csv(here("data",
+                                      "scores-pw-target-date.csv")) 
+scores_pairwise_horizon <- read_csv(here("data",
+                                         "scores-pw-horizon.csv"))
+```
+
+## Scores on the natural scale
+
+```{r natural-scale-plot-scores, fig.height=4, fig.width=8}
+# Plot by method
+nat_plot_scores_method <- scores_method_all |> 
+  bind_rows(scores_method_other) |> 
+  filter(scale == "natural") |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "bottom")
+  
+# Plot by target
+nat_plot_scores_targets <- scores_targets |> 
+  filter(scale == "natural") |> 
+  pivot_wider(names_from = quantile) |>
+  mutate(horizon = as.factor(horizon)) |> 
+  ggplot(aes(y = target_type, col = horizon, fill = horizon)) +
+  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
+  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                 alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                 alpha = 0.2, position = position_dodge(width = 1)) +
+  geom_vline(xintercept = 1, lty = 2) +
+    labs(y = NULL, x = NULL,
+       col = "Week ahead forecast horizon",
+       fill = "Week ahead forecast horizon") +
+  scale_color_viridis_d(direction = 1) +
+  theme(legend.position = "none")
+
+# Join plots for method and target type
+nat_plot_method_target <- nat_plot_scores_method +
+  nat_plot_scores_targets +
+  patchwork::plot_annotation(tag_levels = "A") +
+  patchwork::plot_layout(nrow = 1, guides = "collect") &
+  theme(legend.position = "bottom")
+
+ggsave(plot = nat_plot_method_target, 
+       filename = here("output", "supplement", "plot-method-target.jpg"),
+       height = 4, width = 8)
+
+nat_plot_method_target
+```
+
+## Ensemble variations
+
+```{r ensembles, fig.height=6, fig.width=8}
+# Plot scores of variations on median ensemble over time
+ens_plot_all_scores_time <- scores_pairwise_date |> 
+  filter(grepl("EuroCOVIDhub-ensemble", model) &
+           model != "EuroCOVIDhub-ensemble") |> 
+  tidyr::separate(model, 
+                  into = c("ensemble", "average_type", "method_type"),
+                  sep = "_", remove = FALSE) |> 
+  filter(average_type == "median" & scale == "log") |>
+  ggplot(aes(x = target_end_date, 
+             col = method_type, fill = method_type)) +
+  geom_line(aes(y = rel_wis), alpha = 0.5) +
+  geom_hline(aes(yintercept = 1), lty = 2) +
+  scale_x_date(date_labels = "%b %Y") +
+  labs(x = "Forecast target date", 
+       y = "Relative WIS", 
+       col = "Component method type", fill = "Component method type") +
+  theme(legend.position = "bottom")
+
+ggsave(plot = ens_plot_all_scores_time, 
+       filename = here("output", "supplement", "ensemble-all-time.jpg"), 
+       height = 6, width = 8)
+
+ens_plot_all_scores_time
+```
+
+
+### Team metadata
+
+```{r metadata-table}
+metadata |> 
+  left_join(targets_by_model) |> 
+  arrange(method_type, target_type, model) |> 
+  mutate(metadata = paste0("[Link](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", model, ".yml)")) |> 
+  knitr::kable()
+```

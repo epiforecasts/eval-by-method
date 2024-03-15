@@ -2,33 +2,18 @@ library(here)
 library(dplyr)
 library(scoringutils)
 source(here("R", "import-data.R"))
-source(here("R", "create-ensembles.R"))
 
 # Get forecasts & observations -----
-## Refresh/save data
-# forecasts <- import_forecasts()
-# arrow::write_parquet(forecasts, here("data", "forecasts.parquet"))
-forecasts <- arrow::read_parquet(here("data", "forecasts.parquet"))
-
-# number of models over time for the ensembles
-forecasts |>
-  filter(!grepl("EuroCOVIDhub-ensemble", model) &
-         quantile == 0.5) |>
-  left_join(metadata, by = "model") |>
-  group_by(location, horizon, method_type, target_end_date) |>
-  summarise(n = n())
-
-# create mean/median ensembles by method type
-ensembles <- create_ensembles(forecasts)
-forecasts <- bind_rows(forecasts, ensembles)
+# Get forecasts (slow)
+forecasts <- get_forecasts()
 
 # Observed data
 # TODO: score without anomaly removal; anomaly detection not useful, see plot
-obs <- read_csv(here("data", "observed.csv"))
+obs <- get_observed()
 forecasts <- left_join(forecasts, obs,
                        by = c("location", "target_end_date"))
 # remove anomalies (as of March 4th 2023, pre-data change)
-anomalies <- import_anomalies()
+anomalies <- get_anomalies()
 forecasts <- anti_join(forecasts, anomalies,
                         by = c("target_end_date", "location"))
 
@@ -52,7 +37,6 @@ write_csv(scores, here("data", "scores-raw.csv"))
 
 # Score all forecasts relative to each other (pairwise) -----
 # set variables to group scores within
-
 score_pairwise <- function(scores,
                            score_by = c("model", "scale")) {
   scores_pairwise <- scores |>

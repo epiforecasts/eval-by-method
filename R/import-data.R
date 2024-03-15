@@ -1,10 +1,13 @@
 # Functions to import and save data for predictions and observations
 # TODO: add data on variant introduction per country
 # Examples:
-# obs <- import_observed()
-# write_csv(obs, here("data", "observed.csv"))
-# forecasts <- import_forecasts()
-# arrow::write_parquet(data, here("data", "forecasts.parquet"))
+# forecasts <- get_forecasts()
+# obs <- get_observed()
+# forecasts <- left_join(forecasts, obs,
+#                        by = c("location", "target_end_date"))
+# anomalies <- get_anomalies()
+# forecasts <- anti_join(forecasts, anomalies,
+#                        by = c("target_end_date", "location"))
 
 library(here)
 library(dplyr)
@@ -16,7 +19,7 @@ library(ggplot2)
 theme_set(theme_minimal())
 
 # Prediction data  ------------------------------------------------------
-import_forecasts <- function() {
+get_forecasts <- function() {
   forecasts <- arrow::read_parquet(here("data",
                                         "covid19-forecast-hub-europe.parquet")) |>
     filter(grepl("death", target))
@@ -49,6 +52,7 @@ import_forecasts <- function() {
   forecasts <- anti_join(forecasts, rm_quantiles,
                     by = c("model", "forecast_date", "location"))
   forecasts <- filter(forecasts, !is.na(quantile)) # remove "median"
+
   # remove duplicates
   forecasts <- forecasts |>
     group_by_all() |>
@@ -62,7 +66,7 @@ import_forecasts <- function() {
 
 # Observed data ---------------------------------------------------------
 # Get raw values
-import_observed <- function() {
+get_observed <- function() {
   obs <- read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-truth/JHU/truth_JHU-Incident%20Deaths.csv") |>
     # aggregate to weekly incidence
     mutate(year = epiyear(date),
@@ -112,17 +116,17 @@ plot_observed <- function() {
 }
 
 # Anomalies
-import_anomalies <- function() {
+get_anomalies <- function() {
   read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/5a2a8d48e018888f652e981c95de0bf05a838135/data-truth/anomalies/anomalies.csv") |>
     filter(target_variable == "inc death") |>
     select(-target_variable) |>
     mutate(anomaly = TRUE)
 }
 
-# Plot anomaliesß
+# Plot anomalies
 plot_anomalies <- function() {
-  obs <- import_observed()
-  anomalies <- import_anomalies()
+  obs <- get_observed()
+  anomalies <- get_anomalies()
 
   obs <- left_join(obs, anomalies) |>
     group_by(location) |>
