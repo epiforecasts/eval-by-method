@@ -4,14 +4,15 @@ library(scoringutils)
 source(here("R", "import-data.R"))
 
 # Get forecasts & observations -----
-# Get forecasts (slow)
-forecasts <- get_forecasts()
+# Get forecasts (note this is slow)
+forecasts_raw <- get_forecasts()
 
 # Observed data
 # TODO: score without anomaly removal; anomaly detection not useful, see plot
 obs <- get_observed()
-forecasts <- left_join(forecasts, obs,
-                       by = c("location", "target_end_date"))
+forecasts <- left_join(forecasts_raw, obs,
+                       by = c("location", "target_end_date")) |>
+  rename(true_value = observed)
 # remove anomalies (as of March 4th 2023, pre-data change)
 anomalies <- get_anomalies()
 forecasts <- anti_join(forecasts, anomalies,
@@ -73,4 +74,10 @@ scores_pairwise_origin <- score_pairwise(scores,
                                   score_by = c("forecast_date",
                                                "model", "scale"))
 write_csv(scores_pairwise_origin, here("data", "scores-pw-forecast-date.csv"))
+
+# All tine / all horizons; by location;
+scores_pairwise_location <- score_pairwise(scores,
+                                         score_by = c("location",
+                                                      "model", "scale"))
+write_csv(scores_pairwise_origin, here("data", "scores-pw-location.csv"))
 

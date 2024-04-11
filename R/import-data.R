@@ -73,7 +73,7 @@ get_observed <- function() {
            week = epiweek(date)) |>
     group_by(location, location_name, year, week) |>
     summarise(target_end_date = max(date),
-              true_value = sum(value, na.rm = TRUE)) |>
+              observed = sum(value, na.rm = TRUE)) |>
     ungroup() |>
     select(-year, -week)
 
@@ -81,7 +81,7 @@ get_observed <- function() {
   obs <- obs |>
     group_by(location) |>
     arrange(target_end_date) |>
-    mutate(observed = ifelse(true_value < 0, NA, true_value))
+    mutate(observed = ifelse(observed < 0, NA, observed))
 
   # Add "trend" as change in 3-week moving average
   obs <- obs |>

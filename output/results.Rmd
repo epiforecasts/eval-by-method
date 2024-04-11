@@ -1,6 +1,8 @@
 ---
 title: "Results"
-output: pdf_document
+output: 
+  pdf_document:
+    extra_dependencies: ["flafter"]
 ---
 
 <!--- RMarkdown set up --->
@@ -31,7 +33,7 @@ quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
 # source(here("R", "score.R"))
 ```
 
-```{r load-scores}
+```{r load-data}
 # Load score data
 scores_raw <- read_csv(here("data", "scores-raw.csv"))
 scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
@@ -39,6 +41,14 @@ scores_pairwise_date <- read_csv(here("data",
                                       "scores-pw-target-date.csv")) 
 scores_pairwise_horizon <- read_csv(here("data",
                                          "scores-pw-horizon.csv"))
+# Categorisation of models
+# Get method types
+metadata <- read_csv(here("data", "model-classification.csv")) |>
+  select(model, method_type = classification)
+# Identify number of targets for each model by week
+targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
+# Affiliations
+affiliation_by_model <- read_csv(here("data", "country-affiliations.csv"))
 ```
 
 <!--- Describe data and evaluation baseline --->
@@ -110,15 +120,6 @@ plot_all
 
 <!--- Describe models by model structure --->
 
-```{r get-categories}
-# Categorisation of models
-# Get method types
-metadata <- read_csv(here("data", "model-classification.csv")) |>
-  select(model, method_type = classification)
-# Identify number of targets for each model by week
-targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
-```
-
 ```{r table-scores-by-method}
 # Summarise overall performance by model structure
 summary_quantiles <- c(0.5, 0.01, 0.99)
@@ -138,7 +139,7 @@ summary_by_method <- scores_pairwise |>
 
 Among 39 models, we defined three model structures. We categorised 8 models as statistical, 10 as semi-mechanistic, and 18 as mechanistic, with 3 qualitative ensemble models (table 1). No one model structure consistently outperformed the ensemble (figure 2A). Mechanistic models saw the widest range in performance, with the range of scores including both outperforming the ensemble and performing up to three times worse. Of the three models that, on average, outperformed the ensemble (figure 1), all were mechanistic and forecast for only one country (Poland or Italy). 
 
-_Table 1. Description of model structures evaluated from the European COVID-19 Forecast Hub._
+Table 1. Description of model structures evaluated from the European COVID-19 Forecast Hub.
 
 | Structure and examples 	| Description 	| Model count 	|
 |---	|---	|---	|
@@ -184,6 +185,37 @@ summary_by_target <- scores_pairwise |>
 ```
 
 We considered models forecasting for only one or multiple countries. We collated 23 multi-country models and 16 single-country models. Single-country models targeted Germany, Poland, Czech Republic, Spain, Italy, and Slovenia. Single-country models more often outperformed the ensemble than multi-country models, with a median (99% quantile interval) score of `r summary_by_target[summary_by_target$target_type=="Single-country","score_range"]` compared to `r summary_by_target[summary_by_target$target_type=="Multi-country","score_range"]`. Performance did not substantially vary with the forecast horizon, with both average and ranges remaining roughly similar for forecasts of one up to four weeks (figure 2B).
+
+<!--- Describe models by affiliated countries --->
+
+```{r n-by-affiliation}
+# Summarise overall performance by team affiliated countries
+affiliation_by_model <- affiliation_by_model |> 
+  filter(model_abbr %in% unique(scores_raw$model)) |> 
+  distinct(model_abbr, location_code) |> 
+  rename(model = model_abbr, country_affiliation = location_code)
+
+# Count of model by countries
+affiliation_n <- affiliation_by_model |> 
+  group_by(country_affiliation) |> 
+  tally()
+
+# Summary performance by affiliation
+summary_by_affil <- scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
+  filter(scale == "log") |> 
+  left_join(affiliation_by_model)
+
+
+|>  
+  group_by(target_type) |>
+  reframe(
+    n = n(),
+    value = round(quantile(rel_wis, summary_quantiles), 2),
+    quantile = paste0("q", summary_quantiles)) |> 
+  pivot_wider(names_from = quantile) |> 
+  mutate(score_range = paste0(q0.5, " (", q0.01, "-", q0.99, ")"))
+```
 
 <!--- Plot performance by horizon --->
 
@@ -291,34 +323,10 @@ plot_method_target
 \newpage
 
 <!--- Model rWIS --->
-
-We used a generalised additive mixed effects model to identify the effects of model structure and target type on relative WIS. 
-
 ```{r model-wis}
 source(here("R", "model-wis.R"))
-# * Key to factors:
-# Method: 1 = Mechanistic, 2 = Semi-mech, 3 = Statistical
-# Target: 1 = Single country, 2 = Multi-country
-# Trend: 1 = Stable, 2 = Increasing, 3 = Decreasing
-# Model: 35 included (excl. 3 qualitative models)
-
-# summary(m.fit) # Check output
-# glance(m.fit) # Check fit
-# m.smooths <- smooth_estimates(object = m.fit) # Get the smooth estimates
-# draw(m.smooths) # Draw the smooth estimates
-# appraise(m.fit) # QQ plot, residuals
-# concurvity(m.fit, full = FALSE) # Concurvity
-# variance_comp(m.fit) # Random effects as their equivalent variance components
 ```
 
-!!! *Temporary results*
+We fit a generalised additive mixed model to `r m.anova[["n"]]` forecast scores. We found no evidence that forecast performance was affected by either model structure (p=`r round(m.anova[["pTerms.pv"]]["Method"], 2)`) or the number of countries each model targeted (p=`r round(m.anova[["pTerms.pv"]]["Targets"], 2)`). Performance was more heavily influenced by the observed incidence of deaths from COVID-19, the trend in incidence, and the weeks-ahead horizon of the forecast (each p<0.001; see Supplement). Specifically, a higher observed incidence and an increasing or decreasing trend corresponded to higher interval scores (worsening forecast performance). Similarly, performance declined with longer forecast horizons. This model explains approximately `r round(m.anova$dev.expl*100, 2)`% of the variability in the relative weighted interval score, suggesting that other factors beyond those included here contribute to forecasting accuracy. We compared models with and without each of the confounding variables included here. 
 
-We found no substantial effect on forecast performance from either model structure or the number of countries forecast.
-
-```{r print-gamm}
-tidy(m.fit)
-```
-
-```{r plot-gamm}
-draw(m.fit)
-```
+In sensitivity analysis, we found that with one exception, varying the terms included in the GAMM did not influence the substantive result presented here: that neither methodological structure nor number of targets affected forecast performance. However, we noted that most of the variation in forecast performance was absorbed by including each individual model as a random effect (i.e. accounting for the grouping structure of individual forecast scores). By comparison, when this random effect was not included, the impact of methodological structure on forecast performance became substantial (p<0.001), while the relative impact of the number of targets did not change (p=`r round(m.anova_no_re[["pTerms.pv"]]["Targets"], 2)`). This suggests that there is greater variation between the performance of each model than there is between their underlying methodological structures.

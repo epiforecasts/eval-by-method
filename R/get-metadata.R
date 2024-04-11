@@ -44,10 +44,10 @@ get_metadata_raw <- function() {
     metadata_raw <- map_dfr(unique(model_names_dates$model),
                         ~ read_yaml(paste0("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/",
                                            .x, ".yml")))
-aa
+
     # TODO pull out contributor details separately to get institution location
     ctb <- metadata_raw |>
-      select(model_abbr, model_contributors)
+      select(model_abbr, model_contributors, team_funding, citation, website_url, repo_url)
     ctb <- unnest_wider(ctb, col = c("model_contributors"))
 
     # tidy
