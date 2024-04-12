@@ -18,7 +18,6 @@ library(patchwork)
 theme_set(theme_bw())
 knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
                       message = FALSE, warning = FALSE)
-quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
 ```
 
 ```{r, eval=FALSE}
@@ -34,6 +33,8 @@ quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
 ```
 
 ```{r load-data}
+quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
+summary_quantiles <- c(0.5, 0.01, 0.99)
 # Load score data
 scores_raw <- read_csv(here("data", "scores-raw.csv"))
 scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
@@ -41,6 +42,8 @@ scores_pairwise_date <- read_csv(here("data",
                                       "scores-pw-target-date.csv")) 
 scores_pairwise_horizon <- read_csv(here("data",
                                          "scores-pw-horizon.csv"))
+scores_pairwise_location <- read_csv(here("data",
+                                         "scores-pw-location.csv"))
 # Categorisation of models
 # Get method types
 metadata <- read_csv(here("data", "model-classification.csv")) |>
@@ -50,12 +53,33 @@ targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
 # Affiliations
 affiliation_by_model <- read_csv(here("data", "country-affiliations.csv"))
 ```
-
+```{r summarise-top-level}
+all_summary <- scores_pairwise |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model) & scale == "log")
+n_models <- length(unique(all_summary$model))
+n_outperform <- length(filter(all_summary, rel_wis < 1))
+q_all_time <- scores_pairwise_date |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model) & scale == "log") |> 
+  reframe(
+    n = n(),
+    value = round(quantile(rel_wis, quantiles), 2),
+    quantile = paste0("q", quantiles)) |> 
+  pivot_wider(names_from = quantile)
+q_over_time <- scores_pairwise_date |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", model) & scale == "log") |> 
+  group_by(target_end_date) |> 
+  reframe(
+    n = n(),
+    value = round(quantile(rel_wis, quantiles), 2),
+    quantile = paste0("q", quantiles)) |> 
+  pivot_wider(names_from = quantile)
+  
+```
 <!--- Describe data and evaluation baseline --->
 
-We evaluated 39 forecast models contributed to the European COVID-19 Forecast Hub, covering 32 countries over 104 weeks from 8 March 2021 to 10 March 2023. Here we report evaluations using log-transformed forecasts. We note this gives less extreme scores compared to using the natural scale (Figure 1; SI Figure 1).
+We evaluated `r n_models` forecast models contributed to the European COVID-19 Forecast Hub, covering 32 countries over 104 weeks from 8 March 2021 to 10 March 2023. Here we report evaluations using log-transformed forecasts. We note this gives less extreme scores compared to using the natural scale (Figure 1; SI Figure 1).
 
-We evaluated forecast performance against the performance of a median ensemble including all qualifying models. We observed the ensemble model generally outperformed individual models. On average across all forecast targets and horizons, only three models outranked the ensemble model (i.e., an average relative WIS <1). Average performance relative to the ensemble varied over time, with a median score of 1.39 and within an interquartile range of 1.07-1.85. Among 104 weeks of forecasts, the median score across all individual models outperformed the score of the ensemble model for only five weeks in autumn 2022.
+We evaluated forecast performance against the performance of a median ensemble including all qualifying models. We observed the ensemble model generally outperformed individual models. On average across all forecast targets and horizons, only `r n_outperform` models outranked the ensemble model (i.e., an average relative WIS <1). Average performance relative to the ensemble varied over time, with a median score of `r q_all_time$q0.5` and within an interquartile range of `r q_all_time$q0.25`-`r q_all_time$q0.75`. Among 104 weeks of forecasts, the median score across all individual models outperformed the score of the ensemble model for only `r nrow(filter(q_over_time, q0.5 < 1))` weeks, the majority in winter 2022.
 
 ```{r all-scores, fig.height = 6, fig.width = 10, fig.cap=fig1_cap}
 scale_cols <- c("natural" = "#d95f02", "log" = "#1b9e77")
@@ -122,7 +146,6 @@ plot_all
 
 ```{r table-scores-by-method}
 # Summarise overall performance by model structure
-summary_quantiles <- c(0.5, 0.01, 0.99)
 summary_by_method <- scores_pairwise |> 
   filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   filter(scale == "log") |> 
@@ -188,6 +211,7 @@ We considered models forecasting for only one or multiple countries. We collated
 
 <!--- Describe models by affiliated countries --->
 
+#### Model scores aggregated by target location matching country affiliation
 ```{r n-by-affiliation}
 # Summarise overall performance by team affiliated countries
 affiliation_by_model <- affiliation_by_model |> 
@@ -201,17 +225,17 @@ affiliation_n <- affiliation_by_model |>
   tally()
 
 # Summary performance by affiliation
-summary_by_affil <- scores_pairwise |> 
+summary_by_affil <- scores_pairwise_location |> 
   filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
   filter(scale == "log") |> 
-  left_join(affiliation_by_model)
+  left_join(affiliation_by_model, by = "model") |> 
+  mutate(location_match = location == country_affiliation)
 
-
-|>  
-  group_by(target_type) |>
+summary_by_affil |>  
+  group_by(location_match) |>
   reframe(
     n = n(),
-    value = round(quantile(rel_wis, summary_quantiles), 2),
+    value = round(quantile(rel_wis, summary_quantiles, na.rm = TRUE), 2),
     quantile = paste0("q", summary_quantiles)) |> 
   pivot_wider(names_from = quantile) |> 
   mutate(score_range = paste0(q0.5, " (", q0.01, "-", q0.99, ")"))

@@ -13,10 +13,10 @@ obs <- get_observed()
 forecasts <- left_join(forecasts_raw, obs,
                        by = c("location", "target_end_date")) |>
   rename(true_value = observed)
-# remove anomalies (as of March 4th 2023, pre-data change)
-anomalies <- get_anomalies()
-forecasts <- anti_join(forecasts, anomalies,
-                        by = c("target_end_date", "location"))
+# # remove anomalies (as of March 4th 2023, pre-data change)
+# anomalies <- get_anomalies()
+# forecasts <- anti_join(forecasts, anomalies,
+#                         by = c("target_end_date", "location"))
 
 # Score forecasts on natural and log scales -----
 scores <- forecasts |>
@@ -69,15 +69,15 @@ scores_pairwise_target <- score_pairwise(scores,
                                                "model", "scale"))
 write_csv(scores_pairwise_target, here("data", "scores-pw-target-date.csv"))
 
-# All horizons / all location; by forecast creation date
-scores_pairwise_origin <- score_pairwise(scores,
-                                  score_by = c("forecast_date",
-                                               "model", "scale"))
-write_csv(scores_pairwise_origin, here("data", "scores-pw-forecast-date.csv"))
+# # All horizons / all location; by forecast creation date
+# scores_pairwise_origin <- score_pairwise(scores,
+#                                   score_by = c("forecast_date",
+#                                                "model", "scale"))
+# write_csv(scores_pairwise_origin, here("data", "scores-pw-forecast-date.csv"))
 
-# All tine / all horizons; by location;
+# All time / all horizons; by location
 scores_pairwise_location <- score_pairwise(scores,
                                          score_by = c("location",
                                                       "model", "scale"))
-write_csv(scores_pairwise_origin, here("data", "scores-pw-location.csv"))
+write_csv(scores_pairwise_location, here("data", "scores-pw-location.csv"))
 

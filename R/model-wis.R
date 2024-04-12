@@ -29,6 +29,9 @@ prep_data <- function() {
                                 method_type == "Semi-mechanistic" ~ 2,
                                 method_type == "Statistical"~ 3),
            Method = factor(Method))
+  # Affiliations
+  affiliation_by_model <- read_csv(here("data", "country-affiliations.csv"))
+
   # Incidence level + trend (see: R/import-data.r)
   obs <- read_csv(here("data", "observed.csv")) |>
     mutate(Trend = case_when(trend == "Stable" ~ 1,
