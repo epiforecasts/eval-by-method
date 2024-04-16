@@ -1,0 +1,136 @@
+---
+title: "Results"
+output: 
+  pdf_document:
+    extra_dependencies: ["flafter"]
+---
+```{r trackdown, include=FALSE, eval=FALSE}
+library(here)
+library(trackdown)
+# upload_file(file = here("output", "results.Rmd"), 
+#             gpath = "trackdown/hub-method-evaluation",
+#             hide_code = TRUE)
+trackdown::download_file(file = here("output", "results.Rmd"))
+trackdown::update_file(file = here("output", "results.Rmd"), 
+                       hide_code = TRUE)
+```
+<!--- RMarkdown set up --->
+```{r set-up, include=FALSE}
+library(here)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(tibble)
+library(purrr)
+library(ggplot2)
+library(patchwork)
+library(kableExtra)
+theme_set(theme_classic())
+knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
+                      message = FALSE, warning = FALSE)
+```
+
+```{r, data-pipeline}
+## NOT RUN
+## Data creation pipeline
+## Get metadata from googlesheet; save to data/
+# source(here("R", "get-metadata.R"))
+# get_metadata_processed()
+## Get observed data and all Hub forecasts; exclude forecasts
+# source(here("R", "import-data.R"))
+## Score forecasts & ensembles on the log and natural scales; save to data/
+# source(here("R", "score.R"))
+# --------------------
+# Get data
+source(here("R", "prep-data.R"))
+source(here("R", "descriptive.R"))
+scores <- prep_data(scoring_scale = "log") |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+```
+
+```{r metadata, tab.cap="Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, number of forecasts contributed, and interval scores (median and interquartile range) across contributed forecasts."}
+table_metadata()
+```
+ 
+<!--- Describe scores data --->
+```{r load-data}
+n_models <- length(unique(scores$Model))
+n_forecasts <- nrow(scores)
+model_forecasts <- scores |> 
+  group_by(Model) |> 
+  summarise(n_forecasts = n())
+model_forecasts <- summary(model_forecasts$n_forecasts)
+```
+
+We evaluated forecasts of incident deaths from COVID-19, collecting `r n_forecasts` forecasts projected by `r n_models` models contributing to the European COVID-19 Forecast Hub. Forecasts were collected prospectively over 104 weeks from 8 March 2021 to 10 March 2023, and covered one through four week ahead incidence in 32 countries. We report the weighted interval score using log-transformed forecasts.
+
+The number and performance of forecasts varied over time, as forecasting teams joined or left and contributed to varying combinations of forecast targets. We collated between 11 and 33 models in any one week, forecasting for any combination of `r 4*32` possible weekly forecast targets. Models widely varied in their volume of contributions: on average each model contributed `r round(model_forecasts[4])` forecasts, with the median model contributing `r model_forecasts[3]` forecasts. We observed a range of forecast performance among models (figure 1). In general, performance was best in stable periods of little change in incident deaths, while over the length of the forecast horizon, performance appeared to worsen with increasing horizons up to four weeks (table 1). 
+
+
+```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=8}
+ridges_caption <- paste0("Distribution of forecast scores for 1 to 4 week ahead forecasts across 32 locations over 104 weeks (N=", n_forecasts, "). Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
+plot_ridges(scores)
+```
+
+<!--- Describe models by model structure --->
+```{r table-scores}
+table1_raw <- create_table1(scores)
+table1 <- table1_raw |>
+  select(group, Variable, Models, Forecasts, 
+         `Median (IQR)`) 
+table1 |> 
+  select(-group) |> 
+  rename(" " = Variable) |> 
+  kable(caption = "Characteristics of forecast performance (interval score) contributed to the European COVID-19 Forecast Hub, March 2021-2023.") |> 
+  pack_rows(index = c(" " = 1,
+                      "Method" = 4, 
+                      "Number of country targets" = 2,
+                      #"Modelling team affiliation" = 2,
+                      "Week ahead horizon" = 4,
+                      "3-week trend in incidence" = 4))
+```
+<!--- Describe scores by method --->
+
+We defined four model structures among 39 models. We categorised 8 models as statistical, 10 as semi-mechanistic, and 18 as mechanistic, with 3 qualitative ensemble models. In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Descriptively, we observed similar performance in the central tendencies of the interval score between mechanistic and semi-mechanistic models, performing relatively better than statistical models. We noted that the four top performing models were all semi- or mechanistic and forecast for only one country (Poland or Italy), although these models provided far fewer forecasts than others (table 1). 
+
+<!--- Describe scores by target countries --->
+```{r target-description}
+model_targets <- table_targets(scores)
+multi_targets <- filter(model_targets, CountryTargets == "Multi-country")
+# affiliated_location <- scores |>
+#   group_by(country_affiliation) |> 
+#   table_confint()
+```
+
+We considered models forecasting for one to two, or multiple countries. We collated 16 single-country models and 23 multi-country models. Single-country models targeted Germany (6 models), Poland (5), Czech Republic (2), Spain (2), Italy (2), and Slovenia (1). Two models classified as single-country targeted both Germany and Poland. On average, multi-country models forecast for `r round(mean(multi_targets$mean))` locations. Models classified as targeting multiple countries could vary from week to week in how many locations they forecast. Only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of locations throughout the entire study period, with `r nrow(multi_targets |> filter(consistent & min_targets==32))` of these forecasting for all 32 available locations.
+
+<!--- Model WIS --->
+```{r}
+source(here("R", "model-wis.R"))
+```
+
+We fit a generalised additive mixed model to `r m.anova[["n"]]` forecasts' interval scores. The interval score was highly right-skewed with respect to all explanatory variables (see Supplement). We corrected for this by fitting to the log of the interval score. We found no clear evidence that any one type of method structure consistently outperformed others (p=`r round(m.anova[["pTerms.pv"]]["Method"], 2)`). We also found no evidence for whether the location specificity of the model influenced performance, comparing models forecasting for three or more countries to those targeting only one or two countries (p=`r round(m.anova[["pTerms.pv"]]["CountryTargets"], 2)`).
+
+```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
+coeff_cap <- "Partial effect size (95% CI) for log-transformed interval score"
+plot_coeffs(m.anova)
+dev <- c("exp" = round(m.anova$dev.expl*100, 1),
+         "null" = round(m_null.anova$dev.expl*100, 1))
+aic <- c("exp" = format(m.fit$aic, digits = 1, scientific = FALSE),
+         "null" = format(m_null.fit$aic, digits = 1, scientific = FALSE))
+```
+
+We compared our results to a null model excluding the three variables of interest. We observed very similar explanatory power (`r dev["exp"]`% and `r dev["null"]`% deviance explained, AIC `r aic["exp"]` and `r aic["null"]` between explanatory and null models respectively). Among mediating variables, we noted that performance was heavily influenced by the observed incidence of deaths from COVID-19, the trend in incidence, and the weeks-ahead horizon of the forecast (each p<0.001; see Supplement). Specifically, a higher observed incidence and an increasing or decreasing trend corresponded to higher interval scores (worsening forecast performance). Similarly, performance declined with longer forecast horizons. Considering the model as a whole, this model explained approximately `r round(m.anova$dev.expl*100)`% of the variability in the interval score, this might suggest that other factors beyond those included here contribute to forecasting accuracy.
+
+```{r model-fit-comparison}
+# model_fit <- tibble(
+#   "Model" = c("Null", "Explanatory"),
+#   "Variables" = c("Incidence, trend, model",
+#                   "Null + method structure, number of target countries, affiliation of institute to target country"),
+#   "Deviance explained" = paste0(round(c(m_null.anova$dev.expl*100,
+#                                         m.anova$dev.expl*100), 1), "%"),
+#   "AIC" = round(c(m_null.fit$aic, 
+#                   m.fit$aic)),
+#   )
+# knitr::kable(model_fit)
+```

@@ -1,0 +1,100 @@
+---
+title: "Supplement"
+output:
+  pdf_document:
+    toc: true
+---
+
+```{r set-up, include=FALSE}
+library(here)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(forcats)
+library(patchwork)
+library(flextable)
+theme_set(theme_classic())
+knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
+                      message = FALSE, warning = FALSE)
+```
+
+```{r load-data}
+# Load data
+source(here("R", "prep-data.R"))
+source(here("R", "descriptive.R"))
+scores <- prep_data(scoring_scale = "log")
+```
+
+\newpage
+
+## Model fitting
+
+```{r model-wis}
+source(here("R", "model-wis.R"))
+```
+
+Code is available at: <https://github.com/epiforecasts/model-structure-evaluation>. 
+
+#### 1. Conditional distribution of outcomes
+
+```{r density-plot}
+plot_density <- plot_density(scores)
+ggsave(plot = plot_density, width = 10, height = 8, 
+       filename = here("output", "supplement", "density.jpg"))
+```
+![Density plot](`r here("output", "supplement", "density.jpg")`)
+
+\newpage
+
+#### 2. Model formula
+
+`r m.fit$formula`
+
+#### 3. Summary of estimates
+
+Reference levels for categorical variables are:
+- Mechanistic model method
+- Single-country target
+- Modelling team affiliation is located in the forecast target country 
+- Trend (of observed incidence) is stable
+- Horizon is one-week-ahead
+
+```{r gamm-coeffs-all}
+as_flextable(m.fit) |> 
+  autofit()
+```
+
+```{r print-gamm}
+knitr::kable(m.anova$pTerms.table, digits = 3, caption = "ANOVA for parametric terms")
+```
+
+\newpage
+
+#### 4. Partial effects plots
+
+```{r gamm-plot-all}
+plot_terms <- draw(m.fit, parametric = TRUE, residuals = TRUE, ci_level = 0.95)
+ggsave(plot = plot_terms, height = 8, width = 10,
+       filename = here("output", "supplement", "estimates.jpg"))
+```
+![Model estimates](`r here("output", "supplement", "estimates.jpg")`)
+
+\newpage
+
+#### 5. Model diagnostics
+
+```{r gamm-diagnostics}
+# QQ plot, residuals
+plot_diagnostic <- appraise(m.fit)
+ggsave(plot = plot_diagnostic, width = 6, height = 6,
+       filename = here("output", "supplement", "diagnostics.jpg"))
+```
+![Diagnostics](`r here("output", "supplement", "diagnostics.jpg")`)
+  
+\newpage
+
+```{r scores-over-time, include=FALSE, fig.cap=plot_iqr_over_time_cap}
+plot_iqr_over_time_cap <- "Median (IQR) of the weekly weighted interval score across all forecasts submitted to the European COVID-19 Forecast Hub"
+plot_iqr_over_time(scores)
+```

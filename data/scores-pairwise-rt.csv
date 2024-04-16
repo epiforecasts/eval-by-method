@@ -1,0 +1,509 @@
+model,variant,horizon,rel_wis
+EuroCOVIDhub-baseline,pre-delta,1,1.2142289965947306
+EuroCOVIDhub-ensemble,pre-delta,1,1
+IEM_Health-CovidProject,pre-delta,1,1.3870113736736462
+ILM-EKF,pre-delta,1,1.2703674843784503
+Imperial-DeCa,pre-delta,1,2.4417130881460047
+Imperial-RtI0,pre-delta,1,3.4305319847506675
+Imperial-sbkp,pre-delta,1,3.2127256098017987
+LANL-GrowthRate,pre-delta,1,1.095504694806961
+MUNI-ARIMA,pre-delta,1,1.3058217483767893
+RobertWalraven-ESG,pre-delta,1,1.145551897367539
+UB-BSLCoV,pre-delta,1,1.222683395749346
+UMass-MechBayes,pre-delta,1,1.3902338120003124
+UMass-SemiMech,pre-delta,1,1.9665593639328884
+UNED-PreCoV2,pre-delta,1,1.1547271645881403
+USC-SIkJalpha,pre-delta,1,1.1851765014255404
+bisop-seirfilterlite,pre-delta,1,1.9557800614204286
+epiforecasts-EpiExpert,pre-delta,1,0.9807718134106402
+epiforecasts-EpiExpert_Rt,pre-delta,1,1.2791297994928919
+epiforecasts-EpiExpert_direct,pre-delta,1,0.680564401424496
+epiforecasts-EpiNow2,pre-delta,1,1.1502991650958458
+EuroCOVIDhub-baseline,pre-delta,4,1.6054533826851947
+EuroCOVIDhub-ensemble,pre-delta,4,1
+IEM_Health-CovidProject,pre-delta,4,1.62301132579528
+ILM-EKF,pre-delta,4,1.2288582601075242
+LANL-GrowthRate,pre-delta,4,1.01640483051706
+MUNI-ARIMA,pre-delta,4,1.55728888156646
+RobertWalraven-ESG,pre-delta,4,1.182378269352052
+UB-BSLCoV,pre-delta,4,0.7533281784797998
+UMass-MechBayes,pre-delta,4,1.1393616735062166
+UMass-SemiMech,pre-delta,4,1.5350568019613948
+USC-SIkJalpha,pre-delta,4,1.0537652623072198
+bisop-seirfilterlite,pre-delta,4,1.476314502500931
+epiforecasts-EpiExpert,pre-delta,4,1.070318142292412
+epiforecasts-EpiExpert_Rt,pre-delta,4,0.9247213553340006
+epiforecasts-EpiExpert_direct,pre-delta,4,1.0682669774524869
+epiforecasts-EpiNow2,pre-delta,4,1.2343269153180803
+EuroCOVIDhub-baseline,pre-delta,3,1.645438628940712
+EuroCOVIDhub-ensemble,pre-delta,3,1
+IEM_Health-CovidProject,pre-delta,3,1.6082313793473453
+ILM-EKF,pre-delta,3,1.216474883782628
+LANL-GrowthRate,pre-delta,3,1.0897534585708453
+MUNI-ARIMA,pre-delta,3,1.5931317108014371
+RobertWalraven-ESG,pre-delta,3,1.2774273547030186
+UB-BSLCoV,pre-delta,3,1.0820289135436516
+UMass-MechBayes,pre-delta,3,1.1962845309404602
+UMass-SemiMech,pre-delta,3,1.5564434061135661
+UNED-PreCoV2,pre-delta,3,0.8734051991859989
+USC-SIkJalpha,pre-delta,3,1.171790040032236
+bisop-seirfilterlite,pre-delta,3,1.708782269112619
+epiforecasts-EpiExpert,pre-delta,3,1.105980270108442
+epiforecasts-EpiExpert_Rt,pre-delta,3,1.1285821816387298
+epiforecasts-EpiExpert_direct,pre-delta,3,0.9583887959136129
+epiforecasts-EpiNow2,pre-delta,3,1.2804067244632278
+EuroCOVIDhub-baseline,pre-delta,2,1.4050830703215504
+EuroCOVIDhub-ensemble,pre-delta,2,1
+IEM_Health-CovidProject,pre-delta,2,1.523950913261207
+ILM-EKF,pre-delta,2,1.1761154903142939
+LANL-GrowthRate,pre-delta,2,1.1244722677424028
+MUNI-ARIMA,pre-delta,2,1.3888717534197146
+RobertWalraven-ESG,pre-delta,2,1.234627482446677
+UB-BSLCoV,pre-delta,2,1.4824428114640686
+UMass-MechBayes,pre-delta,2,1.273318156825681
+UMass-SemiMech,pre-delta,2,1.9022396447700347
+UNED-PreCoV2,pre-delta,2,1.0974053715919083
+USC-SIkJalpha,pre-delta,2,1.121993892776549
+bisop-seirfilterlite,pre-delta,2,1.9096473942927996
+epiforecasts-EpiExpert,pre-delta,2,1.074394012829036
+epiforecasts-EpiExpert_Rt,pre-delta,2,1.1917553613748897
+epiforecasts-EpiExpert_direct,pre-delta,2,0.8775474757881729
+epiforecasts-EpiNow2,pre-delta,2,1.1881203982283146
+EuroCOVIDhub-baseline,delta dominant,4,2.518230386105453
+EuroCOVIDhub-ensemble,delta dominant,4,1
+FIAS_FZJ-Epi1Ger,delta dominant,4,1.4994356545014993
+HZI-AgeExtendedSEIR,delta dominant,4,0.8880115924786165
+ICM-agentModel,delta dominant,4,1.9510430207281046
+IEM_Health-CovidProject,delta dominant,4,1.5971953534303454
+ILM-EKF,delta dominant,4,1.243052491284733
+ITWW-county_repro,delta dominant,4,1.1101258704048216
+Karlen-pypm,delta dominant,4,1.4204611002451946
+LANL-GrowthRate,delta dominant,4,1.4343362211959139
+MIMUW-StochSEIR,delta dominant,4,1.0588242632122873
+MIT_CovidAnalytics-DELPHI,delta dominant,4,1.987296464894112
+MOCOS-agent1,delta dominant,4,0.8337205054733634
+MUNI-ARIMA,delta dominant,4,1.9881714084436477
+MUNI-LaggedRegARIMA,delta dominant,4,1.3386261975946705
+MUNI-VAR,delta dominant,4,1.8012434076484178
+MUNI_DMS-SEIAR,delta dominant,4,1.4712498711409194
+RobertWalraven-ESG,delta dominant,4,2.0242980987777566
+UB-BSLCoV,delta dominant,4,2.2468091076283154
+ULZF-SEIRC19SI,delta dominant,4,1.8039168347337422
+UMass-MechBayes,delta dominant,4,1.1601863664528138
+UMass-SemiMech,delta dominant,4,0.8719535459101703
+USC-SIkJalpha,delta dominant,4,1.1735411873735284
+epiforecasts-EpiExpert,delta dominant,4,1.1657638484840753
+epiforecasts-EpiExpert_Rt,delta dominant,4,2.0266347298232645
+epiforecasts-EpiExpert_direct,delta dominant,4,1.0205712197771246
+epiforecasts-EpiNow2,delta dominant,4,1.333365229320725
+itwm-dSEIR,delta dominant,4,1.9832684015444217
+EuroCOVIDhub-baseline,delta dominant,3,2.7653481782490354
+EuroCOVIDhub-ensemble,delta dominant,3,1
+FIAS_FZJ-Epi1Ger,delta dominant,3,2.158140883409393
+HZI-AgeExtendedSEIR,delta dominant,3,0.8792129483086404
+ICM-agentModel,delta dominant,3,2.31918988452614
+IEM_Health-CovidProject,delta dominant,3,1.7177346851717934
+ILM-EKF,delta dominant,3,1.1510720014741822
+ITWW-county_repro,delta dominant,3,1.2924229304216315
+Karlen-pypm,delta dominant,3,1.3816096236113162
+LANL-GrowthRate,delta dominant,3,1.5137579692999237
+MIMUW-StochSEIR,delta dominant,3,1.1259686743491208
+MIT_CovidAnalytics-DELPHI,delta dominant,3,1.7343630915624046
+MOCOS-agent1,delta dominant,3,0.9271782597119745
+MUNI-ARIMA,delta dominant,3,2.064949854284731
+MUNI-LaggedRegARIMA,delta dominant,3,1.3354630641885916
+MUNI-VAR,delta dominant,3,1.4235129793829673
+MUNI_DMS-SEIAR,delta dominant,3,1.561668265963434
+RobertWalraven-ESG,delta dominant,3,2.11475375644199
+UB-BSLCoV,delta dominant,3,2.1179809846238875
+ULZF-SEIRC19SI,delta dominant,3,2.102777056960479
+UMass-MechBayes,delta dominant,3,1.163009089164818
+UMass-SemiMech,delta dominant,3,0.8578934302315595
+UNED-PreCoV2,delta dominant,3,2.6830971695839314
+USC-SIkJalpha,delta dominant,3,1.3026380871751162
+epiforecasts-EpiExpert,delta dominant,3,1.1587605181528402
+epiforecasts-EpiExpert_Rt,delta dominant,3,2.236975034898814
+epiforecasts-EpiExpert_direct,delta dominant,3,1.2460817567468758
+epiforecasts-EpiNow2,delta dominant,3,1.3555247934686059
+itwm-dSEIR,delta dominant,3,1.8043893016623187
+EuroCOVIDhub-baseline,delta dominant,2,2.589882139206702
+EuroCOVIDhub-ensemble,delta dominant,2,1
+FIAS_FZJ-Epi1Ger,delta dominant,2,2.0927632249928956
+HZI-AgeExtendedSEIR,delta dominant,2,0.9416648199843207
+ICM-agentModel,delta dominant,2,3.0404361164706497
+IEM_Health-CovidProject,delta dominant,2,1.5848669871550634
+ILM-EKF,delta dominant,2,1.1634992746725286
+ITWW-county_repro,delta dominant,2,1.1952490430005114
+Karlen-pypm,delta dominant,2,1.3088389266261515
+LANL-GrowthRate,delta dominant,2,1.5204675309125515
+MIMUW-StochSEIR,delta dominant,2,0.4932541580104494
+MIT_CovidAnalytics-DELPHI,delta dominant,2,1.449366202360249
+MOCOS-agent1,delta dominant,2,0.9190033602159033
+MUNI-ARIMA,delta dominant,2,1.761886690290318
+MUNI-LaggedRegARIMA,delta dominant,2,1.151739375481281
+MUNI-VAR,delta dominant,2,1.207012277621665
+MUNI_DMS-SEIAR,delta dominant,2,1.6818008966463536
+RobertWalraven-ESG,delta dominant,2,1.8883951467901572
+UB-BSLCoV,delta dominant,2,1.6583479412806141
+ULZF-SEIRC19SI,delta dominant,2,1.7009325077007256
+UMass-MechBayes,delta dominant,2,1.0826339741581246
+UMass-SemiMech,delta dominant,2,1.131621974051773
+UNED-PreCoV2,delta dominant,2,2.1169799060550254
+USC-SIkJalpha,delta dominant,2,1.2930379785005603
+epiforecasts-EpiExpert,delta dominant,2,1.2972414464487358
+epiforecasts-EpiExpert_Rt,delta dominant,2,2.238384438454377
+epiforecasts-EpiExpert_direct,delta dominant,2,1.1773189364068668
+epiforecasts-EpiNow2,delta dominant,2,1.3431296419985277
+itwm-dSEIR,delta dominant,2,1.4497194485300156
+EuroCOVIDhub-baseline,delta dominant,1,1.6930447002398936
+EuroCOVIDhub-ensemble,delta dominant,1,1
+FIAS_FZJ-Epi1Ger,delta dominant,1,1.8299812492334981
+HZI-AgeExtendedSEIR,delta dominant,1,1.0182138950298631
+ICM-agentModel,delta dominant,1,3.6289624075600817
+IEM_Health-CovidProject,delta dominant,1,1.36161478640658
+ILM-EKF,delta dominant,1,1.2849312242674802
+ITWW-county_repro,delta dominant,1,1.044712155154909
+Imperial-DeCa,delta dominant,1,1.4091951789216648
+Imperial-RtI0,delta dominant,1,2.0401288837301776
+Imperial-sbkp,delta dominant,1,1.622994342715181
+Karlen-pypm,delta dominant,1,1.3064013079378638
+LANL-GrowthRate,delta dominant,1,1.433035783566242
+MIMUW-StochSEIR,delta dominant,1,1.8327025370582122
+MIT_CovidAnalytics-DELPHI,delta dominant,1,1.6177835170874513
+MOCOS-agent1,delta dominant,1,1.0364032010425634
+MUNI-ARIMA,delta dominant,1,1.3474757481289121
+MUNI-LaggedRegARIMA,delta dominant,1,1.2836660928186165
+MUNI-VAR,delta dominant,1,1.2040259071472994
+MUNI_DMS-SEIAR,delta dominant,1,2.2170613198368474
+RobertWalraven-ESG,delta dominant,1,1.6130698653682856
+UB-BSLCoV,delta dominant,1,1.1002103762332254
+ULZF-SEIRC19SI,delta dominant,1,1.514041359195308
+UMass-MechBayes,delta dominant,1,1.1732462045281844
+UMass-SemiMech,delta dominant,1,1.268638045824785
+UNED-PreCoV2,delta dominant,1,1.965824526783675
+USC-SIkJalpha,delta dominant,1,1.3083550824969867
+epiforecasts-EpiExpert,delta dominant,1,1.489293626535261
+epiforecasts-EpiExpert_Rt,delta dominant,1,2.8202089656079177
+epiforecasts-EpiExpert_direct,delta dominant,1,1.0391859201318028
+epiforecasts-EpiNow2,delta dominant,1,1.3911764828451112
+itwm-dSEIR,delta dominant,1,1.4716245033371478
+EuroCOVIDhub-baseline,omicron intro,4,1.4845532765375873
+EuroCOVIDhub-ensemble,omicron intro,4,1
+FIAS_FZJ-Epi1Ger,omicron intro,4,1.1459052611420366
+HZI-AgeExtendedSEIR,omicron intro,4,1.3160978989501069
+ICM-agentModel,omicron intro,4,0.8814086891333919
+IEM_Health-CovidProject,omicron intro,4,2.5904872897864277
+ILM-EKF,omicron intro,4,1.377039424150069
+ITWW-county_repro,omicron intro,4,1.241946446213385
+Karlen-pypm,omicron intro,4,1.245721541271084
+LANL-GrowthRate,omicron intro,4,1.9625667615105014
+MIT_CovidAnalytics-DELPHI,omicron intro,4,1.3518165442347347
+MOCOS-agent1,omicron intro,4,2.5023715762385903
+MUNI-ARIMA,omicron intro,4,1.5830713017476408
+MUNI-LaggedRegARIMA,omicron intro,4,0.8784302020922478
+MUNI-VAR,omicron intro,4,1.9301160847928858
+MUNI_DMS-SEIAR,omicron intro,4,0.4216942649121565
+RobertWalraven-ESG,omicron intro,4,1.5686906660142477
+ULZF-SEIRC19SI,omicron intro,4,1.223953391864144
+UMass-MechBayes,omicron intro,4,1.149313741976249
+UMass-SemiMech,omicron intro,4,0.8085155489722795
+USC-SIkJalpha,omicron intro,4,1.3072881144021566
+epiforecasts-EpiNow2,omicron intro,4,1.273583313933357
+itwm-dSEIR,omicron intro,4,1.0172069590336184
+EuroCOVIDhub-baseline,omicron intro,3,1.8429362960242437
+EuroCOVIDhub-ensemble,omicron intro,3,1
+FIAS_FZJ-Epi1Ger,omicron intro,3,0.1741711751601373
+HZI-AgeExtendedSEIR,omicron intro,3,2.092041074298021
+ICM-agentModel,omicron intro,3,0.31262626238462005
+IEM_Health-CovidProject,omicron intro,3,2.2537432848410237
+ILM-EKF,omicron intro,3,1.1249492096612848
+ITWW-county_repro,omicron intro,3,0.8541776877768655
+Karlen-pypm,omicron intro,3,1.1547056995966942
+LANL-GrowthRate,omicron intro,3,1.780240969252236
+MIT_CovidAnalytics-DELPHI,omicron intro,3,1.2982436155415273
+MOCOS-agent1,omicron intro,3,1.8162090621119078
+MUNI-ARIMA,omicron intro,3,1.6941173993990801
+MUNI-LaggedRegARIMA,omicron intro,3,0.7286257610452093
+MUNI-VAR,omicron intro,3,1.6308761304472554
+MUNI_DMS-SEIAR,omicron intro,3,1.1551166960963244
+RobertWalraven-ESG,omicron intro,3,1.8501852137165455
+ULZF-SEIRC19SI,omicron intro,3,0.7793501604055663
+UMass-MechBayes,omicron intro,3,0.945392658321639
+UMass-SemiMech,omicron intro,3,0.6968144038928655
+UNED-PreCoV2,omicron intro,3,1.0919478270666252
+USC-SIkJalpha,omicron intro,3,1.8413678549763641
+epiforecasts-EpiNow2,omicron intro,3,1.2209361128143172
+itwm-dSEIR,omicron intro,3,0.584155470781606
+EuroCOVIDhub-baseline,omicron intro,2,2.0623815065234954
+EuroCOVIDhub-ensemble,omicron intro,2,1
+FIAS_FZJ-Epi1Ger,omicron intro,2,0.20100662041389575
+HZI-AgeExtendedSEIR,omicron intro,2,1.3011978226088161
+ICM-agentModel,omicron intro,2,1.5668520217403208
+IEM_Health-CovidProject,omicron intro,2,1.8568573509022184
+ILM-EKF,omicron intro,2,1.142012174063086
+ITWW-county_repro,omicron intro,2,0.8903249496023328
+Karlen-pypm,omicron intro,2,1.1991338847141473
+LANL-GrowthRate,omicron intro,2,1.9138607237655194
+MIT_CovidAnalytics-DELPHI,omicron intro,2,1.3591741867729266
+MOCOS-agent1,omicron intro,2,1.03506168412649
+MUNI-ARIMA,omicron intro,2,1.6695926465410873
+MUNI-LaggedRegARIMA,omicron intro,2,0.9078751438407023
+MUNI-VAR,omicron intro,2,1.4810146812344636
+MUNI_DMS-SEIAR,omicron intro,2,3.139470377143008
+RobertWalraven-ESG,omicron intro,2,1.8213373532573305
+ULZF-SEIRC19SI,omicron intro,2,1.2638498940413543
+UMass-MechBayes,omicron intro,2,1.0571056998094615
+UMass-SemiMech,omicron intro,2,0.5794482890058705
+UNED-PreCoV2,omicron intro,2,1.4868176385618181
+USC-SIkJalpha,omicron intro,2,1.5300404547792108
+epiMOX-SUIHTER,omicron intro,2,0.8357786428115818
+epiforecasts-EpiNow2,omicron intro,2,1.2175013513498951
+itwm-dSEIR,omicron intro,2,0.8306305991943599
+EuroCOVIDhub-baseline,omicron intro,1,1.7516830265270957
+EuroCOVIDhub-ensemble,omicron intro,1,1
+FIAS_FZJ-Epi1Ger,omicron intro,1,0.4928864203890017
+HZI-AgeExtendedSEIR,omicron intro,1,1.300733142984812
+ICM-agentModel,omicron intro,1,0.5394783114109064
+IEM_Health-CovidProject,omicron intro,1,1.519386282240862
+ILM-EKF,omicron intro,1,1.352009275375301
+ITWW-county_repro,omicron intro,1,1.1942045705411943
+Imperial-DeCa,omicron intro,1,1.2811181616020728
+Imperial-RtI0,omicron intro,1,1.3355008036820943
+Imperial-sbkp,omicron intro,1,1.2524950927068819
+Karlen-pypm,omicron intro,1,1.2789691150230489
+LANL-GrowthRate,omicron intro,1,1.8801452389422226
+MIT_CovidAnalytics-DELPHI,omicron intro,1,1.1353712834261915
+MOCOS-agent1,omicron intro,1,1.4214303711589067
+MUNI-ARIMA,omicron intro,1,1.427165281495738
+MUNI-LaggedRegARIMA,omicron intro,1,1.3730695156143036
+MUNI-VAR,omicron intro,1,0.8429616862004836
+MUNI_DMS-SEIAR,omicron intro,1,5.702951567320928
+RobertWalraven-ESG,omicron intro,1,1.7282512496927105
+SDSC_ISG-TrendModel,omicron intro,1,1.585656527763152
+ULZF-SEIRC19SI,omicron intro,1,1.0503530680308586
+UMass-MechBayes,omicron intro,1,1.1958475700331368
+UMass-SemiMech,omicron intro,1,0.6052265933409788
+USC-SIkJalpha,omicron intro,1,1.350746849006787
+UpgUmibUsi-MultiBayes,omicron intro,1,1.2040434047350352
+epiMOX-SUIHTER,omicron intro,1,0.8934836560539892
+epiforecasts-EpiNow2,omicron intro,1,1.2292012655095867
+itwm-dSEIR,omicron intro,1,1.4384464895845992
+EuroCOVIDhub-baseline,omicron dominant,4,1.5859652667580693
+EuroCOVIDhub-ensemble,omicron dominant,4,1
+FIAS_FZJ-Epi1Ger,omicron dominant,4,1.647309201702226
+HZI-AgeExtendedSEIR,omicron dominant,4,1.196177400383391
+ICM-agentModel,omicron dominant,4,1.402736944145788
+IEM_Health-CovidProject,omicron dominant,4,1.4952550825990345
+ILM-EKF,omicron dominant,4,1.4239885009383173
+ITWW-county_repro,omicron dominant,4,1.5727695371925632
+JBUD-HMXK,omicron dominant,4,2.66683738547844
+Karlen-pypm,omicron dominant,4,1.609531153959507
+MIT_CovidAnalytics-DELPHI,omicron dominant,4,1.5474370177323011
+MOCOS-agent1,omicron dominant,4,0.8810188611471677
+MUNI-ARIMA,omicron dominant,4,1.504625392209254
+MUNI-LaggedRegARIMA,omicron dominant,4,1.5159659349132695
+MUNI-VAR,omicron dominant,4,2.443372863029731
+MUNI_DMS-SEIAR,omicron dominant,4,2.9280282942780538
+RobertWalraven-ESG,omicron dominant,4,1.632450889150251
+ULZF-SEIRC19SI,omicron dominant,4,1.1762103763703085
+UMass-MechBayes,omicron dominant,4,1.0329996985057726
+USC-SIkJalpha,omicron dominant,4,1.3996902038327994
+epiforecasts-EpiNow2,omicron dominant,4,1.6375585139174007
+itwm-dSEIR,omicron dominant,4,1.723543752807089
+prolix-euclidean,omicron dominant,4,3.6289670797627602
+EuroCOVIDhub-baseline,omicron dominant,3,1.6718355775396627
+EuroCOVIDhub-ensemble,omicron dominant,3,1
+FIAS_FZJ-Epi1Ger,omicron dominant,3,1.98136168829326
+HZI-AgeExtendedSEIR,omicron dominant,3,0.9782680878261272
+ICM-agentModel,omicron dominant,3,1.3113657075383054
+IEM_Health-CovidProject,omicron dominant,3,1.4630382829548132
+ILM-EKF,omicron dominant,3,1.3639043857769972
+ITWW-county_repro,omicron dominant,3,1.8502898805995978
+JBUD-HMXK,omicron dominant,3,2.8935451403147625
+Karlen-pypm,omicron dominant,3,1.6299549806249791
+MIT_CovidAnalytics-DELPHI,omicron dominant,3,1.6054337282364035
+MOCOS-agent1,omicron dominant,3,1.055366297209137
+MUNI-ARIMA,omicron dominant,3,1.4723133996399649
+MUNI-LaggedRegARIMA,omicron dominant,3,1.512313877062692
+MUNI-VAR,omicron dominant,3,2.0044837315054203
+MUNI_DMS-SEIAR,omicron dominant,3,4.103458704092415
+RobertWalraven-ESG,omicron dominant,3,1.5724039999764732
+ULZF-SEIRC19SI,omicron dominant,3,1.0914949223506012
+UMass-MechBayes,omicron dominant,3,1.020544342523463
+UNED-PreCoV2,omicron dominant,3,1.8231699098319918
+USC-SIkJalpha,omicron dominant,3,1.3584636945405597
+epiforecasts-EpiNow2,omicron dominant,3,1.5956216562629604
+itwm-dSEIR,omicron dominant,3,1.2477748164905402
+prolix-euclidean,omicron dominant,3,3.517081727983282
+EuroCOVIDhub-baseline,omicron dominant,2,1.556192819439951
+EuroCOVIDhub-ensemble,omicron dominant,2,1
+FIAS_FZJ-Epi1Ger,omicron dominant,2,1.9874623881416162
+HZI-AgeExtendedSEIR,omicron dominant,2,1.0914706159126537
+ICM-agentModel,omicron dominant,2,1.094799055531854
+IEM_Health-CovidProject,omicron dominant,2,1.4072260939664376
+ILM-EKF,omicron dominant,2,1.3492799479333764
+ITWW-county_repro,omicron dominant,2,1.7742005960601681
+JBUD-HMXK,omicron dominant,2,3.160265214705219
+Karlen-pypm,omicron dominant,2,1.0282833023616185
+MIT_CovidAnalytics-DELPHI,omicron dominant,2,1.6579345104881968
+MOCOS-agent1,omicron dominant,2,0.8631912814420084
+MUNI-ARIMA,omicron dominant,2,1.3662706661180346
+MUNI-LaggedRegARIMA,omicron dominant,2,1.219047348375457
+MUNI-VAR,omicron dominant,2,1.084841632485505
+MUNI_DMS-SEIAR,omicron dominant,2,5.405150523985702
+RobertWalraven-ESG,omicron dominant,2,1.4641872871056882
+ULZF-SEIRC19SI,omicron dominant,2,1.134990288778181
+UMass-MechBayes,omicron dominant,2,1.3012809126412037
+UNED-PreCoV2,omicron dominant,2,1.7732925333870062
+USC-SIkJalpha,omicron dominant,2,1.3413991642285479
+epiMOX-SUIHTER,omicron dominant,2,0.5586386507940013
+epiforecasts-EpiNow2,omicron dominant,2,1.6248928012567065
+itwm-dSEIR,omicron dominant,2,1.1592264392232912
+prolix-euclidean,omicron dominant,2,3.547632845999981
+EuroCOVIDhub-baseline,omicron dominant,1,1.3236159868741433
+EuroCOVIDhub-ensemble,omicron dominant,1,1
+FIAS_FZJ-Epi1Ger,omicron dominant,1,1.6537558517431739
+HZI-AgeExtendedSEIR,omicron dominant,1,0.8747397886383073
+ICM-agentModel,omicron dominant,1,0.9887468388807289
+IEM_Health-CovidProject,omicron dominant,1,1.296111701212981
+ILM-EKF,omicron dominant,1,1.391758794957547
+ITWW-county_repro,omicron dominant,1,1.7949717025181522
+JBUD-HMXK,omicron dominant,1,4.1252535828781705
+Karlen-pypm,omicron dominant,1,0.9131673879859562
+MIT_CovidAnalytics-DELPHI,omicron dominant,1,1.7037515990860443
+MOCOS-agent1,omicron dominant,1,0.9950788894311074
+MUNI-ARIMA,omicron dominant,1,1.216449345888054
+MUNI-LaggedRegARIMA,omicron dominant,1,1.717165383628509
+MUNI-VAR,omicron dominant,1,0.8607121505162796
+MUNI_DMS-SEIAR,omicron dominant,1,5.101793852798671
+RobertWalraven-ESG,omicron dominant,1,1.274953163384401
+SDSC_ISG-TrendModel,omicron dominant,1,1.6844739040830075
+ULZF-SEIRC19SI,omicron dominant,1,0.9827522305781982
+UMass-MechBayes,omicron dominant,1,1.7019612021140227
+UNED-PreCoV2,omicron dominant,1,1.3769737800772863
+USC-SIkJalpha,omicron dominant,1,1.3228758796994307
+UpgUmibUsi-MultiBayes,omicron dominant,1,1.21569611126348
+epiMOX-SUIHTER,omicron dominant,1,0.7700471428227887
+epiforecasts-EpiNow2,omicron dominant,1,1.6030466055845976
+itwm-dSEIR,omicron dominant,1,0.9540619670208496
+prolix-euclidean,omicron dominant,1,2.5649784752069316
+EuroCOVIDhub-baseline,delta intro,4,2.0209710433230264
+EuroCOVIDhub-ensemble,delta intro,4,1
+FIAS_FZJ-Epi1Ger,delta intro,4,2.22157698605724
+HZI-AgeExtendedSEIR,delta intro,4,1.6186948308637175
+ICM-agentModel,delta intro,4,1.1098516101915252
+IEM_Health-CovidProject,delta intro,4,2.0751418206990224
+ILM-EKF,delta intro,4,1.1389879005084922
+ITWW-county_repro,delta intro,4,1.2388497959678628
+Karlen-pypm,delta intro,4,1.6749589770299957
+LANL-GrowthRate,delta intro,4,1.2151179171089725
+LeipzigIMISE-SECIR,delta intro,4,2.2248277886338035
+MIMUW-StochSEIR,delta intro,4,0.71727060499344375
+MIT_CovidAnalytics-DELPHI,delta intro,4,1.5023704764894337
+MOCOS-agent1,delta intro,4,0.3689331192477792
+MUNI-ARIMA,delta intro,4,2.647736769381733
+MUNI_DMS-SEIAR,delta intro,4,1.3574934184184038
+RobertWalraven-ESG,delta intro,4,1.6484765975918179
+UB-BSLCoV,delta intro,4,1.5818405965793636
+UMass-MechBayes,delta intro,4,0.9524310811942356
+UMass-SemiMech,delta intro,4,1.3801078124748636
+USC-SIkJalpha,delta intro,4,1.0916922300096945
+bisop-seirfilter,delta intro,4,1.2603755360765085
+bisop-seirfilterlite,delta intro,4,1.7897386295647453
+epiforecasts-EpiExpert,delta intro,4,1.2117305513921077
+epiforecasts-EpiExpert_Rt,delta intro,4,1.226807384828907
+epiforecasts-EpiExpert_direct,delta intro,4,1.3274817025728682
+epiforecasts-EpiNow2,delta intro,4,1.4602374289209143
+itwm-dSEIR,delta intro,4,1.0441830154984781
+EuroCOVIDhub-baseline,delta intro,3,2.2991275630495016
+EuroCOVIDhub-ensemble,delta intro,3,1
+FIAS_FZJ-Epi1Ger,delta intro,3,2.0641703870724903
+HZI-AgeExtendedSEIR,delta intro,3,1.320329014441418
+ICM-agentModel,delta intro,3,1.611242054792714
+IEM_Health-CovidProject,delta intro,3,2.0772526905868953
+ILM-EKF,delta intro,3,1.198844932727051
+ITWW-county_repro,delta intro,3,1.206948674530331
+Karlen-pypm,delta intro,3,1.3070688170812803
+LANL-GrowthRate,delta intro,3,1.4589079471837942
+LeipzigIMISE-SECIR,delta intro,3,1.9044326455555414
+MIMUW-StochSEIR,delta intro,3,0.8477958045185103
+MIT_CovidAnalytics-DELPHI,delta intro,3,1.358005981209457
+MOCOS-agent1,delta intro,3,0.5750222123293693
+MUNI-ARIMA,delta intro,3,2.8306069589410794
+MUNI_DMS-SEIAR,delta intro,3,1.4563232677450708
+RobertWalraven-ESG,delta intro,3,1.7811207997705414
+UB-BSLCoV,delta intro,3,1.362480147138772
+UMass-MechBayes,delta intro,3,1.1383434880989047
+UMass-SemiMech,delta intro,3,1.3278188136579694
+UNED-PreCoV2,delta intro,3,2.1999765397324516
+USC-SIkJalpha,delta intro,3,1.1895620738619872
+bisop-seirfilter,delta intro,3,1.3346102153388348
+bisop-seirfilterlite,delta intro,3,2.065809295922338
+epiforecasts-EpiExpert,delta intro,3,1.3870163486324987
+epiforecasts-EpiExpert_Rt,delta intro,3,1.4217828899301432
+epiforecasts-EpiExpert_direct,delta intro,3,1.637964484077135
+epiforecasts-EpiNow2,delta intro,3,1.5173691107352116
+itwm-dSEIR,delta intro,3,1.0165959729809337
+EuroCOVIDhub-baseline,delta intro,2,2.1329490932898034
+EuroCOVIDhub-ensemble,delta intro,2,1
+FIAS_FZJ-Epi1Ger,delta intro,2,2.233092009493268
+HZI-AgeExtendedSEIR,delta intro,2,0.6261575329390625
+ICM-agentModel,delta intro,2,2.436340136200391
+IEM_Health-CovidProject,delta intro,2,1.8548891658305318
+ILM-EKF,delta intro,2,1.1557042883278055
+ITWW-county_repro,delta intro,2,1.3296235700688421
+Karlen-pypm,delta intro,2,1.2313802612906863
+LANL-GrowthRate,delta intro,2,1.4967796218256832
+LeipzigIMISE-SECIR,delta intro,2,1.599014253485205
+MIMUW-StochSEIR,delta intro,2,0.8184295682976022
+MIT_CovidAnalytics-DELPHI,delta intro,2,1.5306909892544265
+MOCOS-agent1,delta intro,2,0.7485543776821707
+MUNI-ARIMA,delta intro,2,2.044820313688309
+MUNI_DMS-SEIAR,delta intro,2,1.5739283339475272
+RobertWalraven-ESG,delta intro,2,1.694046930903795
+UB-BSLCoV,delta intro,2,1.1881018895660154
+UMass-MechBayes,delta intro,2,1.1566803637201772
+UMass-SemiMech,delta intro,2,1.4422363665419087
+UNED-PreCoV2,delta intro,2,2.7477649286981443
+USC-SIkJalpha,delta intro,2,1.2822568231203892
+bisop-seirfilter,delta intro,2,1.136732460018275
+bisop-seirfilterlite,delta intro,2,2.6180264269947617
+epiforecasts-EpiExpert,delta intro,2,1.3996112973236534
+epiforecasts-EpiExpert_Rt,delta intro,2,1.4338708123398614
+epiforecasts-EpiExpert_direct,delta intro,2,1.4379080687146117
+epiforecasts-EpiNow2,delta intro,2,1.4008396003416501
+itwm-dSEIR,delta intro,2,0.9394471907760309
+EuroCOVIDhub-baseline,delta intro,1,1.6913578300858734
+EuroCOVIDhub-ensemble,delta intro,1,1
+FIAS_FZJ-Epi1Ger,delta intro,1,2.5154494020175053
+HZI-AgeExtendedSEIR,delta intro,1,0.7274313334876296
+ICM-agentModel,delta intro,1,3.0084459941903816
+IEM_Health-CovidProject,delta intro,1,1.5565869943411685
+ILM-EKF,delta intro,1,1.2313173171170635
+ITWW-county_repro,delta intro,1,1.7174808007363196
+Imperial-DeCa,delta intro,1,2.28277053142961
+Imperial-RtI0,delta intro,1,2.14020335115802
+Imperial-sbkp,delta intro,1,1.7608515929677764
+Karlen-pypm,delta intro,1,1.2318973140661837
+LANL-GrowthRate,delta intro,1,1.360449144362289
+LeipzigIMISE-SECIR,delta intro,1,1.1975421394109265
+MIMUW-StochSEIR,delta intro,1,1.1998608293389244
+MIT_CovidAnalytics-DELPHI,delta intro,1,1.4115741077931863
+MOCOS-agent1,delta intro,1,0.8253443449482435
+MUNI-ARIMA,delta intro,1,1.5454593291740708
+MUNI_DMS-SEIAR,delta intro,1,1.768388092410939
+RobertWalraven-ESG,delta intro,1,1.4182444297111159
+UB-BSLCoV,delta intro,1,0.9895797559331901
+UMass-MechBayes,delta intro,1,1.2184605330747271
+UMass-SemiMech,delta intro,1,1.50056052884709
+UNED-PreCoV2,delta intro,1,3.0451954427439256
+USC-SIkJalpha,delta intro,1,1.3980249487086767
+UpgUmibUsi-MultiBayes,delta intro,1,1.1895565646775488
+bisop-seirfilter,delta intro,1,1.2724054633109578
+bisop-seirfilterlite,delta intro,1,3.6613424559541845
+epiMOX-SUIHTER,delta intro,1,0.8889518943887461
+epiforecasts-EpiExpert,delta intro,1,1.280162730355511
+epiforecasts-EpiExpert_Rt,delta intro,1,1.6333215833722767
+epiforecasts-EpiExpert_direct,delta intro,1,1.4560485445851796
+epiforecasts-EpiNow2,delta intro,1,1.5249128634654574
+itwm-dSEIR,delta intro,1,1.2744556964830631
