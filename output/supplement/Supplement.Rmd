@@ -1,8 +1,6 @@
 ---
 title: "Supplement"
-output:
-  pdf_document:
-    toc: true
+output: pdf_document
 ---
 
 ```{r set-up, include=FALSE}
