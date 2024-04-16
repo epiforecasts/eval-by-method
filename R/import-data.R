@@ -1,5 +1,4 @@
 # Functions to import and save data for predictions and observations
-# TODO: add data on variant introduction per country
 # Examples:
 # forecasts <- get_forecasts()
 # obs <- get_observed()

@@ -8,59 +8,25 @@ library(gratia) # devtools::install_github('gavinsimpson/gratia')
 library(broom)
 library(ggplot2)
 theme_set(theme_classic())
+source(here("R", "prep-data.R"))
 
 # --- Get data ---
-prep_data <- function() {
-  # Get raw WIS
-  wis <- read_csv(here("data", "scores-raw.csv")) |>
-    filter(scale == "log") |>
-    filter(!grepl("EuroCOVIDhub", model))
-
-  # Extra explanatory vars ------
-  # Target type
-  targets <- read_csv(here("data", "targets-by-model.csv")) |>
-    mutate(Targets = ifelse(target_type == "Single-country", 1, 2),
-           Targets = factor(Targets))
-  # Method type
-  methods <- read_csv(here("data", "model-classification.csv")) |>
-    select(model, method_type = classification) |>
-    mutate(Method = case_when(method_type == "Qualitative" ~ NA,
-                                method_type == "Mechanistic" ~ 1,
-                                method_type == "Semi-mechanistic" ~ 2,
-                                method_type == "Statistical"~ 3),
-           Method = factor(Method))
-  # Affiliations
-  affiliation_by_model <- read_csv(here("data", "country-affiliations.csv"))
-
-  # Incidence level + trend (see: R/import-data.r)
-  obs <- read_csv(here("data", "observed.csv")) |>
-    mutate(Trend = case_when(trend == "Stable" ~ 1,
-                               trend == "Increasing" ~ 2,
-                               trend == "Decreasing" ~ 3),
-           Trend = factor(Trend)) |>
-    rename(Incidence = observed)
-
-  m.data <- wis |>
-    left_join(obs, by = c("location", "target_end_date")) |>
-    left_join(targets, by = "model") |>
-    left_join(methods, by = "model") |>
-    mutate(Model = as.factor(model),
-           Horizon = ordered(horizon,
-                               levels = 1:4, labels = 1:4),
-           log_interval_score = log(interval_score + 0.01)
-    )
-  return(m.data)
-}
-m.data <- prep_data()
-# plot(density(m.data$log_interval_score)) # Plot pdf
+m.data <- prep_data() |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model) &
+         Method != "Qualitative") |>
+  mutate(log_interval_score = log(interval_score + 0.01))
 
 # --- Model ---
 # Formula
 m.formula <- log_interval_score ~
+  # -----------------------------
   # Method (3 levels*)
   Method +
   # Number of target countries (2 levels*)
-  Targets +
+  CountryTargets +
+  # Affiliation same as target country
+  CountryTargetAffiliated +
+  # -----------------------------
   # Observed incidence: interacting with trend; thin plate reg. spline (default)
   s(Incidence)  +
   # Trend (3 levels*)
@@ -76,40 +42,68 @@ m.fit <- bam(formula = m.formula,
              family = gaussian(link = "identity"),
              method = "REML")
 
+# Check output
+summary(m.fit)
 # Parametric terms
 m.anova <- anova(m.fit)
 
-# Model checking
-# * Key to factors:
-# Method: 1 = Mechanistic, 2 = Semi-mech, 3 = Statistical
-# Target: 1 = Single country, 2 = Multi-country
-# Trend: 1 = Stable, 2 = Increasing, 3 = Decreasing
-# Model: 35 included (excl. 3 qualitative models)
-
-# Check output
-summary(m.fit)
-
 # Check fit
-glance(m.fit)
+m.aic <- glance(m.fit)$AIC
+appraise(m.fit)
 
-
-# Without random effect ---------------------------------------------------
-m.formula_no_re <- log_interval_score ~
-  # Method (3 levels*)
-  Method +
-  # Number of target countries (2 levels*)
-  Targets +
-  # Observed incidence: interacting with trend; thin plate reg. spline (default)
+# Null model ---------------------------------------------------
+# Formula
+m_null.formula <- log_interval_score ~
   s(Incidence)  +
-  # Trend (3 levels*)
   Trend +
-  # Horizon (4 levels, ordinal)
-  Horizon
+  Horizon +
+  s(Model, bs = "re")
+m_null.fit <- bam(formula = m_null.formula,
+                   data = m.data,
+                   family = gaussian(link = "identity"),
+                   method = "REML")
+summary(m_null.fit)
+glance(m_null.fit)
+m_null.anova <- anova(m_null.fit)
 
-m.fit_no_re <- bam(formula = m.formula_no_re,
-             data = m.data,
-             family = gaussian(link = "identity"),
-             method = "REML")
+# Plot parametric coefficients --------
+plot_coeffs <- function(m.anova) {
+  coeffs_clean <- tibble(
+    coeff = c("MethodStatistical",
+              "MethodSemi-mechanistic",
+              NA,
+              "CountryTargetsMulti-country",
+              NA,
+              "CountryTargetAffiliatedFalse",
+              NA),
+    variable = c(rep("Method", 3),
+                 rep("Location targets", 2),
+                 rep("Affiliated location", 2)),
+    level = c("Statistical", "Semi-mechanistic", "Mechanistic",
+              "Multi-country", "Single-country",
+              "Located elsewhere", "Affiliated location")
+  )
 
-# Parametric terms
-m.anova_no_re <- anova(m.fit_no_re)
+  coeffs <- as_tibble(x = m.anova[["p.table"]],
+                      rownames = "coeff") |>
+    janitor::clean_names() |>
+    mutate(lower = estimate - std_error * qnorm(0.975),
+           upper = estimate + std_error * qnorm(0.975))
+
+  coeffs_table <- left_join(coeffs_clean, coeffs,
+                            by = "coeff") |>
+    replace_na(list(estimate=0, lower=0, upper=0)) |>
+    mutate(level = fct_inorder(level),
+           variable = fct_inorder(variable))
+
+  plot_coeffs <- coeffs_table |>
+    ggplot(aes(x = level, col = variable)) +
+    geom_point(aes(y = estimate)) +
+    geom_linerange(aes(ymin = lower, ymax = upper)) +
+    geom_hline(yintercept = 0, lty = 2) +
+    labs(y = "Partial effect", x = NULL, colour = NULL) +
+    scale_colour_brewer(type = "qual", palette = 2) +
+    coord_flip() +
+    theme(legend.position = "bottom")
+  return(plot_coeffs)
+}

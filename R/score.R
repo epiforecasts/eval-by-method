@@ -52,6 +52,14 @@ score_pairwise <- function(scores,
   return(scores_pairwise)
 }
 
+
+scores_pairwise_all <- score_pairwise(scores_raw,
+                                           score_by = c("location",
+                                                        "target_end_date",
+                                                        "horizon",
+                                                        "model", "scale"))
+
+
 # All time / all location / all horizon
 scores_pairwise <- score_pairwise(scores,
                                   score_by = c("model", "scale"))
