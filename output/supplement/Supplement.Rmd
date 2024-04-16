@@ -11,111 +11,46 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(ggplot2)
+library(forcats)
 library(patchwork)
+library(flextable)
 theme_set(theme_bw())
 knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
                       message = FALSE, warning = FALSE)
-quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
 ```
 
 ```{r load-data}
 # Load data
-scores_raw <- read_csv(here("data", "scores-raw.csv"))
-scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
-scores_pairwise_date <- read_csv(here("data",
-                                      "scores-pw-target-date.csv")) 
-scores_pairwise_horizon <- read_csv(here("data",
-                                         "scores-pw-horizon.csv"))
-metadata <- read_csv(here("data", "model-classification.csv")) |>
-  select(model, method_type = classification)
-targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
+source(here("R", "prep-data.R"))
+source(here("R", "descriptive.R"))
+scores <- prep_data(scoring_scale = "log")
 ```
-
-## Scores on the natural scale
-
-```{r natural-scale-plot-scores, fig.height=4, fig.width=8}
-# --- Figure 2A ---
-# Set up method types
-method_factor <- c("Qualitative",
-                   "Mechanistic", "Semi-mechanistic", "Statistical")
-names(method_factor) <- method_factor
-
-# Get scores by method type and horizon
-scores_method <- scores_pairwise_horizon |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
-  left_join(metadata, by = "model") |> 
-  mutate(method_type = factor(method_type, 
-                              method_factor, names(method_factor),
-                              ordered = TRUE)) 
-
-# Summarise by quantiles across Stat/Semi-/Mech models, point-score for others
-scores_method_all <- scores_method |> 
-  filter(!grepl("Qualitative", method_type)) |> 
-  group_by(method_type, horizon, scale) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop")
-scores_method_other <- scores_method |> 
-  filter(grepl("Qualitative", method_type)) |> 
-  select(model, method_type, horizon, value = rel_wis) |> 
-  mutate(quantile = "q0.5", n = 1)
-
-# Plot
-nat_plot_method_target <- scores_method_all |> 
-  bind_rows(scores_method_other) |> 
-  filter(scale == "natural") |> 
-  pivot_wider(names_from = quantile) |>
-  mutate(horizon = as.factor(horizon)) |> 
-  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
-  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                 alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                 alpha = 0.2, position = position_dodge(width = 1)) +
-  geom_vline(xintercept = 1, lty = 2) +
-    labs(y = NULL, x = NULL,
-       col = "Week ahead forecast horizon",
-       fill = "Week ahead forecast horizon") +
-  scale_color_viridis_d(direction = 1) +
-  theme(legend.position = "bottom")
-
-nat_plot_method_target
-```
-
-## Ensemble variations
-
-```{r ensembles, fig.height=6, fig.width=8}
-# Plot scores of variations on median ensemble over time
-ens_plot_all_scores_time <- scores_pairwise_date |> 
-  filter(grepl("EuroCOVIDhub-ensemble", model) &
-           model != "EuroCOVIDhub-ensemble") |> 
-  tidyr::separate(model, 
-                  into = c("ensemble", "average_type", "method_type"),
-                  sep = "_", remove = FALSE) |> 
-  filter(average_type == "median" & scale == "log") |>
-  ggplot(aes(x = target_end_date, 
-             col = method_type, fill = method_type)) +
-  geom_line(aes(y = rel_wis), alpha = 0.5) +
-  geom_hline(aes(yintercept = 1), lty = 2) +
-  scale_x_date(date_labels = "%b %Y") +
-  labs(x = "Forecast target date", 
-       y = "Relative WIS", 
-       col = "Component method type", fill = "Component method type") +
-  theme(legend.position = "bottom")
-ens_plot_all_scores_time
-```
-
-## Team metadata
+ 
+## Team scores and metadata
 
 ```{r metadata-table}
+metadata <- read_csv(here("data", "model-classification.csv")) |>
+  select(Model = model, Method = classification)
+affiliation <- scores |> 
+  distinct(Model, country_affiliation) |> 
+  rename(AffiliatedLocation = country_affiliation)
+targets <- table_targets(scores) |> 
+  select(Model, CountryTargets)
+model_scores <- scores |>
+  group_by(Model) |> 
+  table_confint() |> 
+  select(Model, Forecasts, median, `Median (IQR)`)
 metadata |> 
-  left_join(targets_by_model) |> 
-  arrange(method_type, target_type, model) |> 
-  mutate(metadata = paste0("[Link](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", model, ".yml)")) |> 
+  left_join(targets |> rename("Country Targets" = CountryTargets)) |> 
+  left_join(affiliation |> rename("Affiliated Location" = AffiliatedLocation)) |> 
+  left_join(model_scores) |> 
+  arrange(median, Method, `Country Targets`, `Affiliated Location`) |> 
+  mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |> 
+  select(-median) |> 
   knitr::kable()
 ```
+
+\newpage
 
 ## Model fitting
 
@@ -124,36 +59,55 @@ source(here("R", "model-wis.R"))
 ```
 We fit a generalised additive mixed effects model using the `mgcv` package in `R`. Code is available at: <https://github.com/epiforecasts/model-structure-evaluation>. 
 
-We used the following model formula:
+#### 1. Conditional distribution of outcomes
+
+```{r density-plot, fig.height=6, fig.width=5}
+plot_density(scores)
+```
+
+#### 2. Model formula
 
 `r m.fit$formula`
 
-Summary of estimated coefficients
+\newpage
+
+#### 3. Summary of estimates
+
+Reference levels for categorical variables are:
+- Mechanistic model method
+- Single-country target
+- Modelling team affiliation is located in the forecast target country 
+- Trend (of observed incidence) is stable
+- Horizon is one-week-ahead
 
 ```{r gamm-coeffs-all}
-library(flextable)
-as_flextable(m.fit)
+as_flextable(m.fit) |> 
+  autofit()
 ```
-
-Key to categorical variables (* indicates reference level):
-
-- Method: 1* = Mechanistic, 2 = Semi-mechanistic, 3 = Statistical
-- Target: 1* = Single country, 2 = Multi-country
-- Trend: 1* = Stable, 2 = Increasing, 3 = Decreasing
-- Horizon: L indicates a linear fit, Q a quadratic and C a cubic fit
-
 
 ```{r print-gamm}
 knitr::kable(m.anova$pTerms.table, digits = 3, caption = "ANOVA for parametric terms")
 ```
 
+\newpage
+
+#### 4. Partial effects plots
+
 
 ```{r gamm-plot-all, fig.height=5,fig.width=5, fig.cap="Partial residual plots for all terms"}
 draw(m.fit, parametric = TRUE, residuals = TRUE, ci_level = 0.95)
 ```
+\newpage
 
+#### 5. Model diagnostics
 
-```{r gamm-diagnostics, fig.height=5,fig.width=5, fig.cap="Model diagnostics"}
+```{r gamm-diagnostics, fig.height=5,fig.width=5}
 # QQ plot, residuals
 appraise(m.fit)
+```
+
+  
+```{r scores-over-time, fig.cap=plot_iqr_over_time_cap, fig.height=3, fig.width=5}
+# plot_iqr_over_time_cap <- "Median (IQR) of the weekly weighted interval score across all forecasts submitted to the European COVID-19 Forecast Hub"
+# plot_iqr_over_time(scores)
 ```

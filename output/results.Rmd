@@ -4,7 +4,6 @@ output:
   pdf_document:
     extra_dependencies: ["flafter"]
 ---
-
 <!--- RMarkdown set up --->
 ```{r set-up, include=FALSE}
 library(here)
@@ -15,7 +14,8 @@ library(tibble)
 library(purrr)
 library(ggplot2)
 library(patchwork)
-theme_set(theme_bw())
+library(kableExtra)
+theme_set(theme_classic())
 knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
                       message = FALSE, warning = FALSE)
 ```
@@ -32,325 +32,95 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 # source(here("R", "score.R"))
 ```
 
+<!--- Describe scores data --->
 ```{r load-data}
-quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
-summary_quantiles <- c(0.5, 0.01, 0.99)
-# Load score data
-scores_raw <- read_csv(here("data", "scores-raw.csv"))
-scores_pairwise <- read_csv(here("data", "scores-pw.csv"))
-scores_pairwise_date <- read_csv(here("data",
-                                      "scores-pw-target-date.csv")) 
-scores_pairwise_horizon <- read_csv(here("data",
-                                         "scores-pw-horizon.csv"))
-scores_pairwise_location <- read_csv(here("data",
-                                         "scores-pw-location.csv"))
-# Categorisation of models
-# Get method types
-metadata <- read_csv(here("data", "model-classification.csv")) |>
-  select(model, method_type = classification)
-# Identify number of targets for each model by week
-targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
-# Affiliations
-affiliation_by_model <- read_csv(here("data", "country-affiliations.csv"))
+source(here("R", "prep-data.R"))
+source(here("R", "descriptive.R"))
+# get data
+scores <- prep_data(scoring_scale = "log") |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+n_models <- length(unique(scores$Model))
+n_forecasts <- nrow(scores)
+model_forecasts <- scores |> 
+  group_by(Model) |> 
+  summarise(n_forecasts = n())
+model_forecasts <- summary(model_forecasts$n_forecasts)
 ```
-```{r summarise-top-level}
-all_summary <- scores_pairwise |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model) & scale == "log")
-n_models <- length(unique(all_summary$model))
-n_outperform <- length(filter(all_summary, rel_wis < 1))
-q_all_time <- scores_pairwise_date |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model) & scale == "log") |> 
-  reframe(
-    n = n(),
-    value = round(quantile(rel_wis, quantiles), 2),
-    quantile = paste0("q", quantiles)) |> 
-  pivot_wider(names_from = quantile)
-q_over_time <- scores_pairwise_date |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model) & scale == "log") |> 
-  group_by(target_end_date) |> 
-  reframe(
-    n = n(),
-    value = round(quantile(rel_wis, quantiles), 2),
-    quantile = paste0("q", quantiles)) |> 
-  pivot_wider(names_from = quantile)
-  
-```
-<!--- Describe data and evaluation baseline --->
 
-We evaluated `r n_models` forecast models contributed to the European COVID-19 Forecast Hub, covering 32 countries over 104 weeks from 8 March 2021 to 10 March 2023. Here we report evaluations using log-transformed forecasts. We note this gives less extreme scores compared to using the natural scale (Figure 1; SI Figure 1).
+We evaluated forecasts of incident deaths from COVID-19, collecting `r n_forecasts` forecasts projected by `r n_models` models contributing to the European COVID-19 Forecast Hub. Forecasts were collected prospectively over 104 weeks from 8 March 2021 to 10 March 2023, and covered one through four week ahead incidence in 32 countries. We report the weighted interval score using log-transformed forecasts.
 
-We evaluated forecast performance against the performance of a median ensemble including all qualifying models. We observed the ensemble model generally outperformed individual models. On average across all forecast targets and horizons, only `r n_outperform` models outranked the ensemble model (i.e., an average relative WIS <1). Average performance relative to the ensemble varied over time, with a median score of `r q_all_time$q0.5` and within an interquartile range of `r q_all_time$q0.25`-`r q_all_time$q0.75`. Among 104 weeks of forecasts, the median score across all individual models outperformed the score of the ensemble model for only `r nrow(filter(q_over_time, q0.5 < 1))` weeks, the majority in winter 2022.
+The number and performance of forecasts varied over time, as forecasting teams joined or left and contributed to varying combinations of forecast targets. We collated between 11 and 33 models in any one week, forecasting for any combination of `r 4*32` possible weekly forecast targets. Models widely varied in their volume of contributions: on average each model contributed `r round(model_forecasts[4])` forecasts, with the median model contributing `r model_forecasts[3]` forecasts. We observed a range of forecast performance among models (figure 1; Supplement table 1). In general, performance was best in stable periods of little change in incident deaths, while over the length of the forecast horizon, performance appeared to worsen with increasing horizons up to four weeks (table 1). 
 
-```{r all-scores, fig.height = 6, fig.width = 10, fig.cap=fig1_cap}
-scale_cols <- c("natural" = "#d95f02", "log" = "#1b9e77")
-# All scores ----------------------
-plot_all_scores <- scores_pairwise |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  arrange(rel_wis) |> 
-  mutate(model = forcats::fct_inorder(model)) |> 
-  pivot_wider(names_from = scale, values_from = rel_wis) |> 
-  ggplot(aes(x = model)) +
-  geom_point(aes(y = natural), 
-             colour = scale_cols[["natural"]]) +
-  geom_point(aes(y = log), 
-             colour = scale_cols[["log"]]) +
-  geom_linerange(aes(ymin = log, ymax = natural), 
-                 colour = "grey70") +
-  geom_hline(aes(yintercept = 1), lty = 2) +
-  coord_flip() +
-  labs(y = "Relative WIS", x = NULL) +
-  theme(legend.position = "none")
 
-# Plot over time ----------------------------------
-scores_time <- scores_pairwise_date |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  group_by(target_end_date, scale) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    model = "All models",
-    .groups = "drop")
-
-plot_all_scores_time <- scores_time |>
-  pivot_wider(names_from = quantile) |>
-  ggplot(aes(x = target_end_date, col = scale, fill = scale)) +
-  geom_line(aes(y = q0.5), alpha = 0.5) +
-  geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-              alpha = 0.3, col = NA) +
-    geom_ribbon(aes(ymin = q0.01, ymax = q0.99),
-              alpha = 0.1, col = NA) +
-  geom_hline(aes(yintercept = 1), lty = 2) +
-  scale_y_log10() +
-  scale_x_date(date_labels = "%b %Y") +
-  scale_colour_manual(values = scale_cols, 
-                      aesthetics = c("fill", "colour")) +
-  labs(x = "Forecast target date", 
-       y = "Relative WIS (log10)", 
-       col = "Scale", fill = "Scale") +
-  theme(legend.position = "bottom")
-
-# Combine plots
-plot_all <- plot_all_scores +
-  plot_all_scores_time +
-  patchwork::plot_annotation(tag_levels = "A") +
-  patchwork::plot_layout(nrow = 1, widths = c(0.5, 1))
-
-ggsave(plot = plot_all, filename = here("output", "figures", "figure-1.jpg"), height = 6, width = 10)
-
-fig1_cap <- "Spread in the individual performance of 39 forecasting models compared to the ensemble model, using scaled relative weighted interval scores (WIS) scored on a log (green) or natural (orange) scale. Relative WIS is the geometric mean of the interval score, scaled relative to the ensemble (dashed line, value 1), with larger scores indicating worse performance relative to the ensemble. The log scale indicates forecasts and observations were transformed with the addition of a constant 1 before scoring. The natural scale indicates raw forecast and observed data were used. (A) Overall scores of each model across all forecast targets (predicting any of 32 locations, up to 4 weeks ahead, for 104 weeks). (B) Interquartile range across 39 models’ scores by projection target date, showing median (line), with 50% and 99% quantile interval (shaded ribbons) across models."
-plot_all
+```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=8}
+ridges_caption <- paste0("Distribution of forecast scores for 1 to 4 week ahead forecasts across 32 locations over 104 weeks (N=", n_forecasts, "). Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy.")
+plot_ridges(scores)
 ```
 
 <!--- Describe models by model structure --->
-
-```{r table-scores-by-method}
-# Summarise overall performance by model structure
-summary_by_method <- scores_pairwise |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  filter(scale == "log") |> 
-  left_join(metadata) |> 
-  filter(!grepl("Qualitative", method_type) & !is.na(method_type)) |> 
-  group_by(method_type) |>
-  reframe(
-    n = n(),
-    value = round(quantile(rel_wis, summary_quantiles), 2),
-    quantile = paste0("q", summary_quantiles)) |> 
-  pivot_wider(names_from = quantile) |> 
-  mutate(score_range = paste0(q0.5, " (", q0.01, "-", q0.99, ")"))
+```{r table-scores}
+table1_raw <- create_table1(scores)
+table1 <- table1_raw |>
+  select(group, Variable, Models, Forecasts, 
+         `Median (IQR)`) 
+table1 |> 
+  select(-group) |> 
+  rename(" " = Variable) |> 
+  kable(caption = "Characteristics of forecasts contributed to the European COVID-19 Forecast Hub, March 2021-2023.") |> 
+  pack_rows(index = c(" " = 1,
+                      "Method" = 4, 
+                      "Number of country targets" = 2,
+                      "Modelling team affiliation" = 2,
+                      "Week ahead horizon" = 4,
+                      "3-week trend in incidence" = 4))
 ```
+<!--- Describe scores by method --->
 
-Among 39 models, we defined three model structures. We categorised 8 models as statistical, 10 as semi-mechanistic, and 18 as mechanistic, with 3 qualitative ensemble models (table 1). No one model structure consistently outperformed the ensemble (figure 2A). Mechanistic models saw the widest range in performance, with the range of scores including both outperforming the ensemble and performing up to three times worse. Of the three models that, on average, outperformed the ensemble (figure 1), all were mechanistic and forecast for only one country (Poland or Italy). 
+We defined four model structures among 39 models. We categorised 8 models as statistical, 10 as semi-mechanistic, and 18 as mechanistic, with 3 qualitative ensemble models. In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Descriptively, we observed similar performance in the central tendencies of the interval score between mechanistic and semi-mechanistic models, performing relatively better than statistical models. We noted that the four top performing models were all were semi- or mechanistic and forecast for only one country (Poland or Italy), although these models provided far fewer forecasts than others (see Supplement). 
 
-Table 1. Description of model structures evaluated from the European COVID-19 Forecast Hub.
-
-| Structure and examples 	| Description 	| Model count 	|
-|---	|---	|---	|
-| Statistical<br>ARIMA time series<br>LOESS seasonal-trend decomposition 	| Future data predicted entirely from past data. Data may be associated with the forecast target (such as incident cases or human behaviour), but a mechanism for this is not explicitly specified. 	| 8 	|
-| Semi-mechanistic <br>SIR model with case convolution<br>State-space model based on the reproduction number<br> | Uses a combination of mathematical equations to describe epidemiological process, combined with data-driven associations | 10
-| Mechanistic <br>SIR model<br>Age-stratified SEIR model with compartments for progressing disease severity<br>Agent based models: simulations of individuals within a system of defined relationships | Future data predicted entirely from the continuation of an underlying epidemiological process described in a set of mathematical equations. Data used to calibrate the initial model state to the scale of an epidemic, with fixed parameters for the process itself. | 18
-| Qualitative | Qualitative ensembles: A combination of predictions made by models and qualitative human judgement (crowd forecasting). | 3
-
-
-Over the length of the forecast horizon, the performance of statistical models appeared to worsen with increasing horizons up to four weeks. However, this was not the case for mechanistic and semi-mechanistic models. While the median score remained similar over time, the range of forecast scores around it narrowed, indicating more consistent performance with increasing forecast horizon. We noted some variation from these patterns when scores used forecasts on the natural, rather than the log, scale (SI Figure 1).
-
-<!--- Describe models by target countries --->
-
-```{r n-by-target}
-# Summarise overall performance by target countries
-# Count of model by countries
-scores_targets <- scores_raw |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
-  left_join(targets_by_model, by = c("model"))
-target_single <- scores_targets |>
-  filter(target_type == "Single-country") |>
-  group_by(location) |>
-  summarise(models = n_distinct(model)) |>
-  arrange(desc(models))
-target_multi <- scores_targets |>
-  filter(target_type == "Multi-country") |>
-  group_by(model) |>
-  summarise(locations = n_distinct(location)) |>
-  arrange(desc(locations))
-
-# Summary performance by number of target country
-summary_by_target <- scores_pairwise |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  filter(scale == "log") |> 
-  left_join(targets_by_model) |>  
-  group_by(target_type) |>
-  reframe(
-    n = n(),
-    value = round(quantile(rel_wis, summary_quantiles), 2),
-    quantile = paste0("q", summary_quantiles)) |> 
-  pivot_wider(names_from = quantile) |> 
-  mutate(score_range = paste0(q0.5, " (", q0.01, "-", q0.99, ")"))
-```
-
-We considered models forecasting for only one or multiple countries. We collated 23 multi-country models and 16 single-country models. Single-country models targeted Germany, Poland, Czech Republic, Spain, Italy, and Slovenia. Single-country models more often outperformed the ensemble than multi-country models, with a median (99% quantile interval) score of `r summary_by_target[summary_by_target$target_type=="Single-country","score_range"]` compared to `r summary_by_target[summary_by_target$target_type=="Multi-country","score_range"]`. Performance did not substantially vary with the forecast horizon, with both average and ranges remaining roughly similar for forecasts of one up to four weeks (figure 2B).
-
-<!--- Describe models by affiliated countries --->
-
-#### Model scores aggregated by target location matching country affiliation
-```{r n-by-affiliation}
-# Summarise overall performance by team affiliated countries
-affiliation_by_model <- affiliation_by_model |> 
-  filter(model_abbr %in% unique(scores_raw$model)) |> 
-  distinct(model_abbr, location_code) |> 
-  rename(model = model_abbr, country_affiliation = location_code)
-
-# Count of model by countries
-affiliation_n <- affiliation_by_model |> 
+<!--- Describe scores by target countries --->
+```{r target-description}
+model_targets <- table_targets(scores)
+multi_targets <- filter(model_targets, CountryTargets == "Multi-country")
+affiliated_location <- scores |>
   group_by(country_affiliation) |> 
-  tally()
-
-# Summary performance by affiliation
-summary_by_affil <- scores_pairwise_location |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |> 
-  filter(scale == "log") |> 
-  left_join(affiliation_by_model, by = "model") |> 
-  mutate(location_match = location == country_affiliation)
-
-summary_by_affil |>  
-  group_by(location_match) |>
-  reframe(
-    n = n(),
-    value = round(quantile(rel_wis, summary_quantiles, na.rm = TRUE), 2),
-    quantile = paste0("q", summary_quantiles)) |> 
-  pivot_wider(names_from = quantile) |> 
-  mutate(score_range = paste0(q0.5, " (", q0.01, "-", q0.99, ")"))
+  table_confint()
 ```
 
-<!--- Plot performance by horizon --->
+We considered models forecasting for one to two, or multiple countries. We collated 16 single-country models and 23 multi-country models. Single-country models targeted Germany (6 models), Poland (5), Czech Republic (2), Spain (2), Italy (2), and Slovenia (1). Two models classified as single-country targeted both Germany and Poland. On average, multi-country models forecast for `r round(mean(multi_targets$mean))` locations. Models classified as targeting multiple countries could vary from week to week in how many locations they forecast. Only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of locations throughout the entire study period, with `r nrow(multi_targets |> filter(consistent & min_targets==32))` of these forecasting for all 32 available locations.
 
-```{r plot-scores-by-method, fig.height=4, fig.width=4}
-# --- Figure 2A ---
-# Set up method types
-method_factor <- c("Qualitative",
-                   "Mechanistic", "Semi-mechanistic", "Statistical")
-names(method_factor) <- method_factor
+For each forecast, we associated the target location with the location of the contributing modelling team. Teams were affiliated with 10 of the European countries targeted. `r affiliated_location |> filter(country_affiliation == "Other") |> pull(n_models)` teams contributed from outside of Europe (US and Canada), contributing `r affiliated_location |> filter(country_affiliation == "Other") |> pull(p_forecasts)`% of all forecasts. `r affiliated_location |> filter(country_affiliation == "GB") |> pull(n_models)` teams were affiliated with the United Kingdom (contributing `r affiliated_location |> filter(country_affiliation == "GB") |> pull(p_forecasts)`% forecasts), with 6 teams each from the Czech Republic (`r affiliated_location |> filter(country_affiliation == "CZ") |> pull(p_forecasts)`%) and Germany (`r affiliated_location |> filter(country_affiliation == "DE") |> pull(p_forecasts)`%). Other team affiliations were to Poland, Spain, Italy, Austria, Switzerland, France, and Slovenia.
 
-# Get scores by method type and horizon
-scores_method <- scores_pairwise_horizon |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
-  left_join(metadata, by = "model") |> 
-  mutate(method_type = factor(method_type, 
-                              method_factor, names(method_factor),
-                              ordered = TRUE)) 
-
-# Summarise by quantiles across Stat/Semi-/Mech models, point-score for others
-scores_method_all <- scores_method |> 
-  filter(!grepl("Qualitative", method_type)) |> 
-  group_by(method_type, horizon, scale) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop")
-scores_method_other <- scores_method |> 
-  filter(grepl("Qualitative", method_type)) |> 
-  select(model, method_type, horizon, value = rel_wis) |> 
-  mutate(quantile = "q0.5", n = 1)
-
-# Plot
-plot_scores_method <- scores_method_all |> 
-  bind_rows(scores_method_other) |> 
-  filter(scale == "log") |> 
-  pivot_wider(names_from = quantile) |>
-  mutate(horizon = as.factor(horizon)) |> 
-  ggplot(aes(y = method_type, col = horizon, fill = horizon)) +
-  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                 alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                 alpha = 0.2, position = position_dodge(width = 1)) +
-  geom_vline(xintercept = 1, lty = 2) +
-    labs(y = NULL, x = NULL,
-       col = "Week ahead forecast horizon",
-       fill = "Week ahead forecast horizon") +
-  scale_color_viridis_d(direction = 1) +
-  theme(legend.position = "bottom")
-```
-
-```{r plot-scores-by-target, fig.height=4, fig.width=4}
-# --- Figure 2B ---
-# Get scores by target type and horizon
-scores_targets <- scores_pairwise_horizon |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", model)) |>
-  left_join(targets_by_model, by = "model")
-
-# Summarise quantiles
-scores_targets <- scores_targets |> 
-  group_by(target_type, horizon, scale) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop")
-
-# Plot
-plot_scores_targets <- scores_targets |> 
-  filter(scale == "log") |> 
-  pivot_wider(names_from = quantile) |>
-  mutate(horizon = as.factor(horizon)) |> 
-  ggplot(aes(y = target_type, col = horizon, fill = horizon)) +
-  geom_point(aes(x = q0.5), alpha = 0.8, position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                 alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                 alpha = 0.2, position = position_dodge(width = 1)) +
-  geom_vline(xintercept = 1, lty = 2) +
-    labs(y = NULL, x = NULL,
-       col = "Week ahead forecast horizon",
-       fill = "Week ahead forecast horizon") +
-  scale_color_viridis_d(direction = 1) +
-  theme(legend.position = "none")
-```
-
-```{r plot-scores-by-both, fig.height=4, fig.width=8, fig.cap=fig2_cap}
-# --- Figure 2 ---
-# Join plots for method and target type
-plot_method_target <- plot_scores_method +
-  plot_scores_targets +
-  patchwork::plot_annotation(tag_levels = "A") +
-  patchwork::plot_layout(nrow = 1, guides = "collect") &
-  theme(legend.position = "bottom")
-
-ggsave(plot = plot_method_target, 
-       filename = here("output",  "figures", "figure-2.jpg"),
-       height = 4, width = 8)
-
-fig2_cap <- "Performance of forecasting models by forecast horizon, by (A) model structure, (B) target specificity, showing the median relative weighted interval score (point), and the 50% and 99% quantile intervals (shaded ribbon), across all available models for each category. Forecasts were log-transformed and scored relative to an ensemble (dashed line, 1)."
-plot_method_target
-```
-
-\newpage
-
-<!--- Model rWIS --->
-```{r model-wis}
+<!--- Model WIS --->
+```{r}
 source(here("R", "model-wis.R"))
 ```
 
-We fit a generalised additive mixed model to `r m.anova[["n"]]` forecast scores. We found no evidence that forecast performance was affected by either model structure (p=`r round(m.anova[["pTerms.pv"]]["Method"], 2)`) or the number of countries each model targeted (p=`r round(m.anova[["pTerms.pv"]]["Targets"], 2)`). Performance was more heavily influenced by the observed incidence of deaths from COVID-19, the trend in incidence, and the weeks-ahead horizon of the forecast (each p<0.001; see Supplement). Specifically, a higher observed incidence and an increasing or decreasing trend corresponded to higher interval scores (worsening forecast performance). Similarly, performance declined with longer forecast horizons. This model explains approximately `r round(m.anova$dev.expl*100, 2)`% of the variability in the relative weighted interval score, suggesting that other factors beyond those included here contribute to forecasting accuracy. We compared models with and without each of the confounding variables included here. 
+We fit a generalised additive mixed model to `r m.anova[["n"]]` forecasts' interval scores. The interval score was highly right-skewed with respect to all explanatory variables (see Supplement). We corrected for this by fitting to the log of the interval score. 
 
-In sensitivity analysis, we found that with one exception, varying the terms included in the GAMM did not influence the substantive result presented here: that neither methodological structure nor number of targets affected forecast performance. However, we noted that most of the variation in forecast performance was absorbed by including each individual model as a random effect (i.e. accounting for the grouping structure of individual forecast scores). By comparison, when this random effect was not included, the impact of methodological structure on forecast performance became substantial (p<0.001), while the relative impact of the number of targets did not change (p=`r round(m.anova_no_re[["pTerms.pv"]]["Targets"], 2)`). This suggests that there is greater variation between the performance of each model than there is between their underlying methodological structures.
+We found no clear evidence that any one type of method structure consistently outperformed others (p=`r round(m.anova[["pTerms.pv"]]["Method"], 2)`). We also found contrasting evidence for whether the location specificity of the model influenced performance. There was a weak indication that targeting multiple countries could be associated with worse forecast performance compared to targeting only one or two countries (p=`r round(m.anova[["pTerms.pv"]]["CountryTargets"], 2)`). At the same time, forecasts for the location in which the modelling team were affiliated appeared to perform worse than those where teams were located elsewhere (p<0.001).
+
+```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
+coeff_cap <- "Partial effect size (95% CI) for log-transformed interval score"
+plot_coeffs(m.anova)
+dev <- c("exp" = round(m.anova$dev.expl*100, 1),
+         "null" = round(m_null.anova$dev.expl*100, 1))
+aic <- c("exp" = format(m.fit$aic, digits = 1, scientific = FALSE),
+         "null" = format(m_null.fit$aic, digits = 1, scientific = FALSE))
+```
+
+We compared our results to a null model excluding the three variables of interest. We observed very similar explanatory power (`r dev["exp"]`% and `r dev["null"]`% deviance explained, AIC `r aic["exp"]` and `r aic["null"]` between explanatory and null models respectively). Among mediating variables, we noted that performance was heavily influenced by the observed incidence of deaths from COVID-19, the trend in incidence, and the weeks-ahead horizon of the forecast (each p<0.001; see Supplement). Specifically, a higher observed incidence and an increasing or decreasing trend corresponded to higher interval scores (worsening forecast performance). Similarly, performance declined with longer forecast horizons. Considering the model as a whole, this model explained approximately `r round(m.anova$dev.expl*100)`% of the variability in the interval score, this might suggest that other factors beyond those included here contribute to forecasting accuracy.
+
+```{r model-fit-comparison}
+# model_fit <- tibble(
+#   "Model" = c("Null", "Explanatory"),
+#   "Variables" = c("Incidence, trend, model",
+#                   "Null + method structure, number of target countries, affiliation of institute to target country"),
+#   "Deviance explained" = paste0(round(c(m_null.anova$dev.expl*100,
+#                                         m.anova$dev.expl*100), 1), "%"),
+#   "AIC" = round(c(m_null.fit$aic, 
+#                   m.fit$aic)),
+#   )
+# knitr::kable(model_fit)
+```
+
