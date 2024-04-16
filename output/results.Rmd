@@ -10,9 +10,10 @@ library(trackdown)
 # upload_file(file = here("output", "results.Rmd"), 
 #             gpath = "trackdown/hub-method-evaluation",
 #             hide_code = TRUE)
-trackdown::download_file(file = here("output", "results.Rmd"))
-trackdown::update_file(file = here("output", "results.Rmd"), 
-                       hide_code = TRUE)
+
+# trackdown::download_file(file = here("output", "results.Rmd"))
+# trackdown::update_file(file = here("output", "results.Rmd"), 
+#                        hide_code = TRUE)
 ```
 <!--- RMarkdown set up --->
 ```{r set-up, include=FALSE}
@@ -48,8 +49,9 @@ scores <- prep_data(scoring_scale = "log") |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 ```
 
-```{r metadata, tab.cap="Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, number of forecasts contributed, and interval scores (median and interquartile range) across contributed forecasts."}
-table_metadata()
+```{r metadata}
+table_metadata() |> 
+  kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, number of forecasts contributed, and interval scores (median and interquartile range) across contributed forecasts.")
 ```
  
 <!--- Describe scores data --->

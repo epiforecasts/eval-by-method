@@ -215,7 +215,6 @@ table_metadata <- function() {
     left_join(model_scores) |>
     arrange(median, Method, `Country Targets`) |>
     mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
-    select(-median) |>
-    knitr::kable()
+    select(-median)
   return(metadata_table)
 }

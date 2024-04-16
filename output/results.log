@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.10)  16 APR 2024 13:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.10)  16 APR 2024 13:41
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -603,7 +603,12 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-Overfull \hbox (2.5595pt too wide) in paragraph at lines 119--120
+Overfull \hbox (2.5595pt too wide) in paragraph at lines 123--124
+[]\T1/lmr/m/n/10 (-20) Description  
+ []
+
+
+Overfull \hbox (2.5595pt too wide) in paragraph at lines 139--140
 []\T1/lmr/m/n/10 (-20) Description  
  []
 
@@ -613,18 +618,18 @@ Overfull \hbox (2.5595pt too wide) in paragraph at lines 119--120
 <results_files/figure-latex/scores-by-model-1.pdf, id=51, 578.16pt x 722.7pt>
 File: results_files/figure-latex/scores-by-model-1.pdf Graphic file (type pdf)
 <use results_files/figure-latex/scores-by-model-1.pdf>
-Package pdftex.def Info: results_files/figure-latex/scores-by-model-1.pdf  used on input line 265.
+Package pdftex.def Info: results_files/figure-latex/scores-by-model-1.pdf  used on input line 285.
 (pdftex.def)             Requested size: 469.75385pt x 587.1923pt.
 
-LaTeX Warning: Float too large for page by 8.70673pt on input line 273.
+LaTeX Warning: Float too large for page by 8.70673pt on input line 293.
 
-[2]
-<results_files/figure-latex/plot-coeffs-1.pdf, id=57, 361.35pt x 216.81pt>
+[2] [3 <./results_files/figure-latex/scores-by-model-1.pdf>]
+<results_files/figure-latex/plot-coeffs-1.pdf, id=66, 361.35pt x 216.81pt>
 File: results_files/figure-latex/plot-coeffs-1.pdf Graphic file (type pdf)
 <use results_files/figure-latex/plot-coeffs-1.pdf>
-Package pdftex.def Info: results_files/figure-latex/plot-coeffs-1.pdf  used on input line 340.
+Package pdftex.def Info: results_files/figure-latex/plot-coeffs-1.pdf  used on input line 360.
 (pdftex.def)             Requested size: 361.34912pt x 216.80946pt.
-[3] [4 <./results_files/figure-latex/scores-by-model-1.pdf>] [5 <./results_files/figure-latex/plot-coeffs-1.pdf>] (./results.aux)
+[4] [5 <./results_files/figure-latex/plot-coeffs-1.pdf>] (./results.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
@@ -633,13 +638,13 @@ L3 programming layer <2024-03-14>
 Here is how much of TeX's memory you used:
  14680 strings out of 476064
  233514 string characters out of 5791388
- 1986493 words of memory out of 5000000
+ 1984493 words of memory out of 5000000
  36482 multiletter control sequences out of 15000+600000
  586002 words of font info for 91 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,8n,93p,1004b,560s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 89i,8n,93p,1004b,562s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb>
-Output written on results.pdf (5 pages, 237527 bytes).
+Output written on results.pdf (5 pages, 237955 bytes).
 PDF statistics:
  102 PDF objects out of 1000 (max. 8388607)
  84 compressed objects within 1 object stream
