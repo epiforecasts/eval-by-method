@@ -64,48 +64,86 @@ create_table1 <- function(scores) {
   return(table1)
 }
 
-# Plot over time --------------------
-plot_iqr_over_time <- function(scores,
-                           quantiles = c(0.25, 0.5, 0.75)) {
-  q_over_time <- scores |>
-    group_by(target_end_date) |>
+# Plot over time by explanatory variable ----------------------------------
+plot_over_time <- function(scores, ensemble){
+  quantiles = c(0.25, 0.5, 0.75)
+
+  plot_over_time_ensemble <- ensemble |>
+    # Median & IQR
+    group_by(target_end_date, Model) |>
+    mutate(Model = "Hub ensemble model") |>
     reframe(
       n = n(),
       value = quantile(interval_score, quantiles),
       quantile = paste0("q", quantiles)) |>
-    pivot_wider(names_from = quantile)
-  plot_over_time <- q_over_time |>
-    ggplot(aes(x = target_end_date)) +
+    pivot_wider(names_from = quantile) |>
+    # Plot
+    ggplot(aes(x = target_end_date, col = Model, fill = Model)) +
     geom_line(aes(y = q0.5), alpha = 0.5) +
     geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-                alpha = 0.3, col = NA) +
+                alpha = 0.2, col = NA) +
     scale_x_date(date_labels = "%b %Y") +
-    labs(x = NULL, y = "Weighted interval score (IQR)")
-  return(plot_over_time)
+    scale_fill_manual(values = c("Hub ensemble model" = "#1f78b4"),
+                      aesthetics = c("col", "fill"),
+                      ) +
+    labs(x = NULL, y = "Interval score",
+         fill = NULL, col = NULL) +
+    theme(legend.position = "bottom")
+
+  plot_over_time_target <- scores |>
+    filter(!grepl("Qualitative", Method)) |>
+    # Get median & IQR
+    group_by(target_end_date, CountryTargets) |>
+    reframe(
+      n = n(),
+      value = quantile(interval_score, quantiles),
+      quantile = paste0("q", quantiles)) |>
+    pivot_wider(names_from = quantile) |>
+    # Plot
+    ggplot(aes(x = target_end_date,
+               col = CountryTargets,
+               fill = CountryTargets)) +
+    geom_line(aes(y = q0.5), alpha = 0.5) +
+    geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
+                alpha = 0.1, col = NA) +
+    scale_x_date(date_labels = "%b %Y") +
+    scale_fill_manual(values = c("Single-country" = "#e7298a",
+                                 "Multi-country" = "#e6ab02"),
+                                 aesthetics = c("col", "fill")) +
+    labs(x = NULL, y = "Interval score",
+         fill = NULL, col = NULL) +
+    theme(legend.position = "bottom")
+
+  plot_over_time_method <- scores |>
+    filter(!grepl("Qualitative", Method)) |>
+    # Get median & IQR
+    group_by(target_end_date, Method) |>
+    reframe(
+      n = n(),
+      value = quantile(interval_score, quantiles),
+      quantile = paste0("q", quantiles)) |>
+    pivot_wider(names_from = quantile) |>
+    # Plot
+    ggplot(aes(x = target_end_date, col = Method, fill = Method)) +
+    geom_line(aes(y = q0.5), alpha = 0.5) +
+    geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
+                alpha = 0.1, col = NA) +
+    scale_x_date(date_labels = "%b %Y") +
+    scale_fill_brewer(aesthetics = c("col", "fill"),
+                      type = "qual", palette = 2) +
+    labs(x = NULL, y = "Interval score",
+         fill = NULL, col = NULL) +
+    theme(legend.position = "bottom")
+
+  score_plot <- plot_over_time_ensemble +
+    plot_over_time_method +
+    plot_over_time_target +
+    plot_layout(ncol = 1) +
+    plot_annotation(tag_levels = "A")
+
+  return(score_plot)
 }
 
-plot_means_over_time <- function(scores) {
-  means_over_time <- scores |>
-    group_by(target_end_date) |>
-    summarise(
-      n_forecasts = n(),
-      n_models = length(unique(Model)),
-      mean = mean(interval_score),
-      lower95 = t.test(interval_score)$conf.int[1],
-      upper95 = t.test(interval_score)$conf.int[2],
-      lower99 = t.test(interval_score, conf.level = 0.99)$conf.int[1],
-      upper99 = t.test(interval_score, conf.level = 0.99)$conf.int[2])
-  means_plot_over_time <- means_over_time |>
-    ggplot(aes(x = target_end_date)) +
-    geom_line(aes(y = mean), alpha = 0.4) +
-    geom_ribbon(aes(ymin = lower95, ymax = upper95),
-                alpha = 0.3) +
-    geom_ribbon(aes(ymin = lower99, ymax = upper99),
-                alpha = 0.1) +
-    scale_x_date(date_labels = "%b %Y") +
-    labs(x = NULL, y = "Weighted interval score")
-  return(means_plot_over_time)
-}
 
 # Density plot  --------------------
 plot_density <- function(scores) {
@@ -128,32 +166,6 @@ plot_density <- function(scores) {
     plot_annotation(tag_levels = "A",
                     caption = "NA represents Hub ensemble model")
   return(plot_density_patchwork)
-}
-
-# Linerange plot summary --------------------
-plot_linerange <- function(group_var) {
-  quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
-  plot <- scores |>
-    group_by(.data[[group_var]], Horizon) |>
-    reframe(
-      n = n(),
-      value = quantile(interval_score, quantiles),
-      quantile = paste0("q", quantiles)) |>
-    pivot_wider(names_from = quantile) |>
-    # Plot
-    ggplot(aes(y = .data[[group_var]], col = Horizon, fill = Horizon)) +
-    geom_point(aes(x = q0.5), alpha = 0.8,
-               position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                   alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                   alpha = 0.2, position = position_dodge(width = 1)) +
-    labs(y = NULL, x = NULL,
-         col = "Week ahead forecast Horizon",
-         fill = "Week ahead forecast Horizon") +
-    scale_color_viridis_d(direction = 1) +
-    theme(legend.position = "bottom")
-  return(plot)
 }
 
 # Ridge plot by model --------------------
@@ -217,4 +229,30 @@ table_metadata <- function() {
     mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
     select(-median)
   return(metadata_table)
+}
+
+# Linerange plot summary --------------------
+plot_linerange <- function(group_var) {
+  quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
+  plot <- scores |>
+    group_by(.data[[group_var]], Horizon) |>
+    reframe(
+      n = n(),
+      value = quantile(interval_score, quantiles),
+      quantile = paste0("q", quantiles)) |>
+    pivot_wider(names_from = quantile) |>
+    # Plot
+    ggplot(aes(y = .data[[group_var]], col = Horizon, fill = Horizon)) +
+    geom_point(aes(x = q0.5), alpha = 0.8,
+               position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
+                   alpha = 0.5, position = position_dodge(width = 1)) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
+                   alpha = 0.2, position = position_dodge(width = 1)) +
+    labs(y = NULL, x = NULL,
+         col = "Week ahead forecast Horizon",
+         fill = "Week ahead forecast Horizon") +
+    scale_color_viridis_d(direction = 1) +
+    theme(legend.position = "bottom")
+  return(plot)
 }

@@ -79,3 +79,6 @@ get_metadata_processed <- function() {
   return(metadata)
 }
 
+# teams <- metadata |>
+#   mutate(team = stringr::str_split_i(model_abbr, "-", 1)) |>
+#   distinct(team)

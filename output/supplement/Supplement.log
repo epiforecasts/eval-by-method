@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.10)  21 APR 2024 16:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.4.10)  21 APR 2024 16:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**results.tex
-(./results.tex
+**Supplement.tex
+(./Supplement.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/base/article.cls
@@ -277,103 +277,91 @@ Package graphics Info: Driver file: pdftex.def on input line 107.
 )
 \Gin@req@height=\dimen178
 \Gin@req@width=\dimen179
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/base/flafter.sty
-Package: flafter 2021/07/31 v1.4e Standard LaTeX floats after reference (FMi)
-Applying: [2015/01/01] float order in 2-column on input line 49.
-Already applied: [0000/00/00] float order in 2-column on input line 151.
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
 Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
 \multirow@colwidth=\skip63
 \multirow@cntb=\count292
 \multirow@dima=\skip64
 \bigstrutjot=\dimen180
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
-\wrapoverhang=\dimen181
-\WF@size=\dimen182
-\c@WF@wrappedlines=\count293
-\WF@box=\box62
-\WF@everypar=\toks30
-Package: wrapfig 2003/01/31  v 3.6
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/float/float.sty
-Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count294
-\float@exts=\toks31
-\float@box=\box63
-\@float@everytoks=\toks32
-\@floatcapt=\box64
+) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/tools/multicol.sty
+Package: multicol 2023/03/30 v1.9f multicolumn formatting (FMi)
+\c@tracingmulticols=\count293
+\mult@box=\box62
+\multicol@leftmargin=\dimen181
+\c@unbalance=\count294
+\c@collectmore=\count295
+\doublecol@number=\count296
+\multicoltolerance=\count297
+\multicolpretolerance=\count298
+\full@width=\dimen182
+\page@free=\dimen183
+\premulticols=\dimen184
+\postmulticols=\dimen185
+\multicolsep=\skip65
+\multicolbaselineskip=\skip66
+\partial@page=\box63
+\last@line=\box64
+\mc@boxedresult=\box65
+\maxbalancingoverflow=\dimen186
+\mult@rightbox=\box66
+\mult@grightbox=\box67
+\mult@firstbox=\box68
+\mult@gfirstbox=\box69
+\@tempa=\box70
+\@tempa=\box71
+\@tempa=\box72
+\@tempa=\box73
+\@tempa=\box74
+\@tempa=\box75
+\@tempa=\box76
+\@tempa=\box77
+\@tempa=\box78
+\@tempa=\box79
+\@tempa=\box80
+\@tempa=\box81
+\@tempa=\box82
+\@tempa=\box83
+\@tempa=\box84
+\@tempa=\box85
+\@tempa=\box86
+\@tempa=\box87
+\@tempa=\box88
+\@tempa=\box89
+\@tempa=\box90
+\@tempa=\box91
+\@tempa=\box92
+\@tempa=\box93
+\@tempa=\box94
+\@tempa=\box95
+\@tempa=\box96
+\@tempa=\box97
+\@tempa=\box98
+\@tempa=\box99
+\@tempa=\box100
+\@tempa=\box101
+\@tempa=\box102
+\@tempa=\box103
+\@tempa=\box104
+\@tempa=\box105
+\c@minrows=\count299
+\c@columnbadness=\count300
+\c@finalcolumnbadness=\count301
+\last@try=\dimen187
+\multicolovershoot=\dimen188
+\multicolundershoot=\dimen189
+\mult@nat@firstbox=\box106
+\colbreak@box=\box107
+\mc@col@check@num=\count302
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/colortbl/colortbl.sty
 Package: colortbl 2024/02/20 v1.0g Color table columns (DPC)
-\everycr=\toks33
-\minrowclearance=\skip65
-\rownum=\count295
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape.sty
-Package: pdflscape 2022-10-27 v0.13 Display of landscape pages in PDF
-(/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/pdflscape/pdflscape-nometadata.sty
-Package: pdflscape-nometadata 2022-10-28 v0.13 Display of landscape pages in PDF (HO)
-(/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/graphics/lscape.sty
-Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
+\everycr=\toks30
+\minrowclearance=\skip67
+\rownum=\count303
+) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/tools/hhline.sty
+Package: hhline 2020/01/04 v2.04 Table rule package (DPC)
 )
-Package pdflscape Info: Auto-detected driver: pdftex on input line 81.
-)) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/tabu/tabu.sty
-Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
-(/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/varwidth/varwidth.sty
-Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
-\@vwid@box=\box65
-\sift@deathcycles=\count296
-\@vwid@loff=\dimen183
-\@vwid@roff=\dimen184
-)
-\c@taburow=\count297
-\tabu@nbcols=\count298
-\tabu@cnt=\count299
-\tabu@Xcol=\count300
-\tabu@alloc=\count301
-\tabu@nested=\count302
-\tabu@target=\dimen185
-\tabu@spreadtarget=\dimen186
-\tabu@naturalX=\dimen187
-\tabucolX=\dimen188
-\tabu@Xsum=\dimen189
-\extrarowdepth=\dimen190
-\abovetabulinesep=\dimen191
-\belowtabulinesep=\dimen192
-\tabustrutrule=\dimen193
-\tabu@thebody=\toks34
-\tabu@footnotes=\toks35
-\tabu@box=\box66
-\tabu@arstrutbox=\box67
-\tabu@hleads=\box68
-\tabu@vleads=\box69
-\tabu@cellskip=\skip66
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/threeparttable/threeparttable.sty
-Package: threeparttable 2003/06/13  v 3.0
-\@tempboxb=\box70
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/threeparttablex/threeparttablex.sty
-Package: threeparttablex 2013/07/23 v0.3 by daleif
-(/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
-Package: environ 2014/05/04 v0.3 A new way to define environments
-(/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
-Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
-))
-\TPTL@width=\skip67
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/generic/ulem/ulem.sty
-\UL@box=\box71
-\UL@hyphenbox=\box72
-\UL@skip=\skip68
-\UL@hook=\toks36
-\UL@height=\dimen194
-\UL@pe=\count303
-\UL@pixel=\dimen195
-\ULC@box=\box73
-Package: ulem 2019/11/18
-\ULdepth=\dimen196
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/makecell/makecell.sty
-Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
-\rotheadsize=\dimen197
-\c@nlinenum=\count304
-\TeXr@lab=\toks37
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/bookmark/bookmark.sty
-Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
+\Oldarrayrulewidth=\skip68
+\Oldtabcolsep=\skip69
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
 Package: hyperref 2024-01-20 v7.01h Hypertext links for LaTeX
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
@@ -405,11 +393,11 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
-\c@section@level=\count305
+\c@section@level=\count304
 )
-\@linkdim=\dimen198
-\Hy@linkcounter=\count306
-\Hy@pagecounter=\count307
+\@linkdim=\dimen190
+\Hy@linkcounter=\count305
+\Hy@pagecounter=\count306
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
 File: pd1enc.def 2024-01-20 v7.01h Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
@@ -417,7 +405,7 @@ Now handling font encoding PD1 ...
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
-\Hy@SavedSpaceFactor=\count308
+\Hy@SavedSpaceFactor=\count307
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
 File: puenc.def 2024-01-20 v7.01h Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
@@ -431,21 +419,21 @@ Package hyperref Info: Plain pages OFF on input line 4194.
 Package hyperref Info: Backreferencing OFF on input line 4199.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4446.
-\c@Hy@tempcnt=\count309
+\c@Hy@tempcnt=\count308
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4784.
-\XeTeXLinkMargin=\dimen199
+\XeTeXLinkMargin=\dimen191
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
 Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
 ))
-\Fld@menulength=\count310
-\Field@Width=\dimen256
-\Fld@charsize=\dimen257
+\Fld@menulength=\count309
+\Field@Width=\dimen192
+\Fld@charsize=\dimen193
 Package hyperref Info: Hyper figures OFF on input line 6063.
 Package hyperref Info: Link nesting OFF on input line 6068.
 Package hyperref Info: Hyper index ON on input line 6071.
@@ -457,9 +445,9 @@ Package hyperref Info: PDF/A mode OFF on input line 6093.
 Package: atbegshi-ltx 2021/01/10 v1.0c Emulation of the original atbegshi
 package with kernel methods
 )
-\Hy@abspage=\count311
-\c@Item=\count312
-\c@Hfootnote=\count313
+\Hy@abspage=\count310
+\c@Item=\count311
+\c@Hfootnote=\count312
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
@@ -468,8 +456,8 @@ File: hpdftex.def 2024-01-20 v7.01h Hyperref driver for pdfTeX
 Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
 with kernel methods
 )
-\Fld@listcount=\count314
-\c@bookmark@seq@number=\count315
+\Fld@listcount=\count313
+\c@bookmark@seq@number=\count314
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
 Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
@@ -477,52 +465,68 @@ Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 285.
 )
-\Hy@SectionHShift=\skip69
-) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/bookmark/bkm-pdftex.def
+\Hy@SectionHShift=\skip70
+) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count315
+\float@exts=\toks31
+\float@box=\box108
+\@float@everytoks=\toks32
+\@floatcapt=\box109
+) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen194
+\WF@size=\dimen195
+\c@WF@wrappedlines=\count316
+\WF@box=\box110
+\WF@everypar=\toks33
+Package: wrapfig 2003/01/31  v 3.6
+) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/bookmark/bookmark.sty
+Package: bookmark 2023-12-10 v1.31 PDF bookmarks (HO)
+(/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/bookmark/bkm-pdftex.def
 File: bkm-pdftex.def 2023-12-10 v1.31 bookmark driver for pdfTeX and luaTeX (HO)
-\BKM@id=\count316
+\BKM@id=\count317
 ))
-LaTeX Font Info:    Trying to load font information for T1+lmr on input line 97.
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 93.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2024-03-14 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count317
-\l__pdf_internal_box=\box74
-) (./results.aux)
-\openout1 = `results.aux'.
+\l__color_backend_stack_int=\count318
+\l__pdf_internal_box=\box111
+) (./Supplement.aux)
+\openout1 = `Supplement.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 97.
-LaTeX Font Info:    ... okay on input line 97.
-LaTeX Info: Redefining \microtypecontext on input line 97.
-Package microtype Info: Applying patch `item' on input line 97.
-Package microtype Info: Applying patch `toc' on input line 97.
-Package microtype Info: Applying patch `eqnum' on input line 97.
-Package microtype Info: Applying patch `footnote' on input line 97.
-Package microtype Info: Applying patch `verbatim' on input line 97.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Info: Redefining \microtypecontext on input line 93.
+Package microtype Info: Applying patch `item' on input line 93.
+Package microtype Info: Applying patch `toc' on input line 93.
+Package microtype Info: Applying patch `eqnum' on input line 93.
+Package microtype Info: Applying patch `footnote' on input line 93.
+Package microtype Info: Applying patch `verbatim' on input line 93.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 97.
+LaTeX Info: Redefining \showhyphens on input line 93.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -568,85 +572,134 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 97.
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 99.
+Package hyperref Info: Link coloring OFF on input line 93.
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 95.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 99.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 95.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 99.
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 95.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 99.
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 95.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <12> on input line 99.
+(Font)              <12> on input line 95.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 99.
+(Font)              <8> on input line 95.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 99.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 99.
+(Font)              <6> on input line 95.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 95.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 99.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 95.
 (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (/Users/kathsherratt/Library/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
-Overfull \hbox (2.5595pt too wide) in paragraph at lines 123--124
-[]\T1/lmr/m/n/10 (-20) Description  
- []
+<Supplement_files/figure-latex/scores-by-model-1.pdf, id=4, 578.16pt x 722.7pt>
+File: Supplement_files/figure-latex/scores-by-model-1.pdf Graphic file (type pdf)
+<use Supplement_files/figure-latex/scores-by-model-1.pdf>
+Package pdftex.def Info: Supplement_files/figure-latex/scores-by-model-1.pdf  used on input line 98.
+(pdftex.def)             Requested size: 469.75385pt x 587.1923pt.
 
-
-Overfull \hbox (2.5595pt too wide) in paragraph at lines 139--140
-[]\T1/lmr/m/n/10 (-20) Description  
- []
+LaTeX Warning: Float too large for page by 20.70673pt on input line 106.
 
 [1
 
-{/Users/kathsherratt/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}] [2]
-<results_files/figure-latex/scores-over-time-1.pdf, id=55, 433.62pt x 578.16pt>
-File: results_files/figure-latex/scores-over-time-1.pdf Graphic file (type pdf)
-<use results_files/figure-latex/scores-over-time-1.pdf>
-Package pdftex.def Info: results_files/figure-latex/scores-over-time-1.pdf  used on input line 289.
-(pdftex.def)             Requested size: 433.63878pt x 578.18504pt.
+{/Users/kathsherratt/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}] [2
+pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.108 \newpage
+               <./Supplement_files/figure-latex/scores-by-model-1.pdf>]
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 114.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 114.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 114.
+</Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/density.jpg, id=23, 3011.25pt x 2409.0pt>
+File: /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/density.jpg Graphic file (type jpg)
+<use /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/density.jpg>
+Package pdftex.def Info: /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/density.jpg  used on input line 122.
+(pdftex.def)             Requested size: 469.72556pt x 375.78044pt.
+[3
+pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.126 \newpage
+               </Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/density.jpg>]
+Overfull \hbox (150.8598pt too wide) in alignment at lines 154--162
+ [] [] [] [] [] [] [] 
+ []
 
-LaTeX Warning: Float too large for page by 11.69946pt on input line 299.
 
-<results_files/figure-latex/plot-coeffs-1.pdf, id=56, 361.35pt x 216.81pt>
-File: results_files/figure-latex/plot-coeffs-1.pdf Graphic file (type pdf)
-<use results_files/figure-latex/plot-coeffs-1.pdf>
-Package pdftex.def Info: results_files/figure-latex/plot-coeffs-1.pdf  used on input line 373.
-(pdftex.def)             Requested size: 361.34912pt x 216.80946pt.
-[3] [4 <./results_files/figure-latex/scores-over-time-1.pdf>] [5 <./results_files/figure-latex/plot-coeffs-1.pdf>] (./results.aux)
+Overfull \hbox (150.8598pt too wide) in alignment at lines 162--168
+ [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (150.8598pt too wide) in alignment at lines 168--192
+ [] [] [] [] [] [] [] 
+ []
+
+
+Overfull \hbox (150.8598pt too wide) in alignment at lines 192--268
+ [] [] [] [] [] [] [] 
+ []
+
+[4]
+</Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/estimates.jpg, id=46, 3011.25pt x 2409.0pt>
+File: /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/estimates.jpg Graphic file (type jpg)
+<use /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/estimates.jpg>
+Package pdftex.def Info: /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/estimates.jpg  used on input line 305.
+(pdftex.def)             Requested size: 469.72556pt x 375.78044pt.
+[5
+pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.309 \newpage
+               </Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/estimates.jpg>]
+</Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/diagnostics.jpg, id=54, 1806.75pt x 1806.75pt>
+File: /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/diagnostics.jpg Graphic file (type jpg)
+<use /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/diagnostics.jpg>
+Package pdftex.def Info: /Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/diagnostics.jpg  used on input line 316.
+(pdftex.def)             Requested size: 469.74393pt x 469.74393pt.
+[6
+pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.320 \newpage
+               </Users/kathsherratt/Documents/Github/eval-by-method/output/supplement/diagnostics.jpg>] (./Supplement.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-03-14>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14680 strings out of 476064
- 233517 string characters out of 5791388
- 1984493 words of memory out of 5000000
- 36482 multiletter control sequences out of 15000+600000
- 586002 words of font info for 91 fonts, out of 8000000 for 9000
+ 13708 strings out of 476064
+ 218840 string characters out of 5791388
+ 1956493 words of memory out of 5000000
+ 35531 multiletter control sequences out of 15000+600000
+ 606708 words of font info for 105 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 89i,8n,93p,1004b,562s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb>
-Output written on results.pdf (5 pages, 117342 bytes).
+ 75i,10n,79p,1011b,453s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb></Users/kathsherratt/Library/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb>
+Output written on Supplement.pdf (6 pages, 2428566 bytes).
 PDF statistics:
- 107 PDF objects out of 1000 (max. 8388607)
- 89 compressed objects within 1 object stream
- 10 named destinations out of 1000 (max. 500000)
- 14347 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 96 PDF objects out of 1000 (max. 8388607)
+ 72 compressed objects within 1 object stream
+ 25 named destinations out of 1000 (max. 500000)
+ 26653 words of extra memory for PDF output out of 29859 (max. 10000000)
 

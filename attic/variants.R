@@ -1,5 +1,8 @@
 # Score by variant phase
-
+library(here)
+library(dplyr)
+library(readr)
+library(lubridate)
 # Get scores
 scores_raw <- read_csv(here("data", "scores-raw.csv"))
 
@@ -7,21 +10,53 @@ scores_raw <- read_csv(here("data", "scores-raw.csv"))
 # source data:
 # variants <- read_csv("https://opendata.ecdc.europa.eu/covid19/virusvariant/csv/data.csv", progress = FALSE, show_col_types = FALSE)
 source(here("attic", "get-variants.R"))
-variant_names <- c("B.1.617.2" = "Delta",
+variant_names <- c("B.1.1.7" = "Alpha",
+                   "B.1.351" = "Beta",
+                   "B.1.617.2" = "Delta",
                    "B.1.1.529" = "Omicron",
                    "BA.1" = "Omicron-BA1")
 
 variant_data <- download_variant_introduction(variant_codes = names(variant_names),
                                               introduction_percent = 25)
 
+variant_medians <- variant_data |>
+  group_by(variant) |>
+  summarise(across(starts_with("date"),
+                   ~ median(.x, na.rm=T)))
+
+variant_dates <- c(
+  "Alpha" = as.Date("2021-02-20"),
+  "Beta" = as.Date("2021-04-03"),
+  "Delta" = as.Date("2021-07-03"),
+  "Omicron 0" = as.Date("2021-07-03"),
+  "Omicron BA1" = as.Date("2022-01-01"),
+  "Omicron BA2" = as.Date("2022-03-05"),
+  "Omicron BA5" = as.Date("2022-06-18"),
+  "Omicron BA275" = as.Date("2023-02-11")
+) |> pivot_longer()
+
 delta <- variant_data |>
   filter(variant == "B.1.617.2") |>
   select(location_name = country,
          delta_intro = date_introduction,
          delta_dominant = date_dominant)
-
 omicron <- variant_data |>
+  filter(variant == "B.1.1.529") |>
+  select(location_name = country,
+         omicron_intro = date_introduction,
+         omicron_dominant = date_dominant)
+omicron_ba1 <- variant_data |>
   filter(variant == "BA.1") |>
+  select(location_name = country,
+         omicron_intro = date_introduction,
+         omicron_dominant = date_dominant)
+omicron_ba2 <- variant_data |>
+  filter(variant == "BA.2") |>
+  select(location_name = country,
+         omicron_intro = date_introduction,
+         omicron_dominant = date_dominant)
+omicron_ba275 <- variant_data |>
+  filter(variant == "BA.2.75") |>
   select(location_name = country,
          omicron_intro = date_introduction,
          omicron_dominant = date_dominant)

@@ -45,7 +45,10 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 # Get data
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
-scores <- prep_data(scoring_scale = "log") |>
+scores <- prep_data(scoring_scale = "log")
+ensemble <- scores |> 
+  filter(grepl("EuroCOVIDhub-ensemble", Model))
+scores <- scores |> 
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 ```
 
@@ -66,13 +69,18 @@ model_forecasts <- summary(model_forecasts$n_forecasts)
 
 We evaluated forecasts of incident deaths from COVID-19, collecting `r n_forecasts` forecasts projected by `r n_models` models contributing to the European COVID-19 Forecast Hub. Forecasts were collected prospectively over 104 weeks from 8 March 2021 to 10 March 2023, and covered one through four week ahead incidence in 32 countries. We report the weighted interval score using log-transformed forecasts.
 
-The number and performance of forecasts varied over time, as forecasting teams joined or left and contributed to varying combinations of forecast targets. We collated between 11 and 33 models in any one week, forecasting for any combination of `r 4*32` possible weekly forecast targets. Models widely varied in their volume of contributions: on average each model contributed `r round(model_forecasts[4])` forecasts, with the median model contributing `r model_forecasts[3]` forecasts. We observed a range of forecast performance among models (figure 1). In general, performance was best in stable periods of little change in incident deaths, while over the length of the forecast horizon, performance appeared to worsen with increasing horizons up to four weeks (table 1). 
+Among our sample of forecasts, the number of forecasts varied over time, as forecasting teams joined or left and contributed to varying combinations of forecast targets. We collated between 11 and 33 models in any one week, forecasting for any combination of `r 4*32` possible weekly forecast targets. Models widely varied in their volume of contributions: on average each model contributed `r round(model_forecasts[4])` forecasts, with the median model contributing `r model_forecasts[3]` forecasts. 
 
+We observed a range of forecast performance both among models and over time (figure 1, supplementary figure 1). As in previous work, we noted that a median ensemble of all forecasts performed consistently well. In general, performance among models was best in stable periods of little change in incident deaths, while over the length of the forecast horizon, performance appeared to worsen with increasing horizons up to four weeks (table 1). 
 
-```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=8}
-ridges_caption <- paste0("Distribution of forecast scores for 1 to 4 week ahead forecasts across 32 locations over 104 weeks (N=", n_forecasts, "). Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
-plot_ridges(scores)
+```{r scores-over-time, fig.height=8,fig.width=6,fig.cap=scores_over_time_cap}
+scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 deaths across Europe. Forecast performance is shown as the median and interquartile range of the weighted interval score, where a lower score indicates better performance. Shown for (A) the Hub ensemble model (the median of all participating forecasts each week); (B) the method used by each model; (C) the number of countries each model targeted (up to 2, or multiple). Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time."
+scores_over_time <- plot_over_time(scores = scores, 
+                                   ensemble = ensemble)
+scores_over_time
 ```
+
+
 
 <!--- Describe models by model structure --->
 ```{r table-scores}
@@ -93,7 +101,7 @@ table1 |>
 ```
 <!--- Describe scores by method --->
 
-We defined four model structures among 39 models. We categorised 8 models as statistical, 10 as semi-mechanistic, and 18 as mechanistic, with 3 qualitative ensemble models. In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Descriptively, we observed similar performance in the central tendencies of the interval score between mechanistic and semi-mechanistic models, performing relatively better than statistical models. We noted that the four top performing models were all semi- or mechanistic and forecast for only one country (Poland or Italy), although these models provided far fewer forecasts than others (table 1). 
+We defined four model structures among 39 models. We categorised 8 models as statistical, 10 as semi-mechanistic, and 18 as mechanistic. 3 qualitative ensemble models contributed only between March to September 2021. In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Descriptively, we observed similar performance in the central tendency of the interval score between mechanistic and semi-mechanistic models, performing relatively better than statistical models. We noted that the four top performing models were all semi- or mechanistic and forecast for only one country (Poland or Italy), although these models provided far fewer forecasts than others (table 1, supplementary figure 1). Relative performance among modelling methods also appeared to vary over time (figure 1). For example, statistical models saw a period of poorer performance over summer 2021, coinciding with the introduction of the Delta variant across Europe.  
 
 <!--- Describe scores by target countries --->
 ```{r target-description}
@@ -104,7 +112,7 @@ multi_targets <- filter(model_targets, CountryTargets == "Multi-country")
 #   table_confint()
 ```
 
-We considered models forecasting for one to two, or multiple countries. We collated 16 single-country models and 23 multi-country models. Single-country models targeted Germany (6 models), Poland (5), Czech Republic (2), Spain (2), Italy (2), and Slovenia (1). Two models classified as single-country targeted both Germany and Poland. On average, multi-country models forecast for `r round(mean(multi_targets$mean))` locations. Models classified as targeting multiple countries could vary from week to week in how many locations they forecast. Only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of locations throughout the entire study period, with `r nrow(multi_targets |> filter(consistent & min_targets==32))` of these forecasting for all 32 available locations.
+We considered models forecasting for one to two, or multiple countries. We collated 16 single-country models and 23 multi-country models. Single-country models targeted Germany (6 models), Poland (5), Czech Republic (2), Spain (2), Italy (2), and Slovenia (1). Two models classified as single-country targeted both Germany and Poland. On average, multi-country models forecast for `r round(mean(multi_targets$mean))` locations. Models classified as targeting multiple countries could vary from week to week in how many locations they forecast. Only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of locations throughout the entire study period, with `r nrow(multi_targets |> filter(consistent & min_targets==32))` of these forecasting for all 32 available locations. Descriptively, multi-country models typically under-performed relative to single-country models to a similar degree over time.
 
 <!--- Model WIS --->
 ```{r}

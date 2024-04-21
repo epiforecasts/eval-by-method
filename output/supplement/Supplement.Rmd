@@ -22,6 +22,16 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 scores <- prep_data(scoring_scale = "log")
+ensemble <- scores |> 
+  filter(grepl("EuroCOVIDhub-ensemble", Model))
+scores <- scores |> 
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+n_forecasts <- nrow(scores)
+```
+
+```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=8}
+ridges_caption <- paste0("Distribution of forecast scores for 1 to 4 week ahead forecasts across 32 locations over 104 weeks (N=", n_forecasts, "). Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
+plot_ridges(scores)
 ```
 
 \newpage
@@ -91,8 +101,3 @@ ggsave(plot = plot_diagnostic, width = 6, height = 6,
 ![Diagnostics](`r here("output", "supplement", "diagnostics.jpg")`)
   
 \newpage
-
-```{r scores-over-time, include=FALSE, fig.cap=plot_iqr_over_time_cap}
-plot_iqr_over_time_cap <- "Median (IQR) of the weekly weighted interval score across all forecasts submitted to the European COVID-19 Forecast Hub"
-plot_iqr_over_time(scores)
-```

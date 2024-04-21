@@ -34,8 +34,7 @@ download_variant_introduction <- function(country_names = NULL,
   # filter as needed and set dates
   variants <- variants %>%
     filter(variant %in% variant_codes &
-             country %in% country_names &
-             source == "GISAID") %>%
+             country %in% country_names) %>%
     mutate(year = as.numeric(substr(year_week, 1, 4)),
            week = as.numeric(substr(year_week, 6, 8))) %>%
     left_join(date_range, by = c("year", "week")) %>%
@@ -62,4 +61,17 @@ download_variant_introduction <- function(country_names = NULL,
               date_peak = min(variant_peak_date))
 
   return(var_data)
+}
+
+summarise_variants <- function(introduction_percent) {
+  variant_names <- c("B.1.351" = "Beta",
+                     "B.1.617.2" = "Delta",
+                     "B.1.1.529" = "Omicron")
+  variant_data <- download_variant_introduction(variant_codes = names(variant_names),
+                                                introduction_percent = introduction_percent)
+  variant_medians <- variant_data |>
+    group_by(variant) |>
+    summarise(across(starts_with("date"),
+                     ~ median(.x, na.rm=T)))
+  return(variant_medians)
 }
