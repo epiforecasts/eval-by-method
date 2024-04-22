@@ -310,3 +310,17 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
 
   return(plot)
 }
+
+trends_plot <- function(scores) {
+  trends <- scores |>
+    select(location, target_end_date, Incidence, Trend) |>
+    distinct()
+  p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
+    geom_point(mapping = aes(colour = Trend), size = 3) +
+    geom_line() +
+    scale_colour_brewer(palette = "Set1", na.value = "grey") +
+    theme(legend.position = "bottom") +
+    facet_wrap(~ location, scales = "free_y") +
+    xlab("")
+  return(p)
+}
