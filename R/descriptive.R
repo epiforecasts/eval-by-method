@@ -65,7 +65,7 @@ create_table1 <- function(scores) {
 }
 
 # Plot over time by explanatory variable ----------------------------------
-plot_over_time <- function(scores, ensemble){
+plot_over_time <- function(scores, ensemble, add_plot){
   quantiles = c(0.25, 0.5, 0.75)
 
   plot_over_time_ensemble <- ensemble |>
@@ -137,7 +137,13 @@ plot_over_time <- function(scores, ensemble){
 
   score_plot <- plot_over_time_ensemble +
     plot_over_time_method +
-    plot_over_time_target +
+    plot_over_time_target
+
+  if (!missing(add_plot)) {
+    score_plot <- score_plot + add_plot
+  }
+
+  score_plot <- score_plot +
     plot_layout(ncol = 1) +
     plot_annotation(tag_levels = "A")
 
@@ -254,5 +260,53 @@ plot_linerange <- function(group_var) {
          fill = "Week ahead forecast Horizon") +
     scale_color_viridis_d(direction = 1) +
     theme(legend.position = "bottom")
+  return(plot)
+}
+
+data_plot <- function(scores, log = FALSE, all = FALSE) {
+  data <- scores |>
+    select(location, target_end_date, Incidence) |>
+    distinct()
+  pop <- read_csv(paste0(
+    "https://raw.githubusercontent.com/european-modelling-hubs/",
+    "covid19-forecast-hub-europe/main/data-locations/locations_eu.csv"
+  ), show_col_types = FALSE) |>
+    select(location, population)
+  data <- data |>
+    left_join(pop, by = join_by(location)) |>
+    mutate(
+      rel_inc = Incidence / population * 1e5,
+      log_inc = log(Incidence + 1)
+    )
+  total <- data |>
+    group_by(target_end_date) |>
+    summarise(
+      Incidence = sum(Incidence),
+      population = sum(population)
+    ) |>
+    mutate(
+      rel_inc = Incidence / population * 1e5,
+      log_inc = log(Incidence + 1),
+      location = "Total"
+    )
+  var_name <- ifelse(log, "log_inc", "rel_inc")
+  plot <- ggplot(mapping = aes(
+    x = target_end_date, y = .data[[var_name]], group = location
+  ))
+
+  if (all) {
+    plot <- plot + geom_line(data = data, alpha = 0.1)
+  }
+
+  plot <- plot +
+    geom_line(data = total, linewidth = ifelse(all, 2, 1)) +
+    xlab("")
+
+  if (log) {
+    plot <- plot + ylab("log(Deaths + 1)")
+  } else {
+    plot <- plot + ylab("Incidence per 100,000")
+  }
+
   return(plot)
 }
