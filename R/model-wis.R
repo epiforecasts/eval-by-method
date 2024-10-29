@@ -3,18 +3,27 @@ library(here)
 library(dplyr)
 library(readr)
 library(tidyr)
+library(purrr)
 library(mgcv)
 library(gratia) # devtools::install_github('gavinsimpson/gratia')
 library(broom)
 library(ggplot2)
+library(broom)
+library(gammit)
 theme_set(theme_classic())
 source(here("R", "prep-data.R"))
 
 # --- Get data ---
-m.data <- prep_data() |>
-  filter(!grepl("EuroCOVIDhub-ensemble", Model) &
-         Method != "Qualitative") |>
-  mutate(log_interval_score = log(interval_score + 0.01))
+metadata <- read_csv(here("data", "model-classification.csv"))
+targets <- read_csv(here("data", "targets-by-model.csv"))
+
+m.data <- prep_data(scoring_scale = "log") |>
+  filter(!grepl("EuroCOVIDhub-", Model)) |>
+  mutate(location = factor(location)) |>
+  group_by(location) |>
+  mutate(time = as.numeric(forecast_date - min(forecast_date)) / 7,
+         Horizon = as.numeric(Horizon)) |>
+  ungroup()
 
 # --- Model ---
 # Formula
@@ -24,82 +33,105 @@ m.formula <- log_interval_score ~
   Method +
   # Number of target countries (2 levels*)
   CountryTargets +
+  # Trend (3 levels)
+  Trend +
+  # Location (country)
+  s(location, bs = "re") +
   # Affiliation same as target country
   # CountryTargetAffiliated +
   # -----------------------------
   # Observed incidence: interacting with trend; thin plate reg. spline (default)
-  s(Incidence)  +
-  # Trend (3 levels*)
-  Trend +
+  s(time, by = location) +
   # Horizon (4 levels, ordinal)
-  Horizon +
-  # Individual model (35 levels*): random effect
+  s(Horizon, k = 3, by = Model) +
+  # Individual model (35 levels*): random effect, nested within method
   s(Model, bs = "re")
 
 # Fit GAMM with normal distribution
 m.fit <- bam(formula = m.formula,
              data = m.data,
-             family = gaussian(link = "identity"),
-             method = "REML")
+             family = gaussian())
 
 # Check output
-summary(m.fit)
+# summary(m.fit)
 # Parametric terms
-m.anova <- anova(m.fit)
+# m.anova <- anova(m.fit)
 
 # Check fit
-m.aic <- glance(m.fit)$AIC
-appraise(m.fit)
+# m.aic <- glance(m.fit)$AIC
+# appraise(m.fit)
 
-# Null model ---------------------------------------------------
-# Formula
-m_null.formula <- log_interval_score ~
-  s(Incidence)  +
-  Trend +
-  Horizon +
-  s(Model, bs = "re")
-m_null.fit <- bam(formula = m_null.formula,
-                   data = m.data,
-                   family = gaussian(link = "identity"),
-                   method = "REML")
-summary(m_null.fit)
-glance(m_null.fit)
-m_null.anova <- anova(m_null.fit)
+plot_fixed_coeffs <- function(fit, effects = NULL) {
+  fixed_effects <- attr(m.fit$pterms, "term.labels")
+  fixed <- extract_fixed(m.fit) |>
+    mutate(
+      effect = NA_character_,
+      variable = NA_character_
+    )
+  levels <- c()
+  for (fixed_effect in fixed_effects) {
+    fixed <- fixed |>
+      mutate(
+        effect = if_else(
+          grepl(paste0("^", fixed_effect), term),
+          fixed_effect,
+          effect
+        ),
+        variable = if_else(
+          effect == fixed_effect,
+          sub(paste0("^", fixed_effect), "", term),
+          variable
+        )
+      ) |>
+      complete(
+        variable = levels(m.data[[fixed_effect]]),
+        fill = list(
+          value = 0, lower_2.5 = 0, upper_97.5 = 0, effect = fixed_effect
+        )
+      )
+    levels <- c(levels, levels(m.data[[fixed_effect]]))
+  }
+  fixed <- fixed |>
+    filter(!is.na(variable)) |>
+    select(effect, variable, value, lower_2.5, upper_97.5)
+  max_effect <- max(abs(fixed$lower_2.5), abs(fixed$upper_97.5))
 
-# Plot parametric coefficients --------
-plot_coeffs <- function(m.anova) {
-  coeffs_clean <- tibble(
-    coeff = c("MethodStatistical",
-              "MethodSemi-mechanistic",
-              NA,
-              "CountryTargetsMulti-country",
-              NA),
-    variable = c(rep("Method", 3),
-                 rep("Location targets", 2)),
-    level = c("Statistical", "Semi-mechanistic", "Mechanistic",
-              "Multi-country", "Single-country")
-  )
-
-  coeffs <- as_tibble(x = m.anova[["p.table"]],
-                      rownames = "coeff") |>
-    janitor::clean_names() |>
-    mutate(lower = estimate - std_error * qnorm(0.975),
-           upper = estimate + std_error * qnorm(0.975))
-
-  coeffs_table <- left_join(coeffs_clean, coeffs,
-                            by = "coeff") |>
-    replace_na(list(estimate=0, lower=0, upper=0)) |>
-    mutate(level = fct_inorder(level),
-           variable = fct_inorder(variable))
-
-  plot_coeffs <- coeffs_table |>
-    ggplot(aes(x = level, col = variable)) +
-    geom_point(aes(y = estimate)) +
-    geom_linerange(aes(ymin = lower, ymax = upper)) +
+  fixed |>
+    mutate(
+      effect = factor(effect, levels = unique(effect)),
+      variable = factor(variable, levels = rev(levels))
+    )
+  if (!is.null(effects)) {
+    fixed <- fixed |>
+      filter(effect %in% effects)
+  }
+  fixed <- fixed |>
+    ggplot(aes(x = variable, y = value, colour = effect)) +
+    geom_point() +
+    geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5)) +
     geom_hline(yintercept = 0, lty = 2) +
-    labs(y = "Partial effect", x = NULL, colour = NULL) +
+    labs(y = "Partial effect", x = NULL, col = NULL) +
+    scale_colour_brewer(type = "qual", palette = 2) +
+    expand_limits(y = c(-max_effect, max_effect)) +
+    coord_flip() +
+    theme(legend.position = "bottom")
+}
+
+plot_models <- function(fit) {
+  extract_ranef(m.fit) |>
+    filter(group_var == "Model") |>
+    left_join(metadata |> rename(group = model)) |>
+    left_join(targets |> rename(group = model)) |>
+    mutate(group = sub(".*-", "", group)) |> ## remove institution identifier
+    select(-group_var) |>
+    arrange(desc(value)) |>
+    mutate(group = factor(group, levels = as.character(group))) |>
+    ggplot(aes(x = group, col = classification, shape = target_type)) +
+    geom_point(aes(y = value)) +
+    geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5)) +
+    geom_hline(yintercept = 0, lty = 2) +
+    labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
     scale_colour_brewer(type = "qual", palette = 2) +
     coord_flip() +
     theme(legend.position = "bottom")
-  return(plot_coeffs)
 }
