@@ -40,5 +40,5 @@ jobs:
       - name: Upload pdf as an artifact
         uses: actions/upload-artifact@v4
         with:
-          name: readme
+          name: results
           path: output/results.pdf
