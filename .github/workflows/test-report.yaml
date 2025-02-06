@@ -27,9 +27,7 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v2
 
       - name: Install dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::rmarkdown
+        uses: r-lib/actions/setup-renv@v2
 
       - name: Compile the report
         run: |
