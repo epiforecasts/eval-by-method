@@ -89,9 +89,3 @@ plot_effects <- function(fit) {
     ) +
     coord_flip()
 }
-
-p <- plot_models(m.fit)
-ggsave("model_performance.png", p, width = 7.5, height = 3.5)
-
-effects <- plot_effects(m.fit)
-ggsave("model_effects.png", effects, width = 6, height = 3.5)
