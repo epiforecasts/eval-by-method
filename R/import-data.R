@@ -71,7 +71,7 @@ get_observed <- function(data_type = "death") {
   obs <- read_csv(paste0(
     "https://raw.githubusercontent.com/covid19-forecast-hub-europe/",
     "covid19-forecast-hub-europe/main/data-truth/JHU/", file_name
-  ) |>
+  )) |>
     # aggregate to weekly incidence
     mutate(year = epiyear(date),
            week = epiweek(date)) |>
