@@ -15,13 +15,14 @@ library(lubridate)
 library(arrow)
 library(tidyr)
 library(ggplot2)
+library(stringr)
 theme_set(theme_minimal())
 
 # Prediction data  ------------------------------------------------------
-get_forecasts <- function() {
+get_forecasts <- function(data_type = "death") {
   forecasts <- arrow::read_parquet(here("data",
                                         "covid19-forecast-hub-europe.parquet")) |>
-    filter(grepl("death", target))
+    filter(grepl(data_type, target))
 
   forecasts <- forecasts |>
     separate(target, into = c("horizon", "target_variable"),
@@ -65,8 +66,12 @@ get_forecasts <- function() {
 
 # Observed data ---------------------------------------------------------
 # Get raw values
-get_observed <- function() {
-  obs <- read_csv("https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/data-truth/JHU/truth_JHU-Incident%20Deaths.csv") |>
+get_observed <- function(data_type = "death") {
+  file_name <- paste0("truth_JHU-Incident%20", str_to_title(data_type), "s.csv")
+  obs <- read_csv(paste0(
+    "https://raw.githubusercontent.com/covid19-forecast-hub-europe/",
+    "covid19-forecast-hub-europe/main/data-truth/JHU/", file_name
+  ) |>
     # aggregate to weekly incidence
     mutate(year = epiyear(date),
            week = epiweek(date)) |>
