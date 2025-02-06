@@ -13,7 +13,7 @@ library(trackdown)
 
 # trackdown::download_file(file = here("output", "results.Rmd"))
 # trackdown::update_file(file = here("output", "results.Rmd"), 
-#                        hide_code = TRUE)
+#                        hide_code = TRUE, gpath = "trackdown/hub-method-evaluation")
 ```
 <!--- RMarkdown set up --->
 ```{r set-up, include=FALSE}
