@@ -25,6 +25,9 @@ jobs:
       - name: Setup pandoc
         uses: r-lib/actions/setup-pandoc@v2
 
+      - name: Install latex
+        uses: r-lib/actions/setup-tinytex@v2
+
       - name: Install dependencies
         uses: r-lib/actions/setup-renv@v2
 
