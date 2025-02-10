@@ -51,8 +51,7 @@ m.formula <- log_wis ~
   # Horizon (4 levels, ordinal)
   s(Horizon, k = 3, by = Model) +
   # Individual model (35 levels*): random effect, nested within method
-  s(Model, bs = "re") +
-  s(target, bs = "re")
+  s(Model, bs = "re")
 
 # Fit GAMM with normal distribution
 m.fit <- bam(formula = m.formula,
