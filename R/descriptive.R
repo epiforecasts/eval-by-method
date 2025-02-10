@@ -74,7 +74,7 @@ plot_over_time <- function(scores, ensemble, add_plot){
     mutate(Model = "Hub ensemble model") |>
     reframe(
       n = n(),
-      value = quantile(interval_score, quantiles),
+      value = quantile(wis, quantiles),
       quantile = paste0("q", quantiles)) |>
     pivot_wider(names_from = quantile) |>
     # Plot
@@ -96,7 +96,7 @@ plot_over_time <- function(scores, ensemble, add_plot){
     group_by(target_end_date, CountryTargets) |>
     reframe(
       n = n(),
-      value = quantile(interval_score, quantiles),
+      value = quantile(wis, quantiles),
       quantile = paste0("q", quantiles)) |>
     pivot_wider(names_from = quantile) |>
     # Plot
@@ -120,7 +120,7 @@ plot_over_time <- function(scores, ensemble, add_plot){
     group_by(target_end_date, Method) |>
     reframe(
       n = n(),
-      value = quantile(interval_score, quantiles),
+      value = quantile(wis, quantiles),
       quantile = paste0("q", quantiles)) |>
     pivot_wider(names_from = quantile) |>
     # Plot
@@ -155,7 +155,7 @@ plot_over_time <- function(scores, ensemble, add_plot){
 plot_density <- function(scores) {
   plot_conditional_density <- function(scores, group_var) {
     scores |>
-      ggplot(aes(x = log_interval_score,
+      ggplot(aes(x = log_wis,
                  col = .data[[group_var]])) +
       geom_density() +
       labs(x = "Log of the weighted interval score")
@@ -178,14 +178,14 @@ plot_density <- function(scores) {
 plot_ridges <- function(scores){
   scores |>
     group_by(Model) |>
-    mutate(median_score = median(interval_score),
-           lq = quantile(interval_score, 0.25),
-           uq = quantile(interval_score, 0.75)) |>
+    mutate(median_score = median(wis),
+           lq = quantile(wis, 0.25),
+           uq = quantile(wis, 0.75)) |>
     ungroup() |>
     mutate(Model = fct_reorder(Model, median_score)) |>
-    filter(interval_score >= lq & interval_score <= uq) |>
+    filter(wis >= lq & wis <= uq) |>
     # Plot
-    ggplot(aes(x = interval_score, y = Model, fill = stat(x))) +
+    ggplot(aes(x = wis, y = Model, fill = stat(x))) +
     geom_density_ridges_gradient(scale = 1.5,
                                  rel_min_height = 0.01,
                                  quantile_lines = TRUE, quantiles = 2) +
@@ -244,7 +244,7 @@ plot_linerange <- function(group_var) {
     group_by(.data[[group_var]], Horizon) |>
     reframe(
       n = n(),
-      value = quantile(interval_score, quantiles),
+      value = quantile(wis, quantiles),
       quantile = paste0("q", quantiles)) |>
     pivot_wider(names_from = quantile) |>
     # Plot
