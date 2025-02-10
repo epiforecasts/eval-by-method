@@ -14,7 +14,6 @@ theme_set(theme_classic())
 source(here("R", "prep-data.R"))
 
 # --- Get data ---
-classification <- read_csv(here("data", "model-classification.csv"))
 data <- map(c("case", "death"), \(target) {
   prep_data(scoring_scale = "log", data_type = target) |>
     mutate(target = target)
