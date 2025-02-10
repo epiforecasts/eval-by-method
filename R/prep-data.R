@@ -25,9 +25,11 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
 }
 
 # Prepare scores data with explanatory variables
-prep_data <- function(scoring_scale = "log") {
+prep_data <- function(scoring_scale = "log", data_type = "death") {
   # Get raw interval score
-  scores_raw <- read_csv(here("data", "scores-raw.csv")) |>
+  scores_raw <- read_csv(
+    here("data", paste0("scores-raw-", data_type, ".csv"))
+    ) |>
     filter(scale == scoring_scale)
 
   # Extra explanatory vars ------
@@ -63,7 +65,7 @@ prep_data <- function(scoring_scale = "log") {
     mutate(Model = as.factor(Model),
            Horizon = ordered(Horizon,
                              levels = 1:4, labels = 1:4),
-           log_interval_score = log(interval_score + 0.01))
+           log_wis = log(wis + 0.01))
   return(data)
 }
 

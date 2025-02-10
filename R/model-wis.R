@@ -14,10 +14,16 @@ theme_set(theme_classic())
 source(here("R", "prep-data.R"))
 
 # --- Get data ---
+data <- map(c("case", "death"), \(target) {
+  prep_data(scoring_scale = "log", data_type = target) |>
+    mutate(target = target)
+}) |>
+  bind_rows() |>
+  mutate(target = factor(target))
 classification <- classify_models()
 targets <- read_csv(here("data", "targets-by-model.csv"))
 
-m.data <- prep_data(scoring_scale = "log") |>
+m.data <- data |>
   filter(!grepl("EuroCOVIDhub-", Model)) |>
   mutate(location = factor(location)) |>
   group_by(location) |>
@@ -27,7 +33,7 @@ m.data <- prep_data(scoring_scale = "log") |>
 
 # --- Model ---
 # Formula
-m.formula <- log_interval_score ~
+m.formula <- log_wis ~
   # -----------------------------
   # Method (3 levels*)
   s(Method, bs = "re") +
@@ -49,7 +55,7 @@ m.formula <- log_interval_score ~
 
 # Fit GAMM with normal distribution
 m.fit <- bam(formula = m.formula,
-             data = m.data,
+             data = m.data |> filter(target == "death"),
              family = gaussian())
 
 plot_models <- function(fit) {

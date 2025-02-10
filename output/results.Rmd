@@ -89,7 +89,7 @@ scores_over_time
 table1_raw <- create_table1(scores)
 table1 <- table1_raw |>
   select(group, Variable, Models, Forecasts, 
-         `Median (IQR)`) 
+         `Median WIS (IQR)`)
 table1 |> 
   select(-group) |> 
   rename(" " = Variable) |> 
