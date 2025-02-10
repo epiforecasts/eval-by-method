@@ -1,40 +1,148 @@
-model,KS,RB,SF,agreement,classification,Kath notes
-bisop-seirfilter,Semi-mechanistic,Mechanistic,Mechanistic,FALSE,Mechanistic,Marginal but I think it was the VAR element that led me to semi-mech. Abstract: https://www.medrxiv.org/content/10.1101/2021.02.16.21251834v1.full.pdf
-bisop-seirfilterlite,Semi-mechanistic,Mechanistic,Mechanistic,FALSE,Mechanistic,As above
-prolix-euclidean,Semi-mechanistic,Semi-mechanistic,Semi-mechanistic,TRUE,Semi-mechanistic,Updated
-UMass-SemiMech,Semi-mechanistic,Mechanistic,Semi-mechanistic,FALSE,Semi-mechanistic,NA
-USC-SIkJalpha,Semi-mechanistic,Mechanistic,Mechanistic,FALSE,Mechanistic,NA
-UpgUmibUsi-MultiBayes,Semi-mechanistic,#N/A,Statistical,FALSE,Semi-mechanistic,"Emphasis on AR statistical, but also to me sounded like they have compartments with transition probabilities (so classified as semi-mech). I may be misunderstanding their description though"
-IEM_Health-CovidProject,Mechanistic,Mechanistic,Mechanistic,TRUE,Mechanistic,"Originally classified as semi-mech, but I think I agree this is basically just mechanistic"
-LANL-GrowthRate,Semi-mechanistic,Semi-mechanistic,#N/A,TRUE,Semi-mechanistic,Updated
-Imperial-DeCa,Semi-mechanistic,#N/A,Semi-mechanistic,TRUE,Semi-mechanistic,Updated
-Imperial-RtI0,Semi-mechanistic,#N/A,Semi-mechanistic,TRUE,Semi-mechanistic,NA
-Imperial-sbkp,Semi-mechanistic,#N/A,Semi-mechanistic,TRUE,Semi-mechanistic,NA
-EuroCOVIDhub-baseline,Statistical,Statistical,Statistical,TRUE,Statistical,NA
-ICM-agentModel,ABM,ABM,#N/A,TRUE,Mechanistic,NA
-MOCOS-agent1,ABM,ABM,#N/A,TRUE,Mechanistic,NA
-epiforecasts-EpiExpert,Qualitative,Qualitative,#N/A,TRUE,Qualitative,NA
-epiforecasts-EpiExpert_direct,Qualitative,Qualitative,#N/A,TRUE,Qualitative,NA
-epiforecasts-EpiExpert_Rt,Qualitative,Qualitative,#N/A,TRUE,Qualitative,NA
-epiforecasts-EpiNow2,Semi-mechanistic,Semi-mechanistic,#N/A,TRUE,Semi-mechanistic,NA
-FIAS_FZJ-Epi1Ger,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-HZI-AgeExtendedSEIR,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-ILM-EKF,Semi-mechanistic,Semi-mechanistic,#N/A,TRUE,Semi-mechanistic,NA
-itwm-dSEIR,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-ITWW-county_repro,Semi-mechanistic,Semi-mechanistic,#N/A,TRUE,Semi-mechanistic,NA
-LeipzigIMISE-SECIR,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-MIT_CovidAnalytics-DELPHI,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-UB-BSLCoV,Statistical,Statistical,#N/A,TRUE,Statistical,NA
-ULZF-SEIRC19SI,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-UMass-MechBayes,Mechanistic,Mechanistic,#N/A,TRUE,Mechanistic,NA
-epiMOX-SUIHTER,Mechanistic,#N/A,Mechanistic,TRUE,Mechanistic,NA
-JBUD-HMXK,Mechanistic,#N/A,Mechanistic,TRUE,Mechanistic,NA
-Karlen-pypm,Mechanistic,#N/A,Mechanistic,TRUE,Mechanistic,NA
-MIMUW-StochSEIR,Mechanistic,#N/A,Mechanistic,TRUE,Mechanistic,NA
-MUNI_DMS-SEIAR,Mechanistic,#N/A,Mechanistic,TRUE,Mechanistic,NA
-MUNI-ARIMA,Statistical,#N/A,Statistical,TRUE,Statistical,NA
-MUNI-LaggedRegARIMA,Statistical,#N/A,Statistical,TRUE,Statistical,NA
-MUNI-VAR,Statistical,#N/A,Statistical,TRUE,Statistical,NA
-RobertWalraven-ESG,Statistical,#N/A,Statistical,TRUE,Statistical,NA
-SDSC_ISG-TrendModel,Statistical,#N/A,Statistical,TRUE,Statistical,NA
-UNED-PreCoV2,Statistical,#N/A,Statistical,TRUE,Statistical,NA
+model,KS,RB,SF,JM
+bisop-seirfilter,Semi-mechanistic,Mechanistic,Mechanistic,Mechanistic
+bisop-seirfilterlite,Semi-mechanistic,Mechanistic,Mechanistic,Mechanistic
+USC-SIkJalpha,Semi-mechanistic,Mechanistic,Mechanistic,Mechanistic
+IEM_Health-CovidProject,Mechanistic,Mechanistic,Mechanistic,Mechanistic
+ICM-agentModel,Agent-based,Agent-based,#N/A,Agent-based
+MOCOS-agent1,Agent-based,Agent-based,#N/A,Agent-based
+FIAS_FZJ-Epi1Ger,Mechanistic,Mechanistic,#N/A,Mechanistic
+HZI-AgeExtendedSEIR,Mechanistic,Mechanistic,#N/A,Mechanistic
+itwm-dSEIR,Mechanistic,Mechanistic,#N/A,Mechanistic
+LeipzigIMISE-SECIR,Mechanistic,Mechanistic,#N/A,Mechanistic
+MIT_CovidAnalytics-DELPHI,Mechanistic,Mechanistic,#N/A,Mechanistic
+ULZF-SEIRC19SI,Mechanistic,Mechanistic,#N/A,Mechanistic
+UMass-MechBayes,Mechanistic,Mechanistic,#N/A,Mechanistic
+epiMOX-SUIHTER,Mechanistic,#N/A,Mechanistic,Mechanistic
+JBUD-HMXK,Mechanistic,#N/A,Mechanistic,Mechanistic
+Karlen-pypm,Mechanistic,#N/A,Mechanistic,Statistical
+MIMUW-StochSEIR,Mechanistic,#N/A,Mechanistic,Mechanistic
+MUNI_DMS-SEIAR,Mechanistic,#N/A,Mechanistic,Mechanistic
+epiforecasts-EpiExpert,Qualitative,Qualitative,#N/A,Qualitative
+epiforecasts-EpiExpert_direct,Qualitative,Qualitative,#N/A,Qualitative
+epiforecasts-EpiExpert_Rt,Qualitative,Qualitative,#N/A,Qualitative
+prolix-euclidean,Semi-mechanistic,Semi-mechanistic,Semi-mechanistic,Other
+UMass-SemiMech,Semi-mechanistic,Mechanistic,Semi-mechanistic,Semi-mechanistic
+UpgUmibUsi-MultiBayes,Semi-mechanistic,#N/A,Statistical,Semi-mechanistic
+LANL-GrowthRate,Semi-mechanistic,Semi-mechanistic,#N/A,Statistical
+Imperial-DeCa,Semi-mechanistic,#N/A,Semi-mechanistic,Statistical
+Imperial-RtI0,Semi-mechanistic,#N/A,Semi-mechanistic,Statistical
+Imperial-sbkp,Semi-mechanistic,#N/A,Semi-mechanistic,Statistical
+epiforecasts-EpiNow2,Semi-mechanistic,Semi-mechanistic,#N/A,Semi-mechanistic
+ILM-EKF,Semi-mechanistic,Semi-mechanistic,#N/A,Statistical
+ITWW-county_repro,Semi-mechanistic,Semi-mechanistic,#N/A,Statistical
+EuroCOVIDhub-baseline,Statistical,Statistical,Statistical,Statistical
+UB-BSLCoV,Statistical,Statistical,#N/A,Statistical
+MUNI-ARIMA,Statistical,#N/A,Statistical,Statistical
+MUNI-LaggedRegARIMA,Statistical,#N/A,Statistical,Statistical
+MUNI-VAR,Statistical,#N/A,Statistical,Statistical
+RobertWalraven-ESG,Statistical,#N/A,Statistical,Statistical
+SDSC_ISG-TrendModel,Statistical,#N/A,Statistical,Other
+UNED-PreCoV2,Statistical,#N/A,Statistical,Statistical
+AMM-EpiInvert,NA,NA,Statistical,Other
+BIOCOMSC-Gompertz,NA,NA,Statistical,Other
+CovidMetrics-epiBATS,NA,NA,Statistical,Statistical
+DSMPG-bayes,NA,NA,Semi-mechanistic,Statistical
+DirkBeckmann-Gompertz,NA,NA,Statistical,Statistical
+ECDC-hosp_model,NA,NA,Mechanistic,Mechanistic
+EuroCOVIDhub-ensemble,NA,NA,Other,Other
+GoeWroc-BaseBayes,NA,NA,Semi-mechanistic,Semi-mechanistic
+KITmetricslab-bivar_branching,NA,NA,Semi-mechanistic,Statistical
+PL_GRedlarski-DistrictsSum,NA,NA,Mechanistic,Mechanistic
+Statgroup19-richards,NA,NA,Statistical,Other
+Statgroup19-spatialrichards,NA,NA,Statistical,Other
+UC3M-EpiGraph,NA,NA,Agent-based,Agent-based
+UNIPV-BayesINGARCHX,NA,NA,Statistical,Statistical
+USyd-OneModelMan,NA,NA,Statistical,Statistical
+UVA-Ensemble,NA,NA,Other,Other
+epiforecasts-arimareg,NA,NA,Statistical,Statistical
+epiforecasts-caseconv,NA,NA,Semi-mechanistic,Other
+epiforecasts-tsensemble,NA,NA,Other,Other
+epiforecasts-weeklygrowth,NA,NA,Statistical,Statistical
+fohm-c19inbel,NA,NA,Semi-mechanistic,Statistical
+AIMdyn-SlidingKoopman,NA,NA,Semi-mechanistic,Other
+AIpert-pwllnod,NA,NA,Statistical,Statistical
+BPagano-RtDriven,NA,NA,Mechanistic,Mechanistic
+CEID-Walk,NA,NA,Statistical,Statistical
+CEPH-Rtrend_covid,NA,NA,Semi-mechanistic,Semi-mechanistic
+CMU-TimeSeries,NA,NA,Statistical,Statistical
+COVIDhub-4_week_ensemble,NA,NA,Other,Other
+COVIDhub-baseline,NA,NA,Other,Other
+COVIDhub-ensemble,NA,NA,Other,Other
+COVIDhub-trained_ensemble,NA,NA,Other,Other
+COVIDhub_CDC-ensemble,NA,NA,Other,Other
+CU-nochange,NA,NA,Mechanistic,Mechanistic
+CU-scenario_high,NA,NA,Mechanistic,Mechanistic
+CU-scenario_low,NA,NA,Mechanistic,Mechanistic
+CU-scenario_mid,NA,NA,Mechanistic,Mechanistic
+CU-select,NA,NA,Mechanistic,Mechanistic
+CUB_PopCouncil-SLSTM,NA,NA,Machine Learning,Other
+CUBoulder-COVIDLSTM,NA,NA,Machine Learning,Other
+CWRU-COVID_19Predict,NA,NA,Other,Other
+Caltech-CS156,NA,NA,Machine Learning,Machine Learning
+Columbia_UNC-SurvCon,NA,NA,Semi-mechanistic,Other
+Covid19Sim-Simulator,NA,NA,Mechanistic,Mechanistic
+CovidAnalytics-DELPHI,NA,NA,Mechanistic,Mechanistic
+DDS-NBDS,NA,NA,Statistical,Statistical
+FAIR-NRAR,NA,NA,Machine Learning,Machine Learning
+FDANIHASU-Sweight,NA,NA,Other,Other
+FRBSF_Wilson-Econometric,NA,NA,Other,Mechanistic
+GT-DeepCOVID,NA,NA,Machine Learning,Machine Learning
+GT_CHHS-COVID19,NA,NA,Agent-based,Agent-based
+Geneva-DetGrowth,NA,NA,Statistical,Statistical
+Google_Harvard-CPF,NA,NA,Mechanistic,Mechanistic
+HKUST-DNN,NA,NA,Machine Learning,Machine Learning
+IBF-TimeSeries,NA,NA,Statistical,Statistical
+IEM_MED-CovidProject,NA,NA,Mechanistic,Mechanistic
+IHME-CurveFit,NA,NA,Statistical,Statistical
+IUPUI-HkPrMobiDyR,NA,NA,Semi-mechanistic,Machine Learning
+IowaStateLW-STEM,NA,NA,Semi-mechanistic,Semi-mechanistic
+JHUAPL-Bucky,NA,NA,Mechanistic,Mechanistic
+JHUAPL-Gecko,NA,NA,Statistical,Statistical
+JHUAPL-Morris,NA,NA,Statistical,Statistical
+JHUAPL-SLPHospEns,NA,NA,Other,Other
+JHU_CSSE-DECOM,NA,NA,Machine Learning,Machine Learning
+JHU_IDD-CovidSP,NA,NA,Mechanistic,Mechanistic
+JHU_UNC_GAS-StatMechPool,NA,NA,Other,Other
+KITmetricslab-select_ensemble,NA,NA,Other,Other
+LNQ-ens1,NA,NA,Machine Learning,Machine Learning
+LUcompUncertLab-VAR_3streams,NA,NA,Machine Learning,Statistical
+LosAlamos_NAU-CModel_SDVaxVar,NA,NA,Mechanistic,Statistical
+MIT-Cassandra,NA,NA,Other,Other
+MITCovAlliance-SIR,NA,NA,Mechanistic,Mechanistic
+MIT_CritData-GBCF,NA,NA,Machine Learning,Machine Learning
+MIT_ISOLAT-Mixtures,NA,NA,Statistical,Statistical
+MOBS-GLEAM_COVID,NA,NA,Mechanistic,Mechanistic
+Microsoft-DeepSTIA,NA,NA,Machine Learning,Machine Learning
+NCSU-COVSIM,NA,NA,Agent-based,Agent-based
+NotreDame-FRED,NA,NA,Agent-based,Agent-based
+OliverWyman-Navigator,NA,NA,Mechanistic,Mechanistic
+OneQuietNight-ML,NA,NA,Machine Learning,Other
+PR_UMD-CF_RepTiLe,NA,NA,Machine Learning,Machine Learning
+PSI-DICE,NA,NA,Mechanistic,Mechanistic
+PSI-DRAFT,NA,NA,Mechanistic,Mechanistic
+PandemicCentral-COVIDForest,NA,NA,Machine Learning,Machine Learning
+QJHong-Encounter,NA,NA,Semi-mechanistic,Statistical
+RPI_UW-Mob_Collision,NA,NA,Mechanistic,Mechanistic
+SigSci-TS,NA,NA,Statistical,Statistical
+SteveMcConnell-CovidComplete,NA,NA,Semi-mechanistic,Semi-mechanistic
+TTU-squider,NA,NA,Mechanistic,Mechanistic
+UA-EpiCovDA,NA,NA,Mechanistic,Mechanistic
+UCF-AEM,NA,NA,Mechanistic,Mechanistic
+UCLA-SuEIR,NA,NA,Mechanistic,Mechanistic
+UCM_MESALab-FoGSEIR,NA,NA,Other,Mechanistic
+UCSD_NEU-DeepGLEAM,NA,NA,Mechanistic,Mechanistic
+UChicagoCHATTOPADHYAY-UnIT,NA,NA,Statistical,Statistical
+UMass-gbq,NA,NA,Machine Learning,Statistical
+UMass-sarix,NA,NA,Other,Other
+UMass-trends_ensemble,NA,NA,Other,Other
+UMich-RidgeTfReg,NA,NA,Statistical,Statistical
+USC-SI_kJalpha,NA,NA,Statistical,Statistical
+USF-STPM,NA,NA,Machine Learning,Statistical
+UT-Mobility,NA,NA,Mechanistic,Statistical
+UT-Osiris,NA,NA,Semi-mechanistic,Semi-mechanistic
+UT_GISAG-SPDM,NA,NA,Statistical,Statistical
+UpstateSU-GRU,NA,NA,Machine Learning,Machine Learning
+WalmartLabsML-LogForecasting,NA,NA,Machine Learning,Statistical
+epiforecasts-ensemble1,NA,NA,Other,Other
+AMM-EpiInvert,NA,NA,Statistical,Other
+UVA-Ensemble,NA,NA,Other,Other

@@ -143,7 +143,9 @@ write_metadata <- function(metadata_raw,
 get_metadata_processed <- function(sheet_name = "model-classification",
                                    write_local = TRUE) {
     sheet_url <- "https://docs.google.com/spreadsheets/d/1XgXLYBCpdtjztJFhWDJz6G7A_Uw92dnnr-WFqGAFGn4/edit#gid=0"
-    metadata <- read_sheet(sheet_url, sheet = sheet_name)
+    metadata <- read_sheet(sheet_url, sheet = sheet_name) |>
+      select(model, KS, RB, SF, JM)
+
     if (write_local) {
       cat("Writing csv to local /data")
       write_csv(metadata, here("data", paste0(sheet_name, ".csv")))

@@ -1,3 +1,29 @@
+library("dplyr")
+library("tidyr")
+
+# Read in metadata ans classify
+classify_models <- function(file = here("data", "model-classification.csv")) {
+  methods <- read_csv(file) |>
+    pivot_longer(
+      -model, names_to = "classifier", values_to = "classification"
+    ) |>
+    group_by(model) |>
+    summarise(
+      classification = names(
+        sort(table(classification), decreasing = TRUE)[1]
+      ), .groups = "drop"
+    ) |>
+    mutate(classification = factor(
+      classification,
+      levels = c(
+        "Agent-based", "Mechanistic",
+        "Semi-mechanistic", "Statistical",
+        "Machine learning", "Qualitative"
+      )
+    ))
+  return(methods)
+}
+
 # Prepare scores data with explanatory variables
 prep_data <- function(scoring_scale = "log") {
   # Get raw interval score
@@ -20,11 +46,8 @@ prep_data <- function(scoring_scale = "log") {
                                            "Multi-country")))
 
   # Method type
-  methods <- read_csv(here("data", "model-classification.csv")) |>
-    mutate(Method = factor(classification,
-                           levels = c("Mechanistic", "Semi-mechanistic",
-                                      "Statistical", "Qualitative"))) |>
-    select(model, Method)
+  methods <- classify_models() |>
+    select(model, Method = classification)
 
   # Incidence level + trend (see: R/import-data.r)
   obs <- read_csv(here("data", "observed.csv")) |>

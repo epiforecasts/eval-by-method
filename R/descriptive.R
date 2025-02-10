@@ -219,17 +219,17 @@ table_targets <- function(scores) {
 
 
 # Metadata ----------------------------------------------------------------
-table_metadata <- function() {
-  metadata <- read_csv(here("data", "model-classification.csv")) |>
+table_metadata <- function(scores) {
+  classification <- classify_models() |>
     select(Model = model, Method = classification)
   targets <- table_targets(scores) |>
     select(Model, CountryTargets)
   model_scores <- scores |>
     group_by(Model) |>
     table_confint() |>
-    select(Model, Forecasts, median, `Median (IQR)`)
-  metadata_table <- metadata |>
-    left_join(targets |> rename("Country Targets" = CountryTargets)) |>
+    select(Model, Forecasts, median, `Median WIS (IQR)`)
+  metadata_table <- classification |>
+    inner_join(targets |> rename("Country Targets" = CountryTargets)) |>
     left_join(model_scores) |>
     arrange(median, Method, `Country Targets`) |>
     mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
