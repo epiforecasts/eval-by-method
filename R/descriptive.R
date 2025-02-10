@@ -34,9 +34,9 @@ table_confint <- function(scores, group_var = NULL) {
                     median, lq, uq), ~ round(., 2)),
            Models = paste0(n_models, " (", p_models, "%)"),
            Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
-           "Mean interval score (95% CI)" = paste0(mean, " (",
+           "Mean WIS (95% CI)" = paste0(mean, " (",
                                                    lower, "-", upper, ")"),
-           "Median (IQR)" = paste0(median, " (", lq, "-", uq, ")"))
+           "Median WIS (IQR)" = paset0(" (", lq, "-", uq, ")"))
 
   if (!is.null(group_var)) {
       table <- table |>
@@ -227,7 +227,7 @@ table_metadata <- function(scores) {
   model_scores <- scores |>
     group_by(Model) |>
     table_confint() |>
-    select(Model, Forecasts, median, `Median (IQR)`)
+    select(Model, Forecasts, median, `Median WIS (IQR)`)
   metadata_table <- classification |>
     inner_join(targets |> rename("Country Targets" = CountryTargets)) |>
     left_join(model_scores) |>
