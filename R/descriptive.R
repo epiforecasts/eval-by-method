@@ -96,7 +96,7 @@ plot_over_time <- function(scores, ensemble, add_plot){
     group_by(target_end_date, CountryTargets) |>
     reframe(
       n = n(),
-      value = quantile(wis, quantiles),
+      value = quantile(wis, quantiles, na.rm = TRUE),
       quantile = paste0("q", quantiles)) |>
     pivot_wider(names_from = quantile) |>
     # Plot
@@ -120,7 +120,7 @@ plot_over_time <- function(scores, ensemble, add_plot){
     group_by(target_end_date, Method) |>
     reframe(
       n = n(),
-      value = quantile(wis, quantiles),
+      value = quantile(wis, quantiles, na.rm = TRUE),
       quantile = paste0("q", quantiles)) |>
     pivot_wider(names_from = quantile) |>
     # Plot
