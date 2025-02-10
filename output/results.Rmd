@@ -53,7 +53,8 @@ scores <- scores |>
 ```
 
 ```{r metadata}
-table_metadata() |> 
+table_metadata(scores) |>
+  select(-Description) |>
   kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, number of forecasts contributed, and interval scores (median and interquartile range) across contributed forecasts.")
 ```
  
