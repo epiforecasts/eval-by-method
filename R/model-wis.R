@@ -14,7 +14,7 @@ theme_set(theme_classic())
 source(here("R", "prep-data.R"))
 
 # --- Get data ---
-metadata <- read_csv(here("data", "model-classification.csv"))
+classification <- classify_models()
 targets <- read_csv(here("data", "targets-by-model.csv"))
 
 m.data <- prep_data(scoring_scale = "log") |>
@@ -55,7 +55,7 @@ m.fit <- bam(formula = m.formula,
 plot_models <- function(fit) {
   extract_ranef(m.fit) |>
     filter(group_var == "Model") |>
-    left_join(metadata |> rename(group = model)) |>
+    left_join(classification |> rename(group = model)) |>
     left_join(targets |> rename(group = model)) |>
     mutate(group = sub(".*-", "", group)) |> ## remove institution identifier
     select(-group_var) |>
