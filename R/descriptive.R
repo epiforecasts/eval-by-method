@@ -227,7 +227,7 @@ table_metadata <- function(scores) {
   model_scores <- scores |>
     group_by(Model) |>
     table_confint() |>
-    select(Model, Forecasts, median, `Median WIS (IQR)`)
+    select(Model, Forecasts, median, `Median (IQR)`)
   metadata_table <- classification |>
     inner_join(targets |> rename("Country Targets" = CountryTargets)) |>
     left_join(model_scores) |>
