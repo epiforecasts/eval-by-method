@@ -36,7 +36,7 @@ table_confint <- function(scores, group_var = NULL) {
            Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
            "Mean WIS (95% CI)" = paste0(mean, " (",
                                                    lower, "-", upper, ")"),
-           "Median WIS (IQR)" = paset0(" (", lq, "-", uq, ")"))
+           "Median WIS (IQR)" = paste0(" (", lq, "-", uq, ")"))
 
   if (!is.null(group_var)) {
       table <- table |>
