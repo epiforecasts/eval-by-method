@@ -23,12 +23,12 @@ table_confint <- function(scores, group_var = NULL) {
               p_forecasts = round(n() / nrow(scores) * 100, 1),
               n_models = length(unique(Model)),
               p_models = round(n_models / 39 * 100, 1),
-              mean = mean(interval_score),
-              lower = t.test(interval_score)$conf.int[1],
-              upper = t.test(interval_score)$conf.int[2],
-              median = median(interval_score),
-              lq = quantile(interval_score, 0.25),
-              uq = quantile(interval_score, 0.75)
+              mean = mean(wis),
+              lower = t.test(wis)$conf.int[1],
+              upper = t.test(wis)$conf.int[2],
+              median = median(wis),
+              lq = quantile(wis, 0.25),
+              uq = quantile(wis, 0.75)
               ) |>
     mutate(across(c(mean, lower, upper,
                     median, lq, uq), ~ round(., 2)),
