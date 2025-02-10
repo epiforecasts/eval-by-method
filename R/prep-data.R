@@ -41,7 +41,7 @@ prep_data <- function(scoring_scale = "log", data_type = "death") {
     summarise(target_count = n()) |>
     ungroup() |>
     group_by(model) |>
-    summarise(CountryTargets = all(target_count <= 2)) |>
+    summarise(CountryTargets = all(target_count == 1)) |>
     mutate(CountryTargets = factor(CountryTargets,
                                 levels = c(TRUE, FALSE),
                                 labels = c("Single-country",
