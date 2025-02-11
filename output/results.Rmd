@@ -38,7 +38,7 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 # source(here("R", "get-metadata.R"))
 # get_metadata_processed()
 ## Get observed data and all Hub forecasts; exclude forecasts
-# source(here("R", "import-data.R"))
+source(here("R", "import-data.R"))
 ## Score forecasts & ensembles on the log and natural scales; save to data/
 # source(here("R", "score.R"))
 # --------------------
