@@ -109,7 +109,7 @@ We considered models forecasting for one to two, or multiple countries. We colla
 source(here("R", "model-wis.R"))
 ```
 
-We fit a generalised additive mixed model to `r m.fit[["df.null"]]` forecasts' interval scores. The interval score was highly right-skewed with respect to all explanatory variables (see Supplement). We corrected for this by fitting to the log of the interval score. We found no clear evidence that any one type of method structure consistently outperformed others. We also found no evidence for whether the location specificity of the model influenced performance, comparing models forecasting for three or more countries to those targeting only one or two countries.
+We fit a generalised additive mixed model to forecasts' interval scores. The interval score was highly right-skewed with respect to all explanatory variables (see Supplement). We corrected for this by fitting to the log of the interval score. We found no clear evidence that any one type of method structure consistently outperformed others. We also found no evidence for whether the location specificity of the model influenced performance, comparing models forecasting for three or more countries to those targeting only one or two countries.
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
 coeff_cap <- "Partial effect size (95% CI) for log-transformed interval score"
