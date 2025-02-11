@@ -11,6 +11,8 @@ library(ggridges)
 library(forcats)
 library(patchwork)
 library(janitor)
+library(kableExtra)
+library(stringr)
 
 # Table summary --------------------
 table_confint <- function(scores, group_var = NULL) {
@@ -36,7 +38,7 @@ table_confint <- function(scores, group_var = NULL) {
            Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
            "Mean WIS (95% CI)" = paste0(mean, " (",
                                                    lower, "-", upper, ")"),
-           "Median WIS (IQR)" = paste0(" (", lq, "-", uq, ")"))
+           "Median WIS (IQR)" = paste0(median, " (", lq, "-", uq, ")"))
 
   if (!is.null(group_var)) {
       table <- table |>
@@ -46,54 +48,87 @@ table_confint <- function(scores, group_var = NULL) {
   return(table)
 }
 
-create_table1 <- function(scores) {
+create_raw_table1 <- function(scores, targets) {
   overall <- table_confint(scores, "scale") |>
     mutate(Variable = "Overall", group = "")
   method <- table_confint(scores, "Method")
   targets <- table_confint(scores, "CountryTargets")
-  # affiliated <- table_confint(scores, "CountryTargetAffiliated") |>
-  #                       mutate(Variable = ifelse(Variable == "True",
-  #                               "Affiliated to target country",
-  #                               "Located elsewhere"),
-  #                              Models = NA)
-  horizon <- table_confint(scores, "Horizon")
+  horizon <- table_confint(scores, "Horizon") |>
+    filter(!is.na(Variable))
   trend <- table_confint(scores, "Trend")
-  table1 <- bind_rows(overall, method, targets,
-                      #affiliated,
-                      horizon, trend)
-  return(table1)
+  bind_rows(overall, method, targets,
+            horizon, trend)
+}
+
+print_table1 <- function(scores) {
+  outcome_targets <- unique(scores$outcome_target)
+  tables <- outcome_targets |>
+    map(\(outcome) {
+      scores <- scores |>
+        filter(outcome_target == outcome)
+      table <- create_raw_table1(scores)
+
+      colnames(table)[!(colnames(table) %in% c("Variable", "group"))] <-
+        paste(
+          colnames(table)[!(colnames(table) %in% c("Variable", "group"))],
+          outcome, sep = "_"
+        )
+      return(table)
+    })
+
+  ## merge all
+  table1 <- tables[[1]]
+  if (length(outcome_targets) > 1) {
+    for (i in seq(2, length(outcome_targets))) {
+      table1 <- inner_join(table1, tables[[i]], by = c("Variable", "group"))
+    }
+  }
+
+  ## select columns
+  table1 <- table1 |>
+    select(
+      Variable,
+      starts_with("Models_"),
+      starts_with("Forecasts_"),
+      starts_with("Median WIS (IQR)_")
+    )
+  ## reorder
+  for (outcome in rev(outcome_targets)) {
+    table1 <- table1 |>
+      relocate(ends_with(outcome), .after = Variable)
+  }
+
+  ## build extra headers
+  headers_to_add <- c(" " = 1, vapply(
+    outcome_targets, \(x) sum(grepl(paste0("_", x, "$"), colnames(table1))),
+    1L
+  ))
+
+  table1 |>
+    rename(" " = Variable) |>
+    kable(
+      caption = paste0(
+        "Characteristics of forecast performance (interval score) contributed ",
+        "to the European COVID-19 Forecast Hub, March 2021-2023."
+      ),
+      col.names = str_remove(colnames(table1), "_.*$"),
+      align = c("l", rep("r", ncol(table1) - 1))
+    ) |>
+    pack_rows(index = c(" " = 1,
+                        "Method" = 5,
+                        "Number of country targets" = 2,
+                        "Week ahead horizon" = 4,
+                        "3-week trend in incidence" = 3)) |>
+    add_header_above(headers_to_add)
 }
 
 # Plot over time by explanatory variable ----------------------------------
-plot_over_time <- function(scores, ensemble, add_plot){
-  quantiles = c(0.25, 0.5, 0.75)
-
-  plot_over_time_ensemble <- ensemble |>
-    # Median & IQR
-    group_by(target_end_date, Model) |>
-    mutate(Model = "Hub ensemble model") |>
-    reframe(
-      n = n(),
-      value = quantile(wis, quantiles),
-      quantile = paste0("q", quantiles)) |>
-    pivot_wider(names_from = quantile) |>
-    # Plot
-    ggplot(aes(x = target_end_date, col = Model, fill = Model)) +
-    geom_line(aes(y = q0.5), alpha = 0.5) +
-    geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-                alpha = 0.2, col = NA) +
-    scale_x_date(date_labels = "%b %Y") +
-    scale_fill_manual(values = c("Hub ensemble model" = "#1f78b4"),
-                      aesthetics = c("col", "fill"),
-                      ) +
-    labs(x = NULL, y = "Interval score",
-         fill = NULL, col = NULL) +
-    theme(legend.position = "bottom")
+plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
+  quantiles <- c(0.25, 0.5, 0.75)
 
   plot_over_time_target <- scores |>
-    filter(!grepl("Qualitative", Method)) |>
     # Get median & IQR
-    group_by(target_end_date, CountryTargets) |>
+    group_by(target_end_date, outcome_target, CountryTargets) |>
     reframe(
       n = n(),
       value = quantile(wis, quantiles, na.rm = TRUE),
@@ -103,21 +138,25 @@ plot_over_time <- function(scores, ensemble, add_plot){
     ggplot(aes(x = target_end_date,
                col = CountryTargets,
                fill = CountryTargets)) +
-    geom_line(aes(y = q0.5), alpha = 0.5) +
-    geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-                alpha = 0.1, col = NA) +
+    geom_line(aes(y = q0.5), alpha = 0.5)
+  if (show_uncertainty) {
+    plot_over_time_target <- plot_over_time_target +
+      geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
+                  alpha = 0.1, col = NA)
+  }
+  plot_over_time_target <- plot_over_time_target +
+    facet_wrap(~outcome_target, scales = "free_y") +
     scale_x_date(date_labels = "%b %Y") +
     scale_fill_manual(values = c("Single-country" = "#e7298a",
                                  "Multi-country" = "#e6ab02"),
                                  aesthetics = c("col", "fill")) +
-    labs(x = NULL, y = "Interval score",
+    labs(x = NULL, y = "median WIS (log scale)",
          fill = NULL, col = NULL) +
     theme(legend.position = "bottom")
 
   plot_over_time_method <- scores |>
-    filter(!grepl("Qualitative", Method)) |>
     # Get median & IQR
-    group_by(target_end_date, Method) |>
+    group_by(target_end_date, outcome_target, Method) |>
     reframe(
       n = n(),
       value = quantile(wis, quantiles, na.rm = TRUE),
@@ -125,18 +164,22 @@ plot_over_time <- function(scores, ensemble, add_plot){
     pivot_wider(names_from = quantile) |>
     # Plot
     ggplot(aes(x = target_end_date, col = Method, fill = Method)) +
-    geom_line(aes(y = q0.5), alpha = 0.5) +
-    geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-                alpha = 0.1, col = NA) +
+    geom_line(aes(y = q0.5), alpha = 0.5)
+  if (show_uncertainty) {
+    plot_over_time_method <- plot_over_time_method +
+      geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
+                  alpha = 0.1, col = NA)
+  }
+  plot_over_time_method <- plot_over_time_method +
+    facet_wrap(~outcome_target, scales = "free_y") +
     scale_x_date(date_labels = "%b %Y") +
     scale_fill_brewer(aesthetics = c("col", "fill"),
                       type = "qual", palette = 2) +
-    labs(x = NULL, y = "Interval score",
+    labs(x = NULL, y = "median WIS (log scale)",
          fill = NULL, col = NULL) +
     theme(legend.position = "bottom")
 
-  score_plot <- plot_over_time_ensemble +
-    plot_over_time_method +
+  score_plot <- plot_over_time_method +
     plot_over_time_target
 
   if (!missing(add_plot)) {
@@ -178,9 +221,9 @@ plot_density <- function(scores) {
 plot_ridges <- function(scores){
   scores |>
     group_by(Model) |>
-    mutate(median_score = median(wis),
-           lq = quantile(wis, 0.25),
-           uq = quantile(wis, 0.75)) |>
+    mutate(median_score = median(wis, na.rm = TRUE),
+      lq = quantile(wis, 0.25, na.rm = TRUE),
+      uq = quantile(wis, 0.75, na.rm = TRUE)) |>
     ungroup() |>
     mutate(Model = fct_reorder(Model, median_score)) |>
     filter(wis >= lq & wis <= uq) |>
@@ -199,12 +242,12 @@ plot_ridges <- function(scores){
 # Table of targets by model -------------
 table_targets <- function(scores) {
   table_targets <- scores |>
-    select(Model, forecast_date, location) |>
+    select(Model, outcome_target, forecast_date, location) |>
     distinct() |>
-    group_by(Model, forecast_date) |>
+    group_by(Model, outcome_target, forecast_date) |>
     summarise(target_count = n()) |>
     ungroup() |>
-    group_by(Model) |>
+    group_by(Model, outcome_target) |>
     summarise(CountryTargets = all(target_count <= 2),
               min_targets = min(target_count),
               max_targets = max(target_count),
@@ -222,18 +265,25 @@ table_targets <- function(scores) {
 table_metadata <- function(scores) {
   classification <- classify_models() |>
     select(Model = model, Method = classification)
-  targets <- table_targets(scores) |>
-    select(Model, CountryTargets)
   model_scores <- scores |>
-    group_by(Model) |>
+    group_by(Model, outcome_target) |>
     table_confint() |>
-    select(Model, Forecasts, median, `Median WIS (IQR)`)
+    select(Model, outcome_target, Forecasts)
+  country_targets <- table_targets(scores) |>
+    select(Model, outcome_target, CountryTargets)
   metadata_table <- classification |>
-    inner_join(targets |> rename("Country Targets" = CountryTargets)) |>
     left_join(model_scores) |>
-    arrange(median, Method, `Country Targets`) |>
     mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
-    select(-median)
+    inner_join(country_targets) |>
+    mutate(
+      outcome_target = sub("s$", " forecasts", outcome_target)
+    ) |>
+    pivot_wider(
+      names_from = "outcome_target",
+      values_from = "Forecasts",
+      values_fill = "") |>
+    rename("Country Targets" = CountryTargets) |>
+    arrange(Model)
   return(metadata_table)
 }
 
@@ -265,7 +315,7 @@ plot_linerange <- function(group_var) {
 
 data_plot <- function(scores, log = FALSE, all = FALSE) {
   data <- scores |>
-    select(location, target_end_date, Incidence) |>
+    select(location, outcome_target, target_end_date, Incidence) |>
     distinct()
   pop <- read_csv(paste0(
     "https://raw.githubusercontent.com/european-modelling-hubs/",
@@ -279,10 +329,11 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
       log_inc = log(Incidence + 1)
     )
   total <- data |>
-    group_by(target_end_date) |>
+    group_by(outcome_target, target_end_date) |>
     summarise(
       Incidence = sum(Incidence),
-      population = sum(population)
+      population = sum(population),
+      .groups = "drop"
     ) |>
     mutate(
       rel_inc = Incidence / population * 1e5,
@@ -300,10 +351,11 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
 
   plot <- plot +
     geom_line(data = total, linewidth = ifelse(all, 2, 1)) +
+    facet_wrap(~outcome_target, scales = "free") +
     xlab("")
 
   if (log) {
-    plot <- plot + ylab("log(Deaths + 1)")
+    plot <- plot + ylab(paste0("log(Incidence + 1)"))
   } else {
     plot <- plot + ylab("Incidence per 100,000")
   }
@@ -318,7 +370,7 @@ trends_plot <- function(scores) {
   p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
     geom_point(mapping = aes(colour = Trend), size = 3) +
     geom_line() +
-    scale_colour_brewer(palette = "Set1", na.value = "grey") +
+    scale_colour_brewer(palette = "Set2", na.value = "grey") +
     theme(legend.position = "bottom") +
     facet_wrap(~ location, scales = "free_y") +
     xlab("")

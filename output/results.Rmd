@@ -49,7 +49,7 @@ scores <- prep_data(scoring_scale = "log")
 ensemble <- scores |> 
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |> 
-  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+  filter(!grepl("EuroCOVIDhub-", Model))
 ```
 
 ```{r metadata}
@@ -78,7 +78,8 @@ We observed a range of forecast performance both among models and over time (fig
 scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 deaths across Europe. Forecast performance is shown as the median and interquartile range of the weighted interval score, where a lower score indicates better performance. Shown for (A) the Hub ensemble model (the median of all participating forecasts each week); (B) the method used by each model; (C) the number of countries each model targeted (up to 2, or multiple). Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time."
 scores_over_time <- plot_over_time(scores = scores, 
                                    ensemble = ensemble,
-                                   add_plot = data_plot(scores, log = TRUE))
+                                   add_plot = data_plot(scores, log = TRUE),
+                                   show_uncertainty = FALSE)
 scores_over_time
 ```
 
@@ -86,20 +87,7 @@ scores_over_time
 
 <!--- Describe models by model structure --->
 ```{r table-scores}
-table1_raw <- create_table1(scores)
-table1 <- table1_raw |>
-  select(group, Variable, Models, Forecasts, 
-         `Median WIS (IQR)`)
-table1 |> 
-  select(-group) |> 
-  rename(" " = Variable) |> 
-  kable(caption = "Characteristics of forecast performance (interval score) contributed to the European COVID-19 Forecast Hub, March 2021-2023.") |> 
-  pack_rows(index = c(" " = 1,
-                      "Method" = 4, 
-                      "Number of country targets" = 2,
-                      #"Modelling team affiliation" = 2,
-                      "Week ahead horizon" = 4,
-                      "3-week trend in incidence" = 4))
+print_table1(scores)
 ```
 <!--- Describe scores by method --->
 
@@ -125,5 +113,6 @@ We fit a generalised additive mixed model to `r m.fit[["df.null"]]` forecasts' i
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
 coeff_cap <- "Partial effect size (95% CI) for log-transformed interval score"
-plot_effects(m.fit)
+plot_models(m.fits, scores, x_labels = FALSE)
+plot_effects(m.fits, scores)
 ```
