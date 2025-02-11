@@ -102,7 +102,7 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
     }
   }
   for (i in seq_along(plots)) {
-    plots[[i]] <- plots[[i]] + ggtitle(outcome_targets[i])
+    plots[[i]] <- plots[[i]] + ggtitle(outcomes[i])
   }
   Reduce(`+`, plots) + plot_layout(ncol = 1)
 }
