@@ -38,22 +38,22 @@ MUNI-VAR,Statistical,#N/A,Statistical,Statistical
 RobertWalraven-ESG,Statistical,#N/A,Statistical,Statistical
 SDSC_ISG-TrendModel,Statistical,#N/A,Statistical,Other
 UNED-PreCoV2,Statistical,#N/A,Statistical,Statistical
-AMM-EpiInvert,NA,NA,Statistical,Other
-BIOCOMSC-Gompertz,NA,NA,Statistical,Other
-CovidMetrics-epiBATS,NA,NA,Statistical,Statistical
-DSMPG-bayes,NA,NA,Semi-mechanistic,Statistical
-DirkBeckmann-Gompertz,NA,NA,Statistical,Statistical
-ECDC-hosp_model,NA,NA,Mechanistic,Mechanistic
-EuroCOVIDhub-ensemble,NA,NA,Other,Other
-GoeWroc-BaseBayes,NA,NA,Semi-mechanistic,Semi-mechanistic
-KITmetricslab-bivar_branching,NA,NA,Semi-mechanistic,Statistical
-PL_GRedlarski-DistrictsSum,NA,NA,Mechanistic,Mechanistic
-Statgroup19-richards,NA,NA,Statistical,Other
-Statgroup19-spatialrichards,NA,NA,Statistical,Other
-UC3M-EpiGraph,NA,NA,Agent-based,Agent-based
-UNIPV-BayesINGARCHX,NA,NA,Statistical,Statistical
-USyd-OneModelMan,NA,NA,Statistical,Statistical
-UVA-Ensemble,NA,NA,Other,Other
+AMM-EpiInvert,Statistical,NA,Statistical,Other
+BIOCOMSC-Gompertz,Statistical,NA,Statistical,Other
+CovidMetrics-epiBATS,Statistical,NA,Statistical,Statistical
+DSMPG-bayes,Semi-mechanistic,NA,Semi-mechanistic,Statistical
+DirkBeckmann-Gompertz,Statistical,NA,Statistical,Statistical
+ECDC-hosp_model,Mechanistic,NA,Mechanistic,Mechanistic
+EuroCOVIDhub-ensemble,#N/A,NA,Other,Other
+GoeWroc-BaseBayes,Semi-mechanistic,NA,Semi-mechanistic,Semi-mechanistic
+KITmetricslab-bivar_branching,Statistical,NA,Semi-mechanistic,Statistical
+PL_GRedlarski-DistrictsSum,Mechanistic,NA,Mechanistic,Mechanistic
+Statgroup19-richards,Statistical,NA,Statistical,Other
+Statgroup19-spatialrichards,Statistical,NA,Statistical,Other
+UC3M-EpiGraph,Agent-based,NA,Agent-based,Agent-based
+UNIPV-BayesINGARCHX,Statistical,NA,Statistical,Statistical
+USyd-OneModelMan,Statistical,NA,Statistical,Statistical
+UVA-Ensemble,Semi-mechanistic,NA,Other,Other
 epiforecasts-arimareg,NA,NA,Statistical,Statistical
 epiforecasts-caseconv,NA,NA,Semi-mechanistic,Other
 epiforecasts-tsensemble,NA,NA,Other,Other
@@ -144,5 +144,3 @@ UT_GISAG-SPDM,NA,NA,Statistical,Statistical
 UpstateSU-GRU,NA,NA,Machine Learning,Machine Learning
 WalmartLabsML-LogForecasting,NA,NA,Machine Learning,Statistical
 epiforecasts-ensemble1,NA,NA,Other,Other
-AMM-EpiInvert,NA,NA,Statistical,Other
-UVA-Ensemble,NA,NA,Other,Other

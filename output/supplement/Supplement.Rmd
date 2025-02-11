@@ -36,6 +36,20 @@ plot_ridges(scores)
 
 \newpage
 
+## Trend identification
+
+```{r trends}
+scores |>
+  filter(outcome_target == "Cases") |>
+  trends_plot() +
+  ggtitle("Cases")
+
+scores |>
+  filter(outcome_target == "Deaths") |>
+  trends_plot() +
+  ggtitle("Deaths")
+```
+
 ## Model fitting
 
 ```{r model-wis}
@@ -57,7 +71,7 @@ ggsave(plot = plot_density, width = 10, height = 8,
 
 #### 2. Model formula
 
-`r m.fit$formula`
+`r m.fits[[1]]$formula`
 
 #### 3. Summary of estimates
 
@@ -69,7 +83,7 @@ Reference levels for categorical variables are:
 - Horizon is one-week-ahead
 
 ```{r gamm-coeffs-all}
-as_flextable(m.fit) |> 
+as_flextable(m.fits[[1]]) |> 
   autofit()
 ```
 
