@@ -16,15 +16,17 @@ library(stringr)
 
 # Table summary --------------------
 table_confint <- function(scores, group_var = NULL) {
+  total_forecasts <- nrow(scores)
+  total_models <- n_distinct(scores$Model)
   if (!is.null(group_var)) {
   scores <- scores |>
     group_by(.data[[group_var]])
-    }
+  }
   table <- scores |>
     summarise(n_forecasts = n(),
-              p_forecasts = round(n() / nrow(scores) * 100, 1),
-              n_models = length(unique(Model)),
-              p_models = round(n_models / 39 * 100, 1),
+              p_forecasts = round(n() / total_forecasts * 100, 1),
+              n_models = n_distinct(Model),
+              p_models = round(n_models / total_models * 100, 1),
               mean = mean(wis, na.rm = TRUE),
               lower = t.test(wis)$conf.int[1],
               upper = t.test(wis)$conf.int[2],
