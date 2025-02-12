@@ -72,7 +72,8 @@ prep_data <- function(scoring_scale = "log") {
            outcome_target = paste0(str_to_title(outcome_target), "s"),
            Horizon = ordered(Horizon,
                              levels = 1:4, labels = 1:4),
-           log_wis = log(wis + 0.01))
+           log_wis = log(wis + 0.01)) |>
+    filter(!is.na(Horizon)) ## horizon not in 1:4
   return(data)
 }
 
