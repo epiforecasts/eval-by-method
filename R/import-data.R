@@ -101,6 +101,17 @@ get_observed <- function(data_type = "death") {
   return(obs)
 }
 
+# Observed data ---------------------------------------------------------
+# Get raw values
+get_pop <- function() {
+  pop <- read_csv(paste0(
+    "https://raw.githubusercontent.com/european-modelling-hubs/",
+    "covid19-forecast-hub-europe/main/data-locations/locations_eu.csv"
+  ), show_col_types = FALSE) |>
+    select(location, population)
+  return(pop)
+}
+
 # Plot observed data and trend classification
 plot_observed <- function() {
   obs <- import_observed()

@@ -32,7 +32,8 @@ table_confint <- function(scores, group_var = NULL) {
               upper = t.test(wis)$conf.int[2],
               median = median(wis, na.rm = TRUE),
               lq = quantile(wis, 0.25, na.rm = TRUE),
-              uq = quantile(wis, 0.75, na.rm = TRUE)
+              uq = quantile(wis, 0.75, na.rm = TRUE),
+              se = sd(wis, na.rm = TRUE) / sqrt(sum(!is.na(wis)))
               ) |>
     mutate(across(c(mean, lower, upper,
                     median, lq, uq), ~ round(., 2)),
@@ -154,7 +155,10 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
                                  aesthetics = c("col", "fill")) +
     labs(x = NULL, y = "median WIS (log scale)",
          fill = NULL, col = NULL) +
-    theme(legend.position = "bottom")
+    theme(
+      legend.position = "bottom",
+      strip.background = element_blank()
+    )
 
   plot_over_time_method <- scores |>
     # Get median & IQR
@@ -179,7 +183,10 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
                       type = "qual", palette = 2) +
     labs(x = NULL, y = "median WIS (log scale)",
          fill = NULL, col = NULL) +
-    theme(legend.position = "bottom")
+    theme(
+      legend.position = "bottom",
+      strip.background = element_blank()
+    )
 
   score_plot <- plot_over_time_method +
     plot_over_time_target
@@ -203,7 +210,13 @@ plot_density <- function(scores) {
       ggplot(aes(x = log_wis,
                  col = .data[[group_var]])) +
       geom_density() +
-      labs(x = "Log of the weighted interval score")
+      facet_wrap(~outcome_target, scales = "free") +
+      labs(x = "Log of the weighted interval score") +
+      theme(
+        legend.position = "bottom",
+        strip.background = element_blank()
+      ) +
+      scale_color_brewer(type = "qual", palette = 2)
   }
 
   method <- plot_conditional_density(scores, "Method")
@@ -214,8 +227,7 @@ plot_density <- function(scores) {
     targets +
     #affiliated +
     plot_layout(ncol = 1) +
-    plot_annotation(tag_levels = "A",
-                    caption = "NA represents Hub ensemble model")
+    plot_annotation(tag_levels = "A")
   return(plot_density_patchwork)
 }
 
@@ -247,13 +259,14 @@ table_targets <- function(scores) {
     select(Model, outcome_target, forecast_date, location) |>
     distinct() |>
     group_by(Model, outcome_target, forecast_date) |>
-    summarise(target_count = n()) |>
+    summarise(target_count = n(), .groups = "drop") |>
     ungroup() |>
     group_by(Model, outcome_target) |>
     summarise(CountryTargets = all(target_count <= 2),
               min_targets = min(target_count),
               max_targets = max(target_count),
               mean = mean(target_count),
+              median = median(target_count),
               consistent = min_targets==max_targets) |>
     mutate(CountryTargets = factor(CountryTargets,
                                    levels = c(TRUE, FALSE),
@@ -319,11 +332,7 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
   data <- scores |>
     select(location, outcome_target, target_end_date, Incidence) |>
     distinct()
-  pop <- read_csv(paste0(
-    "https://raw.githubusercontent.com/european-modelling-hubs/",
-    "covid19-forecast-hub-europe/main/data-locations/locations_eu.csv"
-  ), show_col_types = FALSE) |>
-    select(location, population)
+  pop <- read_csv(here("data", "populations.csv"), show_col_types = FALSE)
   data <- data |>
     left_join(pop, by = join_by(location)) |>
     mutate(
@@ -361,6 +370,8 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
   } else {
     plot <- plot + ylab("Incidence per 100,000")
   }
+  plot <- plot +
+    theme(strip.background = element_blank())
 
   return(plot)
 }
@@ -370,11 +381,12 @@ trends_plot <- function(scores) {
     select(location, target_end_date, Incidence, Trend) |>
     distinct()
   p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
-    geom_point(mapping = aes(colour = Trend), size = 3) +
+    geom_point(mapping = aes(colour = Trend), size = 1) +
     geom_line() +
     scale_colour_brewer(palette = "Set2", na.value = "grey") +
     theme(legend.position = "bottom") +
     facet_wrap(~ location, scales = "free_y") +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
     xlab("")
   return(p)
 }

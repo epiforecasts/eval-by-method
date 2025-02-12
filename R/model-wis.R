@@ -74,7 +74,7 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
       left_join(targets) |>
       mutate(group = sub(".*-", "", group)) |> ## remove institution identifier
       select(-group_var) |>
-      arrange(value) |>
+      arrange(-value) |>
       mutate(group = factor(group, levels = unique(as.character(group)))) |>
       ggplot(aes(x = group, col = classification, shape = CountryTargets)) +
       geom_point(aes(y = value)) +
@@ -85,12 +85,13 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
       theme(
         legend.position = "bottom",
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
-      )
+      ) +
+      coord_flip()
     if (!x_labels) {
       plot <- plot +
         theme(
-          axis.text.x = element_blank(),
-          axis.ticks.x = element_blank()
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank()
         )
     }
     return(plot)
@@ -104,7 +105,7 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
   for (i in seq_along(plots)) {
     plots[[i]] <- plots[[i]] + ggtitle(outcomes[i])
   }
-  Reduce(`+`, plots) + plot_layout(ncol = 1)
+  Reduce(`+`, plots) + plot_layout(ncol = 2)
 }
 
 plot_effects <- function(fits, scores) {

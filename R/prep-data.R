@@ -57,7 +57,7 @@ prep_data <- function(scoring_scale = "log") {
   # Incidence level + trend (see: R/import-data.r)
   obs <- names(scores_files) |>
     set_names() |>
-    map(get_observed) |>
+    map(~ read_csv(here("data", paste0("observed-", .x, ".csv")))) |>
     bind_rows(.id = "outcome_target") |>
     mutate(Trend = factor(trend, levels = c("Stable", "Increasing", "Decreasing"))) |>
     rename(Incidence = observed) |>
