@@ -138,5 +138,5 @@ plot_effects(m.fits, scores)
 
 ```{r plot-models, fig.height=3, fig.width=5, fig.cap=model_cap}
 model_cap <- "Partial effect size (95% CI) by model."
-plot_models(m.fits, scores, x_labels = FALSE)
+plot_models(m.fits, scores)
 ```
