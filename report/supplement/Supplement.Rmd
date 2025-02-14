@@ -10,9 +10,8 @@ library(dplyr)
 library(readr)
 library(tidyr)
 library(ggplot2)
-library(forcats)
+library(gratia)
 library(patchwork)
-library(flextable)
 theme_set(theme_classic())
 knitr::opts_chunk$set(
   eval = TRUE, echo = FALSE,
