@@ -33,7 +33,7 @@ jobs:
 
       - name: Compile the report
         run: |
-          rmarkdown::render("output/results.Rmd")
+          rmarkdown::render("report/results.Rmd")
         shell: Rscript {0}
 
       - name: Create Pull Request
@@ -46,5 +46,5 @@ jobs:
           branch: "render-report-${{ github.run_number }}"
           labels: "documentation"
           add-paths: |
-            output/results.pdf
+            report/results.pdf
           token: ${{ secrets.GITHUB_TOKEN }}

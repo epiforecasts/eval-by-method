@@ -1,0 +1,136 @@
+---
+title: "Results"
+output: 
+  bookdown::pdf_document2:
+  toc: false
+---
+```{r trackdown, include=FALSE, eval=FALSE}
+library(here)
+library(trackdown)
+# upload_file(file = here("output", "results.Rmd"), 
+#             gpath = "trackdown/hub-method-evaluation",
+#             hide_code = TRUE)
+
+# trackdown::download_file(file = here("output", "results.Rmd"))
+# trackdown::update_file(file = here("output", "results.Rmd"), 
+#                        hide_code = TRUE, gpath = "trackdown/hub-method-evaluation")
+```
+<!--- RMarkdown set up --->
+```{r set-up, include=FALSE}
+library(here)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(tibble)
+library(purrr)
+library(ggplot2)
+library(patchwork)
+library(kableExtra)
+theme_set(theme_classic())
+knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
+                      message = FALSE, warning = FALSE)
+```
+
+```{r, data-pipeline}
+source(here("R", "prep-data.R"))
+source(here("R", "descriptive.R"))
+source(here("R", "model-plots.R"))
+scores <- prep_data(scoring_scale = "log")
+ensemble <- scores |> 
+  filter(grepl("EuroCOVIDhub-ensemble", Model))
+scores <- scores |> 
+  filter(!grepl("EuroCOVIDhub-", Model))
+```
+
+
+<!--- Describe scores data --->
+```{r load-data}
+n_models <- length(unique(scores$Model))
+n_forecasts <- nrow(scores)
+model_forecasts <- scores |> 
+  group_by(Model) |> 
+  summarise(n_forecasts = n())
+model_forecasts <- summary(model_forecasts$n_forecasts)
+per_week <- scores |>
+  group_by(forecast_date) |>
+  summarise(n_models = n_distinct(Model))
+per_week <- summary(per_week$n_models)
+```
+
+Among our sample of forecasters, the number of forecasts varied over time, as forecasting teams joined or left and contributed to varying combinations of forecast targets. We collated between `r round(per_week[["Min."]])` and `r round(per_week[["Max."]])` models in any one week, forecasting for any combination of `r 2*4*32` possible weekly forecast targets (32 countries, 4 horizons, and 2 target outcomes). Models widely varied in their volume of contributions: on average each model contributed `r round(model_forecasts[["Mean"]])` forecasts, with the median model contributing `r model_forecasts[["Median"]]` forecasts. 
+
+<!--- Describe models by model structure --->
+```{r table-scores}
+print_table1(scores)
+```
+<!--- Describe scores by method --->
+
+```{r scores-over-time, fig.height=8,fig.width=6,fig.cap=scores_over_time_cap}
+scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries. Forecast performance is shown as the median weighted interval score (WIS), where a lower score indicates better performance. Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time. Shown for (A) the method structure used by each model; (B) the number of countries each model targeted (one or multiple); with (C) the total count of observed incidence across all 32 countries, shown on the log scale."
+scores_over_time <- plot_over_time(scores = scores, 
+                                   ensemble = ensemble,
+                                   add_plot = data_plot(scores, log = TRUE),
+                                   show_uncertainty = FALSE)
+scores_over_time
+```
+
+
+
+```{r structures}
+structures <- scores |>
+  select(Model, Method) |>
+  distinct() |>
+  pull(Method) |>
+  table()
+structures <- structures[structures > 0]
+```
+
+We categorised `r structures[["Qualitative"]]` models that used human judgement forecasting as qualitative. We further categorised `r structures[["Statistical"]]` models as statistical, `r structures[["Semi-mechanistic"]]` as semi-mechanistic, `r structures[["Mechanistic"]]` as mechanistic and `r structures[["Agent-based"]]` as agent-based (Supplementary Table). In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Qualitative and agent-based models provided fewer forecasts, representing only 1-2% of forecasts. 
+
+On average we observed similar performance of the interval score between mechanistic and semi-mechanistic models. These performed relatively better than statistical models and worse than the qualitative and agent-based models, although in all these cases with largely overlapping variation in performance. Relative performance among modelling methods also appeared to vary over time (Figure \@ref(scores_over_time)). For example, over summer 2021 all model types saw worsening performance coinciding with the introduction of the Delta variant across Europe, but this decline was most marked among statistical models of death outcomes compared to any other model type.
+
+<!--- Describe scores by target countries --->
+```{r target-description}
+targets <- scores |>
+  select(Model, CountryTargets) |>
+  distinct() |>
+  pull(CountryTargets) |>
+  table()
+targets <- targets[targets > 0]
+
+single_countries <- scores |>
+  filter(CountryTargets == "Single-country") |>
+  select(Model, location) |>
+  distinct() |>
+  pull(location) |>
+  table()
+single_countries <- rev(sort(single_countries[single_countries > 0]))
+
+model_targets <- table_targets(scores)
+multi_targets <- filter(model_targets, CountryTargets == "Multi-country")
+```
+
+We considered models forecasting for only one, or multiple countries. We collated `r targets[["Single-country"]]` single-country models and `r targets[["Multi-country"]]` multi-country models. Single-country models targeted Germany (`r single_countries[["DE"]]` models), Poland (`r single_countries[["PL"]]`), Spain (`r single_countries[["ES"]]`), Italy (`r single_countries[["IT"]]`), Czechia (`r single_countries[["CZ"]]`) and Slovenia (`r single_countries[["SI"]]`). The average multi-country model forecast for a median number of `r round(mean(multi_targets$median))` locations. Models classified as targeting multiple countries could vary from week to week in how many locations they forecast. Only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of locations throughout the entire study period, with `r nrow(multi_targets |> filter(consistent & min_targets==32))` of these forecasting for all 32 available locations. 
+
+Multi-country models typically under-performed relative to single-country models. This relative under-performance was stable over time, although with overlapping range of variation. Multi-country models saw a more sustained period of relative poorer performance in forecasting deaths over spring-summer 2022, although we did not observe this difference among case forecasts.
+
+Apart from differences between models, we also observed differences based on the epidemiological situation and predictive horizon. Average performance decreased from 1 to 4 weeks of predictive horizon, and was best when the epidemiological situation was stable, with little observed difference between decreasing and increasing situations.
+
+<!--- Model WIS --->
+```{r}
+m.fits <- readRDS(here("output", "fits.rds"))
+```
+
+We further used a generalised additive mixed model to characterise the association between different factors and predictive performance. The interval score was highly right-skewed with respect to all explanatory variables (see Supplementary Figure). We corrected for this by fitting to the log of the interval score. We found no clear evidence that any one type of method structure consistently outperformed others (Figure \@ref(plot-coeffs)). We also found no evidence for whether the country specificity of the model influenced performance, comparing multi- or single-country models. However, these results supported our observation that WIS values were substantially lower during stable periods of each country's outbreak curve, compared to increasing or decreasing trends in incidence, indicating improved predictive performance during those periods. Using the estimated partial random effect for each model as a proxy of its performance whilst correcting for missingness and common factors we found substantial variation beyond the factors we modelled, indicating that these factors were not sufficient for explaining variation in performance.
+
+
+```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
+coeff_cap <- "Partial effect size (95% CI) by explanatory variable."
+plot_effects(m.fits, scores)
+```
+
+
+```{r plot-models, fig.height=3, fig.width=5, fig.cap=model_cap}
+model_cap <- "Partial effect size (95% CI) by model."
+plot_models(m.fits, scores)
+```
