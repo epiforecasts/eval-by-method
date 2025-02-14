@@ -7,7 +7,8 @@ library("readr")
 classify_models <- function(file = here("data", "model-classification.csv")) {
   methods <- read_csv(file) |>
     pivot_longer(
-      -model, names_to = "classifier", values_to = "classification"
+      -model,
+      names_to = "classifier", values_to = "classification"
     ) |>
     filter(!(is.na(classification) | classification == "#N/A")) |>
     group_by(model) |>
@@ -51,9 +52,12 @@ prep_data <- function(scoring_scale = "log") {
     group_by(model) |>
     summarise(CountryTargets = all(target_count == 1), .groups = "drop") |>
     mutate(CountryTargets = factor(CountryTargets,
-                                levels = c(TRUE, FALSE),
-                                labels = c("Single-country",
-                                           "Multi-country")))
+      levels = c(TRUE, FALSE),
+      labels = c(
+        "Single-country",
+        "Multi-country"
+      )
+    ))
 
   # Method type
   methods <- classify_models() |>
@@ -73,38 +77,48 @@ prep_data <- function(scoring_scale = "log") {
     left_join(country_targets, by = "model") |>
     left_join(methods, by = "model") |>
     rename(Model = model, Horizon = horizon) |>
-    mutate(Model = as.factor(Model),
-           outcome_target = paste0(str_to_title(outcome_target), "s"),
-           Horizon = ordered(Horizon,
-                             levels = 1:4, labels = 1:4),
-           log_wis = log(wis + 0.01)) |>
+    mutate(
+      Model = as.factor(Model),
+      outcome_target = paste0(str_to_title(outcome_target), "s"),
+      Horizon = ordered(Horizon,
+        levels = 1:4, labels = 1:4
+      ),
+      log_wis = log(wis + 0.01)
+    ) |>
     filter(!is.na(Horizon)) ## horizon not in 1:4
   return(data)
 }
 
 # Prediction data  ------------------------------------------------------
 get_forecasts <- function(data_type = "death") {
-  forecasts <- arrow::read_parquet(here("data",
-                                        "covid19-forecast-hub-europe.parquet")) |>
+  forecasts <- arrow::read_parquet(here(
+    "data",
+    "covid19-forecast-hub-europe.parquet"
+  )) |>
     filter(grepl(data_type, target))
 
   forecasts <- forecasts |>
-    separate(target, into = c("horizon", "target_variable"),
-             sep = " wk ahead ") |>
+    separate(target,
+      into = c("horizon", "target_variable"),
+      sep = " wk ahead "
+    ) |>
     # set forecast date to corresponding submission date
     mutate(
       horizon = as.numeric(horizon),
-      forecast_date = target_end_date - weeks(horizon) + days(1)) |>
+      forecast_date = target_end_date - weeks(horizon) + days(1)
+    ) |>
     rename(prediction = value) |>
-    select(location, forecast_date,
-           horizon, target_end_date,
-           model, quantile, prediction)
+    select(
+      location, forecast_date,
+      horizon, target_end_date,
+      model, quantile, prediction
+    )
 
   # Exclusions
   # dates should be between start of hub and until end of JHU data
   forecasts <- forecasts |>
     filter(forecast_date >= as.Date("2021-03-07") &
-             target_end_date <= as.Date("2023-03-10"))
+      target_end_date <= as.Date("2023-03-10"))
   # only keep forecasts up to 4 weeks ahead
   forecasts <- filter(forecasts, horizon <= 4)
 
@@ -114,7 +128,8 @@ get_forecasts <- function(data_type = "death") {
     summarise(q = length(unique(quantile))) |>
     filter(q < 23)
   forecasts <- anti_join(forecasts, rm_quantiles,
-                    by = c("model", "forecast_date", "location"))
+    by = c("model", "forecast_date", "location")
+  )
   forecasts <- filter(forecasts, !is.na(quantile)) # remove "median"
 
   # remove duplicates

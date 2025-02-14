@@ -20,34 +20,41 @@ table_confint <- function(scores, group_var = NULL) {
   total_forecasts <- nrow(scores)
   total_models <- n_distinct(scores$Model)
   if (!is.null(group_var)) {
-  scores <- scores |>
-    group_by(.data[[group_var]])
+    scores <- scores |>
+      group_by(.data[[group_var]])
   }
   table <- scores |>
-    summarise(n_forecasts = n(),
-              p_forecasts = round(n() / total_forecasts * 100, 1),
-              n_models = n_distinct(Model),
-              p_models = round(n_models / total_models * 100, 1),
-              mean = mean(wis, na.rm = TRUE),
-              lower = t.test(wis)$conf.int[1],
-              upper = t.test(wis)$conf.int[2],
-              median = median(wis, na.rm = TRUE),
-              lq = quantile(wis, 0.25, na.rm = TRUE),
-              uq = quantile(wis, 0.75, na.rm = TRUE),
-              se = sd(wis, na.rm = TRUE) / sqrt(sum(!is.na(wis)))
-              ) |>
-    mutate(across(c(mean, lower, upper,
-                    median, lq, uq), ~ round(., 2)),
-           Models = paste0(n_models, " (", p_models, "%)"),
-           Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
-           "Mean WIS (95% CI)" = paste0(mean, " (",
-                                                   lower, "-", upper, ")"),
-           "Median WIS (IQR)" = paste0(median, " (", lq, "-", uq, ")"))
+    summarise(
+      n_forecasts = n(),
+      p_forecasts = round(n() / total_forecasts * 100, 1),
+      n_models = n_distinct(Model),
+      p_models = round(n_models / total_models * 100, 1),
+      mean = mean(wis, na.rm = TRUE),
+      lower = t.test(wis)$conf.int[1],
+      upper = t.test(wis)$conf.int[2],
+      median = median(wis, na.rm = TRUE),
+      lq = quantile(wis, 0.25, na.rm = TRUE),
+      uq = quantile(wis, 0.75, na.rm = TRUE),
+      se = sd(wis, na.rm = TRUE) / sqrt(sum(!is.na(wis)))
+    ) |>
+    mutate(
+      across(c(
+        mean, lower, upper,
+        median, lq, uq
+      ), ~ round(., 2)),
+      Models = paste0(n_models, " (", p_models, "%)"),
+      Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
+      "Mean WIS (95% CI)" = paste0(
+        mean, " (",
+        lower, "-", upper, ")"
+      ),
+      "Median WIS (IQR)" = paste0(median, " (", lq, "-", uq, ")")
+    )
 
   if (!is.null(group_var)) {
-      table <- table |>
-        rename("Variable" = all_of(group_var)) |>
-        mutate(group = group_var)
+    table <- table |>
+      rename("Variable" = all_of(group_var)) |>
+      mutate(group = group_var)
   }
   return(table)
 }
@@ -60,8 +67,10 @@ create_raw_table1 <- function(scores, targets) {
   horizon <- table_confint(scores, "Horizon") |>
     filter(!is.na(Variable))
   trend <- table_confint(scores, "Trend")
-  bind_rows(overall, method, targets,
-            horizon, trend)
+  bind_rows(
+    overall, method, targets,
+    horizon, trend
+  )
 }
 
 print_table1 <- function(scores) {
@@ -75,7 +84,8 @@ print_table1 <- function(scores) {
       colnames(table)[!(colnames(table) %in% c("Variable", "group"))] <-
         paste(
           colnames(table)[!(colnames(table) %in% c("Variable", "group"))],
-          outcome, sep = "_"
+          outcome,
+          sep = "_"
         )
       return(table)
     })
@@ -118,16 +128,18 @@ print_table1 <- function(scores) {
       col.names = str_remove(colnames(table1), "_.*$"),
       align = c("l", rep("r", ncol(table1) - 1))
     ) |>
-    pack_rows(index = c(" " = 1,
-                        "Method" = 5,
-                        "Number of country targets" = 2,
-                        "Week ahead horizon" = 4,
-                        "3-week trend in incidence" = 3)) |>
+    pack_rows(index = c(
+      " " = 1,
+      "Method" = 5,
+      "Number of country targets" = 2,
+      "Week ahead horizon" = 4,
+      "3-week trend in incidence" = 3
+    )) |>
     add_header_above(headers_to_add)
 }
 
 # Plot over time by explanatory variable ----------------------------------
-plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
+plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) {
   quantiles <- c(0.25, 0.5, 0.75)
 
   plot_over_time_target <- scores |>
@@ -136,26 +148,36 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
     reframe(
       n = n(),
       value = quantile(wis, quantiles, na.rm = TRUE),
-      quantile = paste0("q", quantiles)) |>
+      quantile = paste0("q", quantiles)
+    ) |>
     pivot_wider(names_from = quantile) |>
     # Plot
-    ggplot(aes(x = target_end_date,
-               col = CountryTargets,
-               fill = CountryTargets)) +
+    ggplot(aes(
+      x = target_end_date,
+      col = CountryTargets,
+      fill = CountryTargets
+    )) +
     geom_line(aes(y = q0.5), alpha = 0.5)
   if (show_uncertainty) {
     plot_over_time_target <- plot_over_time_target +
       geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-                  alpha = 0.1, col = NA)
+        alpha = 0.1, col = NA
+      )
   }
   plot_over_time_target <- plot_over_time_target +
     facet_wrap(~outcome_target, scales = "free_y") +
     scale_x_date(date_labels = "%b %Y") +
-    scale_fill_manual(values = c("Single-country" = "#e7298a",
-                                 "Multi-country" = "#e6ab02"),
-                                 aesthetics = c("col", "fill")) +
-    labs(x = NULL, y = "median WIS (log scale)",
-         fill = NULL, col = NULL) +
+    scale_fill_manual(
+      values = c(
+        "Single-country" = "#e7298a",
+        "Multi-country" = "#e6ab02"
+      ),
+      aesthetics = c("col", "fill")
+    ) +
+    labs(
+      x = NULL, y = "median WIS (log scale)",
+      fill = NULL, col = NULL
+    ) +
     theme(
       legend.position = "bottom",
       strip.background = element_blank()
@@ -167,7 +189,8 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
     reframe(
       n = n(),
       value = quantile(wis, quantiles, na.rm = TRUE),
-      quantile = paste0("q", quantiles)) |>
+      quantile = paste0("q", quantiles)
+    ) |>
     pivot_wider(names_from = quantile) |>
     # Plot
     ggplot(aes(x = target_end_date, col = Method, fill = Method)) +
@@ -175,15 +198,20 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
   if (show_uncertainty) {
     plot_over_time_method <- plot_over_time_method +
       geom_ribbon(aes(ymin = q0.25, ymax = q0.75),
-                  alpha = 0.1, col = NA)
+        alpha = 0.1, col = NA
+      )
   }
   plot_over_time_method <- plot_over_time_method +
     facet_wrap(~outcome_target, scales = "free_y") +
     scale_x_date(date_labels = "%b %Y") +
-    scale_fill_brewer(aesthetics = c("col", "fill"),
-                      type = "qual", palette = 2) +
-    labs(x = NULL, y = "median WIS (log scale)",
-         fill = NULL, col = NULL) +
+    scale_fill_brewer(
+      aesthetics = c("col", "fill"),
+      type = "qual", palette = 2
+    ) +
+    labs(
+      x = NULL, y = "median WIS (log scale)",
+      fill = NULL, col = NULL
+    ) +
     theme(
       legend.position = "bottom",
       strip.background = element_blank()
@@ -208,8 +236,10 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE){
 plot_density <- function(scores) {
   plot_conditional_density <- function(scores, group_var) {
     scores |>
-      ggplot(aes(x = log_wis,
-                 col = .data[[group_var]])) +
+      ggplot(aes(
+        x = log_wis,
+        col = .data[[group_var]]
+      )) +
       geom_density() +
       facet_wrap(~outcome_target, scales = "free") +
       labs(x = "Log of the weighted interval score") +
@@ -222,33 +252,39 @@ plot_density <- function(scores) {
 
   method <- plot_conditional_density(scores, "Method")
   targets <- plot_conditional_density(scores, "CountryTargets")
-  #affiliated <- plot_conditional_density(scores, "CountryTargetAffiliated")
+  # affiliated <- plot_conditional_density(scores, "CountryTargetAffiliated")
 
   plot_density_patchwork <- method +
     targets +
-    #affiliated +
+    # affiliated +
     plot_layout(ncol = 1) +
     plot_annotation(tag_levels = "A")
   return(plot_density_patchwork)
 }
 
 # Ridge plot by model --------------------
-plot_ridges <- function(scores){
+plot_ridges <- function(scores) {
   scores |>
     group_by(Model) |>
-    mutate(median_score = median(wis, na.rm = TRUE),
+    mutate(
+      median_score = median(wis, na.rm = TRUE),
       lq = quantile(wis, 0.25, na.rm = TRUE),
-      uq = quantile(wis, 0.75, na.rm = TRUE)) |>
+      uq = quantile(wis, 0.75, na.rm = TRUE)
+    ) |>
     ungroup() |>
     mutate(Model = fct_reorder(Model, median_score)) |>
     filter(wis >= lq & wis <= uq) |>
     # Plot
     ggplot(aes(x = wis, y = Model, fill = stat(x))) +
-    geom_density_ridges_gradient(scale = 1.5,
-                                 rel_min_height = 0.01,
-                                 quantile_lines = TRUE, quantiles = 2) +
-    scale_fill_viridis_c(name = "Interval score",
-                         option = "C", direction = -1) +
+    geom_density_ridges_gradient(
+      scale = 1.5,
+      rel_min_height = 0.01,
+      quantile_lines = TRUE, quantiles = 2
+    ) +
+    scale_fill_viridis_c(
+      name = "Interval score",
+      option = "C", direction = -1
+    ) +
     theme_ridges() +
     labs(x = "Interval score IQR", y = "Model") +
     theme(legend.position = "none")
@@ -263,16 +299,21 @@ table_targets <- function(scores) {
     summarise(target_count = n(), .groups = "drop") |>
     ungroup() |>
     group_by(Model, outcome_target) |>
-    summarise(CountryTargets = all(target_count <= 2),
-              min_targets = min(target_count),
-              max_targets = max(target_count),
-              mean = mean(target_count),
-              median = median(target_count),
-              consistent = min_targets==max_targets) |>
+    summarise(
+      CountryTargets = all(target_count <= 2),
+      min_targets = min(target_count),
+      max_targets = max(target_count),
+      mean = mean(target_count),
+      median = median(target_count),
+      consistent = min_targets == max_targets
+    ) |>
     mutate(CountryTargets = factor(CountryTargets,
-                                   levels = c(TRUE, FALSE),
-                                   labels = c("Single-country",
-                                              "Multi-country")))
+      levels = c(TRUE, FALSE),
+      labels = c(
+        "Single-country",
+        "Multi-country"
+      )
+    ))
   return(table_targets)
 }
 
@@ -297,7 +338,8 @@ table_metadata <- function(scores) {
     pivot_wider(
       names_from = "outcome_target",
       values_from = "Forecasts",
-      values_fill = "") |>
+      values_fill = ""
+    ) |>
     rename("Country Targets" = CountryTargets) |>
     arrange(Model)
   return(metadata_table)
@@ -311,19 +353,28 @@ plot_linerange <- function(group_var) {
     reframe(
       n = n(),
       value = quantile(wis, quantiles),
-      quantile = paste0("q", quantiles)) |>
+      quantile = paste0("q", quantiles)
+    ) |>
     pivot_wider(names_from = quantile) |>
     # Plot
     ggplot(aes(y = .data[[group_var]], col = Horizon, fill = Horizon)) +
-    geom_point(aes(x = q0.5), alpha = 0.8,
-               position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                   alpha = 0.5, position = position_dodge(width = 1)) +
-    geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                   alpha = 0.2, position = position_dodge(width = 1)) +
-    labs(y = NULL, x = NULL,
-         col = "Week ahead forecast Horizon",
-         fill = "Week ahead forecast Horizon") +
+    geom_point(aes(x = q0.5),
+      alpha = 0.8,
+      position = position_dodge(width = 1)
+    ) +
+    geom_linerange(aes(xmin = q0.25, xmax = q0.75),
+      linewidth = 4,
+      alpha = 0.5, position = position_dodge(width = 1)
+    ) +
+    geom_linerange(aes(xmin = q0.01, xmax = q0.99),
+      linewidth = 4,
+      alpha = 0.2, position = position_dodge(width = 1)
+    ) +
+    labs(
+      y = NULL, x = NULL,
+      col = "Week ahead forecast Horizon",
+      fill = "Week ahead forecast Horizon"
+    ) +
     scale_color_viridis_d(direction = 1) +
     theme(legend.position = "bottom")
   return(plot)
@@ -386,7 +437,7 @@ trends_plot <- function(scores) {
     geom_line() +
     scale_colour_brewer(palette = "Set2", na.value = "grey") +
     theme(legend.position = "bottom") +
-    facet_wrap(~ location, scales = "free_y") +
+    facet_wrap(~location, scales = "free_y") +
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
     xlab("")
   return(p)

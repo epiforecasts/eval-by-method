@@ -18,8 +18,10 @@ m.data <- data |>
   filter(!grepl("EuroCOVIDhub-", Model)) |>
   mutate(location = factor(location)) |>
   group_by(location) |>
-  mutate(time = as.numeric(forecast_date - min(forecast_date)) / 7,
-         Horizon = as.numeric(Horizon)) |>
+  mutate(
+    time = as.numeric(forecast_date - min(forecast_date)) / 7,
+    Horizon = as.numeric(Horizon)
+  ) |>
   ungroup()
 
 # --- Model ---
@@ -48,11 +50,11 @@ m.formula <- log_wis ~
 m.fits <- outcomes |>
   set_names() |>
   map(\(outcome) {
-  bam(
-    formula = m.formula,
-    data = m.data |> filter(outcome_target == outcome),
-    family = gaussian()
-  )
-})
+    bam(
+      formula = m.formula,
+      data = m.data |> filter(outcome_target == outcome),
+      family = gaussian()
+    )
+  })
 
 saveRDS(m.fits, here("output", "fits.rds"))
