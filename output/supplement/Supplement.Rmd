@@ -29,13 +29,14 @@ scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 n_forecasts <- nrow(scores)
 ```
+Code is available at: <https://github.com/epiforecasts/model-structure-evaluation>. 
 
 # Model characteristics
 
 ```{r metadata}
 table_metadata(scores) |>
   select(-Description) |>
-  kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, number of forecasts contributed, and interval scores (median and interquartile range) across contributed forecasts.")
+  kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.")
 ```
 
 \newpage
@@ -43,7 +44,7 @@ table_metadata(scores) |>
 # Distribution of model scores
 
 ```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=8}
-ridges_caption <- paste0("Distribution of forecast scores for 1 to 4 week ahead forecasts across 32 locations over 104 weeks (N=", n_forecasts, "). Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
+ridges_caption <- paste0("Distribution of forecast scores for each contributing model. Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
 plot_ridges(scores)
 ```
 
@@ -74,7 +75,6 @@ scores |>
 source(here("R", "model-wis.R"))
 ```
 
-Code is available at: <https://github.com/epiforecasts/model-structure-evaluation>. 
 
 ## Model formula
 
@@ -88,7 +88,7 @@ Code is available at: <https://github.com/epiforecasts/model-structure-evaluatio
 # QQ plot, residuals
 appraise(m.fits[["Cases"]])
 ```
-  
+
 ### Deaths
 
 ```{r gamm-diagnostics-deaths}
