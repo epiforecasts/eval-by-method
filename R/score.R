@@ -5,7 +5,6 @@ library(scoringutils)
 source(here("R", "import-data.R"))
 
 walk(c("case", "death"), \(target) {
-
   # Get forecasts & observations -----
   # Get forecasts (note this is slow)
   forecasts_raw <- get_forecasts(data_type = target)

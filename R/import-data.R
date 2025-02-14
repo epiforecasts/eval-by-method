@@ -16,11 +16,15 @@ walk(c("case", "death"), \(data_type) {
     "covid19-forecast-hub-europe/main/data-truth/JHU/", file_name
   )) |>
     # aggregate to weekly incidence
-    mutate(year = epiyear(date),
-           week = epiweek(date)) |>
+    mutate(
+      year = epiyear(date),
+      week = epiweek(date)
+    ) |>
     group_by(location, location_name, year, week) |>
-    summarise(target_end_date = max(date),
-              observed = sum(value, na.rm = TRUE)) |>
+    summarise(
+      target_end_date = max(date),
+      observed = sum(value, na.rm = TRUE)
+    ) |>
     ungroup() |>
     select(-year, -week)
 
@@ -32,17 +36,23 @@ walk(c("case", "death"), \(data_type) {
 
   # Add "trend" as change in 3-week moving average
   obs <- obs |>
-    mutate(ma = zoo::rollmean(observed,
-                              align = "right", k = 3, fill = NA),
-           trend = ma / lag(ma, n=1),
-           trend = as.factor(ifelse(is.nan(trend), "Stable",
-                                    ifelse(trend >= 1.05, "Increasing",
-                                           ifelse(trend <= 0.95, "Decreasing",
-                                                  "Stable")))))
+    mutate(
+      ma = zoo::rollmean(observed,
+        align = "right", k = 3, fill = NA
+      ),
+      trend = ma / lag(ma, n = 1),
+      trend = as.factor(ifelse(is.nan(trend), "Stable",
+        ifelse(trend >= 1.05, "Increasing",
+          ifelse(trend <= 0.95, "Decreasing",
+            "Stable"
+          )
+        )
+      ))
+    )
   obs <- obs |>
     select(location, target_end_date, observed, trend)
   write_csv(obs, here("data", paste0("observed-", data_type, ".csv")))
-}
+})
 
 # Population data ---------------------------------------------------------
 pop <- read_csv(paste0(
