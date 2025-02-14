@@ -34,6 +34,7 @@ jobs:
       - name: Compile the report
         run: |
           rmarkdown::render("report/results.Rmd")
+          rmarkdown::render("report/supplement/Supplement.Rmd")
         shell: Rscript {0}
 
       - name: Create Pull Request
@@ -47,4 +48,5 @@ jobs:
           labels: "documentation"
           add-paths: |
             report/results.pdf
+            report/supplement/Supplement.pdf
           token: ${{ secrets.GITHUB_TOKEN }}
