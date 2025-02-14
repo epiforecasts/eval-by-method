@@ -29,7 +29,10 @@ scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 n_forecasts <- nrow(scores)
 ```
+
 Code is available at: <https://github.com/epiforecasts/model-structure-evaluation>. 
+
+\newpage
 
 # Model characteristics
 
