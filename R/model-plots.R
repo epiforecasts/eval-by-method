@@ -26,7 +26,7 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
       geom_point(aes(y = value)) +
       geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5)) +
       geom_hline(yintercept = 0, lty = 2) +
-      labs(y = "Partial effect", x = "Model", colour = NULL, shape = NULL) +
+      labs(y = "Partial effect", x = "", colour = NULL, shape = NULL) +
       scale_colour_brewer(type = "qual", palette = 2) +
       theme(
         legend.position = "bottom",
@@ -43,15 +43,11 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
     return(plot)
   })
   ## remove legends
-  if (length(plots) > 1) {
-    for (i in seq_len(length(plots) - 1)) {
-      plots[[i]] <- plots[[i]] + theme(legend.position = "none")
-    }
-  }
-  for (i in seq_along(plots)) {
-    plots[[i]] <- plots[[i]] + ggtitle(outcomes[i])
-  }
-  Reduce(`+`, plots) + plot_layout(ncol = 2)
+  plots <- map(seq_along(plots), \(i) {
+    plots[[i]] + ggtitle(outcomes[i])
+  })
+  Reduce(`+`, plots) + plot_layout(ncol = 2, guides = "collect") &
+    theme(legend.position = "bottom")
 }
 
 plot_effects <- function(fits, scores) {
@@ -67,7 +63,7 @@ plot_effects <- function(fits, scores) {
     labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
     scale_colour_brewer(type = "qual", palette = "Set1") +
     theme(
-      legend.position = "bottom",
+      legend.position = "none",
       strip.background = element_blank(),
       axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
     ) +
