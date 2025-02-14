@@ -34,6 +34,7 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 ```{r, data-pipeline}
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
+source(here("R", "model-plots.R"))
 scores <- prep_data(scoring_scale = "log")
 ensemble <- scores |> 
   filter(grepl("EuroCOVIDhub-ensemble", Model))
