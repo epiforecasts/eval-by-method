@@ -9,11 +9,14 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
     pivot_longer(
       -model, names_to = "classifier", values_to = "classification"
     ) |>
+    filter(!(is.na(classification) | classification == "#N/A")) |>
     group_by(model) |>
     summarise(
+      agreement = (n_distinct(classification) == 1),
       classification = names(
         sort(table(classification), decreasing = TRUE)[1]
-      ), .groups = "drop"
+      ),
+      .groups = "drop"
     ) |>
     mutate(classification = factor(
       classification,
@@ -54,7 +57,7 @@ prep_data <- function(scoring_scale = "log") {
 
   # Method type
   methods <- classify_models() |>
-    select(model, Method = classification)
+    select(model, Method = classification, agreement)
 
   # Incidence level + trend (see: R/import-data.r)
   obs <- names(scores_files) |>
