@@ -124,7 +124,7 @@ We considered models forecasting for only one, or multiple countries. We collate
 
 Multi-country models typically under-performed relative to single-country models. This relative under-performance was stable over time, although with overlapping range of variation. Multi-country models saw a more sustained period of relative poorer performance in forecasting deaths over spring-summer 2022, although we did not observe this difference among case forecasts.
 
-Apart from differences between models, we also observed differences based on the epidemiological situation and predictive horizon. Average performance decreased from 1 to 4 weeks of predictive horizon, and was best when the epidemiological situation was stable, with little observed difference between decreasing and increasing outbreaks.
+Apart from differences between models, we also observed differences based on the epidemiological situation and predictive horizon. Average performance decreased from 1 to 4 weeks of predictive horizon, and was best when the epidemiological situation was stable, with little observed difference between decreasing and increasing situations.
 
 <!--- Model WIS --->
 ```{r}
