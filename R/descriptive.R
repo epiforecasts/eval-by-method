@@ -263,8 +263,9 @@ plot_density <- function(scores) {
 }
 
 # Ridge plot by model --------------------
-plot_ridges <- function(scores) {
+plot_ridges <- function(scores, target = "Deaths") {
   scores |>
+    filter(outcome_target == target) |>
     group_by(Model) |>
     mutate(
       median_score = median(wis, na.rm = TRUE),
@@ -286,7 +287,7 @@ plot_ridges <- function(scores) {
       option = "C", direction = -1
     ) +
     theme_ridges() +
-    labs(x = "Interval score IQR", y = "Model") +
+    labs(x = "WIS (IQR)", y = "Model") +
     theme(legend.position = "none")
 }
 
