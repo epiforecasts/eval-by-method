@@ -46,9 +46,11 @@ table_metadata(scores) |>
 
 # Distribution of model scores
 
-```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=8}
+```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=14}
 ridges_caption <- paste0("Distribution of forecast scores for each contributing model. Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
-plot_ridges(scores)
+plot_ridges(scores, "Cases") +
+  plot_ridges(scores, "Deaths") +
+  plot_layout(nrow = 1)
 ```
 
 \newpage
@@ -75,7 +77,7 @@ scores |>
 # Model fitting
 
 ```{r model-wis}
-source(here("R", "model-wis.R"))
+m.fits <- readRDS(here("output", "fits.rds"))
 ```
 
 
