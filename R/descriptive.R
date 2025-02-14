@@ -4,6 +4,7 @@
 # scores <- prep_data(scoring_scale = "log")
 library(here)
 library(dplyr)
+library(purrr)
 library(readr)
 library(tidyr)
 library(ggplot2)
