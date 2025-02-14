@@ -20,13 +20,14 @@ m.data <- data |>
   group_by(location) |>
   mutate(
     time = as.numeric(forecast_date - min(forecast_date)) / 7,
-    Horizon = as.numeric(Horizon)
+    Horizon = as.numeric(Horizon),
+    wis = wis + 1e-7
   ) |>
   ungroup()
 
 # --- Model ---
 # Formula
-m.formula <- log_wis ~
+m.formula <- wis ~
   # -----------------------------
   # Method (3 levels*)
   s(Method, bs = "re") +
@@ -53,7 +54,7 @@ m.fits <- outcomes |>
     bam(
       formula = m.formula,
       data = m.data |> filter(outcome_target == outcome),
-      family = gaussian()
+      family = gaussian(link = "log")
     )
   })
 
