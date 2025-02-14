@@ -1,5 +1,7 @@
 library("dplyr")
 library("tidyr")
+library("purrr")
+library("readr")
 
 # Read in metadata ans classify
 classify_models <- function(file = here("data", "model-classification.csv")) {
@@ -26,12 +28,12 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
 
 # Prepare scores data with explanatory variables
 prep_data <- function(scoring_scale = "log") {
-  scores_files <- list.files(here("data"), pattern = "scores-raw-.*\\.csv")
+  scores_files <- list.files(here("output"), pattern = "scores-raw-.*\\.csv")
   names(scores_files) <- sub("scores-raw-(.*)\\..*$", "\\1", scores_files)
   # Get raw interval score
   scores_raw <- scores_files |>
     map(\(file) {
-      read_csv(here("data", file))
+      read_csv(here("output", file))
     }) |>
     bind_rows(.id = "outcome_target") |>
     filter(scale == scoring_scale)
@@ -77,8 +79,48 @@ prep_data <- function(scoring_scale = "log") {
   return(data)
 }
 
-# Match affiliated location to scored forecast location
-# CountryTargetAffiliated = factor(
-#   location == country_affiliation,
-#   levels = c(TRUE, FALSE),
-#   labels = c("True", "False")),
+# Prediction data  ------------------------------------------------------
+get_forecasts <- function(data_type = "death") {
+  forecasts <- arrow::read_parquet(here("data",
+                                        "covid19-forecast-hub-europe.parquet")) |>
+    filter(grepl(data_type, target))
+
+  forecasts <- forecasts |>
+    separate(target, into = c("horizon", "target_variable"),
+             sep = " wk ahead ") |>
+    # set forecast date to corresponding submission date
+    mutate(
+      horizon = as.numeric(horizon),
+      forecast_date = target_end_date - weeks(horizon) + days(1)) |>
+    rename(prediction = value) |>
+    select(location, forecast_date,
+           horizon, target_end_date,
+           model, quantile, prediction)
+
+  # Exclusions
+  # dates should be between start of hub and until end of JHU data
+  forecasts <- forecasts |>
+    filter(forecast_date >= as.Date("2021-03-07") &
+             target_end_date <= as.Date("2023-03-10"))
+  # only keep forecasts up to 4 weeks ahead
+  forecasts <- filter(forecasts, horizon <= 4)
+
+  # only include predictions from models with all quantiles
+  rm_quantiles <- forecasts |>
+    group_by(model, forecast_date, location) |>
+    summarise(q = length(unique(quantile))) |>
+    filter(q < 23)
+  forecasts <- anti_join(forecasts, rm_quantiles,
+                    by = c("model", "forecast_date", "location"))
+  forecasts <- filter(forecasts, !is.na(quantile)) # remove "median"
+
+  # remove duplicates
+  forecasts <- forecasts |>
+    group_by_all() |>
+    mutate(duplicate = row_number()) |>
+    ungroup() |>
+    filter(duplicate == 1) |>
+    select(-duplicate)
+
+  return(forecasts)
+}

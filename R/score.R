@@ -11,8 +11,7 @@ walk(c("case", "death"), \(target) {
   forecasts_raw <- get_forecasts(data_type = target)
 
   # Observed data
-  obs <- get_observed(data_type = target)
-  write_csv(obs, here("data", paste0("observed-", target, ".csv")))
+  obs <- read_csv(here("data", paste0("observed-", target, ".csv")))
   forecasts <- left_join(
     forecasts_raw, obs,
     by = c("location", "target_end_date")
@@ -38,6 +37,3 @@ walk(c("case", "death"), \(target) {
 
   write_csv(scores, here("data", paste0("scores-raw-", target, ".csv")))
 })
-
-pop <- get_pop()
-write_csv(pop, here("data", paste0("populations.csv")))

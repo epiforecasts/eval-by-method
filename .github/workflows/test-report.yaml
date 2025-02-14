@@ -34,11 +34,11 @@ jobs:
 
       - name: Compile the report
         run: |
-          rmarkdown::render("output/results.Rmd")
+          rmarkdown::render("report/results.Rmd")
         shell: Rscript {0}
 
       - name: Upload pdf as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: results
-          path: output/results.pdf
+          path: report/results.pdf
