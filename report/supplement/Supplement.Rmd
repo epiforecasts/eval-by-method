@@ -14,8 +14,10 @@ library(forcats)
 library(patchwork)
 library(flextable)
 theme_set(theme_classic())
-knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
-                      message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  eval = TRUE, echo = FALSE,
+  message = FALSE, warning = FALSE
+)
 ```
 
 ```{r load-data}
@@ -23,9 +25,9 @@ knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 scores <- prep_data(scoring_scale = "log")
-ensemble <- scores |> 
+ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
-scores <- scores |> 
+scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 n_forecasts <- nrow(scores)
 ```

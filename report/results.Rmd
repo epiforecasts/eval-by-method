@@ -7,12 +7,12 @@ output:
 ```{r trackdown, include=FALSE, eval=FALSE}
 library(here)
 library(trackdown)
-# upload_file(file = here("output", "results.Rmd"), 
+# upload_file(file = here("output", "results.Rmd"),
 #             gpath = "trackdown/hub-method-evaluation",
 #             hide_code = TRUE)
 
 # trackdown::download_file(file = here("output", "results.Rmd"))
-# trackdown::update_file(file = here("output", "results.Rmd"), 
+# trackdown::update_file(file = here("output", "results.Rmd"),
 #                        hide_code = TRUE, gpath = "trackdown/hub-method-evaluation")
 ```
 <!--- RMarkdown set up --->
@@ -27,8 +27,10 @@ library(ggplot2)
 library(patchwork)
 library(kableExtra)
 theme_set(theme_classic())
-knitr::opts_chunk$set(eval = TRUE, echo = FALSE,
-                      message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  eval = TRUE, echo = FALSE,
+  message = FALSE, warning = FALSE
+)
 ```
 
 ```{r, data-pipeline}
@@ -36,9 +38,9 @@ source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 source(here("R", "model-plots.R"))
 scores <- prep_data(scoring_scale = "log")
-ensemble <- scores |> 
+ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
-scores <- scores |> 
+scores <- scores |>
   filter(!grepl("EuroCOVIDhub-", Model))
 ```
 
@@ -47,8 +49,8 @@ scores <- scores |>
 ```{r load-data}
 n_models <- length(unique(scores$Model))
 n_forecasts <- nrow(scores)
-model_forecasts <- scores |> 
-  group_by(Model) |> 
+model_forecasts <- scores |>
+  group_by(Model) |>
   summarise(n_forecasts = n())
 model_forecasts <- summary(model_forecasts$n_forecasts)
 per_week <- scores |>
@@ -67,10 +69,12 @@ print_table1(scores)
 
 ```{r scores-over-time, fig.height=8,fig.width=6,fig.cap=scores_over_time_cap}
 scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries. Forecast performance is shown as the median weighted interval score (WIS), where a lower score indicates better performance. Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time. Shown for (A) the method structure used by each model; (B) the number of countries each model targeted (one or multiple); with (C) the total count of observed incidence across all 32 countries, shown on the log scale."
-scores_over_time <- plot_over_time(scores = scores, 
-                                   ensemble = ensemble,
-                                   add_plot = data_plot(scores, log = TRUE),
-                                   show_uncertainty = FALSE)
+scores_over_time <- plot_over_time(
+  scores = scores,
+  ensemble = ensemble,
+  add_plot = data_plot(scores, log = TRUE),
+  show_uncertainty = FALSE
+)
 scores_over_time
 ```
 
