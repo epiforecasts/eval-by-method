@@ -17,9 +17,9 @@ JBUD-HMXK,Mechanistic,#N/A,Mechanistic,Mechanistic
 Karlen-pypm,Mechanistic,#N/A,Mechanistic,Statistical
 MIMUW-StochSEIR,Mechanistic,#N/A,Mechanistic,Mechanistic
 MUNI_DMS-SEIAR,Mechanistic,#N/A,Mechanistic,Mechanistic
-epiforecasts-EpiExpert,Qualitative,Qualitative,#N/A,Qualitative
-epiforecasts-EpiExpert_direct,Qualitative,Qualitative,#N/A,Qualitative
-epiforecasts-EpiExpert_Rt,Qualitative,Qualitative,#N/A,Qualitative
+epiforecasts-EpiExpert,Other,Other,#N/A,Other
+epiforecasts-EpiExpert_direct,Other,Other,#N/A,Other
+epiforecasts-EpiExpert_Rt,Other,Other,#N/A,Other
 prolix-euclidean,Semi-mechanistic,Semi-mechanistic,Semi-mechanistic,Other
 UMass-SemiMech,Semi-mechanistic,Mechanistic,Semi-mechanistic,Semi-mechanistic
 UpgUmibUsi-MultiBayes,Semi-mechanistic,#N/A,Statistical,Semi-mechanistic
