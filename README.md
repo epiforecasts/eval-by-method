@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/644420305.svg)](https://doi.org/10.5281/zenodo.14903161)
 
 \<## Relating forecast performance to methodology: the influence of
 model structure and target specificity on the performance of European
