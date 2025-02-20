@@ -24,7 +24,7 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
       levels = c(
         "Agent-based", "Mechanistic",
         "Semi-mechanistic", "Statistical",
-        "Machine learning", "Qualitative"
+        "Machine learning", "Other"
       )
     ))
   return(methods)
