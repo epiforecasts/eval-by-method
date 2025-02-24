@@ -1,51 +1,23 @@
 [![DOI](https://zenodo.org/badge/644420305.svg)](https://doi.org/10.5281/zenodo.14903161)
 
-\<## Relating forecast performance to methodology: the influence of
-model structure and target specificity on the performance of European
-COVID-19 forecasts
+\<## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
 
-Kath Sherratt (1), Rok Grah (2), Bastian Prasse (2), The European
-COVID-19 Forecast Hub, Sam Abbott (1), Sebastian Funk (1)
+Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
-1)  London School of Hygiene & Tropical Medicine
-2)  European Centre for Disease Prevention and Control
+(1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
+(2) European Centre for Disease Prevention and Control
+(3) Institute of Statistics, Karlsruhe Institute of Technology
+
 
 ### Abstract
 
-Background: The performance of forecasts in capturing observed data
-often varies in time and space with no overall “best” forecast. Two
-varying features of forecasting methods that could help explain this
-are: the forecaster’s approach to model structure; and whether the
-forecaster specifically tunes their model to each target. We
-investigated short-term forecasts of weekly incident deaths for 32
-countries submitted to the European COVID-19 Forecast Hub between March
-2021 and March 2023.
+The predictive accuracy of infectious disease forecasts varies in time, space and between models. When building models for prediction, forecasters have the choice of a range of underlying model structures with more or less ability to tune a particular model to the forecasting target. However, it has been difficult to compare the effect of these choices due to a lack of standardised forecast reporting and evaluation. Here, we used prospectively collected, standardised, open data from the European COVID-19 Forecast Hub to investigate model-specific factors that might influence forecast performance. 
 
-Methods: We categorised 39 models by their structure (mechanistic,
-semi-mechanistic, statistical), and by their specificity (the number of
-locations each team targeted; and whether the target location was the
-same as the modeller’s institutional location, as a proxy for model
-adaptation to local conditions). We assessed forecast performance using
-the weighted interval score. First, we compared performance relatively
-against a median ensemble of all models. Next, we used a generalised
-additive model to explore performance among different model structures
-and specificity, while accounting for the level and trend of observed
-incidence, the forecast horizon, and random variation among models.
+We evaluated 1-4 week ahead forecasts of COVID-19 cases and deaths for 32 countries between 2021 and 2023. We categorised 47 models by their structure: agent-based, mechanistic, semi-mechanistic, statistical or other; and by their specificity to a geographic location: whether a forecaster predicted outcomes for one country or many. We assessed forecast performance using the weighted interval score after log-transforming both forecasts and observations. We used a generalised additive mixed model to explore performance, additionally accounting for changes between countries over time, the epidemiological situation, the forecast horizon, and variation among models. 
 
-Results: We evaluated forecasts of COVID-19 deaths up to 4 weeks ahead
-for up to 32 countries over 104 weeks. No one model structure
-consistently outperformed the ensemble. Mechanistic models saw the
-widest range in performance, with the range of scores including both
-beating the ensemble and performing up to three times worse. Models that
-targeted only one or two countries appeared to perform on average better
-and more consistently compared to multi-country models.
+We observed some small differences between model types, with statistical models slightly outperforming other types when forecasting deaths, but with widely overlapping confidence intervals. We further found that those that forecast for single countries outperformed those forecasting multiple targets, however again confidence intervals of the corresponding estimates overlapped widely. 
 
-Interpretation: Based on this study we would recommend that mechanistic
-models should be part of predictive ensembles, with an emphasis on using
-information from the local context of where they are applied.
-Multi-model comparisons should encourage methodological diversity while
-ensuring that detailed information on methodology is collated alongside
-the numerical predictions.
+Whilst we found no clear effects, we showed that multi-model forecasting efforts are a useful source for more generalised model-based analysis of predictive performance. Our work was limited by a small sample size of independent models. We recommend that multi-model comparisons encourage methodological diversity to enable future studies of factors that drive predictive performance, ensuring that detailed information on methodology is collated alongside the numerical predictions.
 
 Current working draft: -
 <https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#>
