@@ -14,6 +14,7 @@ library(patchwork)
 library(janitor)
 library(kableExtra)
 library(stringr)
+library(boot)
 
 # Table summary --------------------
 table_confint <- function(scores, group_var = NULL) {
@@ -23,6 +24,17 @@ table_confint <- function(scores, group_var = NULL) {
     scores <- scores |>
       group_by(.data[[group_var]])
   }
+
+  calc_ci <- function(x, R, ...) {
+    mymean <- function(x, i, na.rm = FALSE) {
+      return(mean(x[i], na.rm = na.rm))
+    }
+
+    bootstraps <- boot(x, mymean, R = R, parallel = "multicore", ...)
+    ci <- boot.ci(bootstraps, type = "perc")
+    list(data.frame(lboot = ci$perc[4], uboot = ci$perc[5]))
+  }
+
   table <- scores |>
     summarise(
       n_forecasts = n(),
@@ -35,8 +47,10 @@ table_confint <- function(scores, group_var = NULL) {
       median = median(wis, na.rm = TRUE),
       lq = quantile(wis, 0.25, na.rm = TRUE),
       uq = quantile(wis, 0.75, na.rm = TRUE),
-      se = sd(wis, na.rm = TRUE) / sqrt(sum(!is.na(wis)))
+      se = sd(wis, na.rm = TRUE) / sqrt(sum(!is.na(wis))),
+      ci = calc_ci(wis, na.rm = TRUE, R = 1000)
     ) |>
+    unnest(ci) |>
     mutate(
       across(c(
         mean, lower, upper,
@@ -46,7 +60,7 @@ table_confint <- function(scores, group_var = NULL) {
       Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
       "Mean WIS (95% CI)" = paste0(
         mean, " (",
-        lower, "-", upper, ")"
+        round(lboot, 2), "-", round(uboot, 2), ")"
       ),
       "Median WIS (IQR)" = paste0(median, " (", lq, "-", uq, ")")
     )
