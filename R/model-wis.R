@@ -17,6 +17,14 @@ targets <- table_targets(data)
 m.data <- data |>
   filter(!grepl("EuroCOVIDhub-", Model)) |>
   mutate(location = factor(location)) |>
+  mutate(outcome_target = factor(outcome_target)) |>
+  mutate(
+    unique_outcome_target = as.factor(paste(
+      outcome_target,
+      location,
+      sep = "_"
+    ))
+  ) |>
   group_by(location) |>
   mutate(
     time = as.numeric(forecast_date - min(forecast_date)) / 7,
@@ -28,34 +36,40 @@ m.data <- data |>
 # --- Model ---
 # Formula
 m.formula <- wis ~
-  # -----------------------------
-  # Method (3 levels*)
-  s(Method, bs = "re") +
-  # Number of target countries (2 levels*)
-  s(CountryTargets, bs = "re") +
-  # Trend (3 levels)
-  s(Trend, bs = "re") +
-  # Location (country)
-  s(location, bs = "re") +
-  # Affiliation same as target country
-  # CountryTargetAffiliated +
-  # -----------------------------
-  # Observed incidence: interacting with trend; thin plate reg. spline (default)
-  s(time, by = location) +
-  # Horizon (4 levels, ordinal)
-  s(Horizon, k = 3, by = Model) +
-  # Individual model (35 levels*): random effect, nested within method
-  s(Model, bs = "re")
+  # Intercept for outcome
+  outcome_target +
+    # -----------------------------
+    # Method (3 levels*)
+    s(Method, bs = "re") +
+    s(outcome_target, Method, bs = "re") +
+    # Number of target countries (2 levels*)
+    s(CountryTargets, bs = "re") +
+    s(outcome_target, CountryTargets, bs = "re") +
+    # Trend (3 levels)
+    s(Trend, bs = "re") +
+    s(outcome_target, Trend, bs = "re") +
+    # Location (country)
+    s(location, bs = "re") +
+    s(location, outcome_target, bs = "re") +
+    # Horizon (4 levels, ordinal)
+    s(Horizon, k = 4) +
+    s(Horizon, k = 4, by = outcome_target, bs = "sz") +
+    s(Horizon, k = 4, by = Method, bs = "sz") +
+    s(Horizon, k = 4, by = CountryTargets, bs = "sz") +
+    s(Horizon, k = 4, by = Trend, bs = "sz") +
+    # Individual model (35 levels*): random effect, nested within method
+    s(Model, bs = "re") +
+    # Observed incidence: interacting with trend; thin plate reg. spline (default)
+    s(time, k = 30) +
+    s(time, by = outcome_target, bs = "sz", k = 30) +
+    s(time, by = unique_outcome_target, bs = "sz", k = 30)
 
 # Fit GAMM with normal distribution
-m.fits <- outcomes |>
-  set_names() |>
-  map(\(outcome) {
-    bam(
-      formula = m.formula,
-      data = m.data |> filter(outcome_target == outcome),
-      family = gaussian(link = "log")
-    )
-  })
+m.fits <- bam(
+  formula = m.formula,
+  data = m.data,
+  family = gaussian(link = "log"),
+  discrete = TRUE
+)
 
 saveRDS(m.fits, here("output", "fits.rds"))
