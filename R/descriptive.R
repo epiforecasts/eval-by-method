@@ -50,7 +50,7 @@ table_confint <- function(scores, group_var = NULL) {
       Models = paste0(n_models, " (", p_models, "%)"),
       Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
       "Mean WIS (95% CI)" = paste0(
-        mean, " (",
+        round(mean, 2), " (",
         round(lboot, 2), "-", round(uboot, 2), ")"
       )
     )
