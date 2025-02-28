@@ -77,7 +77,7 @@ create_raw_table1 <- function(scores, targets) {
   )
 }
 
-print_table1 <- function(scores, save_csv = TRUE) {
+print_table1 <- function(scores) {
   outcome_targets <- unique(scores$outcome_target)
   tables <- outcome_targets |>
     map(\(outcome) {
@@ -140,10 +140,6 @@ print_table1 <- function(scores, save_csv = TRUE) {
       "3-week trend in incidence" = 3
     )) |>
     add_header_above(headers_to_add)
-
-  if (save_csv) {
-    write_csv(table1, here("report", "table1.csv"))
-  }
 }
 
 # Plot over time by explanatory variable ----------------------------------
