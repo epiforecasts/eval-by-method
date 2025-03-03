@@ -6,15 +6,15 @@ library("gammit")
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 
-plot_models <- function(fits, scores, x_labels = TRUE) {
+plot_models <- function(random_effects, scores, x_labels = TRUE) {
   outcomes <- unique(scores$outcome_target)
   classification <- classify_models() |>
     rename(group = model)
   targets <- table_targets(scores) |>
     select(group = Model, CountryTargets) |>
     distinct()
-  plots <- map(fits, function(fit) {
-    plot <- extract_ranef(fit) |>
+  plots <- map(random_effects, function(effects) {
+    plot <- effects |>
       filter(group_var == "Model") |>
       left_join(classification) |>
       left_join(targets) |>
@@ -50,8 +50,8 @@ plot_models <- function(fits, scores, x_labels = TRUE) {
     theme(legend.position = "bottom")
 }
 
-plot_effects <- function(fits, scores) {
-  map(fits, extract_ranef) |>
+plot_effects <- function(random_effects, scores) {
+  random_effects |>
     bind_rows(.id = "outcome_target") |>
     filter(!(group_var %in% c("Model", "location"))) |>
     mutate(group = factor(group, levels = unique(as.character(rev(group))))) |>
