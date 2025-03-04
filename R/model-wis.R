@@ -5,6 +5,7 @@ library(readr)
 library(tidyr)
 library(purrr)
 library(mgcv)
+library(gammit)
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 
@@ -41,9 +42,9 @@ m.formula <- wis ~
   # CountryTargetAffiliated +
   # -----------------------------
   # Observed incidence: interacting with trend; thin plate reg. spline (default)
-  s(time, by = location) +
+  s(time, by = location, k = 40) +
   # Horizon (4 levels, ordinal)
-  s(Horizon, k = 3, by = Model) +
+  s(Horizon, k = 3, by = Model, bs = "sz") +
   # Individual model (35 levels*): random effect, nested within method
   s(Model, bs = "re")
 
@@ -54,8 +55,14 @@ m.fits <- outcomes |>
     bam(
       formula = m.formula,
       data = m.data |> filter(outcome_target == outcome),
-      family = gaussian(link = "log")
+      family = gaussian(link = "log"), 
+      control = gam.control(trace = TRUE)
     )
   })
 
-saveRDS(m.fits, here("output", "fits.rds"))
+random_effects <- map(m.fits, extract_ranef)
+checks <- map(m.fits, k.check)
+
+saveRDS(random_effects, here("output", "random-effects.rds"))
+saveRDS(checks, here("output", "checks.rds"))
+
