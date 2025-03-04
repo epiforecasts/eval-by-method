@@ -131,6 +131,6 @@ plot_effects(random_effects, scores)
 
 
 ```{r plot-models, fig.height=8, fig.width=10, fig.cap=model_cap}
-model_cap <- "Partial effect size (95% CI) by model."
+model_cap <- "Partial effect size (95% CI) by model, demonstrating unexplained variation between models' forecast performance. Each model forecast for a different number and combination of targets, meaning that forecast scores are not directly comparable and effect size cannot be interpreted as relative performance between models. Effect size can be seen as adjusted performance after accounting for the type of model and the number of its geographic targets, as well as the specific geographic location and time horizon of each forecast. Remaining differences in effects as seen here represent unexplained variation between models beyond these factors."
 plot_models(random_effects, scores)
 ```
