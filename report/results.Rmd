@@ -35,7 +35,8 @@ scores <- scores |>
 ```
 
 
-<!--- Describe scores data --->
+<!--- Describe model characteristics --->
+
 ```{r load-data}
 n_models <- length(unique(scores$Model))
 n_forecasts <- nrow(scores)
@@ -53,25 +54,11 @@ per_week <- scores |>
 per_week <- summary(per_week$n_models)
 ```
 
-We evaluated a total `r n_forecasts` forecast predictions from  `r n_models` forecasting models, contributed by `r nrow(n_teams)` separate modelling teams to the European COVID-19 Forecast Hub. `r sum(n_teams$n>1)` teams contributed more than one model. Models varied over time as forecasting teams joined or left the Hub and contributed predictions for varying combinations of forecast targets. Between `r round(per_week[["Min."]])` and `r round(per_week[["Max."]])` models contributed in any one week, forecasting for any combination of `r 2*4*32` possible weekly forecast targets (32 countries, 4 horizons, and 2 target outcomes). On average each model contributed `r round(model_forecasts[["Mean"]])` forecasts, with the median model contributing `r model_forecasts[["Median"]]` forecasts. 
+We evaluated a total `r n_forecasts` forecast predictions from  `r n_models` forecasting models, contributed by `r nrow(n_teams)` separate modelling teams to the European COVID-19 Forecast Hub (table 1). `r sum(n_teams$n>1)` teams contributed more than one model. Participating models varied over time as forecasting teams joined or left the Hub and contributed predictions for varying combinations of forecast targets. Between `r round(per_week[["Min."]])` and `r round(per_week[["Max."]])` models contributed in any one week, forecasting for any combination of `r 2*4*32` possible weekly forecast targets (32 countries, 4 horizons, and 2 target outcomes). On average each model contributed `r round(model_forecasts[["Mean"]])` forecasts, with the median model contributing `r model_forecasts[["Median"]]` forecasts. 
 
-<!--- Describe models by model structure --->
 ```{r table-scores}
 print_table1(scores)
 ```
-<!--- Describe scores by method --->
-
-```{r scores-over-time, fig.height=8,fig.width=6,fig.cap=scores_over_time_cap}
-scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries. Forecast performance is shown as the mean weighted interval score (WIS), where a lower score indicates better performance. Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time. Shown for (A) the method structure used by each model; (B) the number of countries each model targeted (one or multiple); with (C) the total count of observed incidence across all 32 countries, shown on the log scale."
-scores_over_time <- plot_over_time(
-  scores = scores,
-  ensemble = ensemble,
-  add_plot = data_plot(scores, log = TRUE),
-  show_uncertainty = FALSE
-)
-scores_over_time
-```
-
 ```{r structures}
 structures <- scores |>
   select(Model, Method, agreement) |>
@@ -81,13 +68,8 @@ structure_count <- table(structures$Method)
 structure_count <- structure_count[structure_count > 0]
 ```
 
-We categorised `r structure_count[["Statistical"]]` models as statistical, `r structure_count[["Semi-mechanistic"]]` as semi-mechanistic, `r structure_count[["Mechanistic"]]` as mechanistic, `r structure_count[["Agent-based"]]` as agent-based and `r structure_count[["Other"]]` models that used human judgement forecasting as "other" (Supplementary Table).
-For `r sum(!structures$agreement)` (`r round(sum(!structures$agreement) / nrow(structures) * 100)`%) models, investigators disagreed on model classification. The majority of 2/3 was used as the final classification, with additional manual review which in all cases retained the majority decision.
-In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Agent-based and "other" models provided fewer forecasts, representing only 1-2% of forecasts. 
+We categorised `r structure_count[["Statistical"]]` models as statistical, `r structure_count[["Semi-mechanistic"]]` as semi-mechanistic, `r structure_count[["Mechanistic"]]` as mechanistic, `r structure_count[["Agent-based"]]` as agent-based and `r structure_count[["Other"]]` models that used human judgement forecasting as "other" (Supplementary Table). For `r sum(!structures$agreement)` (`r round(sum(!structures$agreement) / nrow(structures) * 100)`%) models, investigators disagreed on model classification. The majority of 2/3 was used as the final classification, with additional manual review which in all cases retained the majority decision. In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Agent-based and "other" models provided fewer forecasts, representing only 1-2% of forecasts. 
 
-On average we observed similar performance of the interval score between mechanistic and semi-mechanistic models. These performed relatively better than statistical models and worse than agent-based and "other" models, although in all these cases with largely overlapping variation in performance. Relative performance among modelling methods also appeared to vary over time (Figure \@ref(fig:scores-over-time)). For example, over summer 2021 all model types saw worsening performance coinciding with the introduction of the Delta variant across Europe, but this decline was most marked among statistical models of death outcomes compared to any other model type.
-
-<!--- Describe scores by target countries --->
 ```{r target-description}
 targets <- scores |>
   select(Model, CountryTargets) |>
@@ -110,18 +92,47 @@ multi_targets <- filter(model_targets, CountryTargets == "Multi-country")
 
 We considered models forecasting for only one, or multiple countries. We collated `r targets[["Single-country"]]` single-country models and `r targets[["Multi-country"]]` multi-country models. Single-country models targeted Germany (`r single_countries[["DE"]]` models), Poland (`r single_countries[["PL"]]`), Spain (`r single_countries[["ES"]]`), Italy (`r single_countries[["IT"]]`), Czechia (`r single_countries[["CZ"]]`) and Slovenia (`r single_countries[["SI"]]`). The average multi-country model forecast for a median number of `r round(mean(multi_targets$median))` locations. Models classified as targeting multiple countries could vary from week to week in how many locations they forecast. Only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of locations throughout the entire study period. 
 
-Multi-country models typically under-performed relative to single-country models. This relative under-performance was stable over time, although with overlapping range of variation. Multi-country models saw a more sustained period of relative poorer performance in forecasting deaths over spring-summer 2022, although we did not observe this difference among case forecasts.
+<!--- Describe interval score outcome --->
 
-Apart from differences between models, we also observed differences based on the epidemiological situation and predictive horizon. Average performance decreased from 1 to 4 weeks of predictive horizon, and was best when the epidemiological situation was stable, with little observed difference between decreasing and increasing situations.
+We explored the interval score (WIS) as a measure of predictive performance (Figure \@ref(fig:scores-over-time)), and characterised its association with model structure and number of countries targeted. We used descriptive summary statistics (the mean WIS), and then a generalised additive mixed model to give adjusted estimates of the partial effect of each factor while controlling for other sources of variation (Figure \@ref(fig:plot-coeffs)). The interval score was highly right-skewed with respect to all explanatory variables (see Supplementary Figure 1), which we accounted for by using a log-link.
 
-<!--- Model WIS --->
-```{r}
-random_effects <- readRDS(here("output", "random-effects.rds"))
+```{r scores-over-time, fig.height=8,fig.width=6,fig.cap=scores_over_time_cap}
+scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS), where a lower score indicates better performance. Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time. Shown for (A) the method structure used by each model; (B) the number of countries each model targeted (one or multiple); with (C) the total count of observed incidence across all 32 countries, shown on the log scale."
+scores_over_time <- plot_over_time(
+  scores = scores,
+  ensemble = ensemble,
+  add_plot = data_plot(scores, log = TRUE),
+  show_uncertainty = FALSE
+)
+scores_over_time
 ```
 
-We further used a generalised additive mixed model to characterise the association between different factors and predictive performance. The interval score was highly right-skewed with respect to all explanatory variables (see Supplementary Figure 1), which we accounted for by using a log-link. We found no clear evidence that any one type of method structure consistently outperformed others when predicting cases, but we saw some small differences (with overlapping confidence intervals) indicating that statistical and agent-based models performed better and semi-mechanistic models worse than the average when predicting deaths (Figure \@ref(fig:plot-coeffs)). We further saw some indication that models focusing on a single country outperformed those modelling multiple countries when forecasting cases (again with overlapping confidence intervals) but not when forecasting deaths. 
+<!--- Main results: by model structure --->
 
-Lastly, both when forecasting cases and deaths the estimated effects supported our observation that WIS values were substantially lower during stable periods of each country's outbreak curve, compared to increasing or decreasing trends in incidence, indicating improved predictive performance during those periods. Using the estimated partial random effect for each model as a proxy of its performance whilst correcting for missingness and common factors we found substantial variation beyond the factors we modelled, indicating that these factors were not sufficient for explaining variation in performance (Figure \@ref(fig:plot-models)).
+```{r}
+random_effects <- readRDS(here("output", "random-effects.rds"))
+table_effects <- map(random_effects, 
+               ~ .x |> mutate(value_ci = paste0(round(value, 2), 
+                           " (", round(lower_2.5, 2), "-", 
+                           round(upper_97.5, 2), ")")) |> 
+                 column_to_rownames("group"))
+```
+
+Descriptively, we noted apparently similar predictive performance between mechanistic and semi-mechanistic models. These performed relatively better than statistical models and worse than agent-based and "other" models. However, variation in performance overlapped between all model structures. Relative performance among modelling methods also appeared to vary over time (Figure \@ref(fig:scores-over-time)). For example, over summer 2021 all model types saw worsening performance coinciding with the introduction of the Delta variant across Europe, but this decline was most marked among statistical models of death outcomes compared to any other model type.
+
+These descriptive differences largely disappeared after model-based adjustment. We found no clear evidence that any one type of model structure consistently outperformed others (Figure \@ref(fig:plot-coeffs)). There was no difference in accuracy between model structures when predicting cases, and we observed only weak differences when predicting deaths, indicating that statistical models may have performed slightly better (partial effect `r table_effects[["Deaths"]][["Statistical","value_ci"]]` (95%CI `r table_effects[["Deaths"]][["Statistical","lower_2.5"]]`-`r table_effects[["Deaths"]][["Statistical","upper_97.5"]]`)), and semi-mechanistic models worse (`r table_effects[["Deaths"]][["Semi-mechanistic","value_ci"]]`) than the average, although with overlapping uncertainty.
+
+<!--- Main results: by target countries --->
+
+Considering the number of forecast targeted by each model, we descriptively noted that single-country models typically out-performed compared to multi-country models. This relative performance was stable over time, although with overlapping range of variation. Multi-country models appeared to have a more sustained period of poorer performance in forecasting deaths from spring 2022, although we did not observe this difference among case forecasts.
+
+In adjusted estimates, we also saw some indication that models focusing on a single country outperformed those modelling multiple countries (partial effect for single-country models forecasting cases: `r table_effects[["Cases"]][["Single-country","value_ci"]]` compared to `r table_effects[["Cases"]][["Multi-country","value_ci"]]` for multi-country models; and `r table_effects[["Deaths"]][["Single-country","value_ci"]]` and `r table_effects[["Deaths"]][["Multi-country","value_ci"]]` respectively when forecasting deaths). However, these effects were inconclusive with overlapping uncertainty.
+
+<!--- Considering confounders --->
+
+We considered the predictive horizon and epidemiological situation for each forecast as potentially confounding other associations with model performance. In unadjusted estimates, average performance worsened from 1 to 4 weeks of predictive horizon, and was best when the epidemiological situation was stable. Model based analysis supported this observation, albeit with overlapping confidence intervals. This indicated improved predictive performance during stable periods of each country's outbreak curve (cases: `r table_effects[["Cases"]][["Stable","value_ci"]]`; deaths: `r table_effects[["Deaths"]][["Stable","value_ci"]]`), compared to increasing trends in incidence (cases: `r table_effects[["Cases"]][["Increasing","value_ci"]]`; deaths: `r table_effects[["Deaths"]][["Increasing","value_ci"]]`), with worst performance seen when predicting decreasing trends (cases: `r table_effects[["Cases"]][["Decreasing","value_ci"]]`; deaths: `r table_effects[["Deaths"]][["Decreasing","value_ci"]]`). 
+
+We identified residual unexplained influences among models' performance. We interpreted the estimated partial random effect for each model as a proxy of its performance whilst correcting for missingness and the common factors considered here. We noted substantial variation beyond the factors we included, indicating that our variable selection was not sufficient for fully explaining performance (Figure \@ref(fig:plot-models)).
 
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
