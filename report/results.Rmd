@@ -136,7 +136,7 @@ We identified residual unexplained influences among models' performance. We inte
 
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
-coeff_cap <- "Partial effect size (95% CI) by explanatory variable."
+coeff_cap <- "Effects on model forecast performance (the weighted interval score). Explanatory variables included model structure (blue), and number of countries that each model contributed forecasts for (one or multiple countries, red). Partial effects and 95% confidence intervals estimated from fitting a generalised additive mixed model."
 plot_effects(random_effects, scores)
 ```
 
