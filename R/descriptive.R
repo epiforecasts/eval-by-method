@@ -43,17 +43,12 @@ table_confint <- function(scores, group_var = NULL) {
       n_models = n_distinct(Model),
       p_models = round(n_models / total_models * 100, 1),
       mean = mean(wis, na.rm = TRUE),
-      sd = sd(wis, na.rm = TRUE),
       ci = calc_ci(wis, na.rm = TRUE, R = 1000)
     ) |>
     unnest(ci) |>
     mutate(
       Models = paste0(n_models, " (", p_models, "%)"),
       Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
-      "Mean WIS (SD)" = paste0(
-        round(mean, 2), " (",
-        round(sd, 2), ")"
-      ),
       "Mean WIS (95% CI)" = paste0(
         round(mean, 2), " (",
         round(lboot, 2), "-", round(uboot, 2), ")"
@@ -113,7 +108,7 @@ print_table1 <- function(scores) {
       Variable,
       starts_with("Models_"),
       starts_with("Forecasts_"),
-      starts_with("Mean WIS (SD)_")
+      starts_with("Mean WIS (95% CI)_")
     )
   ## reorder
   for (outcome in rev(outcome_targets)) {
