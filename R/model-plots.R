@@ -50,20 +50,25 @@ plot_models <- function(random_effects, scores, x_labels = TRUE) {
     theme(legend.position = "bottom")
 }
 
-plot_effects <- function(random_effects, scores) {
+plot_effects <- function(random_effects) {
   random_effects |>
-    bind_rows(.id = "outcome_target") |>
-    filter(!(group_var %in% c("Model", "location"))) |>
-    mutate(group = factor(group, levels = unique(as.character(rev(group))))) |>
-    ggplot(aes(x = group, col = group_var)) +
-    geom_point(aes(y = value)) +
-    geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5)) +
+    filter(!(group_var %in% c("Model", "location", "Trend"))) |>
+    mutate(group = factor(group, levels = unique(as.character(rev(group)))),
+           Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
+    ggplot(aes(x = group, col = group_var,
+               lty = Model, alpha = Model)) +
+    geom_point(aes(y = value),
+               position = position_dodge(width=1)) +
+    geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5,),
+                   position = position_dodge(width=1)) +
     geom_hline(yintercept = 0, lty = 2, alpha = 0.25) +
+    scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
     facet_wrap(~outcome_target, scales = "free_y") +
     labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
-    scale_colour_brewer(type = "qual", palette = "Set1") +
+    scale_colour_brewer(type = "qual", palette = "Set1",
+                        guide = FALSE) +
     theme(
-      legend.position = "none",
+      legend.position = "bottom",
       strip.background = element_blank(),
       axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
     ) +
