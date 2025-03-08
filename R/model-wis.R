@@ -76,12 +76,12 @@ random_effects_uni <- map_df(
   .id = "outcome_target") |>
   mutate(model = "Unadjusted")
 
-random_effects <- map_df(m.fits, extract_ranef,
+random_effects <- map_df(m.fits_full, extract_ranef,
                         .id = "outcome_target")|>
   mutate(model = "Adjusted") |>
   bind_rows(random_effects_uni)
 
-checks <- map(m.fits, k.check)
+checks <- map(m.fits_full, k.check)
 
 saveRDS(random_effects, here("output", "random-effects.rds"))
 saveRDS(checks, here("output", "checks.rds"))
