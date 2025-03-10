@@ -145,7 +145,7 @@ We identified residual unexplained influences among models' performance. We inte
 
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
-coeff_cap <- "Effect on the weighted interval score (WIS) of model structure and number of countries targeted, before and after adjusting for confounding factors. A lower WIS indicates better performance, meaning effects <0 are relatively better than the group average. Adjusted effects also account for the impact of forecast horizon, epidemic trend, geographic location, and individual model variation. Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model. "
+coeff_cap <- "Effect on the weighted interval score (WIS) of model structure and number of countries targeted, before and after adjusting for confounding factors. A lower WIS indicates better forecast performance, meaning effects <0 are relatively better than the group average. Adjusted effects also account for the impact of forecast horizon, epidemic trend, geographic location, and individual model variation. Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model."
 plot_effects(results$effects)
 ```
 
