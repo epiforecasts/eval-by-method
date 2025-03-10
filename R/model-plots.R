@@ -53,7 +53,7 @@ plot_models <- function(random_effects, scores, x_labels = TRUE) {
 plot_effects <- function(random_effects, scores) {
   random_effects |>
     bind_rows(.id = "outcome_target") |>
-    filter(!(group_var %in% c("Model", "location"))) |>
+    filter(!(group_var %in% c("Model", "location", "Trend"))) |>
     mutate(group = factor(group, levels = unique(as.character(rev(group))))) |>
     ggplot(aes(x = group, col = group_var)) +
     geom_point(aes(y = value)) +
