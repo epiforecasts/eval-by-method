@@ -43,16 +43,12 @@ table_confint <- function(scores, group_var = NULL) {
       n_models = n_distinct(Model),
       p_models = round(n_models / total_models * 100, 1),
       mean = mean(wis, na.rm = TRUE),
-      ci = calc_ci(wis, na.rm = TRUE, R = 1000)
+      sd = sd(wis, na.rm = TRUE)
     ) |>
-    unnest(ci) |>
     mutate(
       Models = paste0(n_models, " (", p_models, "%)"),
       Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
-      "Mean WIS (95% CI)" = paste0(
-        round(mean, 2), " (",
-        round(lboot, 2), "-", round(uboot, 2), ")"
-      )
+      "Mean WIS (SD)" = paste0(round(mean, 2), " (", round(sd, 2), ")")
     )
 
   if (!is.null(group_var)) {
@@ -68,12 +64,8 @@ create_raw_table1 <- function(scores, targets) {
     mutate(Variable = "Overall", group = "")
   method <- table_confint(scores, "Method")
   targets <- table_confint(scores, "CountryTargets")
-  horizon <- table_confint(scores, "Horizon") |>
-    filter(!is.na(Variable))
-  trend <- table_confint(scores, "Trend")
   bind_rows(
-    overall, method, targets,
-    horizon, trend
+    overall, method, targets
   )
 }
 
@@ -108,7 +100,7 @@ print_table1 <- function(scores) {
       Variable,
       starts_with("Models_"),
       starts_with("Forecasts_"),
-      starts_with("Mean WIS (95% CI)_")
+      starts_with("Mean WIS (SD)_")
     )
   ## reorder
   for (outcome in rev(outcome_targets)) {
@@ -127,10 +119,10 @@ print_table1 <- function(scores) {
     kable(
       caption = paste0(
         "Characteristics of forecasts sampled from ",
-        "the European COVID-19 Forecast Hub, March 2021-2023.",
-        "Each forecast was scored for accuracy using the weighted ",
-        "interval score (WIS), summarised by the mean ",
-        "with bootstrapped 95% confidence interval."
+        "the European COVID-19 Forecast Hub, March 2021-2023. ",
+        "Forecast performance was measured using the weighted ",
+        "interval score (WIS), with a lower score indicating a more ",
+        "accurate forecast."
       ),
       col.names = str_remove(colnames(table1), "_.*$"),
       align = c("l", rep("r", ncol(table1) - 1))
@@ -138,9 +130,7 @@ print_table1 <- function(scores) {
     pack_rows(index = c(
       " " = 1,
       "Method" = 5,
-      "Number of country targets" = 2,
-      "Week ahead horizon" = 4,
-      "3-week trend in incidence" = 3
+      "Number of country targets" = 2
     )) |>
     add_header_above(headers_to_add)
 }
