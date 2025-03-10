@@ -18,10 +18,12 @@ plot_models <- function(random_effects, scores, x_labels = TRUE) {
       filter(group_var == "Model") |>
       left_join(classification) |>
       left_join(targets) |>
-      mutate(group = sub(".*-", "", group)) |> ## remove institution identifier
+      group_by(classification, CountryTargets) |>
+      mutate(group = paste(classification, CountryTargets, row_number())) |>
       select(-group_var) |>
       arrange(-value) |>
-      mutate(group = factor(group, levels = unique(as.character(group)))) |>
+      ungroup() |>
+      mutate(group = factor(group)) |>
       ggplot(aes(x = group, col = classification, shape = CountryTargets)) +
       geom_point(aes(y = value)) +
       geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5)) +
