@@ -6,25 +6,37 @@ library("gammit")
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 
-plot_models <- function(random_effects, scores, x_labels = TRUE) {
-  outcomes <- unique(scores$outcome_target)
+plot_models <- function(random_effects, scores, x_labels = TRUE,
+                        anonymise = TRUE) {
   classification <- classify_models() |>
     rename(group = model)
   targets <- table_targets(scores) |>
     select(group = Model, CountryTargets) |>
     distinct()
-  plot <- random_effects |>
-      filter(group_var == "Model") |>
-      left_join(classification) |>
-      left_join(targets) |>
-      mutate(group = sub(".*-", "", group),
-             Model = factor(model, levels = c("Adjusted", "Unadjusted"))
-             ) |>
-      select(-group_var) |>
-      arrange(-value) |>
-      mutate(group = factor(group, levels = unique(as.character(group)))) |>
-      ggplot(aes(x = group, col = classification, shape = CountryTargets,
-                 lty = Model, alpha = Model)) +
+  effects <- random_effects |>
+    filter(group_var == "Model") |>
+    left_join(classification) |>
+    left_join(targets)
+  models <- effects |>
+    select(classification, CountryTargets, group) |>
+    distinct() |>
+    group_by(classification, CountryTargets) |>
+    mutate(
+      id = row_number(),
+      anon_group = paste(classification, CountryTargets, id),
+      ) |>
+    ungroup() |>
+    arrange(classification, CountryTargets, id) |>
+    mutate(anon_group = factor(anon_group, levels = rev(unique(anon_group)))) |>
+    select(group, anon_group)
+  group_var <- ifelse(anonymise, "anon_group", "group")
+  plot <- effects |>
+      left_join(models, by = "group") |>
+      mutate(
+        Model = factor(model, levels = c("Adjusted", "Unadjusted"))
+      ) |>
+      ggplot(aes(x = .data[[group_var]], col = classification,
+                 shape = CountryTargets, lty = Model, alpha = Model)) +
       geom_point(aes(y = value),
                  position = position_dodge(width=1)) +
       geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5),
@@ -52,7 +64,7 @@ plot_models <- function(random_effects, scores, x_labels = TRUE) {
 
 plot_effects <- function(random_effects) {
   random_effects |>
-    filter(!(group_var %in% c("Model", "location", "Trend"))) |>
+    filter(group_var %in% c("Method", "CountryTargets")) |>
     mutate(group = factor(group, levels = unique(as.character(rev(group)))),
            Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
     ggplot(aes(x = group, col = group_var,

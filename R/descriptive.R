@@ -126,8 +126,11 @@ print_table1 <- function(scores) {
     rename(" " = Variable) |>
     kable(
       caption = paste0(
-        "Characteristics of forecast performance (interval score) contributed ",
-        "to the European COVID-19 Forecast Hub, March 2021-2023."
+        "Characteristics of forecasts sampled from ",
+        "the European COVID-19 Forecast Hub, March 2021-2023.",
+        "Each forecast was scored for accuracy using the weighted ",
+        "interval score (WIS), summarised by the mean ",
+        "with bootstrapped 95% confidence interval."
       ),
       col.names = str_remove(colnames(table1), "_.*$"),
       align = c("l", rep("r", ncol(table1) - 1))
