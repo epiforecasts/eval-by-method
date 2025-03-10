@@ -28,8 +28,9 @@ m.data <- data |>
 
 # --- Model formula ---
 # Univariate for explanatory variables
-m.formula_uni_mod <- wis ~ s(Method, bs = "re")
+m.formula_uni_type <- wis ~ s(Method, bs = "re")
 m.formula_uni_tgt <- wis ~ s(CountryTargets, bs = "re")
+m.formula_uni_model <- wis ~ s(Model, bs = "re")
 
 # Full model
 m.formula <- wis ~
@@ -64,20 +65,21 @@ m.fit <- function(outcomes, m.formula) {
   })
 }
 # Fit
-m.fits_uni_mod <- m.fit(outcomes, m.formula_uni_mod)
+m.fits_uni_type <- m.fit(outcomes, m.formula_uni_type)
 m.fits_uni_tgt <- m.fit(outcomes, m.formula_uni_tgt)
+m.fits_uni_model <- m.fit(outcomes, m.formula_uni_model)
 m.fits_full <- m.fit(outcomes, m.formula)
 
 # --- Output handling ---
 # Extract estimates for random effects
 random_effects_uni <- map_df(
-  c(m.fits_uni_mod, m.fits_uni_tgt),
+  c(m.fits_uni_type, m.fits_uni_tgt, m.fits_uni_model),
   extract_ranef,
   .id = "outcome_target") |>
   mutate(model = "Unadjusted")
 
 random_effects <- map_df(m.fits_full, extract_ranef,
-                        .id = "outcome_target")|>
+                        .id = "outcome_target") |>
   mutate(model = "Adjusted") |>
   bind_rows(random_effects_uni)
 
