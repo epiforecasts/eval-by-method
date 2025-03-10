@@ -45,17 +45,6 @@ table_metadata(scores) |>
 
 \newpage
 
-# Distribution of model scores
-
-```{r scores-by-model, fig.cap=ridges_caption, fig.height=10, fig.width=14}
-ridges_caption <- paste0("Distribution of forecast scores for each contributing model. Each distribution shows the interquartile range and median (vertical line) of interval scores across forecasts made by each model, with lower interval score indicating better predictive accuracy. Each model forecast for a different combination of targets, with some models contributing very few forecasts, meaning that forecast scores are not directly comparable.")
-plot_ridges(scores, "Cases") +
-  plot_ridges(scores, "Deaths") +
-  plot_layout(nrow = 1)
-```
-
-\newpage
-
 # Trend identification
 
 ```{r trends,fig.cap="Trends (cases)", fig.height = 8, fig.width = 10}
