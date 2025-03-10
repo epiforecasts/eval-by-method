@@ -50,7 +50,7 @@ plot_models <- function(random_effects, scores, x_labels = TRUE) {
     theme(legend.position = "bottom")
 }
 
-plot_effects <- function(random_effects, scores) {
+plot_effects <- function(random_effects) {
   random_effects |>
     bind_rows(.id = "outcome_target") |>
     filter(!(group_var %in% c("Model", "location", "Trend"))) |>
