@@ -54,7 +54,7 @@ per_week <- scores |>
 per_week <- summary(per_week$n_models)
 ```
 
-We evaluated a total `r n_forecasts` forecast predictions from  `r n_models` forecasting models, contributed by `r nrow(n_teams)` separate modelling teams to the European COVID-19 Forecast Hub (Table \@ref{tab:table-scores}). `r sum(n_teams$n>1)` teams contributed more than one model. Participating models varied over time as forecasting teams joined or left the Hub and contributed predictions for varying combinations of forecast targets. Between `r round(per_week[["Min."]])` and `r round(per_week[["Max."]])` models contributed in any one week, forecasting for any combination of `r 2*4*32` possible weekly forecast targets (32 countries, 4 horizons, and 2 target outcomes). On average each model contributed `r round(model_forecasts[["Mean"]])` forecasts, with the median model contributing `r model_forecasts[["Median"]]` forecasts. 
+We evaluated a total `r n_forecasts` forecast predictions from  `r n_models` forecasting models, contributed by `r nrow(n_teams)` separate modelling teams to the European COVID-19 Forecast Hub (Table \@ref(tab:table-scores)). `r sum(n_teams$n>1)` teams contributed more than one model. Participating models varied over time as forecasting teams joined or left the Hub and contributed predictions for varying combinations of forecast targets. Between `r round(per_week[["Min."]])` and `r round(per_week[["Max."]])` models contributed in any one week, forecasting for any combination of `r 2*4*32` possible weekly forecast targets (32 countries, 4 horizons, and 2 target outcomes). On average each model contributed `r round(model_forecasts[["Mean"]])` forecasts, with the median model contributing `r model_forecasts[["Median"]]` forecasts. 
 
 ```{r table-scores}
 print_table1(scores)
@@ -133,7 +133,7 @@ These differences between model structures largely disappeared after adjustment 
 
 <!--- Main results: by target countries --->
 
-Considering the number of forecast targeted by each model, we descriptively noted that single-country models typically out-performed compared to multi-country models. This relative performance was stable over time, although with overlapping range of variation. Multi-country models appeared to have a more sustained period of poorer performance in forecasting deaths from spring 2022, although we did not observe this difference among case forecasts.
+Considering the number of countries targeted by each model, we descriptively noted that single-country models typically out-performed compared to multi-country models. This relative performance was stable over time, although with overlapping range of variation. Multi-country models appeared to have a more sustained period of poorer performance in forecasting deaths from spring 2022, although we did not observe this difference among case forecasts.
 
 In adjusted estimates, we also saw some indication that models focusing on a single country outperformed those modelling multiple countries (partial effect for single-country models forecasting cases: `r table_effects["Cases_Adjusted_Single-country","value_ci"]`, compared to `r table_effects["Cases_Adjusted_Multi-country","value_ci"]` for multi-country models; and `r table_effects["Deaths_Adjusted_Single-country","value_ci"]` and `r table_effects["Deaths_Adjusted_Multi-country","value_ci"]` respectively when forecasting deaths). However, these effects were inconclusive with overlapping uncertainty.
 
@@ -145,7 +145,7 @@ We identified residual unexplained influences among models' performance. We inte
 
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
-coeff_cap <- "Effects on model forecast performance (the weighted interval score). Explanatory variables included model structure (blue), and number of countries that each model contributed forecasts for (one or multiple countries, red). Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model. A lower score indicates better performance, meaning effects <0 are relatively better than the group average."
+coeff_cap <- "Effect on the weighted interval score (WIS) of model structure and number of countries targeted, before and after adjusting for confounding factors. A lower WIS indicates better performance, meaning effects <0 are relatively better than the group average. Adjusted effects also account for the impact of forecast horizon, epidemic trend, geographic location, and individual model variation. Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model. "
 plot_effects(results$effects)
 ```
 
