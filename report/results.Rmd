@@ -111,15 +111,15 @@ scores_over_time
 <!--- Main results: by model structure --->
 
 ```{r}
-random_effects <- readRDS(here("output", "random-effects.rds"))
-table_effects <- random_effects |> 
+results <- readRDS(here("output", "results.rds"))
+table_effects <- results$effects |> 
   mutate(value_ci = paste0(round(value, 2), 
                            " (", round(lower_2.5, 2), "-", 
                            round(upper_97.5, 2), ")"),
          group = paste(outcome_target, model, group, sep = "_")) |>
   column_to_rownames("group")
 
-effects_comp <- random_effects |> 
+effects_comp <- results$effects |> 
   pivot_longer(cols = c(value, lower_2.5, upper_97.5, se)) |> 
   pivot_wider(names_from = model) |> 
   mutate(diff = Adjusted - Unadjusted) |> 
@@ -146,11 +146,11 @@ We identified residual unexplained influences among models' performance. We inte
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
 coeff_cap <- "Effects on model forecast performance (the weighted interval score). Explanatory variables included model structure (blue), and number of countries that each model contributed forecasts for (one or multiple countries, red). Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model. A lower score indicates better performance, meaning effects <0 are relatively better than the group average."
-plot_effects(random_effects)
+plot_effects(results$effects)
 ```
 
 
 ```{r plot-models, fig.height=8, fig.width=10, fig.cap=model_cap}
 model_cap <- "Partial effect size (95% CI) by model. This can be interpreted as adjusted performance after accounting for all other variables in the model, with remaining differences in effects as seen here representing unexplained variation between models beyond these factors."
-plot_models(random_effects, scores)
+plot_models(results$effects, scores)
 ```
