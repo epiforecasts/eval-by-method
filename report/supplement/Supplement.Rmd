@@ -78,26 +78,26 @@ scores |>
 # Model fitting
 
 ```{r model-wis}
-m.fits <- readRDS(here("output", "fits.rds"))
+results <- readRDS(here("output", "results.rds"))
 ```
 
 
 ## Model formula
 
-`r m.fits[[1]]$formula`
+`r results$formula`
 
 ## Model diagnostics
 
 ### Cases
 
-```{r gamm-diagnostics-cases}
+```{r gamm-diagnostics-cases, echo = FALSE}
 # QQ plot, residuals
-appraise(m.fits[["Cases"]])
+knitr::include_graphics(here("plots", "check_Cases.pdf"))
 ```
 
 ### Deaths
 
 ```{r gamm-diagnostics-deaths}
 # QQ plot, residuals
-appraise(m.fits[["Deaths"]])
+knitr::include_graphics(here("plots", "check_Deaths.pdf"))
 ```

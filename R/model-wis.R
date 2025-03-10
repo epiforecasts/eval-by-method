@@ -6,6 +6,7 @@ library(tidyr)
 library(purrr)
 library(mgcv)
 library(gammit)
+library(gratia)
 source(here("R", "prep-data.R"))
 source(here("R", "descriptive.R"))
 
@@ -84,6 +85,17 @@ random_effects <- map_df(m.fits_full, extract_ranef,
   bind_rows(random_effects_uni)
 
 checks <- map(m.fits_full, k.check)
+formula <- m.fits[[1]]$formula
 
-saveRDS(random_effects, here("output", "random-effects.rds"))
-saveRDS(checks, here("output", "checks.rds"))
+results <- list(
+  effects = random_effects,
+  checks = checks,
+  formula = formula
+)
+
+saveRDS(results, here("output", "results.rds"))
+
+iwalk(m.fits, \(x, target) {
+  p <- appraise(x)
+  ggsave(here("plots", paste0("check_", target, ".pdf")), p)
+})
