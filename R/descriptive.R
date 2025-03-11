@@ -38,7 +38,7 @@ table_confint <- function(scores, group_var = NULL) {
 
   table <- scores |>
     summarise(
-      n_forecasts = n(),
+      n_forecasts = format(n(), big.mark = ","),
       p_forecasts = round(n() / total_forecasts * 100, 1),
       n_models = n_distinct(Model),
       p_models = round(n_models / total_models * 100, 1),
