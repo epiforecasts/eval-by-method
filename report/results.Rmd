@@ -113,9 +113,14 @@ scores_over_time
 ```{r}
 results <- readRDS(here("output", "results.rds"))
 table_effects <- results$effects |> 
+  mutate(upper_97.5_text = if_else(
+           upper_97.5 < 0,
+           paste0("(", round(upper_97.5, 2), ")"),
+           as.character(round(upper_97.5, 2))
+         )) |>
   mutate(value_ci = paste0(round(value, 2), 
                            " (", round(lower_2.5, 2), "-", 
-                           round(upper_97.5, 2), ")"),
+                           upper_97.5_text, ")"),
          group = paste(outcome_target, model, group, sep = "_")) |>
   column_to_rownames("group")
 
