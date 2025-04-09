@@ -1,5 +1,6 @@
 ---
-title: "Supplement"
+title: "The influence of model structure and geographic specificity on predictive accuracy among European COVID-19 forecasts"
+subtitle: "Supplementary information"
 output: 
   bookdown::pdf_document2
 ---
@@ -19,6 +20,45 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+# Code and data availability
+
+## Code
+
+The codebase for this paper is publicly available at:
+
+- Github: <https://github.com/epiforecasts/eval-by-method>
+- Zenodo with DOI: <https://doi.org/10.5281/zenodo.14903162>
+
+Comments and code contributions are welcome - please use Github [Issues](https://github.com/epiforecasts/eval-by-method/issues).
+
+Please cite code using:
+
+- Katharine Sherratt & Sebastian Funk. (2025). epiforecasts/eval-by-method: Zenodo. <https://doi.org/10.5281/zenodo.14903162>
+
+## Source data
+
+Forecast and and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> . All Hub data are now archived at:
+
+   - Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
+   - Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
+   
+Data for this work were downloaded on 30th May 2023. These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
+
+\newpage
+
+# Model characteristics
+
+## Eligibility criteria
+
+```{r model-flow, fig.cap="Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"}
+# source(here("R", "model-flow.R"))
+# flow_chart <- create_model_flow()
+knitr::include_graphics(here("plots", "flowchart.png"))
+```
+
+## Model characteristics
+
 ```{r load-data}
 # Load data
 source(here("R", "prep-data.R"))
@@ -31,12 +71,6 @@ scores <- scores |>
 n_forecasts <- nrow(scores)
 ```
 
-Code is available at: <https://github.com/epiforecasts/model-structure-evaluation>. 
-
-\newpage
-
-# Model characteristics
-
 ```{r metadata}
 table_metadata(scores) |>
   select(-Description) |>
@@ -45,7 +79,11 @@ table_metadata(scores) |>
 
 \newpage
 
-# Trend identification
+# Statistical methods
+
+## Epidemic trend identification
+
+We retrospectively categorised each week as “Stable”, “Decreasing”, or “Increasing”, based on the difference over a three-week moving average of incidence (with a change of +/-5% as “Stable”).
 
 ```{r trends,fig.cap="Trends (cases)", fig.height = 8, fig.width = 10}
 scores |>
@@ -63,13 +101,11 @@ scores |>
 
 \newpage
 
-
-# Model fitting
+## Model fitting 
 
 ```{r model-wis}
 results <- readRDS(here("output", "results.rds"))
 ```
-
 
 ## Model formula
 
@@ -79,7 +115,7 @@ results <- readRDS(here("output", "results.rds"))
 
 ### Cases
 
-```{r gamm-diagnostics-cases, echo = FALSE}
+```{r gamm-diagnostics-cases}
 # QQ plot, residuals
 knitr::include_graphics(here("plots", "check_Cases.pdf"))
 ```
