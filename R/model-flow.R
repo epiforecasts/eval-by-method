@@ -55,20 +55,22 @@ models <- left_join(models0, models1) |>
   left_join(models2) |>
   left_join(models3) |>
   left_join(models4) |>
-  mutate(across(starts_with("inc_"), ~ if_else(is.na(.), FALSE, .)))
+  mutate(across(starts_with("inc_"), ~ if_else(is.na(.), FALSE, .))) |>
+  filter(target_variable != "hosp")
 
 library(purrr)
 library(flowchart)
 flow <- imap(c("case", "death"),
             ~ models |>
-  filter(target_variable==.x) |>
-  as_fc(label = "Models assessed for eligibility") |>
+  filter(target_variable == .x) |>
+  as_fc(label = paste0("Models forecasting ",
+                      .x, "s")) |>
   fc_filter(inc_quantile,
-            label = "Sufficient quantiles", show_exc = TRUE) |>
+            label = "Provided 23 quantiles", show_exc = TRUE) |>
   fc_filter(inc_horizon,
-            label = "Complete horizon", show_exc = TRUE) |>
+            label = "Provided 1:4 week predictions", show_exc = TRUE) |>
   fc_filter(inc_xhub,
-            label = "Independent from Hub", show_exc = TRUE) |>
+            label = "Not created by Hub", show_exc = TRUE) |>
   fc_draw()
   )
 
