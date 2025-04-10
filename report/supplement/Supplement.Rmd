@@ -38,7 +38,7 @@ Please cite code using:
 
 ## Source data
 
-Forecast and and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> . All Hub data are now archived at:
+Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> . All Hub data are now archived at:
 
    - Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
    - Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
