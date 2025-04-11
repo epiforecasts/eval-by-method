@@ -2,7 +2,7 @@
 output: github_document
 ---
 
-<## Relating forecast performance to methodology: the influence of model structure and target specificity on the performance of European COVID-19 forecasts
+## Relating forecast performance to methodology: the influence of model structure and target specificity on the performance of European COVID-19 forecasts
 
 Kath Sherratt (1), Rok Grah (2), Bastian Prasse (2), The European COVID-19 Forecast Hub, Sam Abbott (1), Sebastian Funk (1)
 
