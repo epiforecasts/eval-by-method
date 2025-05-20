@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/644420305.svg)](https://doi.org/10.5281/zenodo.14903161)
 
-\<## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
+## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
