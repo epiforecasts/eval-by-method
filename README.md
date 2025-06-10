@@ -8,6 +8,8 @@ Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3),
 (2) European Centre for Disease Prevention and Control
 (3) Institute of Statistics, Karlsruhe Institute of Technology
 
+### Explainer
+- A [slide deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p) offers a high level summary of what we were interested in, what we did, and what we found.
 
 ### Abstract
 
