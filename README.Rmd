@@ -41,7 +41,7 @@ In order to re-download the data in the `data/` directory, use
 ## Get metadata from googlesheet; save to data/
 source(here("R", "get-metadata.R"))
 
-## Get observed data and all Hub forecasts; exclude forecasts; save to data/
+## Get observed data and all Hub forecasts; save to data/
 source(here("R", "import-data.R"))
 ```
 
