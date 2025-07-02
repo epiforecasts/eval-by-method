@@ -1,67 +1,88 @@
 ---
 output: github_document
 ---
+```{r set-up, echo=FALSE}
+knitr::opts_chunk$set(
+  eval = FALSE, echo = TRUE
+)
+```
 
-## Relating forecast performance to methodology: the influence of model structure and target specificity on the performance of European COVID-19 forecasts
+[![Code DOI](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161) [![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
-Kath Sherratt (1), Rok Grah (2), Bastian Prasse (2), The European COVID-19 Forecast Hub, Sam Abbott (1), Sebastian Funk (1)
+## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
 
-(1) London School of Hygiene & Tropical Medicine
+Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
+
+(1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
 (2) European Centre for Disease Prevention and Control
+(3) Institute of Statistics, Karlsruhe Institute of Technology
 
-### Abstract
+#### Overview
 
-Background: The performance of forecasts in capturing observed data often varies in time and space with no overall "best" forecast. Two varying features of forecasting methods that could help explain this are: the forecaster’s approach to model structure; and whether the forecaster specifically tunes their model to each target. We investigated short-term forecasts of weekly incident deaths for 32 countries submitted to the European COVID-19 Forecast Hub between March 2021 and March 2023. 
+- A [slide deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p) offers high level context for what we were interested in, what we did, and what we found.
 
-Methods: We categorised 39 models by their structure (mechanistic, semi-mechanistic, statistical), and by their specificity (the number of locations each team targeted; and whether the target location was the same as the modeller’s institutional location, as a proxy for model adaptation to local conditions). We assessed forecast performance using the weighted interval score. First, we compared performance relatively against a median ensemble of all models. Next, we used a generalised additive model to explore performance among different model structures and specificity, while accounting for the level and trend of observed incidence, the forecast horizon, and random variation among models. 
+#### Summary
 
-Results: We evaluated forecasts of COVID-19 deaths up to 4 weeks ahead for up to 32 countries over 104 weeks. No one model structure consistently outperformed the ensemble. Mechanistic models saw the widest range in performance, with the range of scores including both beating the ensemble and performing up to three times worse. Models that targeted only one or two countries appeared to perform on average better and more consistently compared to multi-country models. 
+- Accurately predicting the spread of infectious disease is essential to supporting public health during outbreaks. 
+However, comparing the accuracy of different forecasting models is challenging. 
+Existing evaluations struggle to isolate the impact of model design choices (like model structure or specificity to the forecast target) from the inherent difficulty of predicting complex outbreak dynamics. 
+Our research introduces a novel approach to address this by systematically adjusting for common factors affecting epidemiological forecasts, accounting for multi-layered and non-linear effects on predictive difficulty. 
 
-Interpretation: Based on this study we would recommend that mechanistic models should be part of predictive ensembles, with an emphasis on using information from the local context of where they are applied. Multi-model comparisons should encourage methodological diversity while ensuring that detailed information on methodology is collated alongside the numerical predictions.
+- We applied this approach to a large dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub. 
+We adjusted for variation across epidemic dynamics, forecast horizon, location, time, and model-specific effects. 
+This allowed us to isolate the impact of model structure and geographic specificity on predictive performance. 
 
-Current working draft:
-- <https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#>
+- Our findings suggest that after adjustment, apparent differences in performance between model structures became minimal, while models that were specific to a single location showed a slight performance advantage over multi-location models. 
+Our work highlights the importance of considering predictive difficulty when evaluating across forecasting models, and provides a framework for more robust evaluations of infectious disease predictions.
 
-### Environment
+#### Deep dive
 
-Packages are managed using [renv](https://rstudio.github.io/renv/articles/renv.html).
-In order to install all the required packages, install the `renv` package and run
+- Read the pre-print: [medRxiv](https://doi.org/10.1101/2025.04.10.25325611)
+- Current working draft: [Docs](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
 
-```{r renv, eval = FALSE}
+### Getting started 
+
+#### Code environment
+
+Packages are managed using
+[renv](https://rstudio.github.io/renv/articles/renv.html). In order to
+install all the required packages, install the `renv` package and run
+
+``` {r}
 renv::restore()
 ```
 
-### Data
+#### Data
 
-All the data used in the analysis is stored in the `data/` directory.
-It has been obtained from public sources.
-In order to re-download the data in the `data/` directory, use
+All the data used in the analysis is stored in the `data/` directory. It
+has been obtained from public sources. In order to re-download the data
+in the `data/` directory, use
 
-```{r get_data, eval = FALSE}
+``` {r, eval=FALSE}
 ## Get metadata from googlesheet; save to data/
 source(here("R", "get-metadata.R"))
 
-## Get observed data and all Hub forecasts; save to data/
+## Get observed data and all Hub forecasts; exclude forecasts; save to data/
 source(here("R", "import-data.R"))
 ```
 
-### Analyses
+#### Analyses
 
 In order to re-generate the forecast scores, use
 
-```{r generate_scores, eval = FALSE}
+``` {r}
 ## Score forecasts & ensembles on the log and natural scales; save to data/
 source(here("R", "score.R"))
 ```
 
 In order to run the GAM on the scores, use
 
-```{r gam, eval = FALSE}
+``` {r}
 ## Model the weighted interval score; save to data/
 source(here("R", "model-wis.R"))
 ```
 
-### Results
+#### Results
 
 View results:
 

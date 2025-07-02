@@ -1,30 +1,63 @@
-[![DOI](https://zenodo.org/badge/644420305.svg)](https://doi.org/10.5281/zenodo.14903161)
+
+[![Code
+DOI](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161)
+[![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
 ## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
 
-Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
+Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike
+Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
-(1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
-(2) European Centre for Disease Prevention and Control
-(3) Institute of Statistics, Karlsruhe Institute of Technology
+1)  Centre for Mathematical Modelling of Infectious Diseases, London
+    School of Hygiene & Tropical Medicine
+2)  European Centre for Disease Prevention and Control
+3)  Institute of Statistics, Karlsruhe Institute of Technology
 
-### Explainer
-- A [slide deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p) offers a high level summary of what we were interested in, what we did, and what we found.
+#### Overview
 
-### Abstract
+- A [slide
+  deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p)
+  offers high level context for what we were interested in, what we did,
+  and what we found.
 
-The predictive accuracy of infectious disease forecasts varies in time, space and between models. When building models for prediction, forecasters have the choice of a range of underlying model structures with more or less ability to tune a particular model to the forecasting target. However, it has been difficult to compare the effect of these choices due to a lack of standardised forecast reporting and evaluation. Here, we used prospectively collected, standardised, open data from the European COVID-19 Forecast Hub to investigate model-specific factors that might influence forecast performance. 
+#### Summary
 
-We evaluated 1-4 week ahead forecasts of COVID-19 cases and deaths for 32 countries between 2021 and 2023. We categorised 47 models by their structure: agent-based, mechanistic, semi-mechanistic, statistical or other; and by their specificity to a geographic location: whether a forecaster predicted outcomes for one country or many. We assessed forecast performance using the weighted interval score after log-transforming both forecasts and observations. We used a generalised additive mixed model to explore performance, additionally accounting for changes between countries over time, the epidemiological situation, the forecast horizon, and variation among models. 
+- Accurately predicting the spread of infectious disease is essential to
+  supporting public health during outbreaks. However, comparing the
+  accuracy of different forecasting models is challenging. Existing
+  evaluations struggle to isolate the impact of model design choices
+  (like model structure or specificity to the forecast target) from the
+  inherent difficulty of predicting complex outbreak dynamics. Our
+  research introduces a novel approach to address this by systematically
+  adjusting for common factors affecting epidemiological forecasts,
+  accounting for multi-layered and non-linear effects on predictive
+  difficulty.
 
-We observed some small differences between model types, with statistical models slightly outperforming other types when forecasting deaths, but with widely overlapping confidence intervals. We further found that those that forecast for single countries outperformed those forecasting multiple targets, however again confidence intervals of the corresponding estimates overlapped widely. 
+- We applied this approach to a large dataset of forecasts from 47
+  different models submitted to the European COVID-19 Forecast Hub. We
+  adjusted for variation across epidemic dynamics, forecast horizon,
+  location, time, and model-specific effects. This allowed us to isolate
+  the impact of model structure and geographic specificity on predictive
+  performance.
 
-Whilst we found no clear effects, we showed that multi-model forecasting efforts are a useful source for more generalised model-based analysis of predictive performance. Our work was limited by a small sample size of independent models. We recommend that multi-model comparisons encourage methodological diversity to enable future studies of factors that drive predictive performance, ensuring that detailed information on methodology is collated alongside the numerical predictions.
+- Our findings suggest that after adjustment, apparent differences in
+  performance between model structures became minimal, while models that
+  were specific to a single location showed a slight performance
+  advantage over multi-location models. Our work highlights the
+  importance of considering predictive difficulty when evaluating across
+  forecasting models, and provides a framework for more robust
+  evaluations of infectious disease predictions.
 
-Current working draft: -
-<https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#>
+#### Deep dive
 
-### Environment
+- Read the pre-print:
+  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611)
+- Current working draft:
+  [Docs](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
+
+### Getting started
+
+#### Code environment
 
 Packages are managed using
 [renv](https://rstudio.github.io/renv/articles/renv.html). In order to
@@ -34,7 +67,7 @@ install all the required packages, install the `renv` package and run
 renv::restore()
 ```
 
-### Data
+#### Data
 
 All the data used in the analysis is stored in the `data/` directory. It
 has been obtained from public sources. In order to re-download the data
@@ -48,7 +81,7 @@ source(here("R", "get-metadata.R"))
 source(here("R", "import-data.R"))
 ```
 
-### Analyses
+#### Analyses
 
 In order to re-generate the forecast scores, use
 
@@ -64,7 +97,7 @@ In order to run the GAM on the scores, use
 source(here("R", "model-wis.R"))
 ```
 
-### Results
+#### Results
 
 View results:
 
