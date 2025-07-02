@@ -1,6 +1,5 @@
 
-[![Code
-DOI](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161)
+[![Zenodo](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161)
 [![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
 ## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
