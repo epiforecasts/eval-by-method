@@ -48,8 +48,8 @@ m.formula <- wis ~
   s(time, by = location, k = 40) +
   # Horizon
   s(Horizon, k = 3, by = Model, bs = "sz") +
-  # Individual model
-  s(Model, bs = "re")
+  # Individual model, nested by method type
+  s(Model, by = Method, k = 40) # check k
 
 # --- Model fitting ---
 # Set up to fit to each outcome target (cases, deaths)
