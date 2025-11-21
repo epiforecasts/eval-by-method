@@ -1,16 +1,85 @@
-# Score by variant phase
+# Gets variants of concern dataset from ECDC
+# For each variant/country finds the first period
+#  with variant % greater than 5% and up to 50%
+#  before the first peak for that variant
+# Note ECDC data are in weeks, dates are indexed to Saturdays to match target end dates
+#
+# Example
+#   variant_names <- c("B.1.617.2" = "Delta", "B.1.1.529" = "Omicron")
+#   forecast_variants <- download_variant_introduction(introduction_percent = 5,
+#                                                   country_names = "Germany",
+#                                                   variant_codes = names(variant_names))
+library(here)
+library(dplyr)
+library(readr)
+library(lubridate)
 
-# Get scores
-scores_raw <- read_csv(here("data", "scores-raw.csv"))
+variant_names <- c("Other" = "Other",
+                   "Unknown" = "UNK",
+                   "Alpha" = "B.1.1.7",
+                   "Delta" = "B.1.617.2",
+                   "Omicron" = "B.1.1.529",
+                   "Omicron-BA1" = "BA.1")
 
-# Get variant introduction dates: 5-50%
-source("https://gist.githubusercontent.com/kathsherratt/a534bff397f0824403a2e81ba83ddbb9/raw/7dd2f9f96f0edd8e55af2ff9a35b7900f4be8055/download_variant_introduction.R")
-variant_names <- c("B.1.617.2" = "Delta",
-                   "B.1.1.529" = "Omicron",
-                   "BA.1" = "Omicron-BA1")
+  # date lookup table for ecdc year-weeks
+  date_range <- tibble(
+    daily_date = seq.Date(from = as.Date("2020-01-04"), to = Sys.Date(), by = 7),
+    year = isoyear(daily_date),
+    week = isoweek(daily_date)) |>
+    group_by(year, week) |>
+    filter(daily_date == min(daily_date)) |>
+    mutate(forecast_period = between(daily_date,
+                                     as.Date("2021-03-01"),
+                                     as.Date("2023-03-17")))
 
-variant_data <- download_variant_introduction(variant_codes = names(variant_names),
-                                              introduction_percent = 25)
+  # get data
+  variants_raw <- read_csv("https://opendata.ecdc.europa.eu/covid19/virusvariant/csv/data.csv",
+                       progress = FALSE, show_col_types = FALSE)
+
+  # filter as needed and set dates
+  variants <- variants_raw |>
+    filter(source == "GISAID") |>
+    mutate(year = as.numeric(substr(year_week, 1, 4)),
+           week = as.numeric(substr(year_week, 6, 8))) |>
+    left_join(date_range, by = c("year", "week")) |>
+    filter(forecast_period) |>
+    select(country, daily_date, variant, percent_variant) |>
+    mutate(dominant = percent_variant >= 50,
+           variant_name = factor(variant,
+                                 levels = variant_names,
+                                 labels = names(variant_names)))
+
+  variants |>
+    ggplot(aes(x = daily_date, y = percent_variant, col = variant_name)) +
+    geom_line() +
+    facet_wrap(~ country, ncol = 1) +
+    theme(legend.position = "bottom")
+  ggsave("variants.pdf", height = 20)
+
+
+
+  # get the first maxima of the variant
+  introduction_period <- variants |>
+    group_by(variant, country) |>
+    arrange(daily_date) |>
+    filter(percent_variant <= 99) |>
+    slice_max(percent_variant, with_ties = FALSE) |>
+    select(variant, country, variant_peak_date = daily_date)
+
+  # get the period before the first maxima where the variant is e.g. >5<50%
+  var_data <- variants |>
+    left_join(introduction_period, by = c("variant", "country")) |>
+    filter(daily_date <= variant_peak_date &
+             percent_variant >= introduction_percent &
+             percent_variant <= dominant_percent) |>
+    group_by(country, variant) |>
+    summarise(date_introduction = min(daily_date),
+              date_dominant = max(daily_date) + 7,
+              date_peak = min(variant_peak_date))
+
+
+# Score by variant phase -----------------------------------------
+
 
 delta <- variant_data |>
   filter(variant == "B.1.617.2") |>
@@ -41,73 +110,3 @@ scores_raw_var <- scores_raw |>
     target_end_date >= omicron_dominant ~ "omicron dominant"
   )) |>
   filter(!is.na(variant))  # exclude countries with no variant data (UK, Swiss)
-
-scores_pairwise_var <- scores_raw_var |>
-  select(location, forecast_date,
-         model, variant, horizon,
-         interval_score) |>
-  pairwise_comparison(
-    metric = "interval_score",
-    baseline = "EuroCOVIDhub-ensemble",
-    by = c("variant", "horizon", "model"))
-
-scores_pairwise_var <- scores_pairwise_var |>
-  filter(compare_against == "EuroCOVIDhub-ensemble") |>
-  select(model, variant, horizon,
-         rel_wis = scaled_rel_skill) |>
-  mutate(variant = factor(variant, levels = c("pre-delta",
-                                              "delta intro",
-                                              "delta dominant",
-                                              "omicron intro",
-                                              "omicron dominant")))
-
-write_csv(variant_data, here("data", "variant_data.csv"))
-write_csv(scores_pairwise_var, here("data", "scores-pairwise-rt.csv"))
-
-
-# -------------------------------------------------------------------------
-# visualise by method
-metadata <- read_csv(here("data", "model-classification.csv")) |>
-  select(model, method_type = classification)
-targets_by_model <- read_csv(here("data", "targets-by-model.csv"))
-
-by_method_var <- scores_pairwise_var |>
-  left_join(metadata) |>
-  filter(!grepl("Other", method_type) & !is.na(method_type)) |>
-  left_join(targets_by_model, by = "model")
-
-quantiles <- c(0.01, 0.25, 0.5, 0.75, 0.99)
-
-plot_method_var <- by_method_var |>
-  filter(!grepl("pre-delta", variant)) |>
-  group_by(target_type,
-           horizon, variant) |>
-  summarise(
-    n = n(),
-    value = quantile(rel_wis, quantiles),
-    quantile = paste0("q", quantiles),
-    .groups = "drop") |>
-  pivot_wider(names_from = quantile) |>
-  mutate(horizon = as.factor(horizon)) |>
-  ggplot(aes(y = target_type,
-             col = horizon, fill = horizon)) +
-  geom_point(aes(x = q0.5), size = 0.5, alpha = 0.8,
-             position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.25, xmax = q0.75), linewidth = 4,
-                 alpha = 0.5, position = position_dodge(width = 1)) +
-  geom_linerange(aes(xmin = q0.01, xmax = q0.99), linewidth = 4,
-                 alpha = 0.2, position = position_dodge(width = 1)) +
-  geom_vline(xintercept = 1, lty = 2) +
-  labs(y = NULL, x = NULL,
-       col = "Week ahead forecast horizon",
-       fill = "Week ahead forecast horizon") +
-  scale_colour_viridis_d() +
-  facet_grid(rows = vars(horizon), cols = vars(variant), scales = "free") +
-  # facet_wrap(~variant, nrow = 1, scales = "free") +
-  theme(legend.position = "bottom")
-
-plot_method_var
-
-ggsave(here("output",
-            "target-by-variant.jpg"),
-       width = 6, height = 4)
