@@ -35,10 +35,18 @@ This allowed us to isolate the impact of model structure and geographic specific
 - Our findings suggest that after adjustment, apparent differences in performance between model structures became minimal, while models that were specific to a single location showed a slight performance advantage over multi-location models. 
 Our work highlights the importance of considering predictive difficulty when evaluating across forecasting models, and provides a framework for more robust evaluations of infectious disease predictions.
 
-#### Deep dive
-
 - Read the pre-print: [medRxiv](https://doi.org/10.1101/2025.04.10.25325611)
-- Current working draft: [Docs](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
+
+---
+
+### Project docs
+
+- Current [working draft](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
+- Submitted [manuscript](https://docs.google.com/document/d/1B_HviobjSIak4c1FKoSOqgFwRF_DxMrJM6zsdbdth4E/edit?tab=t.0)
+- [Authorship](https://docs.google.com/spreadsheets/d/18mt6c47MCzLdMAKth6Bv2PC7b10KYgWieExHHWLnP3Q/edit?gid=0#gid=0)
+
+
+---
 
 ### Getting started 
 
@@ -58,7 +66,7 @@ All the data used in the analysis is stored in the `data/` directory. It
 has been obtained from public sources. In order to re-download the data
 in the `data/` directory, use
 
-``` {r, eval=FALSE}
+``` {r}
 ## Get metadata from googlesheet; save to data/
 source(here("R", "get-metadata.R"))
 
