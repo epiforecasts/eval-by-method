@@ -78,7 +78,7 @@ plot_effects <- function(random_effects) {
     facet_wrap(~outcome_target, scales = "free_y") +
     labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
     scale_colour_brewer(type = "qual", palette = "Set1",
-                        guide = FALSE) +
+                        guide = "none") +
     theme(
       legend.position = "bottom",
       strip.background = element_blank(),
