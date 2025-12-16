@@ -32,6 +32,7 @@ m.data <- data |>
 m.formula_uni_type <- wis ~ s(Method, bs = "re")
 m.formula_uni_tgt <- wis ~ s(CountryTargets, bs = "re")
 m.formula_uni_model <- wis ~ s(Model, bs = "re")
+m.formula_uni_variant <- wis ~ s(VariantPhase, bs = "re")
 
 # Full model
 m.formula <- wis ~
@@ -42,10 +43,10 @@ m.formula <- wis ~
   # -----------------------------
   # Trend
   s(Trend, bs = "re") +
+  # Variant phase
+  s(VariantPhase, bs = "re") +
   # Location
   s(location, bs = "re") +
-  # Week
-  s(time, by = location, k = 40) +
   # Horizon
   s(Horizon, k = 3, by = Model, bs = "sz") +
   # Individual model
@@ -65,16 +66,19 @@ m.fit <- function(outcomes, m.formula) {
     )
   })
 }
-# Fit
+# Fit univariate models
 m.fits_uni_type <- m.fit(outcomes, m.formula_uni_type)
 m.fits_uni_tgt <- m.fit(outcomes, m.formula_uni_tgt)
 m.fits_uni_model <- m.fit(outcomes, m.formula_uni_model)
+m.fits_uni_variant <- m.fit(outcomes, m.formula_uni_variant)
+# Fit joint model
 m.fits_full <- m.fit(outcomes, m.formula)
 
+# Outputs -----------------------------------------------------------------
 # --- Output handling ---
 # Extract estimates for random effects
 random_effects_uni <- map_df(
-  c(m.fits_uni_type, m.fits_uni_tgt, m.fits_uni_model),
+  c(m.fits_uni_type, m.fits_uni_tgt, m.fits_uni_model, m.fits_uni_variant),
   extract_ranef,
   .id = "outcome_target") |>
   mutate(model = "Unadjusted")
@@ -84,8 +88,13 @@ random_effects <- map_df(m.fits_full, extract_ranef,
   mutate(model = "Adjusted") |>
   bind_rows(random_effects_uni)
 
+# ------ Reporting --------
+iwalk(m.fits_full, \(x, target) {
+  p <- appraise(x)
+  ggsave(here("plots", paste0("check_", target, ".pdf")), p)
+})
 checks <- map(m.fits_full, k.check)
-formula <- m.fits[[1]]$formula
+formula <- m.fits_full[[1]]$formula
 
 results <- list(
   effects = random_effects,
@@ -95,7 +104,3 @@ results <- list(
 
 saveRDS(results, here("output", "results.rds"))
 
-iwalk(m.fits, \(x, target) {
-  p <- appraise(x)
-  ggsave(here("plots", paste0("check_", target, ".pdf")), p)
-})
