@@ -14,24 +14,30 @@ ggplot2::theme_set(ggplot2::theme_minimal())
 
 #### Methods
 
-We identified phases of dominance by variant for each country. 
-We grouped variants into related sublineages, and identified the most prevalent variant detected each week. 
-We used a "mixed" category for weeks with <50% dominance by any variant. 
-
-We sourced weekly variant prevalence data from the European Centre for Disease Prevention and Control (ECDC), available at: https://www.ecdc.europa.eu/en/covid-19/variants-concern. 
-Where both GISAID and TESSy data are reported, we used GISAID, except where TESSy data were more complete (see Supplement).
+To identify phases of variant dominance for each country, we sourced weekly variant prevalence data from the European Centre for Disease Prevention and Control (ECDC), available at: https://www.ecdc.europa.eu/en/covid-19/variants-concern. 
 
 ```{r data}
 library(here)
 library(dplyr)
 library(tidyr)
 library(readr)
+library(forcats)
 library(lubridate)
 library(ggplot2)
 library(plotly)
 # get data
-variants_raw <- read_csv("https://opendata.ecdc.europa.eu/covid19/virusvariant/csv/data.csv",
-                         progress = FALSE, show_col_types = FALSE)
+geocodes <- read_delim("https://raw.githubusercontent.com/omnika-datastore/unsd-m49-standard-area-codes/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv", delim = ";") |> 
+  select(eu_region = `Sub-region Name`, country_code = `ISO-alpha2 Code`) |> 
+  # join Cyprus with S. Europe for consistency
+  mutate(eu_region = ifelse(eu_region == "Western Asia", "Southern Europe",
+                            eu_region))
+
+variants_raw <- read_csv("https://opendata.ecdc.europa.eu/covid19/virusvariant/csv/data.csv") |>
+  mutate(country_code = ifelse(country == "Greece", "GR", country_code)) |>
+  left_join(geocodes, by = "country_code") |> 
+  mutate(country = fct_reorder(country, eu_region, 
+                               .fun = function(x) min(as.numeric(factor(x)))))
+
 variant_names <- c("Other" = "Other",
                    "Unknown" = "UNK",
                    "Other" = "SGTF",
@@ -52,8 +58,8 @@ variant_names <- c("Other" = "Other",
                    "Other" = "C.37", # Lambda
                    "Other" = "B.1.620",
                    "Other" = "B.1.621", # Mu
-                   "Omicron/BA.1" = "B.1.1.529", # Omicron
-                   "Omicron/BA.1" = "BA.1",
+                   "Omicron-BA.1" = "B.1.1.529", # Omicron
+                   "Omicron-BA.1" = "BA.1",
                    "Omicron-BA.2" = "BA.2",
                    "Omicron-BA.2" = "BA.2+L452X",  
                    "Omicron-BA.2" = "BA.2.75", 
@@ -80,147 +86,40 @@ variant_names <- c("Other" = "Other",
 
 # filter variant data to relevant dates and variants
   variants <- variants_raw |>
+    # remove variant identification when number sequenced <3
+    mutate(across(c(variant, percent_variant),
+                ~ if_else(number_sequenced < 3, NA, .x))) |> 
     # set dates as a complete grid of location-weeks
     mutate(year = as.numeric(substr(year_week, 1, 4)),
            week = as.numeric(substr(year_week, 6, 8))) |>
     left_join(date_location, by = c("year", "week", "country")) |>
     filter(!is.na(daily_date)) |>
-    select(country, year_week, daily_date, source, 
-           number_sequenced, variant, percent_variant) |>
+    select(eu_region, country, year_week, daily_date, source, 
+           percent_cases_sequenced, number_sequenced, 
+           variant, percent_variant) |>
     # group variants into named categories
     mutate(variant_name = forcats::fct_recode(variant, !!!variant_names)) |>
     # remove "unknown" as counted in Other
     filter(!variant %in% c("UNK")) |>
     # sum variants by week
-    group_by(country, year_week, daily_date, 
-             source, number_sequenced, variant_name) |>
+    group_by(eu_region, country, year_week, daily_date, 
+             source, number_sequenced, percent_cases_sequenced,
+             variant_name) |>
     summarise(percent_variant = sum(percent_variant),
               .groups = "drop")
 ```
-
-
-```{r dominant-variant}
-# identify dominant variant in each week
-dominant_2 <- variants |> 
-  group_by(country, year_week, daily_date, source, number_sequenced) |>
-  slice_max(order_by = percent_variant, with_ties = FALSE, n = 2) |>
-  mutate(variant_name = as.character(variant_name),
-         rank = row_number()) |>
-  ungroup() |> 
-  pivot_wider(names_from = source,
-              values_from = c(number_sequenced, 
-                              variant_name, percent_variant),
-              names_glue = "{source}_{.value}",
-              values_fill = NA, id_cols = c(country, year_week, daily_date, rank)) 
-
-# find single dominant variant
-dominant <- dominant_2 |> 
-    # clean and match between GISAID and TESSy
-    mutate(dominant_variant = case_when(
-      # prefer GISAID if same or TESSY is missing
-      GISAID_variant_name == TESSy_variant_name ~ 
-        paste("GISAID", GISAID_variant_name),
-      is.na(TESSy_variant_name) ~
-        paste("GISAID", GISAID_variant_name),
-      # prefer GISAID unless "Other", then TESSy
-      GISAID_variant_name %in% c("Other") ~
-        paste("TESSy", TESSy_variant_name),
-      !is.na(GISAID_variant_name) ~ 
-        paste("GISAID", GISAID_variant_name),
-      TRUE ~ NA_character_))
-
-# (1) Prefer GISAID for known reliability: For the first choice, prefer the GISAID first-ranked variant. 
-# (2) Avoiding "Other" category: If GISAID is "Other" and TESSy has a named variant, take TESSy. If the second-ranked variant is the same as the week before, and the first-ranked variant is "Other", take the second-ranked variant. 
-# (3) Temporal consistency: If the first-ranked variant is different to the week after and the week before, and the second-ranked variant appears in any source in both the week after and the week before, take the second-ranked variant from that source. 
-# Apply these rules in order and add a new column noting the rule applied.
-# Add new columns with: dominant variant name, dominant variant percentage, number sequenced, source, rule used to identify dominant variant.
-
-# add dominant % and separate source and name
-dominant <- dominant |>
-  mutate(dominant_percent = case_when(
-             dominant_variant %in% paste("GISAID", GISAID_variant_name) ~ 
-               GISAID_percent_variant,
-             dominant_variant %in% paste("TESSy", TESSy_variant_name) ~ 
-               TESSy_percent_variant,
-             TRUE ~ NA_real_)) |> 
-      separate(dominant_variant, into = c("source", "dominant_name"), sep = " ")
-```
-
-
-```{r variant-phases}
-# identify start and end dates of variant phases
-dominant_phases <- dominant |>
-   arrange(country, daily_date) |>
-   group_by(country) |>
-   mutate(phase_change = dominant_name != lag(dominant_name, 
-                                              default = first(dominant_name)),
-          phase_id = 1 + cumsum(phase_change)) |>
-   group_by(country, phase_id, dominant_name) |>
-   summarise(start_date = min(daily_date),
-             end_date = max(daily_date),
-             .groups = "drop")
-```
-
-Dominant variant (most prevalent in a given week) by country over time:
-
-```{r plot-dominant-selection, fig.width=10, fig.height=36}
-plot_dominant <- dominant |> 
-  ggplot(aes(x = daily_date,
-             y = dominant_percent,
-             fill = dominant_name)) +
-  geom_col() +
-  labs(x = NULL, y = "% dominant variant", 
-       fill = "Dominant variant", col = NULL) +
-  scale_fill_viridis_d() +
+```{r coverage, fig.height=10, fig.width=10}
+variants |> 
+  distinct(eu_region, country, daily_date, source, percent_cases_sequenced) |> 
+  ggplot(aes(x = daily_date, y = country, fill = log(percent_cases_sequenced))) +
+  geom_tile() +
+  #scale_fill_viridis_b(breaks = c(0, 1, 5, 10, 15, NA)) +
+  facet_grid(rows = vars(eu_region), cols = vars(source), scales = "free") +
   theme(legend.position = "bottom") +
-  facet_wrap(~country, ncol = 1)
-
-plot_dominant |> 
-  ggplotly()
+  labs(x = NULL, y = NULL, fill = "Log % cases sequenced", 
+       subtitle = "Variant sequencing coverage by source")
 ```
-
-
-We identified single start and end dates for each phases of variant dominance.
-
-```{r plot-variant-phase}
-# plot variant phases
-plot_phases <- dominant_phases |>
-  ggplot(aes(x = start_date,
-             y = country,
-             col = dominant_name)) +
-  geom_pointrange(aes(xmin = start_date, xmax = end_date)) +
-  scale_color_viridis_d() +
-  labs(x = NULL, y = NULL, col = "Dominant phase") +
-  theme(legend.position = "bottom")
-
-plot_phases |> 
-  ggplotly()
-```
-### Manual adjustment
-
-Where countries had < 4 or > 5 phases, we manually checked to maintain consistency across countries and avoid rapid switching between variants where this may have been due to sampling biases.
-
-```{r manual-adjustment}
-# manual adjustments to variant phases based on visual inspection
-plot_phases_anomaly <- dominant |>
-  group_by()
-  ggplot(aes(x = start_date,
-             y = country,
-             col = dominant_name)) +
-  geom_pointrange(aes(xmin = start_date, xmax = end_date)) +
-  scale_color_viridis_d() +
-  labs(x = NULL, y = NULL, col = "Dominant phase") +
-  theme(legend.position = "bottom")
-
-plot_phases_anomaly |> 
-  ggplotly()
-```
-
-### Supplement
-
-#### All variants by data source
-
-```{r plot, fig.width=10, fig.height=32}
+```{r all-variants, fig.width=10, fig.height=32}
 plot_all <- variants |>
     ggplot(aes(x = daily_date,
                y = percent_variant,
@@ -232,5 +131,98 @@ plot_all <- variants |>
     scale_color_viridis_d() +
     facet_grid(rows = vars(country), cols = vars(source)) +
     theme(legend.position = "bottom")
-ggplotly(plot_all)
+plot_all
+```
+
+We grouped variants into related sublineages, and identified the most prevalent variant detected each week. 
+Where both GISAID and TESSy data are reported, we used GISAID, except where TESSy data were more complete.
+
+```{r dominant-variant}
+# identify dominant variant in each week by source
+dominant <- variants |> 
+  group_by(eu_region, country, year_week, daily_date, 
+           source, number_sequenced) |>
+  slice_max(order_by = percent_variant, with_ties = FALSE, n = 1) |>
+  mutate(variant_name = as.character(variant_name)) |>
+  ungroup() |> 
+  # widen to have GISAID and TESSy side-by-side
+  pivot_wider(names_from = source,
+              values_from = c(number_sequenced, 
+                              variant_name, percent_variant),
+              names_glue = "{source}_{.value}",
+              values_fill = NA, id_cols = c(eu_region, country, 
+                                            year_week, daily_date)) 
+
+# find single dominant variant
+# (1) Prefer GISAID for known reliability: For the first choice, prefer the GISAID first-ranked variant. 
+# (2) Avoiding "Other"/NA category: If GISAID is "Other"/NA and TESSy has a named variant, take TESSy
+dominant <- dominant |> 
+    # clean and match between GISAID and TESSy
+    mutate(dominant_variant = case_when(
+      # prefer GISAID if TESSy missing
+      is.na(TESSy_variant_name) ~
+        paste("GISAID", GISAID_variant_name),
+      # prefer TESSy if GISAID is missing or "Other"
+      GISAID_variant_name %in% c("Other", NA) ~
+        paste("TESSy", TESSy_variant_name),
+      TRUE ~ paste("GISAID", GISAID_variant_name)))
+
+# add dominant % and separate source and name
+dominant <- dominant |>
+  mutate(dominant_percent = case_when(
+             dominant_variant %in% paste("GISAID", GISAID_variant_name) ~ 
+               GISAID_percent_variant,
+             dominant_variant %in% paste("TESSy", TESSy_variant_name) ~ 
+               TESSy_percent_variant,
+             TRUE ~ NA_real_)) |> 
+  separate(dominant_variant, 
+           into = c("source", "dominant_name"), sep = " ") |> 
+  mutate(dominant_name = na_if(dominant_name, "NA"))
+```
+```{r plot-dominant-selection, fig.width=10, fig.height=15}
+plot_dominant <- dominant |> 
+  ggplot(aes(x = daily_date,
+             y = country,
+             fill = dominant_name)) +
+  geom_tile() +
+  labs(x = NULL, y = NULL, fill = "Dominant variant", col = NULL, 
+       subtitle = "Dominant variant (most prevalent in a given week) by country over time") +
+  scale_fill_viridis_d() +
+  theme(legend.position = "bottom") +
+  facet_wrap(~eu_region, ncol = 1, scales = "free")
+
+plot_dominant
+```
+
+We identified sequential variant phases from the first week that a variant became dominant. 
+We treated weeks dominated by an unknown variant as missing, and replaced all weeks with missing data with the most recently identified dominant variant.
+
+```{r variant-phases}
+# identify start dates of variant phases
+dominant_phases <- dominant |>
+  mutate(dominant_name = ifelse(dominant_name == "Other", NA, dominant_name)) |>
+  filter(!is.na(dominant_name)) |>
+  group_by(eu_region, country) |>
+  arrange(daily_date) |>
+  group_by(dominant_name, .add = TRUE) |>
+  summarise(daily_date = first(daily_date), .groups = "drop") |> 
+  right_join(date_location, 
+            by = c("country", "daily_date")) |> 
+  group_by(country) |>
+  arrange(daily_date) |> 
+  fill(eu_region, dominant_name, .direction = "downup")
+```
+```{r plot-variant-phases, fig.width=10, fig.height=15}
+plot_phases <- dominant_phases |>            
+  ggplot(aes(x = daily_date,
+             y = country,
+             fill = dominant_name)) +
+  geom_tile() +
+  labs(x = NULL, y = NULL, fill = "Dominant variant phase", col = NULL,
+       subtitle = "Sequential phases of dominant variants") +
+  scale_fill_viridis_d() +
+  facet_wrap(~eu_region, ncol = 1, scales = "free", drop = TRUE) +
+  theme(legend.position = "bottom")
+
+plot_phases
 ```

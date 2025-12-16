@@ -159,3 +159,10 @@ plot_effects(results$effects)
 model_cap <- "Partial effect size (95% CI) by model. This can be interpreted as adjusted performance after accounting for all other variables in the model, with remaining differences in effects as seen here representing unexplained variation between models beyond these factors."
 plot_models(results$effects, scores)
 ```
+
+------------
+
+```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
+coeff_cap <- "Partial effect (95%CI) on the weighted interval score from model structure and number of countries targeted, before and after adjusting for confounding factors. A lower WIS indicates better forecast performance, meaning effects <0 are relatively better than the group average. Adjusted effects also account for the impact of forecast horizon, epidemic trend, geographic location, and individual model variation. Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model."
+plot_effects(results$effects, variables = "VariantPhase")
+```
