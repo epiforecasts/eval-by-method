@@ -1,0 +1,43 @@
+
+First submission
+
+```{r}
+# Full model
+m.formula <- wis ~
+  # Method
+  s(Method, bs = "re") +
+  # Number of target countries
+  s(CountryTargets, bs = "re") +
+  # -----------------------------
+  # Trend
+  s(Trend, bs = "re") +
+  # Location
+  s(location, bs = "re") +
+  # Weekly by location
+  s(time, by = location, k = 40) +
+  # Horizon
+  s(Horizon, k = 3, by = Model, bs = "sz") +
+  # Individual model
+  s(Model, bs = "re")
+```
+
+First revision, response to reviewer comments
+```{r}
+# Full model
+m.formula <- wis ~
+  # Method
+  s(Method, bs = "re") +
+  # Number of target countries
+  s(CountryTargets, bs = "re") +
+  # -----------------------------
+  # Trend
+  s(Trend, bs = "re") +
+  # Variant phase
+  s(VariantPhase, bs = "re") +
+  # Location
+  s(location, bs = "re") +
+  # Horizon
+  s(Horizon, k = 3, by = Model, bs = "sz") +
+  # Individual model
+  s(Model, bs = "re")
+```
