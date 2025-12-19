@@ -47,12 +47,20 @@ Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
   forecasting models, and provides a framework for more robust
   evaluations of infectious disease predictions.
 
-#### Deep dive
-
 - Read the pre-print:
   [medRxiv](https://doi.org/10.1101/2025.04.10.25325611)
-- Current working draft:
-  [Docs](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
+
+------------------------------------------------------------------------
+
+### Project docs
+
+- Current [working
+  draft](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
+- Submitted
+  [manuscript](https://docs.google.com/document/d/1B_HviobjSIak4c1FKoSOqgFwRF_DxMrJM6zsdbdth4E/edit?tab=t.0)
+- [Authorship](https://docs.google.com/spreadsheets/d/18mt6c47MCzLdMAKth6Bv2PC7b10KYgWieExHHWLnP3Q/edit?gid=0#gid=0)
+
+------------------------------------------------------------------------
 
 ### Getting started
 

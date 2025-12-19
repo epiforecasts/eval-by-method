@@ -62,19 +62,21 @@ m.fit <- function(outcomes, m.formula) {
       formula = m.formula,
       data = m.data |> filter(outcome_target == outcome),
       family = gaussian(link = "log"),
-      control = gam.control(trace = TRUE)
+      method = "fREML",
+      control = gam.control(trace = TRUE),
+      discrete = TRUE
     )
   })
 }
-# Fit univariate models
+# Fit
+cat("--------fitting univariate models")
 m.fits_uni_type <- m.fit(outcomes, m.formula_uni_type)
 m.fits_uni_tgt <- m.fit(outcomes, m.formula_uni_tgt)
 m.fits_uni_model <- m.fit(outcomes, m.formula_uni_model)
-m.fits_uni_variant <- m.fit(outcomes, m.formula_uni_variant)
-# Fit joint model
-m.fits_full <- m.fit(outcomes, m.formula)
+cat("--------fitting joint model")
+m.fits_joint <- m.fit(outcomes, m.formula)
+cat("finished fitting")
 
-# Outputs -----------------------------------------------------------------
 # --- Output handling ---
 # Extract estimates for random effects
 random_effects_uni <- map_df(
@@ -83,19 +85,17 @@ random_effects_uni <- map_df(
   .id = "outcome_target") |>
   mutate(model = "Unadjusted")
 
-random_effects <- map_df(m.fits_full, extract_ranef,
+random_effects_joint <- map_df(m.fits_joint,
+                         extract_ranef,
                         .id = "outcome_target") |>
-  mutate(model = "Adjusted") |>
+  mutate(model = "Adjusted")
+
+random_effects <- random_effects_joint |>
   bind_rows(random_effects_uni)
 
-# ------ Reporting --------
-iwalk(m.fits_full, \(x, target) {
-  p <- appraise(x)
-  ggsave(here("plots", paste0("check_", target, ".pdf")), p)
-})
-checks <- map(m.fits_full, k.check)
-formula <- m.fits_full[[1]]$formula
-
+# Extract model checks
+checks <- map(m.fits_joint, k.check)
+formula <- m.fits_joint[[1]]$formula
 results <- list(
   effects = random_effects,
   checks = checks,
