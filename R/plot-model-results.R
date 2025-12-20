@@ -62,9 +62,10 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
   return(plot)
 }
 
-plot_effects <- function(random_effects) {
+plot_effects <- function(random_effects,
+                         variables = c("Method", "CountryTargets")) {
   random_effects |>
-    filter(group_var %in% c("Method", "CountryTargets")) |>
+    filter(group_var %in% variables) |>
     mutate(group = factor(group, levels = unique(as.character(rev(group)))),
            Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
     ggplot(aes(x = group, col = group_var,
