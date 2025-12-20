@@ -2,7 +2,8 @@ library(here)
 library(dplyr)
 library(purrr)
 library(scoringutils)
-source(here("R", "import-data.R"))
+source(here("R", "utils-data.R"))
+source(here("R", "process-data.R"))
 
 walk(c("case", "death"), \(target) {
   # Get forecasts & observations -----

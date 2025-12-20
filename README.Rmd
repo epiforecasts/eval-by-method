@@ -63,16 +63,8 @@ renv::restore()
 #### Data
 
 All the data used in the analysis is stored in the `data/` directory. It
-has been obtained from public sources. In order to re-download the data
-in the `data/` directory, use
-
-``` {r}
-## Get metadata from googlesheet; save to data/
-source(here("R", "get-metadata.R"))
-
-## Get observed data and all Hub forecasts; exclude forecasts; save to data/
-source(here("R", "import-data.R"))
-```
+has been obtained from public sources. To re-download the data
+in the `data/` directory, see the [data/README](data/README.md).
 
 #### Analyses
 
@@ -80,14 +72,14 @@ In order to re-generate the forecast scores, use
 
 ``` {r}
 ## Score forecasts & ensembles on the log and natural scales; save to data/
-source(here("R", "score.R"))
+source(here("R", "process-score.R"))
 ```
 
 In order to run the GAM on the scores, use
 
 ``` {r}
 ## Model the weighted interval score; save to data/
-source(here("R", "model-wis.R"))
+source(here("R", "analysis-model.R"))
 ```
 
 #### Results

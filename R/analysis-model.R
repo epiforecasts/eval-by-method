@@ -7,8 +7,8 @@ library(purrr)
 library(mgcv)
 library(gammit)
 library(gratia)
-source(here("R", "prep-data.R"))
-source(here("R", "descriptive.R"))
+source(here("R", "process-data.R"))
+source(here("R", "analysis-descriptive.R"))
 
 # --- Get data ---
 data <- prep_data(scoring_scale = "log")

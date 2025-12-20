@@ -36,12 +36,12 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
 # Get scores for all forecasts and add explanatory variables used:
 #   number of country targets, method classification, trend of observed incidence
 prep_data <- function(scoring_scale = "log") {
-  scores_files <- list.files(here("output"), pattern = "scores-raw-.*\\.csv")
+  scores_files <- list.files(here("data"), pattern = "scores-raw-.*\\.csv")
   names(scores_files) <- sub("scores-raw-(.*)\\..*$", "\\1", scores_files)
   # Get raw interval score
   scores_raw <- scores_files |>
     map(\(file) {
-      read_csv(here("output", file))
+      read_csv(here("data", file))
     }) |>
     bind_rows(.id = "outcome_target") |>
     filter(scale == scoring_scale)

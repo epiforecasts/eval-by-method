@@ -3,8 +3,8 @@ library("dplyr")
 library("ggplot2")
 library("patchwork")
 library("gammit")
-source(here("R", "prep-data.R"))
-source(here("R", "descriptive.R"))
+source(here("R", "process-data.R"))
+source(here("R", "analysis-descriptive.R"))
 
 plot_models <- function(random_effects, scores, x_labels = TRUE,
                         anonymise = TRUE) {

@@ -1,7 +1,30 @@
+---
+title: "README"
+output: github_document
+---
+
+### Data processing
+
+The following R scripts were used to process the data stored here:
+
+- [`R/utils-data.R`](R/utils-data.R) : Code to access forecasts, observed data, and population size for each location
+   - `populations.csv`
+   - `observed-case.csv`, `observed-death.csv`
+   - `covid19-forecast-hub-europe.parquet`
+- [`R/utils-metadata.R`](R/utils-metadata.R) : Functions to access model names, model submissions, and raw metadata from Hub GitHub repos
+  - `model-classification.csv`
+- [`R/process-score.R`](R/process-score.R) : Code to score forecasts using scoringutils
+  - `scores-raw-case.csv`, `scores-raw-death.csv`
+
+#### Metadata
+
+Code used to access and store metadata:
+
+```{r, eval=FALSE}
 library(here)
 library(purrr)
 library(lubridate)
-source(here("R", "metadata-utils.R"))
+source(here("R", "utils-metadata.R"))
 
 # set repo paths
 repos <- c(
@@ -28,6 +51,11 @@ write_metadata(
   sheet_name = "euro-metadata-raw", write_local = FALSE
 )
 
+```
+
+Code can also be used to access US Hub metadata:
+
+```{r, eval=FALSE}
 # get US metadata
 us_submissions <- get_model_submissions(
   repo = repos[["us"]],
@@ -46,3 +74,4 @@ write_metadata(
   metadata_raw = us_metadata_raw,
   sheet_name = "us-metadata-raw", write_local = FALSE
 )
+```

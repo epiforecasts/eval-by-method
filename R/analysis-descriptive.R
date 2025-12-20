@@ -1,6 +1,6 @@
 # Aim: describe interval score in terms of model structure and country target type
 # Load data:
-# source(here("R", "prep-data.R"))
+# source(here("R", "process-data.R"))
 # scores <- prep_data(scoring_scale = "log")
 library(here)
 library(dplyr)
