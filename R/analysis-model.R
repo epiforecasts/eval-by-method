@@ -32,6 +32,7 @@ m.data <- data |>
 m.formula_uni_type <- wis ~ s(Method, bs = "re")
 m.formula_uni_tgt <- wis ~ s(CountryTargets, bs = "re")
 m.formula_uni_model <- wis ~ s(Model, bs = "re")
+m.formula_uni_variant <- wis ~ s(VariantPhase, bs = "re")
 
 # Full model
 m.formula <- wis ~
@@ -44,8 +45,8 @@ m.formula <- wis ~
   s(Trend, bs = "re") +
   # Location
   s(location, bs = "re") +
-  # Week * location
-  s(time, by = location, k = 40) +
+  # Variant phase
+  s(VariantPhase, bs = "re") +
   # Horizon
   s(Horizon, k = 3, by = Model, bs = "sz") +
   # Individual model
@@ -78,7 +79,7 @@ cat("finished fitting")
 # --- Output handling ---
 # Extract estimates for random effects
 random_effects_uni <- map_df(
-  c(m.fits_uni_type, m.fits_uni_tgt, m.fits_uni_model),
+  c(m.fits_uni_type, m.fits_uni_tgt, m.fits_uni_model, m.fits_uni_variant),
   extract_ranef,
   .id = "outcome_target") |>
   mutate(model = "Unadjusted")
