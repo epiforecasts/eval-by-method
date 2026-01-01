@@ -1,8 +1,10 @@
-library("dplyr")
-library("tidyr")
-library("purrr")
-library("readr")
-library("lubridate")
+library(here)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(readr)
+library(lubridate)
+source(here("R", "utils-variants.R"))
 
 # Metadata ----------------------------------------------------------------
 # Get classification of model types
@@ -32,13 +34,13 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
   return(methods)
 }
 
-# Scores data: add explanatory variables -----------------------------
-# Get scores for all forecasts and add explanatory variables used:
-#   number of country targets, method classification, trend of observed incidence
+# Prepare data for analysis -----------------------------
+# Get scores for all forecasts; and add explanatory variables in a single dframe
 prep_data <- function(scoring_scale = "log") {
+  # Get raw interval scores ----------------------------------------
+  # scores data created in: R/process-score.r
   scores_files <- list.files(here("data"), pattern = "scores-raw-.*\\.csv")
   names(scores_files) <- sub("scores-raw-(.*)\\..*$", "\\1", scores_files)
-  # Get raw interval score
   scores_raw <- scores_files |>
     map(\(file) {
       read_csv(here("data", file))
@@ -46,6 +48,7 @@ prep_data <- function(scoring_scale = "log") {
     bind_rows(.id = "outcome_target") |>
     filter(scale == scoring_scale)
 
+  # Add variables of interest to scores dataframe ----------------------
   # Target type
   country_targets <- scores_raw |>
     select(model, forecast_date, location) |>
@@ -66,7 +69,7 @@ prep_data <- function(scoring_scale = "log") {
   methods <- classify_models() |>
     select(model, Method = classification, agreement)
 
-  # Incidence level + trend (see: R/import-data.r)
+  # Incidence level + trend (observed data from: R/utils-data.r)
   obs <- names(scores_files) |>
     set_names() |>
     map(~ read_csv(here("data", paste0("observed-", .x, ".csv")))) |>
@@ -76,6 +79,7 @@ prep_data <- function(scoring_scale = "log") {
     rename(Incidence = observed) |>
     select(target_end_date, location, outcome_target, Trend, Incidence)
 
+  # Combine all data -----------------------------------------------------
   data <- scores_raw |>
     left_join(obs, by = c("location", "target_end_date", "outcome_target")) |>
     left_join(country_targets, by = "model") |>
