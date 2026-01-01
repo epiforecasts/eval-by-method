@@ -63,7 +63,7 @@ knitr::include_graphics(here("plots", "flowchart.png"))
 # Load data
 source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
-scores <- prep_data(scoring_scale = "log")
+scores <- process_data(scoring_scale = "log")
 ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>

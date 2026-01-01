@@ -11,7 +11,7 @@ source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
 
 # --- Get data ---
-data <- prep_data(scoring_scale = "log")
+data <- process_data(scoring_scale = "log")
 outcomes <- unique(data$outcome_target)
 classification <- classify_models()
 targets <- table_targets(data)
