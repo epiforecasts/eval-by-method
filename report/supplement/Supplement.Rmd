@@ -101,26 +101,41 @@ scores |>
 
 \newpage
 
+## Variant phase identification
+
+```{r variant-phases, fig.cap="Variant phases identified by location and week"}
+variant_phases <- classify_variant_phases() # see: R/utils-variants.R
+variant_phases |>
+    ggplot(aes(x = target_end_date, y = location, fill = VariantPhase)) +
+    geom_tile() +
+    scale_fill_brewer(type = "qual", palette = 2) +
+    labs(x = NULL, y = "Location", fill = "Dominant variant") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+```
+
+\newpage
+
 ## Model fitting 
 
 ```{r model-wis}
 results <- readRDS(here("output", "results.rds"))
 ```
 
-## Model formula
+### Model formula
 
 `r results$formula`
 
-## Model diagnostics
+### Model diagnostics
 
-### Cases
+#### Cases
 
 ```{r gamm-diagnostics-cases}
 # QQ plot, residuals
 knitr::include_graphics(here("plots", "check_Cases.pdf"))
 ```
 
-### Deaths
+#### Deaths
 
 ```{r gamm-diagnostics-deaths}
 # QQ plot, residuals

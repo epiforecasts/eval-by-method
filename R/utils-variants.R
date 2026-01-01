@@ -108,32 +108,24 @@ set_variant_phases <- function(variant_data, date_location) {
     mutate(variant_name = as.character(variant_name)) |>
     ungroup()
 
-  # use single sequential phases for each location -------
-  dominant_phases <- dominant |>
-    mutate(dominant_name = ifelse(variant_name == "Other", NA,
-                                  variant_name)) |>
-    filter(!is.na(dominant_name)) |>
-    # get only one first date for each dominant variant in each location
-    group_by(location) |>
-    arrange(target_end_date) |>
-    group_by(dominant_name, .add = TRUE) |>
-    summarise(target_end_date = first(target_end_date), .groups = "drop") |>
-    # expand out to all weeks
-    right_join(date_location,
-               by = c("location", "target_end_date")) |>
-    group_by(location) |>
-    arrange(target_end_date) |>
-    fill(dominant_name, .direction = "downup") |>
-    mutate(VariantPhase = factor(dominant_name)) |>
-    select(location, target_end_date, VariantPhase)
-
-  dominant_phases |>
-    ggplot(aes(x = target_end_date, y = location, fill = VariantPhase)) +
-    geom_tile() +
-    scale_fill_brewer(type = "qual", palette = 2) +
-    labs(x = "Week", y = "Location", fill = "Dominant variant") +
-    theme_minimal() +
-    theme(legend.position = "bottom")
+  # # use single sequential phases for each location -------
+  # dominant_phases <- dominant |>
+  #   mutate(dominant_name = ifelse(variant_name == "Other", NA,
+  #                                 variant_name)) |>
+  #   filter(!is.na(dominant_name)) |>
+  #   # get only one first date for each dominant variant in each location
+  #   group_by(location) |>
+  #   arrange(target_end_date) |>
+  #   group_by(dominant_name, .add = TRUE) |>
+  #   summarise(target_end_date = first(target_end_date), .groups = "drop") |>
+  #   # expand out to all weeks
+  #   right_join(date_location,
+  #              by = c("location", "target_end_date")) |>
+  #   group_by(location) |>
+  #   arrange(target_end_date) |>
+  #   fill(dominant_name, .direction = "downup") |>
+  #   mutate(VariantPhase = factor(dominant_name)) |>
+  #   select(location, target_end_date, VariantPhase)
 
   # average date ------------------------------------------------------------
   # TODO REMOVE - HACK
