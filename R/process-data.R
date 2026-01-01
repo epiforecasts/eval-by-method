@@ -36,7 +36,7 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
 
 # Prepare data for analysis -----------------------------
 # Get scores for all forecasts; and add explanatory variables in a single dframe
-prep_data <- function(scoring_scale = "log") {
+process_data <- function(scoring_scale = "log") {
   # Get raw interval scores ----------------------------------------
   # scores data created in: R/process-score.r
   scores_files <- list.files(here("data"), pattern = "scores-raw-.*\\.csv")
@@ -79,9 +79,13 @@ prep_data <- function(scoring_scale = "log") {
     rename(Incidence = observed) |>
     select(target_end_date, location, outcome_target, Trend, Incidence)
 
+  # Variant phase
+  variant_phase <- classify_variant_phases()
+
   # Combine all data -----------------------------------------------------
   data <- scores_raw |>
     left_join(obs, by = c("location", "target_end_date", "outcome_target")) |>
+    left_join(variant_phase, by = c("location", "target_end_date")) |>
     left_join(country_targets, by = "model") |>
     left_join(methods, by = "model") |>
     rename(Model = model, Horizon = horizon) |>
