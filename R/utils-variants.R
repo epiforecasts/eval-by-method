@@ -8,82 +8,162 @@ library(forcats)
 library(stringr)
 library(purrr)
 
-# # example
-# variants <- bind_rows(get_variants_ecdc(date_grid, variant_names),
+# # example:
+# # load variant data for 32 countries from all sources
+# variant_data <- bind_rows(get_variants_ecdc(date_grid, variant_names),
 #                       get_variants_uk(date_grid, variant_names),
 #                       get_variants_ch(date_location, variant_names))
-# variant_phases <- set_variant_phases(variants, date_location)
+# # classify each week into a variant phase
+# variant_phases <- set_variant_phases(variant_data, date_location)
 
-# set up data dictionary ----------------------------------------------
-variant_names <- c("Unknown" = "UNK",
-                   "Other" = "Other",
-                   "Other" = "other",
-                   "Other" = "other_lineages",
-                   "Other" = "other_lineage",
-                   "Other" = "SGTF",
-                   # Alpha
-                   "Alpha" = "Alpha",
-                   "Alpha" = "B.1.1.7",
-                   "Alpha" = "B.1.1.7+E484K",
-                   "Other" = "B.1.1.318",
-                   "Other" = "B.1.351", # Beta
-                   "Other" = "P.1", # Gamma
-                   "Other" = "P.2",
-                   "Other" = "P.3",
-                   # Delta
-                   "Delta" = "Delta",
-                   "Delta" = "B.1.617.1",
-                   "Delta" = "B.1.617.2",
-                   "Delta" = "B.1.617.3",
-                   "Delta" = "AY.4.2",
-                   "Other" = "B.1.427", # Epsilon
-                   "Other" = "B.1.429", # Epsilon
-                   "Other" = "B.1.427/B.1.429",
-                   "Other" = "B.1.526", # Kappa
-                   "Other" = "B.1.525", # Eta
-                   "Other" = "C.37", # Lambda
-                   "Other" = "B.1.620",
-                   "Other" = "B.1.621", # Mu
-                   # Omicron BA 1
-                   "Omicron-BA.1" = "B.1.1.529",
-                   "Omicron-BA.1" = "BA.1",
-                   "Omicron-BA.1" = "Omicron BA.1",
-                   # BA 2
-                   "Omicron-BA.2" = "BA.2",
-                   "Omicron-BA.2" = "BA.2+L452X",
-                   "Omicron-BA.2" = "BA.2.75",
-                   "Omicron-BA.2" = "BA.2.86",
-                   "Omicron-BA.2" = "JN.1",
-                   "Other" = "BA.3",
-                   # BA 4/5
-                   "Omicron-BA.4/5" = "BA.4/BA.5",
-                   "Omicron-BA.4/5" = "BA.4",
-                   "Omicron-BA.4/5" = "BA.5",
-                   "Omicron-BA.4/5" = "Omicron BA.5",
-                   # BQ/XBB
-                   "Omicron-BQ/XBB" = "BQ.1",
-                   "Omicron-BQ/XBB" = "XBB",
-                   "Omicron-BQ/XBB" = "XBB.1.5-like",
-                   "Omicron-BQ/XBB" = "XBB.1.5-like+F456L")
+# Main wrapper function to classify variant phases -------------------------
+classify_variant_phases <- function() {
+  # set up data dictionary for standardised labelling of variants
+  variant_names <- c("Unknown" = "UNK",
+                     "Other" = "Other",
+                     "Other" = "other",
+                     "Other" = "other_lineages",
+                     "Other" = "other_lineage",
+                     "Other" = "SGTF",
+                     # Alpha
+                     "Alpha" = "Alpha",
+                     "Alpha" = "B.1.1.7",
+                     "Alpha" = "B.1.1.7+E484K",
+                     "Other" = "B.1.1.318",
+                     "Other" = "B.1.351", # Beta
+                     "Other" = "P.1", # Gamma
+                     "Other" = "P.2",
+                     "Other" = "P.3",
+                     # Delta
+                     "Delta" = "Delta",
+                     "Delta" = "B.1.617.1",
+                     "Delta" = "B.1.617.2",
+                     "Delta" = "B.1.617.3",
+                     "Delta" = "AY.4.2",
+                     "Other" = "B.1.427", # Epsilon
+                     "Other" = "B.1.429", # Epsilon
+                     "Other" = "B.1.427/B.1.429",
+                     "Other" = "B.1.526", # Kappa
+                     "Other" = "B.1.525", # Eta
+                     "Other" = "C.37", # Lambda
+                     "Other" = "B.1.620",
+                     "Other" = "B.1.621", # Mu
+                     # Omicron BA 1
+                     "Omicron-BA.1" = "B.1.1.529",
+                     "Omicron-BA.1" = "BA.1",
+                     "Omicron-BA.1" = "Omicron BA.1",
+                     # BA 2
+                     "Omicron-BA.2" = "BA.2",
+                     "Omicron-BA.2" = "BA.2+L452X",
+                     "Omicron-BA.2" = "BA.2.75",
+                     "Omicron-BA.2" = "BA.2.86",
+                     "Omicron-BA.2" = "JN.1",
+                     "Other" = "BA.3",
+                     # BA 4/5
+                     "Omicron-BA.4/5" = "BA.4/BA.5",
+                     "Omicron-BA.4/5" = "BA.4",
+                     "Omicron-BA.4/5" = "BA.5",
+                     "Omicron-BA.4/5" = "Omicron BA.5",
+                     # BQ/XBB
+                     "Omicron-BQ/XBB" = "BQ.1",
+                     "Omicron-BQ/XBB" = "XBB",
+                     "Omicron-BQ/XBB" = "XBB.1.5-like",
+                     "Omicron-BQ/XBB" = "XBB.1.5-like+F456L")
 
-# complete grid of dates and locations in ecdc year-weeks
-date_grid <- tibble(
-  target_end_date = seq.Date(from = as.Date("2020-01-04"),
-                             to = Sys.Date(), by = 7),
-  year = isoyear(target_end_date),
-  week = isoweek(target_end_date)) |>
-  group_by(year, week) |>
-  filter(target_end_date == min(target_end_date)) |>
-  filter(between(target_end_date,
-                 as.Date("2021-03-01"), as.Date("2023-03-17"))) |>
-  mutate(year_week = paste0(year, "-",
-                            str_pad(week, width = 2, side = "left", pad = "0")))
-locs <- unique(read_csv(here("data", "populations.csv"))$location)
-date_location <- date_grid |>
-  expand_grid(location = locs)
+  # set a complete grid of dates and locations in ecdc year-weeks
+  date_grid <- tibble(
+    target_end_date = seq.Date(from = as.Date("2020-01-04"),
+                               to = Sys.Date(), by = 7),
+    year = isoyear(target_end_date),
+    week = isoweek(target_end_date)) |>
+    group_by(year, week) |>
+    filter(target_end_date == min(target_end_date)) |>
+    filter(between(target_end_date,
+                   as.Date("2021-03-01"), as.Date("2023-03-17"))) |>
+    mutate(year_week = paste0(year, "-",
+                              str_pad(week, width = 2, side = "left", pad = "0")))
+  locs <- unique(read_csv(here("data", "populations.csv"))$location)
+  date_location <- date_grid |>
+    expand_grid(location = locs)
+
+  # load and clean variant data from each source
+  variant_data <- bind_rows(get_variants_ecdc(date_location, variant_names),
+                            get_variants_uk(date_grid, variant_names),
+                            get_variants_ch(date_location, variant_names))
+
+  # identify dominant variant phases
+  variant_phases <- set_variant_phases(variant_data, date_location)
+
+  return(variant_phases)
+}
 
 
-# Switzerland -------------------------------------------------------------
+# utility functions -------------------------------------------------------
+
+# Identify dominant variant in each week and location
+set_variant_phases <- function(variant_data, date_location) {
+  dominant <- variant_data |>
+    group_by(location, target_end_date, source) |>
+    slice_max(order_by = variant_percent, with_ties = FALSE, n = 1) |>
+    mutate(variant_name = as.character(variant_name)) |>
+    ungroup()
+
+  # use single sequential phases for each location -------
+  dominant_phases <- dominant |>
+    mutate(dominant_name = ifelse(variant_name == "Other", NA,
+                                  variant_name)) |>
+    filter(!is.na(dominant_name)) |>
+    # get only one first date for each dominant variant in each location
+    group_by(location) |>
+    arrange(target_end_date) |>
+    group_by(dominant_name, .add = TRUE) |>
+    summarise(target_end_date = first(target_end_date), .groups = "drop") |>
+    # expand out to all weeks
+    right_join(date_location,
+               by = c("location", "target_end_date")) |>
+    group_by(location) |>
+    arrange(target_end_date) |>
+    fill(dominant_name, .direction = "downup") |>
+    mutate(VariantPhase = factor(dominant_name)) |>
+    select(location, target_end_date, VariantPhase)
+
+  dominant_phases |>
+    ggplot(aes(x = target_end_date, y = location, fill = VariantPhase)) +
+    geom_tile() +
+    scale_fill_brewer(type = "qual", palette = 2) +
+    labs(x = "Week", y = "Location", fill = "Dominant variant") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+
+  # average date ------------------------------------------------------------
+  # TODO REMOVE - HACK
+  # get median average first date for each dominant variant across all locations
+  dominant_start_mid <- dominant |>
+    mutate(dominant_name = ifelse(variant_name == "Other", NA,
+                                  variant_name)) |>
+    filter(!is.na(dominant_name)) |>
+    group_by(location) |>
+    arrange(target_end_date) |>
+    group_by(dominant_name, .add = TRUE) |>
+    summarise(target_end_date = first(target_end_date), .groups = "drop") |>
+    group_by(dominant_name) |>
+    summarise(target_end_date = median(target_end_date))
+  dominant_mid <- date_location |>
+    left_join(dominant_start_mid, by = "target_end_date") |>
+    group_by(location) |>
+    arrange(target_end_date) |>
+    fill(dominant_name, .direction = "downup") |>
+    mutate(VariantPhase = factor(dominant_name)) |>
+    select(location, target_end_date, VariantPhase)
+  dominant_phases <- dominant_mid
+  # TODO end  ---------------------------------------------------------
+
+  return(dominant_phases)
+
+}
+
+# Load and standardise variant data from source
+# Switzerland
 get_variants_ch <- function(date_grid, variant_names) {
   # 2020-2022: daily data from wastewater sampling
   # https://covid19.admin.ch/api/data/20231206-0sxi4s4a/sources/COVID19Variants_wgs.csv
@@ -113,9 +193,9 @@ get_variants_ch <- function(date_grid, variant_names) {
     select(location, source, target_end_date, variant_name, variant_percent)
 }
 
-# UK ----------------------------------------------------------------------
+# UK
 get_variants_uk <- function(date_grid, variant_names) {
-# https://ukhsa-dashboard.data.gov.uk/respiratory-viruses/covid-19
+  # https://ukhsa-dashboard.data.gov.uk/respiratory-viruses/covid-19
   # Downloaded: October 2025
   variants_uk <- read_csv(here("data", "variants", "uk-ukhsa.csv")) |>
     select(variant_name = stratum,
@@ -130,10 +210,10 @@ get_variants_uk <- function(date_grid, variant_names) {
            variant_name = as.character(fct_recode(variant_name,
                                                   !!!variant_names))) |>
     filter(target_end_date %in% unique(date_grid$target_end_date))
-return(variants_uk)
+  return(variants_uk)
 }
 
-# ECDC --------------------------------------------------------------------
+# ECDC
 get_variants_ecdc <- function(date_location, variant_names) {
   # download data
   # https://opendata.ecdc.europa.eu/covid19/virusvariant/csv/data.csv
@@ -141,7 +221,7 @@ get_variants_ecdc <- function(date_location, variant_names) {
   variants_ecdc <- read_csv(here("data", "variants", "eu-ecdc.csv")) |>
     # match location codes to Hub standard
     mutate(location = ifelse(country == "Greece", "GR", country_code)) |>
-  # filter variant data to relevant dates and variants
+    # filter variant data to relevant dates and variants
     # set dates as a complete grid of location-weeks
     left_join(date_location, by = c("year_week", "location")) |>
     filter(!is.na(target_end_date)) |>
@@ -158,67 +238,3 @@ get_variants_ecdc <- function(date_location, variant_names) {
 
   return(variants_ecdc)
 }
-
-# identify dominant variant in each week --------------------------------
-set_variant_phases <- function(variants, date_location) {
-
-dominant <- variants |>
-    group_by(location, target_end_date, source) |>
-    slice_max(order_by = variant_percent, with_ties = FALSE, n = 1) |>
-    mutate(variant_name = as.character(variant_name)) |>
-    ungroup()
-
-  # use single sequential phases for each location -------
-  dominant_phases <- dominant |>
-    mutate(dominant_name = ifelse(variant_name == "Other", NA,
-                                  variant_name)) |>
-    filter(!is.na(dominant_name)) |>
-    # get only one first date for each dominant variant in each location
-    group_by(location) |>
-    arrange(target_end_date) |>
-    group_by(dominant_name, .add = TRUE) |>
-    summarise(target_end_date = first(target_end_date), .groups = "drop") |>
-    # expand out to all weeks
-    right_join(date_location,
-               by = c("location", "target_end_date")) |>
-    group_by(location) |>
-    arrange(target_end_date) |>
-    fill(dominant_name, .direction = "downup") |>
-    mutate(VariantPhase = factor(dominant_name)) |>
-    select(location, target_end_date, VariantPhase)
-
-dominant_phases |>
-  ggplot(aes(x = target_end_date, y = location, fill = VariantPhase)) +
-  geom_tile() +
-  scale_fill_brewer(type = "qual", palette = 2) +
-  labs(x = "Week", y = "Location", fill = "Dominant variant") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-
-# average date ------------------------------------------------------------
-# TODO REMOVE - HACK
-# get median average first date for each dominant variant across all locations
-dominant_start_mid <- dominant |>
-  mutate(dominant_name = ifelse(variant_name == "Other", NA,
-                                variant_name)) |>
-  filter(!is.na(dominant_name)) |>
-  group_by(location) |>
-  arrange(target_end_date) |>
-  group_by(dominant_name, .add = TRUE) |>
-  summarise(target_end_date = first(target_end_date), .groups = "drop") |>
-  group_by(dominant_name) |>
-  summarise(target_end_date = median(target_end_date))
-dominant_mid <- date_location |>
-  left_join(dominant_start_mid, by = "target_end_date") |>
-  group_by(location) |>
-  arrange(target_end_date) |>
-  fill(dominant_name, .direction = "downup") |>
-  mutate(VariantPhase = factor(dominant_name)) |>
-  select(location, target_end_date, VariantPhase)
-dominant_phases <- dominant_mid
-# TODO end  ---------------------------------------------------------
-
-return(dominant_phases)
-}
-
-
