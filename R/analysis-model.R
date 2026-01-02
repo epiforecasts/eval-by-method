@@ -25,7 +25,7 @@ m.formulas_uni <- list(
   location = wis ~ s(Location, bs = "re"),
   variant = wis ~ s(VariantPhase, k = 6, bs = "re"),
   horizon = wis ~ s(Horizon, k = 3, by = Model, bs = "sz"),
-  model = wis ~ s(Model, by = M, bs = "re")
+  model = wis ~ s(Model, bs = "re")
 )
 
 # Full model
