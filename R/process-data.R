@@ -88,15 +88,14 @@ process_data <- function(scoring_scale = "log") {
     left_join(variant_phase, by = c("location", "target_end_date")) |>
     left_join(country_targets, by = "model") |>
     left_join(methods, by = "model") |>
-    rename(Model = model, Horizon = horizon) |>
+    # set to factors
+    rename(Model = model, Horizon = horizon, Location = location) |>
     mutate(
       Model = as.factor(Model),
+      Location = as.factor(Location),
+      Horizon = ordered(Horizon, levels = 1:4, labels = 1:4),
       outcome_target = paste0(str_to_title(outcome_target), "s"),
-      Horizon = ordered(Horizon,
-        levels = 1:4, labels = 1:4
-      ),
-      log_wis = log(wis + 0.01)
-    ) |>
+      wis = wis + 1e-7) |>
     filter(!is.na(Horizon)) ## horizon not in 1:4
   return(data)
 }

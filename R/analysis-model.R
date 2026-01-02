@@ -12,20 +12,9 @@ source(here("R", "analysis-descriptive.R"))
 
 # --- Get data ---
 data <- process_data(scoring_scale = "log")
-outcomes <- unique(data$outcome_target)
-classification <- classify_models()
-targets <- table_targets(data)
-
 m.data <- data |>
-  filter(!grepl("EuroCOVIDhub-", Model)) |>
-  mutate(location = factor(location)) |>
-  group_by(location) |>
-  mutate(
-    time = as.numeric(forecast_date - min(forecast_date)) / 7,
-    Horizon = as.numeric(Horizon),
-    wis = wis + 1e-7
-  ) |>
-  ungroup()
+  filter(!grepl("EuroCOVIDhub-", Model))
+outcomes <- unique(data$outcome_target)
 
 # --- Model formula ---
 # Univariate for explanatory variables
