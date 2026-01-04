@@ -63,7 +63,9 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
 }
 
 plot_effects <- function(random_effects,
-                         variables = c("Method", "CountryTargets")) {
+                         variables = NULL) {
+  if(is.null(variables)){variables <- unique(random_effects$group_var)}
+
   random_effects |>
     filter(group_var %in% variables) |>
     mutate(group = factor(group, levels = unique(as.character(rev(group)))),
