@@ -1,4 +1,16 @@
 # Aim: use a GAMM to model the effects of model structure and country target type on WIS
+# Model:
+#
+# Method: model method (mechanistic, statistical, etc.)
+# CountryTargets: model predicts for single- vs multi-country
+# Trend: epidemic trend (stable, increasing, decreasing)
+# Location: location (random effect)
+# VariantPhase: dominant variant phase (random effect)
+# Horizon: forecast horizon (smooth, by model)
+# Model: individual model (random effect)
+#
+# Response: WIS (log-transformed, Gaussian family with log link)
+
 library(here)
 library(dplyr)
 library(readr)
@@ -23,27 +35,19 @@ m.formulas_uni <- list(
   target = wis ~ s(CountryTargets, bs = "re"),
   trend = wis ~ s(Trend, bs = "re"),
   location = wis ~ s(Location, bs = "re"),
-  variant = wis ~ s(VariantPhase, k = 6, bs = "re"),
-  horizon = wis ~ s(Horizon, k = 3, by = Model, bs = "sz"),
+  variant = wis ~ s(VariantPhase, bs = "re"),
+  horizon = wis ~ s(Horizon, Model, bs = "sz"),
   model = wis ~ s(Model, bs = "re")
 )
 
-# Full model
+# Full joint model
 m.formula_joint <- wis ~
-  # Method
   s(Method, bs = "re") +
-  # Number of target countries
   s(CountryTargets, bs = "re") +
-  # -----------------------------
-  # Trend
   s(Trend, bs = "re") +
-  # Location
   s(Location, bs = "re") +
-  # Variant phase
-  s(VariantPhase, k = 6, bs = "re") +
-  # Horizon
-  s(Horizon, k = 3, by = Model, bs = "sz") +
-  # Individual model
+  s(VariantPhase, bs = "re") +
+  s(Horizon, by = Model, bs = "sz") +
   s(Model, bs = "re")
 
 # --- Model fitting ---
@@ -68,7 +72,6 @@ m.fits_uni <- map(m.formulas_uni, ~ m.fit(outcomes, .x))
 
 cat("--------fitting joint model")
 m.fits_joint <- m.fit(outcomes, m.formula_joint)
-cat("finished fitting")
 
 # --- Output handling ---
 # Extract estimates for random effects
@@ -79,9 +82,11 @@ random_effects_uni <- m.fits_uni[!grepl("horizon", names(m.fits_uni))] |>
   mutate(model = "Unadjusted")
 
 random_effects_joint <- map_df(m.fits_joint,
-                         extract_ranef,
-                        .id = "outcome_target") |>
+                               extract_ranef,
+                                .id = "outcome_target") |>
   mutate(model = "Adjusted")
+
+extract_ranef(model = m.fits_joint$Cases, re = "Location")
 
 random_effects <- random_effects_joint |>
   bind_rows(random_effects_uni)
@@ -95,9 +100,9 @@ results <- list(
   formula = formula
 )
 
-saveRDS(results, here("output", "results.rds"))
-
-iwalk(m.fits_joint, \(x, target) {
-  p <- appraise(x)
-  ggsave(here("plots", paste0("check_", target, ".pdf")), p)
-})
+# saveRDS(results, here("output", "results.rds"))
+#
+# iwalk(m.fits_joint, \(x, target) {
+#   p <- appraise(x)
+#   ggsave(here("plots", paste0("check_", target, ".pdf")), p)
+# })
