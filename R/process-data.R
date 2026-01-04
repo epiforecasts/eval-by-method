@@ -91,9 +91,9 @@ process_data <- function(scoring_scale = "log") {
     # set to factors
     rename(Model = model, Horizon = horizon, Location = location) |>
     mutate(
+      Horizon = ifelse(!Horizon %in% 1:4, NA_integer_, Horizon),
       Model = as.factor(Model),
       Location = as.factor(Location),
-      Horizon = ordered(Horizon, levels = 1:4, labels = 1:4),
       outcome_target = paste0(str_to_title(outcome_target), "s"),
       wis = wis + 1e-7) |>
     filter(!is.na(Horizon)) ## horizon not in 1:4

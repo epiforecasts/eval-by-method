@@ -36,7 +36,7 @@ m.formulas_uni <- list(
   trend = wis ~ s(Trend, bs = "re"),
   location = wis ~ s(Location, bs = "re"),
   variant = wis ~ s(VariantPhase, bs = "re"),
-  horizon = wis ~ s(Horizon, Model, bs = "sz"),
+  horizon = wis ~ s(Horizon, by = Model, k = 3, bs = "sz"),
   model = wis ~ s(Model, bs = "re")
 )
 
@@ -47,7 +47,7 @@ m.formula_joint <- wis ~
   s(Trend, bs = "re") +
   s(Location, bs = "re") +
   s(VariantPhase, bs = "re") +
-  s(Horizon, by = Model, bs = "sz") +
+  s(Horizon, by = Model, k = 3, bs = "sz") +
   s(Model, bs = "re")
 
 # --- Model fitting ---
@@ -86,8 +86,6 @@ random_effects_joint <- map_df(m.fits_joint,
                                 .id = "outcome_target") |>
   mutate(model = "Adjusted")
 
-extract_ranef(model = m.fits_joint$Cases, re = "Location")
-
 random_effects <- random_effects_joint |>
   bind_rows(random_effects_uni)
 
@@ -100,9 +98,9 @@ results <- list(
   formula = formula
 )
 
-# saveRDS(results, here("output", "results.rds"))
-#
-# iwalk(m.fits_joint, \(x, target) {
-#   p <- appraise(x)
-#   ggsave(here("plots", paste0("check_", target, ".pdf")), p)
-# })
+saveRDS(results, here("output", "results.rds"))
+
+iwalk(m.fits_joint, \(x, target) {
+  p <- appraise(x)
+  ggsave(here("plots", paste0("check_", target, ".pdf")), p)
+})
