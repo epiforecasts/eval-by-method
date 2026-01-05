@@ -74,15 +74,15 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
       })
   }
   # Fit
-  cat("--------fitting univariate models")
+  message("--------fitting univariate models")
   m.fits_uni <- map(m.formulas_uni, ~ m.fit(outcomes, .x))
 
-  cat("--------fitting joint model")
+  message("--------fitting joint model")
   m.fits_joint <- m.fit(outcomes, m.formula_joint)
 
   # --- Output handling ---
   # Extract estimates for random effects
-  random_effects_uni <- m.fits_uni[!grepl("horizon", names(m.fits_uni))] |>
+  random_effects_uni <- m.fits_uni[!grepl("horizon|incidence", names(m.fits_uni))] |>
     map_depth(.depth = 2, ~ extract_ranef(.x)) |>
     map(~ list_rbind(.x, names_to = "outcome_target")) |>
     list_rbind() |>
