@@ -3,6 +3,7 @@
 # Method: model method (mechanistic, statistical, etc.)
 # CountryTargets: model predicts for single- vs multi-country
 # Trend: epidemic trend (stable, increasing, decreasing)
+# Incidence: current incidence level (smooth)
 # Location: location (random effect)
 # VariantPhase: dominant variant phase (random effect)
 # Horizon: forecast horizon (smooth, by model)
@@ -25,6 +26,11 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-", Model))
+  # log-transform incidence to match scoring on log scale
+  if (scoring_scale == "log") {
+    m.data <- m.data |>
+      mutate(Incidence = log(Incidence + 1))
+  }
   outcomes <- unique(m.data$outcome_target)
 
   # --- Model formula ---
@@ -33,6 +39,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     method = wis ~ s(Method, bs = "re"),
     target = wis ~ s(CountryTargets, bs = "re"),
     trend = wis ~ s(Trend, bs = "re"),
+    incidence = wis ~ s(Incidence),
     location = wis ~ s(Location, bs = "re"),
     variant = wis ~ s(VariantPhase, bs = "re"),
     horizon = wis ~ s(Horizon, by = Model, k = 3, bs = "sz"),
@@ -44,6 +51,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     s(Method, bs = "re") +
     s(CountryTargets, bs = "re") +
     s(Trend, bs = "re") +
+    s(Incidence) +
     s(Location, bs = "re") +
     s(VariantPhase, bs = "re") +
     s(Horizon, by = Model, k = 3, bs = "sz") +
