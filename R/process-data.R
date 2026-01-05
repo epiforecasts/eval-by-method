@@ -8,7 +8,8 @@ source(here("R", "utils-variants.R"))
 
 # Metadata ----------------------------------------------------------------
 # Get classification of model types
-classify_models <- function(file = here("data", "model-classification.csv")) {
+classify_models <- function(file = here("data", "model-classification.csv"),
+                            return_majority = TRUE) {
   methods <- read_csv(file) |>
     pivot_longer(
       -model,
@@ -16,21 +17,23 @@ classify_models <- function(file = here("data", "model-classification.csv")) {
     ) |>
     filter(!(is.na(classification) | classification == "#N/A")) |>
     group_by(model) |>
-    summarise(
-      agreement = (n_distinct(classification) == 1),
-      classification = names(
-        sort(table(classification), decreasing = TRUE)[1]
-      ),
-      .groups = "drop"
-    ) |>
-    mutate(classification = factor(
-      classification,
-      levels = c(
-        "Agent-based", "Mechanistic",
-        "Semi-mechanistic", "Statistical",
-        "Machine learning", "Other"
-      )
-    ))
+    mutate(raters = n()) |>
+    group_by(model, classification) |>
+    mutate(votes = n(),
+           agreement = votes == raters)
+
+  if (return_majority) {
+    methods <- methods |>
+      group_by(model) |>
+      slice_max(order_by = votes, with_ties = FALSE)
+  }
+
+  methods <- methods |>
+    mutate(classification = ifelse(grepl("EpiExpert", model), "Judgement",
+                                   classification),
+           classification = factor(classification)) |>
+    ungroup()
+
   return(methods)
 }
 

@@ -64,12 +64,16 @@ print_table1(scores)
 structures <- scores |>
   select(Model, Method, agreement) |>
   distinct()
-
-structure_count <- table(structures$Method)
-structure_count <- structure_count[structure_count > 0]
+structure_count <- structures |> 
+  group_by(Method) |> 
+  summarise(agreement = sum(agreement),
+            n = n(),
+            p = agreement / n)
 ```
 
-We categorised `r structure_count[["Statistical"]]` models as statistical, `r structure_count[["Semi-mechanistic"]]` as semi-mechanistic, `r structure_count[["Mechanistic"]]` as mechanistic, `r structure_count[["Agent-based"]]` as agent-based and `r structure_count[["Other"]]` models that used human judgement forecasting as "other" (Supplementary Table). For `r sum(!structures$agreement)` (`r round(sum(!structures$agreement) / nrow(structures) * 100)`%) models, investigators disagreed on model classification. The majority of 2/3 was used as the final classification, with additional manual review which in all cases retained the majority decision. In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Agent-based and "other" models provided fewer forecasts, representing only 1-2% of forecasts. 
+Among 47 models, we categorised 17 models as using mechanistic structure, 12 as statistical, 12 as semi-mechanistic, 3 as agent-based and 3 that used human judgement forecasting (Supplementary Table). Raters disagreed on 17 (36%) model classifications. The majority of 2/3 was used as the final classification, with additional manual review which in all cases retained the majority decision. Raters most often disagreed when classifying semi-mechanistic models, with 8 out of 12 receiving one or more votes for a statistical model structure.
+
+In the volume of forecasts provided, mechanistic, semi-mechanistic, and statistical models each contributed similar numbers of forecasts with approximately one-third each. Agent-based and judgement models provided fewer forecasts, representing only 1-2% of forecasts. 
 
 ```{r target-description}
 targets <- scores |>

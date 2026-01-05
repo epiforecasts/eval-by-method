@@ -78,6 +78,21 @@ table_metadata(scores) |>
   kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.")
 ```
 
+```{r classification}
+model_classifier <- classify_models(return_majority = FALSE) |> 
+  distinct(model, classification, raters, votes, agreement) |> 
+  group_by(model) |>
+  mutate(final = classification[which.max(votes)]) |> 
+  pivot_wider(names_from = classification, values_from = votes, values_fill = 0) |> 
+  filter(model %in% unique(scores$Model)) |>
+  select(Model = model, `Final classification` = final,
+         Agreement = agreement, `Total raters` = raters, everything()) |>
+  arrange(Agreement, Model)
+
+model_classifier |> 
+    kable(caption = "Classification of models by number of raters in total and agreement on model structure")
+```
+
 \newpage
 
 # Statistical methods
