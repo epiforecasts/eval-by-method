@@ -87,6 +87,6 @@ create_model_flow <- function() {
   flow_chart <- flow |>
     fc_merge() |>
     fc_draw() |>
-    fc_export(filename = "flowchart.png", path = here("plots"),
+    fc_export(filename = "flowchart.png", path = here("output", "plots"),
               width = 3000, height = 3000, res = 500)
 }

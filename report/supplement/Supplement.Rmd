@@ -57,7 +57,7 @@ Data for this work were downloaded on 30th May 2023. These data are available in
 ```{r model-flow, fig.cap="Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"}
 # source(here("R", "plot-model-flow.R"))
 # flow_chart <- create_model_flow()
-knitr::include_graphics(here("plots", "flowchart.png"))
+knitr::include_graphics(here("output", "plots", "flowchart.png"))
 ```
 
 ## Model characteristics
@@ -133,14 +133,14 @@ results <- readRDS(here("output", "results.rds"))
 
 ```{r gamm-diagnostics-cases}
 # QQ plot, residuals
-knitr::include_graphics(here("plots", "check_Cases.pdf"))
+knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
 ```
 
 #### Deaths
 
 ```{r gamm-diagnostics-deaths}
 # QQ plot, residuals
-knitr::include_graphics(here("plots", "check_Deaths.pdf"))
+knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
 ```
 
 ## Model results
