@@ -5,18 +5,27 @@ output: github_document
 
 ### Data processing
 
-The following R scripts were used to process the data stored here:
+The main script for combining and preparing data for analysis is: [`R/process-data.R`](R/process-data.R). The following R scripts were used to process the data stored here:
 
 - [`R/utils-data.R`](R/utils-data.R) : Code to access forecasts, observed data, and population size for each location
-   - `populations.csv`
-   - `observed-case.csv`, `observed-death.csv`
-   - `covid19-forecast-hub-europe.parquet`
-- [`R/utils-metadata.R`](R/utils-metadata.R) : Functions to access model names, model submissions, and raw metadata from Hub GitHub repos
-  - `model-classification.csv`
+  - Outputs:
+     - `populations.csv`
+     - `observed-case.csv`, `observed-death.csv`
+     - `covid19-forecast-hub-europe.parquet`
+- [`R/utils-metadata.R`](R/utils-metadata.R) : Functions to access model names, model submissions, and raw metadata from Hub GitHub repos.
+  - Output: `model-classification.csv`
+- [`R/utils-variants.R`](R/utils-variants.R) : Takes raw data on variant sequencing stored here, cleans and classifies phases of dominant variants
+  - Inputs:
+    - `variants/eu-ecdc.csv`: 30 EU countries covered by the ECDC, source: https://www.ecdc.europa.eu/en/publications-data/data-covid-19-variants-eueea
+    - `variants/uk-ukhsa.csv`: United Kingdom, source: https://ukhsa-dashboard.data.gov.uk/respiratory-viruses/covid-19
+    - `variants/ch-wgs.csv` and `variants/ch-hosp.csv`: Switzerland, source: https://covid19.admin.ch/
 - [`R/process-score.R`](R/process-score.R) : Code to score forecasts using scoringutils
-  - `scores-raw-case.csv`, `scores-raw-death.csv`
+  - Outputs: 
+    - `scores-raw-case.csv`
+    - `scores-raw-death.csv`
 
-#### Metadata
+
+#### Model metadata
 
 Code used to access and store metadata:
 
