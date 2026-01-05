@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
 source(here("R", "plot-model-results.R"))
-scores <- prep_data(scoring_scale = "log")
+scores <- process_data(scoring_scale = "log")
 ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
@@ -81,9 +81,9 @@ targets <- targets[targets > 0]
 
 single_countries <- scores |>
   filter(CountryTargets == "Single-country") |>
-  select(Model, location) |>
+  select(Model, Location) |>
   distinct() |>
-  pull(location) |>
+  pull(Location) |>
   table()
 single_countries <- rev(sort(single_countries[single_countries > 0]))
 
@@ -150,8 +150,8 @@ We identified residual unexplained influences among models' performance. We inte
 
 
 ```{r plot-coeffs, fig.height=3, fig.width=5, fig.cap=coeff_cap}
-coeff_cap <- "Partial effect (95%CI) on the weighted interval score from model structure and number of countries targeted, before and after adjusting for confounding factors. A lower WIS indicates better forecast performance, meaning effects <0 are relatively better than the group average. Adjusted effects also account for the impact of forecast horizon, epidemic trend, geographic location, and individual model variation. Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model."
-plot_effects(results$effects)
+coeff_cap <- "Partial effect (95%CI) on the weighted interval score from model structure and number of countries targeted, before and after adjusting for confounding factors. A lower WIS indicates better forecast performance, meaning effects <0 are relatively better than the group average. Adjusted effects also account for the impact of forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Partial effects and 95% confidence intervals were estimated from fitting a generalised additive mixed model."
+plot_effects(results$effects, variables = c("Method", "CountryTargets"))
 ```
 
 

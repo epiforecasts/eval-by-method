@@ -1,4 +1,16 @@
 # Aim: use a GAMM to model the effects of model structure and country target type on WIS
+# Model:
+#
+# Method: model method (mechanistic, statistical, etc.)
+# CountryTargets: model predicts for single- vs multi-country
+# Trend: epidemic trend (stable, increasing, decreasing)
+# Location: location (random effect)
+# VariantPhase: dominant variant phase (random effect)
+# Horizon: forecast horizon (smooth, by model)
+# Model: individual model (random effect)
+#
+# Response: WIS (log-transformed, Gaussian family with log link)
+
 library(here)
 library(dplyr)
 library(readr)
@@ -11,44 +23,31 @@ source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
 
 # --- Get data ---
-data <- prep_data(scoring_scale = "log")
-outcomes <- unique(data$outcome_target)
-classification <- classify_models()
-targets <- table_targets(data)
-
+data <- process_data(scoring_scale = "log")
 m.data <- data |>
-  filter(!grepl("EuroCOVIDhub-", Model)) |>
-  mutate(location = factor(location)) |>
-  group_by(location) |>
-  mutate(
-    time = as.numeric(forecast_date - min(forecast_date)) / 7,
-    Horizon = as.numeric(Horizon),
-    wis = wis + 1e-7
-  ) |>
-  ungroup()
+  filter(!grepl("EuroCOVIDhub-", Model))
+outcomes <- unique(data$outcome_target)
 
 # --- Model formula ---
-# Univariate for explanatory variables
-m.formula_uni_type <- wis ~ s(Method, bs = "re")
-m.formula_uni_tgt <- wis ~ s(CountryTargets, bs = "re")
-m.formula_uni_model <- wis ~ s(Model, bs = "re")
+# Univariate for each explanatory variable
+m.formulas_uni <- list(
+  method = wis ~ s(Method, bs = "re"),
+  target = wis ~ s(CountryTargets, bs = "re"),
+  trend = wis ~ s(Trend, bs = "re"),
+  location = wis ~ s(Location, bs = "re"),
+  variant = wis ~ s(VariantPhase, bs = "re"),
+  horizon = wis ~ s(Horizon, by = Model, k = 3, bs = "sz"),
+  model = wis ~ s(Model, bs = "re")
+)
 
-# Full model
-m.formula <- wis ~
-  # Method
+# Full joint model
+m.formula_joint <- wis ~
   s(Method, bs = "re") +
-  # Number of target countries
   s(CountryTargets, bs = "re") +
-  # -----------------------------
-  # Trend
   s(Trend, bs = "re") +
-  # Location
-  s(location, bs = "re") +
-  # Week * location
-  s(time, by = location, k = 40) +
-  # Horizon
-  s(Horizon, k = 3, by = Model, bs = "sz") +
-  # Individual model
+  s(Location, bs = "re") +
+  s(VariantPhase, bs = "re") +
+  s(Horizon, by = Model, k = 3, bs = "sz") +
   s(Model, bs = "re")
 
 # --- Model fitting ---
@@ -69,23 +68,22 @@ m.fit <- function(outcomes, m.formula) {
 }
 # Fit
 cat("--------fitting univariate models")
-m.fits_uni_type <- m.fit(outcomes, m.formula_uni_type)
-m.fits_uni_tgt <- m.fit(outcomes, m.formula_uni_tgt)
-m.fits_uni_model <- m.fit(outcomes, m.formula_uni_model)
+m.fits_uni <- map(m.formulas_uni, ~ m.fit(outcomes, .x))
+
 cat("--------fitting joint model")
-m.fits_joint <- m.fit(outcomes, m.formula)
-cat("finished fitting")
+m.fits_joint <- m.fit(outcomes, m.formula_joint)
+
 # --- Output handling ---
 # Extract estimates for random effects
-random_effects_uni <- map_df(
-  c(m.fits_uni_type, m.fits_uni_tgt, m.fits_uni_model),
-  extract_ranef,
-  .id = "outcome_target") |>
+random_effects_uni <- m.fits_uni[!grepl("horizon", names(m.fits_uni))] |>
+  map_depth(.depth = 2, ~ extract_ranef(.x)) |>
+  map(~ list_rbind(.x, names_to = "outcome_target")) |>
+  list_rbind() |>
   mutate(model = "Unadjusted")
 
 random_effects_joint <- map_df(m.fits_joint,
-                         extract_ranef,
-                        .id = "outcome_target") |>
+                               extract_ranef,
+                                .id = "outcome_target") |>
   mutate(model = "Adjusted")
 
 random_effects <- random_effects_joint |>

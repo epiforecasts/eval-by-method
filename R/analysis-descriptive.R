@@ -1,7 +1,7 @@
 # Aim: describe interval score in terms of model structure and country target type
 # Load data:
 # source(here("R", "process-data.R"))
-# scores <- prep_data(scoring_scale = "log")
+# scores <- process_data(scoring_scale = "log")
 library(here)
 library(dplyr)
 library(purrr)
@@ -258,7 +258,7 @@ plot_ridges <- function(scores, target = "Deaths") {
 # Table of targets by model -------------
 table_targets <- function(scores) {
   table_targets <- scores |>
-    select(Model, outcome_target, forecast_date, location) |>
+    select(Model, outcome_target, forecast_date, Location) |>
     distinct() |>
     group_by(Model, outcome_target, forecast_date) |>
     summarise(target_count = n(), .groups = "drop") |>
@@ -312,11 +312,12 @@ table_metadata <- function(scores) {
 # Data --------------------
 data_plot <- function(scores, log = FALSE, all = FALSE) {
   data <- scores |>
-    select(location, outcome_target, target_end_date, Incidence) |>
+    select(Location, outcome_target, target_end_date, Incidence) |>
     distinct()
-  pop <- read_csv(here("data", "populations.csv"), show_col_types = FALSE)
+  pop <- read_csv(here("data", "populations.csv"), show_col_types = FALSE) |>
+    rename(Location = location)
   data <- data |>
-    left_join(pop, by = join_by(location)) |>
+    left_join(pop, by = join_by(Location)) |>
     mutate(
       rel_inc = Incidence / population * 1e5,
       log_inc = log(Incidence + 1)
@@ -331,11 +332,11 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
     mutate(
       rel_inc = Incidence / population * 1e5,
       log_inc = log(Incidence + 1),
-      location = "Total"
+      Location = "Total"
     )
   var_name <- ifelse(log, "log_inc", "rel_inc")
   plot <- ggplot(mapping = aes(
-    x = target_end_date, y = .data[[var_name]], group = location
+    x = target_end_date, y = .data[[var_name]], group = Location
   ))
 
   if (all) {
@@ -360,14 +361,14 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
 
 trends_plot <- function(scores) {
   trends <- scores |>
-    select(location, target_end_date, Incidence, Trend) |>
+    select(Location, target_end_date, Incidence, Trend) |>
     distinct()
   p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
     geom_point(mapping = aes(colour = Trend), size = 1) +
     geom_line() +
     scale_colour_brewer(palette = "Set2", na.value = "grey") +
     theme(legend.position = "bottom") +
-    facet_wrap(~location, scales = "free_y") +
+    facet_wrap(~Location, scales = "free_y") +
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
     xlab("")
   return(p)
