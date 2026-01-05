@@ -70,7 +70,7 @@ process_data <- function(scoring_scale = "log") {
 
   # Method type
   methods <- classify_models() |>
-    select(model, Method = classification)
+    select(model, Method = classification, agreement)
 
   # Incidence level + trend (observed data from: R/utils-data.r)
   obs <- names(scores_files) |>
