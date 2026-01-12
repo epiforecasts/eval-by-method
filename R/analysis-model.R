@@ -31,7 +31,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     m.data <- m.data |>
       mutate(Incidence = log(Incidence + 1))
   }
-  outcomes <- unique(m.data$outcome_target)
+  outcomes <- unique(m.data$epi_target)
 
   # --- Model formula ---
   # Univariate for each explanatory variable
@@ -65,7 +65,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
       map(\(outcome) {
         bam(
           formula = m.formula,
-          data = m.data |> filter(outcome_target == outcome),
+          data = m.data |> filter(epi_target == outcome),
           family = gaussian(link = "log"),
           method = "fREML",
           control = gam.control(trace = TRUE),
@@ -84,13 +84,13 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   # Extract estimates for random effects
   random_effects_uni <- m.fits_uni[!grepl("horizon|incidence", names(m.fits_uni))] |>
     map_depth(.depth = 2, ~ extract_ranef(.x)) |>
-    map(~ list_rbind(.x, names_to = "outcome_target")) |>
+    map(~ list_rbind(.x, names_to = "epi_target")) |>
     list_rbind() |>
     mutate(model = "Unadjusted")
 
   random_effects_joint <- map_df(m.fits_joint,
                                  extract_ranef,
-                                 .id = "outcome_target") |>
+                                 .id = "epi_target") |>
     mutate(model = "Adjusted")
 
   random_effects <- random_effects_joint |>
