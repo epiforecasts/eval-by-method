@@ -38,8 +38,8 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   m.formulas_uni <- list(
     method = wis ~ s(Method, bs = "re"),
     target = wis ~ s(CountryTargets, bs = "re"),
-    trend = wis ~ s(Trend, bs = "re"),
     incidence = wis ~ s(Incidence),
+    trend = wis ~ s(Trend, bs = "re"),
     location = wis ~ s(Location, bs = "re"),
     variant = wis ~ s(VariantPhase, bs = "re"),
     horizon = wis ~ s(Horizon, by = Model, k = 3, bs = "sz"),
@@ -50,8 +50,8 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   m.formula_joint <- wis ~
     s(Method, bs = "re") +
     s(CountryTargets, bs = "re") +
-    s(Trend, bs = "re") +
     s(Incidence) +
+    s(Trend, bs = "re") +
     s(Location, bs = "re") +
     s(VariantPhase, bs = "re") +
     s(Horizon, by = Model, k = 3, bs = "sz") +
