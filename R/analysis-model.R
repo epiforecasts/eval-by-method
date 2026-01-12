@@ -3,6 +3,7 @@
 # Method: model method (mechanistic, statistical, etc.)
 # CountryTargets: model predicts for single- vs multi-country
 # Trend: epidemic trend (stable, increasing, decreasing)
+# Incidence: current incidence level (smooth)
 # Location: location (random effect)
 # VariantPhase: dominant variant phase (random effect)
 # Horizon: forecast horizon (smooth, by model)
@@ -25,6 +26,11 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-", Model))
+  # log-transform incidence to match scoring on log scale
+  if (scoring_scale == "log") {
+    m.data <- m.data |>
+      mutate(Incidence = log(Incidence + 1))
+  }
   outcomes <- unique(m.data$outcome_target)
 
   # --- Model formula ---
@@ -32,6 +38,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   m.formulas_uni <- list(
     method = wis ~ s(Method, bs = "re"),
     target = wis ~ s(CountryTargets, bs = "re"),
+    incidence = wis ~ s(Incidence),
     trend = wis ~ s(Trend, bs = "re"),
     location = wis ~ s(Location, bs = "re"),
     variant = wis ~ s(VariantPhase, bs = "re"),
@@ -43,6 +50,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   m.formula_joint <- wis ~
     s(Method, bs = "re") +
     s(CountryTargets, bs = "re") +
+    s(Incidence) +
     s(Trend, bs = "re") +
     s(Location, bs = "re") +
     s(VariantPhase, bs = "re") +
@@ -66,15 +74,15 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
       })
   }
   # Fit
-  cat("--------fitting univariate models")
+  message("--------fitting univariate models")
   m.fits_uni <- map(m.formulas_uni, ~ m.fit(outcomes, .x))
 
-  cat("--------fitting joint model")
+  message("--------fitting joint model")
   m.fits_joint <- m.fit(outcomes, m.formula_joint)
 
   # --- Output handling ---
   # Extract estimates for random effects
-  random_effects_uni <- m.fits_uni[!grepl("horizon", names(m.fits_uni))] |>
+  random_effects_uni <- m.fits_uni[!grepl("horizon|incidence", names(m.fits_uni))] |>
     map_depth(.depth = 2, ~ extract_ranef(.x)) |>
     map(~ list_rbind(.x, names_to = "outcome_target")) |>
     list_rbind() |>
