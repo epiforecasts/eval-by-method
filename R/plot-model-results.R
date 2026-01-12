@@ -45,7 +45,7 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
       labs(y = "Partial effect", x = "", colour = NULL, shape = NULL) +
       scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
       scale_colour_brewer(type = "qual", palette = 2) +
-      facet_wrap(~outcome_target, scales = "free_y", drop = TRUE) +
+      facet_wrap(~epi_target, scales = "free_y", drop = TRUE) +
       theme(
         legend.position = "bottom",
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
@@ -78,7 +78,7 @@ plot_effects <- function(random_effects,
                    position = position_dodge(width=1)) +
     geom_hline(yintercept = 0, lty = 2, alpha = 0.25) +
     scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
-    facet_wrap(~outcome_target, scales = "free_y") +
+    facet_wrap(~epi_target, scales = "free_y") +
     labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
     scale_colour_brewer(type = "qual", palette = "Set1",
                         guide = "none") +
