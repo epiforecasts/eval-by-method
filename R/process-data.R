@@ -48,7 +48,7 @@ process_data <- function(scoring_scale = "log") {
     map(\(file) {
       read_csv(here("data", file))
     }) |>
-    bind_rows(.id = "outcome_target") |>
+    bind_rows(.id = "epi_target") |>
     filter(scale == scoring_scale)
 
   # Add variables of interest to scores dataframe ----------------------
@@ -76,18 +76,18 @@ process_data <- function(scoring_scale = "log") {
   obs <- names(scores_files) |>
     set_names() |>
     map(~ read_csv(here("data", paste0("observed-", .x, ".csv")))) |>
-    bind_rows(.id = "outcome_target") |>
+    bind_rows(.id = "epi_target") |>
     mutate(Trend = factor(trend,
                           levels = c("Stable", "Increasing", "Decreasing"))) |>
     rename(Incidence = observed) |>
-    select(target_end_date, location, outcome_target, Trend, Incidence)
+    select(target_end_date, location, epi_target, Trend, Incidence)
 
   # Variant phase
   variant_phase <- classify_variant_phases()
 
   # Combine all data -----------------------------------------------------
   data <- scores_raw |>
-    left_join(obs, by = c("location", "target_end_date", "outcome_target")) |>
+    left_join(obs, by = c("location", "target_end_date", "epi_target")) |>
     left_join(variant_phase, by = c("location", "target_end_date")) |>
     left_join(country_targets, by = "model") |>
     left_join(methods, by = "model") |>
@@ -97,7 +97,7 @@ process_data <- function(scoring_scale = "log") {
       Horizon = ifelse(!Horizon %in% 1:4, NA_integer_, Horizon),
       Model = as.factor(Model),
       Location = as.factor(Location),
-      outcome_target = paste0(str_to_title(outcome_target), "s"),
+      epi_target = paste0(str_to_title(epi_target), "s"),
       wis = wis + 1e-7) |>
     filter(!is.na(Horizon)) ## horizon not in 1:4
   return(data)

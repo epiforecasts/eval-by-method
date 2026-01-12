@@ -125,7 +125,7 @@ table_effects <- results$effects |>
   mutate(value_ci = paste0(round(value, 2), 
                            " (", round(lower_2.5, 2), "-", 
                            upper_97.5_text, ")"),
-         group = paste(outcome_target, model, group, sep = "_")) |>
+         group = paste(epi_target, model, group, sep = "_")) |>
   column_to_rownames("group")
 
 effects_comp <- results$effects |> 

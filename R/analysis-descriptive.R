@@ -70,11 +70,11 @@ create_raw_table1 <- function(scores, targets) {
 }
 
 print_table1 <- function(scores) {
-  outcome_targets <- unique(scores$outcome_target)
-  tables <- outcome_targets |>
+  epi_targets <- unique(scores$epi_target)
+  tables <- epi_targets |>
     map(\(outcome) {
       scores <- scores |>
-        filter(outcome_target == outcome)
+        filter(epi_target == outcome)
       table <- create_raw_table1(scores)
 
       colnames(table)[!(colnames(table) %in% c("Variable", "group"))] <-
@@ -88,8 +88,8 @@ print_table1 <- function(scores) {
 
   ## merge all
   table1 <- tables[[1]]
-  if (length(outcome_targets) > 1) {
-    for (i in seq(2, length(outcome_targets))) {
+  if (length(epi_targets) > 1) {
+    for (i in seq(2, length(epi_targets))) {
       table1 <- inner_join(table1, tables[[i]], by = c("Variable", "group"))
     }
   }
@@ -103,14 +103,14 @@ print_table1 <- function(scores) {
       starts_with("Mean WIS (SD)_")
     )
   ## reorder
-  for (outcome in rev(outcome_targets)) {
+  for (outcome in rev(epi_targets)) {
     table1 <- table1 |>
       relocate(ends_with(outcome), .after = Variable)
   }
 
   ## build extra headers
   headers_to_add <- c(" " = 1, vapply(
-    outcome_targets, \(x) sum(grepl(paste0("_", x, "$"), colnames(table1))),
+    epi_targets, \(x) sum(grepl(paste0("_", x, "$"), colnames(table1))),
     1L
   ))
 
@@ -139,7 +139,7 @@ print_table1 <- function(scores) {
 plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) {
   plot_over_time_target <- scores |>
     # Get mean & CIs
-    group_by(target_end_date, outcome_target, CountryTargets) |>
+    group_by(target_end_date, epi_target, CountryTargets) |>
     reframe(
       n = n(),
       mean = mean(wis, na.rm = TRUE),
@@ -160,7 +160,7 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
       )
   }
   plot_over_time_target <- plot_over_time_target +
-    facet_wrap(~outcome_target, scales = "free_y") +
+    facet_wrap(~epi_target, scales = "free_y") +
     scale_x_date(date_labels = "%b %Y") +
     scale_fill_manual(
       values = c(
@@ -180,7 +180,7 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
 
   plot_over_time_method <- scores |>
     # Get mean & CIs
-    group_by(target_end_date, outcome_target, Method) |>
+    group_by(target_end_date, epi_target, Method) |>
     reframe(
       n = n(),
       mean = mean(wis, na.rm = TRUE),
@@ -197,7 +197,7 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
       )
   }
   plot_over_time_method <- plot_over_time_method +
-    facet_wrap(~outcome_target, scales = "free_y") +
+    facet_wrap(~epi_target, scales = "free_y") +
     scale_x_date(date_labels = "%b %Y") +
     scale_fill_brewer(
       aesthetics = c("col", "fill"),
@@ -229,7 +229,7 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
 # Ridge plot by model --------------------
 plot_ridges <- function(scores, target = "Deaths") {
   scores |>
-    filter(outcome_target == target) |>
+    filter(epi_target == target) |>
     group_by(Model) |>
     mutate(
       median_score = median(wis, na.rm = TRUE),
@@ -258,12 +258,12 @@ plot_ridges <- function(scores, target = "Deaths") {
 # Table of targets by model -------------
 table_targets <- function(scores) {
   table_targets <- scores |>
-    select(Model, outcome_target, forecast_date, Location) |>
+    select(Model, epi_target, forecast_date, Location) |>
     distinct() |>
-    group_by(Model, outcome_target, forecast_date) |>
+    group_by(Model, epi_target, forecast_date) |>
     summarise(target_count = n(), .groups = "drop") |>
     ungroup() |>
-    group_by(Model, outcome_target) |>
+    group_by(Model, epi_target) |>
     summarise(
       CountryTargets = all(target_count <= 2),
       min_targets = min(target_count),
@@ -287,20 +287,20 @@ table_metadata <- function(scores) {
   classification <- classify_models() |>
     select(Model = model, Method = classification)
   model_scores <- scores |>
-    group_by(Model, outcome_target) |>
+    group_by(Model, epi_target) |>
     table_confint() |>
-    select(Model, outcome_target, Forecasts)
+    select(Model, epi_target, Forecasts)
   country_targets <- table_targets(scores) |>
-    select(Model, outcome_target, CountryTargets)
+    select(Model, epi_target, CountryTargets)
   metadata_table <- classification |>
     left_join(model_scores) |>
     mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
     inner_join(country_targets) |>
     mutate(
-      outcome_target = sub("s$", " forecasts", outcome_target)
+      epi_target = sub("s$", " forecasts", epi_target)
     ) |>
     pivot_wider(
-      names_from = "outcome_target",
+      names_from = "epi_target",
       values_from = "Forecasts",
       values_fill = ""
     ) |>
@@ -312,7 +312,7 @@ table_metadata <- function(scores) {
 # Data --------------------
 data_plot <- function(scores, log = FALSE, all = FALSE) {
   data <- scores |>
-    select(Location, outcome_target, target_end_date, Incidence) |>
+    select(Location, epi_target, target_end_date, Incidence) |>
     distinct()
   pop <- read_csv(here("data", "populations.csv"), show_col_types = FALSE) |>
     rename(Location = location)
@@ -323,7 +323,7 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
       log_inc = log(Incidence + 1)
     )
   total <- data |>
-    group_by(outcome_target, target_end_date) |>
+    group_by(epi_target, target_end_date) |>
     summarise(
       Incidence = sum(Incidence),
       population = sum(population),
@@ -345,7 +345,7 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
 
   plot <- plot +
     geom_line(data = total, linewidth = ifelse(all, 2, 1)) +
-    facet_wrap(~outcome_target, scales = "free") +
+    facet_wrap(~epi_target, scales = "free") +
     xlab("")
 
   if (log) {
