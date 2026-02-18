@@ -19,6 +19,7 @@ library(purrr)
 library(mgcv)
 library(gammit)
 library(gratia)
+library(ggplot2)
 source(here("R", "process-data.R"))
 
 model_wis <- function(scoring_scale = "log", output_dir = "output") {

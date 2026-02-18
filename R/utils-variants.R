@@ -73,7 +73,7 @@ classify_variant_phases <- function() {
   # set a complete grid of dates and locations in ecdc year-weeks
   date_grid <- tibble(
     target_end_date = seq.Date(from = as.Date("2020-01-04"),
-                               to = Sys.Date(), by = 7),
+                               to = as.Date("2023-03-17"), by = 7),
     year = isoyear(target_end_date),
     week = isoweek(target_end_date)) |>
     group_by(year, week) |>
@@ -102,53 +102,48 @@ classify_variant_phases <- function() {
 
 # Identify dominant variant in each week and location
 set_variant_phases <- function(variant_data, date_location) {
+  # Aggregate variant percentages across sources per location-week,
+  # then identify the dominant variant
   dominant <- variant_data |>
-    group_by(location, target_end_date, source) |>
+    filter(!is.na(variant_percent)) |>
+    group_by(location, target_end_date, variant_name) |>
+    summarise(variant_percent = mean(variant_percent), .groups = "drop") |>
+    group_by(location, target_end_date) |>
     slice_max(order_by = variant_percent, with_ties = FALSE, n = 1) |>
     mutate(variant_name = as.character(variant_name)) |>
     ungroup()
 
-  # # use single sequential phases for each location -------
-  # dominant_phases <- dominant |>
-  #   mutate(dominant_name = ifelse(variant_name == "Other", NA,
-  #                                 variant_name)) |>
-  #   filter(!is.na(dominant_name)) |>
-  #   # get only one first date for each dominant variant in each location
-  #   group_by(location) |>
-  #   arrange(target_end_date) |>
-  #   group_by(dominant_name, .add = TRUE) |>
-  #   summarise(target_end_date = first(target_end_date), .groups = "drop") |>
-  #   # expand out to all weeks
-  #   right_join(date_location,
-  #              by = c("location", "target_end_date")) |>
-  #   group_by(location) |>
-  #   arrange(target_end_date) |>
-  #   fill(dominant_name, .direction = "downup") |>
-  #   mutate(VariantPhase = factor(dominant_name)) |>
-  #   select(location, target_end_date, VariantPhase)
+  # Expected chronological order of variant phases
+  variant_order <- c("Alpha", "Delta", "Omicron-BA.1", "Omicron-BA.2",
+                     "Omicron-BA.4/5", "Omicron-BQ/XBB")
 
-  # average date ------------------------------------------------------------
-  # TODO REMOVE - HACK
-  # get median average first date for each dominant variant across all locations
-  dominant_start_mid <- dominant |>
+  # Use single sequential phases for each location
+  # Find first date each named variant was dominant (>50%) in each location
+  phase_starts <- dominant |>
     mutate(dominant_name = ifelse(variant_name == "Other", NA,
                                   variant_name)) |>
-    filter(!is.na(dominant_name)) |>
+    filter(!is.na(dominant_name), variant_percent > 50) |>
     group_by(location) |>
     arrange(target_end_date) |>
     group_by(dominant_name, .add = TRUE) |>
     summarise(target_end_date = first(target_end_date), .groups = "drop") |>
-    group_by(dominant_name) |>
-    summarise(target_end_date = median(target_end_date))
-  dominant_mid <- date_location |>
-    left_join(dominant_start_mid, by = "target_end_date") |>
+    # Enforce chronological ordering: remove out-of-sequence phases
+    mutate(variant_rank = match(dominant_name, variant_order)) |>
+    filter(!is.na(variant_rank)) |>
+    group_by(location) |>
+    arrange(target_end_date) |>
+    filter(variant_rank == cummax(variant_rank)) |>
+    select(-variant_rank)
+
+  # Expand out to all weeks
+  dominant_phases <- phase_starts |>
+    right_join(date_location,
+               by = c("location", "target_end_date")) |>
     group_by(location) |>
     arrange(target_end_date) |>
     fill(dominant_name, .direction = "downup") |>
     mutate(VariantPhase = factor(dominant_name)) |>
     select(location, target_end_date, VariantPhase)
-  dominant_phases <- dominant_mid
-  # TODO end  ---------------------------------------------------------
 
   return(dominant_phases)
 
@@ -173,7 +168,8 @@ get_variants_ch <- function(date_grid, variant_names) {
     select(variant = variant_type,
            year_week,
            variant_percent = prct) |>
-    left_join(date_grid, by = c("year_week")) |>
+    left_join(distinct(date_grid, year_week, .keep_all = TRUE),
+              by = c("year_week")) |>
     filter(year_week %in% date_grid$year_week &
              !target_end_date %in% variants_ch_wgs$target_end_date)
 
