@@ -43,6 +43,10 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
                      position = position_dodge(width=1)) +
       geom_hline(yintercept = 0, lty = 2) +
       labs(y = "Partial effect", x = "", colour = NULL, shape = NULL) +
+      scale_shape_manual(
+        values = c("Single-country" = 16, "Multi-country" = 17),
+        drop = FALSE
+      ) +
       scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
       scale_colour_brewer(type = "qual", palette = 2) +
       facet_wrap(~epi_target, scales = "free_y", drop = TRUE) +

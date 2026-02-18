@@ -1,6 +1,6 @@
 ---
 title: "Results"
-output: html_document
+format: html
 ---
 <!--- RMarkdown set up --->
 ```{r set-up, include=FALSE}
@@ -118,7 +118,7 @@ We explored the interval score (WIS) as a measure of predictive performance (Fig
 We used descriptive statistics and an unadjusted univariate model for each explanatory variable. 
 
 ```{r scores-over-time, fig.height=8,fig.width=6,fig.cap=scores_over_time_cap}
-scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS), where a lower score indicates better performance. Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time. Shown for (A) the method structure used by each model; (B) the number of countries each model targeted (one or multiple); with (C) the total count of observed incidence across all 32 countries, shown on the log scale."
+scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the unadjusted mean weighted interval score (WIS), where a lower score indicates better performance. Forecast performance is summarised across 32 target locations and 1 through 4 week forecast horizons, with varying numbers of forecasters participating over time. Shown for (A) the method structure used by each model; (B) the number of countries each model targeted (one or multiple); with (C) the total count of observed incidence across all 32 countries, shown on the log scale. Unadjusted means are shown; see Figure 2 for adjusted estimates accounting for confounding factors."
 scores_over_time <- plot_over_time(
   scores = scores,
   ensemble = ensemble,
@@ -130,7 +130,11 @@ scores_over_time
 
 ```{r}
 results <- readRDS(here("output", "results.rds"))
-table_effects <- results$effects |> 
+# Handle column name difference between saved results and current code
+if ("outcome_target" %in% names(results$effects)) {
+  results$effects <- rename(results$effects, epi_target = outcome_target)
+}
+table_effects <- results$effects |>
   mutate(upper_97.5_text = if_else(
            upper_97.5 < 0,
            paste0("(", round(upper_97.5, 2), ")"),
@@ -198,7 +202,7 @@ plot_effects(results$effects, variables = c("Method", "CountryTargets"))
 
 
 ```{r plot-models, fig.height=8, fig.width=10, fig.cap=model_cap}
-model_cap <- "Partial effect size (95% CI) by model. This can be interpreted as adjusted performance after accounting for all other variables in the model, with remaining differences in effects as seen here representing unexplained variation between models beyond these factors."
+model_cap <- "Partial effect size (95% CI) by individual model, shown by method classification (colour) and number of countries targeted (shape: circle = single-country, triangle = multi-country). Solid lines show adjusted estimates; faded lines show unadjusted estimates. This can be interpreted as adjusted performance after accounting for all other variables in the model, with remaining differences in effects as seen here representing unexplained variation between models beyond these factors."
 plot_models(results$effects, scores)
 ```
 
@@ -209,3 +213,19 @@ In developing this work, we explored several alternative model specifications. W
 We considered different ways of categorising explanatory variables, 
 
 and sensitivity analyses (see Supplementary Results).
+
+```{r export-figures, eval=FALSE, echo=FALSE}
+# Export figures in TIF format for journal submission (PLOS Comp Bio)
+# Uncomment and run manually to generate submission-ready figures
+# ggsave(here("output", "plots", "Figure1_scores_over_time.tif"),
+#        scores_over_time, width = 6, height = 8, dpi = 300,
+#        device = "tiff", compression = "lzw")
+# ggsave(here("output", "plots", "Figure2_partial_effects.tif"),
+#        plot_effects(results$effects, variables = c("Method", "CountryTargets")),
+#        width = 5, height = 3, dpi = 300,
+#        device = "tiff", compression = "lzw")
+# ggsave(here("output", "plots", "Figure3_model_effects.tif"),
+#        plot_models(results$effects, scores),
+#        width = 10, height = 8, dpi = 300,
+#        device = "tiff", compression = "lzw")
+```
