@@ -130,7 +130,11 @@ scores_over_time
 
 ```{r}
 results <- readRDS(here("output", "results.rds"))
-table_effects <- results$effects |> 
+# Handle column name difference between saved results and current code
+if ("outcome_target" %in% names(results$effects)) {
+  results$effects <- rename(results$effects, epi_target = outcome_target)
+}
+table_effects <- results$effects |>
   mutate(upper_97.5_text = if_else(
            upper_97.5 < 0,
            paste0("(", round(upper_97.5, 2), ")"),
