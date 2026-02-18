@@ -1,6 +1,6 @@
 ---
 title: "Results"
-output: html_document
+format: html
 ---
 <!--- RMarkdown set up --->
 ```{r set-up, include=FALSE}
