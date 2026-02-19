@@ -102,10 +102,12 @@ classify_variant_phases <- function() {
 
 # Identify dominant variant in each week and location
 set_variant_phases <- function(variant_data, date_location) {
-  # Aggregate variant percentages across sources per location-week,
-  # then identify the dominant variant
+  # Aggregate variant percentages: first sum sub-variants within each source
+  # (e.g., BA.4 + BA.5 → Omicron-BA.4/5), then average across sources
   dominant <- variant_data |>
     filter(!is.na(variant_percent)) |>
+    group_by(location, target_end_date, source, variant_name) |>
+    summarise(variant_percent = sum(variant_percent), .groups = "drop") |>
     group_by(location, target_end_date, variant_name) |>
     summarise(variant_percent = mean(variant_percent), .groups = "drop") |>
     group_by(location, target_end_date) |>
@@ -159,7 +161,8 @@ get_variants_ch <- function(date_grid, variant_names) {
     select(variant = variant_type,
            target_end_date = date,
            variant_percent = prct_mean7d) |>
-    filter(target_end_date %in% date_grid$target_end_date)
+    filter(target_end_date %in% date_grid$target_end_date) |>
+    mutate(source = "CH-WGS")
 
   # 2022-2023: weekly data from hospital sampling
   # https://covid19.admin.ch/api/data/20231206-0sxi4s4a/sources/COVID19Variants_hosp_w.csv
@@ -170,12 +173,13 @@ get_variants_ch <- function(date_grid, variant_names) {
            variant_percent = prct) |>
     left_join(distinct(date_grid, year_week, .keep_all = TRUE),
               by = c("year_week")) |>
-    filter(year_week %in% date_grid$year_week &
-             !target_end_date %in% variants_ch_wgs$target_end_date)
+    filter(year_week %in% date_grid$year_week) |>
+    mutate(source = "CH-Hosp")
 
+  # Keep both sources; overlap is handled by set_variant_phases() which
+  # sums sub-variants within each source then averages across sources
   ch <- bind_rows(variants_ch_wgs, variants_ch_hosp) |>
-    mutate(location = "CH",
-           source = "National") |>
+    mutate(location = "CH") |>
     filter(variant != "all_sequenced") |>
     mutate(variant_name = as.character(fct_recode(variant, !!!variant_names))) |>
     select(location, source, target_end_date, variant_name, variant_percent)
