@@ -137,6 +137,21 @@ set_variant_phases <- function(variant_data, date_location) {
     filter(variant_rank == cummax(variant_rank)) |>
     select(-variant_rank)
 
+  # Manual override: Hungary had sparse ECDC surveillance data in early 2021,
+  # causing Delta to backfill to the start of the timeseries. Alpha was dominant
+  # before Delta spread from late July 2021.
+  # Source: https://abouthungary.hu/news-in-brief/delta-and-gamma-variant-identified-in-hungary
+  hu_alpha_start <- min(date_location$target_end_date)
+  hu_delta_start <- as.Date("2021-07-31") # week following 23 July 2021
+  phase_starts <- phase_starts |>
+    # Remove any data-derived Alpha/Delta starts for HU
+    filter(!(location == "HU" & dominant_name %in% c("Alpha", "Delta"))) |>
+    bind_rows(tibble(
+      location = "HU",
+      dominant_name = c("Alpha", "Delta"),
+      target_end_date = c(hu_alpha_start, hu_delta_start)
+    ))
+
   # Expand out to all weeks
   dominant_phases <- phase_starts |>
     right_join(date_location,
