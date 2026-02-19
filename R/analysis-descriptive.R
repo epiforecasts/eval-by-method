@@ -47,7 +47,6 @@ table_confint <- function(scores, group_var = NULL) {
     ) |>
     mutate(
       Models = paste0(n_models, " (", p_models, "%)"),
-      Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
       "Mean WIS (SD)" = paste0(round(mean, 2), " (", round(sd, 2), ")")
     )
 
@@ -99,7 +98,6 @@ print_table1 <- function(scores) {
     select(
       Variable,
       starts_with("Models_"),
-      starts_with("Forecasts_"),
       starts_with("Mean WIS (SD)_")
     )
   ## reorder
