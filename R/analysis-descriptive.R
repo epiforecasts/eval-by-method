@@ -47,7 +47,6 @@ table_confint <- function(scores, group_var = NULL) {
     ) |>
     mutate(
       Models = paste0(n_models, " (", p_models, "%)"),
-      Forecasts = paste0(n_forecasts, " (", p_forecasts, "%)"),
       "Mean WIS (SD)" = paste0(round(mean, 2), " (", round(sd, 2), ")")
     )
 
@@ -99,7 +98,6 @@ print_table1 <- function(scores) {
     select(
       Variable,
       starts_with("Models_"),
-      starts_with("Forecasts_"),
       starts_with("Mean WIS (SD)_")
     )
   ## reorder
@@ -122,7 +120,8 @@ print_table1 <- function(scores) {
         "the European COVID-19 Forecast Hub, March 2021-2023. ",
         "Forecast performance was measured using the weighted ",
         "interval score (WIS), with a lower score indicating a more ",
-        "accurate forecast."
+        "accurate forecast. ",
+        "Numbers in brackets denote standard deviations."
       ),
       col.names = str_remove(colnames(table1), "_.*$"),
       align = c("l", rep("r", ncol(table1) - 1))
@@ -164,8 +163,8 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
     scale_x_date(date_labels = "%b %Y") +
     scale_fill_manual(
       values = c(
-        "Single-country" = "#e7298a",
-        "Multi-country" = "#e6ab02"
+        "Single-country" = "#1b9e77",
+        "Multi-country" = "#d95f02"
       ),
       aesthetics = c("col", "fill")
     ) +
@@ -201,7 +200,7 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
     scale_x_date(date_labels = "%b %Y") +
     scale_fill_brewer(
       aesthetics = c("col", "fill"),
-      type = "qual", palette = 2
+      type = "qual", palette = "Set2"
     ) +
     labs(
       x = NULL, y = "Mean WIS (log scale)",
