@@ -29,6 +29,13 @@ jobs:
       - name: Install latex
         uses: r-lib/actions/setup-tinytex@v2
 
+      - name: Install system dependencies
+        run: |
+          brew install gettext libpng
+          mkdir -p ~/.R
+          echo "CPPFLAGS += -I$(brew --prefix gettext)/include -I$(brew --prefix libpng)/include" >> ~/.R/Makevars
+          echo "LDFLAGS += -L$(brew --prefix gettext)/lib -L$(brew --prefix libpng)/lib" >> ~/.R/Makevars
+
       - name: Install dependencies
         uses: r-lib/actions/setup-renv@v2
 
