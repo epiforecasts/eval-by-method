@@ -1,0 +1,58 @@
+We aimed to assess influences on the accuracy of infectious disease forecasts, considering models' methodological structure and the specificity of the model to the geographic target.
+Using data from the European COVID-19 Hub, we assessed comparable forecasts across 32 countries with independent epidemic processes, evaluating 181,851 predictions from 47 forecasting models.
+We used a mixed effects model to identify forecast performance while accounting for confounding factors affecting general predictive difficulty.
+After adjustment, we observed little systematic difference in average performance between model structures.
+Models forecasting for only a single geographic target outperformed those that made predictions for multiple targets, although this was a weak signal with overlapping uncertainty.
+We noted substantial variation in model performance that our approach did not account for.
+
+Our findings extend previous work that has failed to find evidence for substantial differences between different model types' predictive performance, across a variety of outbreaks and epidemic dynamics [(4–6)](https://www.zotero.org/google-docs/?4Vrj6C).
+In contrast, some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches [(17,18,26)](https://www.zotero.org/google-docs/?pn8kMa).
+The typical advantage of statistical models is that they capture the autocorrelated nature of incidence time series.
+However, we also noted that the more mechanistic models in our study produced a wide range of predictive performance, and some of the best-performing individual models in our sample were mechanistic or agent-based.
+This indicates that factors beyond our structural categorisation may have played a role in driving performance.
+At the same time, we note widely replicated work demonstrating that the most reliable method for achieving predictive accuracy is to combine forecasts across models and model types using ensemble methods, rather than relying on any single model (e.g. [(12,15,27)](https://www.zotero.org/google-docs/?EMHzzA)).
+
+We observed some weak evidence that models tended to perform better when they were focused on single countries versus multiple countries.
+This could suggest that the flexibility to incorporate knowledge about a specific forecast target can yield a performance advantage.
+This could derive from a better understanding of the nature of the underlying data generating processes that modellers were asked to forecast, such as country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes.
+Other work has similarly noted forecaster experience as a contributing factor in improving performance [(18)](https://www.zotero.org/google-docs/?tYe1Rg).
+
+We also noted that real-time data were frequently updated retrospectively, and such data revisions might also explain some of the improved performance of target-specific models.
+Teams focussing on only one country's data may have been more easily able to detect anomalous observations or be aware of their cause, and consequently to adapt forecasts to predict a value closer to the "true" observation that would later be reflected in a retrospective data revision (e.g. [(28)](https://www.zotero.org/google-docs/?2rqVL1)).
+
+A key limitation of this work was its limited power to detect potential differences in performance between model structures or target specificity.
+While we used a large dataset of forecasts over time, we had a relatively small sample size of independent models: for example, only 3 agent-based models, where all three represented here targeted a single country.
+Further, the Hub relied on an opportunistic cohort of models from voluntary contributions.
+This meant our results could be biased by unobserved characteristics that differentially affected participation, such as the resource intensity of model development.
+In addition, we did not track changes to each model's individual methods over time, or account for this in our analysis.
+A larger or more systematic sample of models would support a deeper investigation of factors driving model performance.
+
+Our model-based approach to comparing forecast performance while controlling for variability across targets could be improved and developed further.
+Further, we did not account for a wide range of additional confounding factors likely influencing performance.
+These may include the presence of anomalies in real-time data, or varying uses of model assumptions, or data sources [(11)](https://www.zotero.org/google-docs/?c33gx9).
+There are likely many interactions between the effects explored here.
+For example, a modeller's choice of model structure may interact with their chosen number of targets, as in agent-based models.
+In particular, different model structures may be more or less well equipped to predict at each interval of the one to four week forecast horizon.
+For example, models incorporating underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics.
+Explicitly accounting for such interactions could be a useful insight from future work.
+
+A fuller causal treatment of this question is left to future work.
+The analysis presented here is exploratory, aimed at describing variation in forecast performance across model structures once the most consequential sources of confounding are accounted for.
+A subsequent analysis could treat the causal estimand as primary: specifying a directed acyclic graph to derive the minimal sufficient adjustment set, stating the target estimand and contrasts precisely, examining positivity across model-structure by country-target strata, handling differential non-response explicitly, and reporting a quantitative bias analysis (such as an E-value) for unmeasured confounding.
+A natural candidate for unmeasured confounding in this setting is the latent capacity of a forecasting team to incorporate domain expertise, which may drive both the choice of model structure and the achievable forecast accuracy.
+Future work could approach this by combining data from across multiple similar Hub projects and a more detailed assessment of the characteristics of the model cohort.
+
+Unlike past work, our conclusions are based on assessing performance using forecasts on a log scale, rather than the natural scale of observed data.
+We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak [(23)](https://www.zotero.org/google-docs/?bNboAJ).
+In particular, we saw reduced variability among the scores of semi-mechanistic models on the log scale, compared to the natural scale.
+This suggests the importance of accounting for epidemic characteristics in assessing forecast performance, where we chose to prioritise relative assessment of the growth rate rather than absolute counts.
+We think that interpreting performance against trends in underlying epidemic dynamics better reflects decision maker needs.
+It remains important to bear in mind that our conclusions towards the chosen metric may not hold when choosing other scoring rules.
+We also note that we modelled the interval score using a Gaussian error model with a log-link.
+This impacted the propriety of the score as effects were multiplicative, making estimates unsuitable for direct comparison or ranking performance among individual models.
+
+In this study we contributed to better understanding the drivers of predictive performance among forecasting models, and highlighted the importance of appropriately adjusting for the general predictive difficulty of the forecast target.
+Comparisons like the one we have conducted here support a more informed view of the role of modelling in pandemic preparedness and response.
+Further model comparison projects should enable this by encouraging methodological diversity among participants, and ensuring that detailed structured information on model metadata (such as methodology and model revisions) is collated alongside numerical predictions.
+We would particularly encourage studies that can assess the amount of local context that modellers use in creating or adapting their forecast model, and similarly whether performance scales with efforts to continually revise models, incorporate domain knowledge, or evaluate model performance in the real-time forecasting process.
+Future performance evaluations could combine information from multiple collaborative efforts and ultimately lead to a convergence of recommendations for which models to use when making epidemiological forecasts in an epidemic or pandemic.

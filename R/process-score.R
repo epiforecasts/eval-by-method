@@ -11,10 +11,19 @@ walk(c("case", "death"), \(target) {
 
   # Observed data
   obs <- read_csv(here("data", paste0("observed-", target, ".csv")))
+  pop <- read_csv(here("data", "populations.csv"))
+  obs <- left_join(obs, pop, by = "location")
   forecasts <- left_join(
     forecasts_raw, obs,
     by = c("location", "target_end_date")
   )
+
+  # Population normalisation
+  forecasts <- forecasts |>
+    mutate(
+      observed = observed / pop * 100000,
+      prediction = prediction / pop * 100000
+    )
 
   # Score forecasts on natural and log scales -----
   log_forecasts <- forecasts |>
