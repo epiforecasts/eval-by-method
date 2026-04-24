@@ -26,7 +26,7 @@ We excluded forecasts of hospitalisations, which experienced multiple changes in
 We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results (see model contributions in Supplement).
 We also excluded baseline and ensemble models created by the Hub team.
 
-*Identifying model structure*
+*Participant model structures*
 
 We collated participating forecasters' metadata and categorised each model in terms of its structure.
 We assigned a classification according to the following types (in order of decreasing human input): "Judgement" (ensembles of human-judgement based predictions), "Agent-based" (with detailed individual-level interactions), "Mechanistic" (broadly based on compartmental models), "Semi-mechanistic" (statistical models with epidemiologically informed elements, e.g. delay distributions and/or generation intervals), "Statistical" (context-agnostic time-series models).
@@ -51,18 +51,18 @@ To avoid zeros, we added a small amount (1e-7, or less than 1/1000th of the smal
 
 *Analytical strategy*
 
-We considered the outcome (absolute WIS of each forecast) as the outcome of a set of interrelated factors, considering model structure as our main effect of interest.
-We stratified all analysis by epidemiological target of incident cases or deaths.
-We also considered the potential for bias (confounding) in this relationship, as well as those affecting the variance of the outcome and therefore the precision of the effect estimate.
-Last, we needed to account for the repeated sampling of each individual model.
+While we considered model structure as our main effect of interest, we approached the outcome (absolute WIS of each forecast) as the result of a set of interrelated factors.
+We also considered the potential for bias (confounding) in the relationship between model structure and forecast performance; and factors affecting the variance of the outcome and therefore the precision of the effect estimate.
+We also needed to account for the repeated sampling of each individual model.
 
 For clarity and to illustrate our approach, we include a directed acyclic graph to represent these assumptions in the Supplement.
 However, we emphasise that in this work, our model building strategy is exploratory rather than inferential.
 We suggest substantial further work is needed to support inferential approaches to forecast evaluation (see Discussion and Supplement).
+We stratified all analysis by epidemiological target of incident cases or deaths.
 
 *Confounding*
 
-We considered the potential for bias from the number of targets a forecasting team participated in predicting.
+We first considered the potential for bias from the number of targets a forecasting team participated in predicting.
 We hypothesised that this might influence both a forecasting team's choice of model structure, and their realised forecast performance.
 This would introduce confounding when estimating the effect of model structure on performance.
 For example, more data-driven model structures are typically more amenable to producing forecasts for multiple targets, compared to bespoke mechanistic approaches tailored to a single epidemiological context.
