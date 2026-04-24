@@ -1,49 +1,62 @@
+# Define DAG for model structure and WIS
+# Variables:
+# model_structure: model structure (exposure)
+# wis: weighted interval score (outcome)
+# team_resources: resources available to the team (latent)
+# transmission_dynamics: underlying transmission dynamics (latent)
+# country_targets: whether the model forecasts for one or multiple countries
+# variant: dominant variant phase
+# country: country target location
+# trend: increasing, decreasing, or stable epidemic trend
+# horizon: forecast horizon
+
 library(dagitty)
 library(ggdag)
 library(ggplot2)
 
 dag <- dagitty('dag {
-  structure [exposure]
+  model_structure[exposure]
   wis [outcome]
-  team_resources [latent]
-  policy [latent]
-  immunity [latent]
+  model_team_resources[latent]
+  transmission_dynamics[latent]
   
-  team_resources -> structure
-  team_resources -> country_targets
+  model_team_resources -> model_structure
+  model_team_resources -> wis
+  model_team_resources -> country_targets
   
-  country_targets -> structure
-  country_targets -> wis
+  model_country_targets -> model_structure
+  model_country_targets -> wis
 
-  epi_target -> wis
-  epi_target -> structure
+  country -> variant
+  variant -> transmission_dynamics
+  transmission_dynamics -> country
+  transmission_dynamics -> trend
 
+  transmission_dynamics -> wis
+  variant -> wis
   trend -> wis
+  country -> wis
   horizon -> wis
 
-  location -> variant
-  variant -> wis
-  location -> wis
-
-  structure -> wis
+  model_structure -> wis
 }')
 
-cat("\n--- Minimal adjustment sets for TOTAL effect of structure on wis ---\n")
+cat("\n--- Minimal adjustment sets for TOTAL effect of model_structure on wis ---\n")
 print(adjustmentSets(dag, effect = "total"))
 
-cat("\n--- Minimal adjustment sets for DIRECT effect of structure on wis ---\n")
+cat("\n--- Minimal adjustment sets for DIRECT effect of model_structure on wis ---\n")
 print(adjustmentSets(dag, effect = "direct"))
 
 cat("\n--- Implied conditional independencies ---\n")
 print(impliedConditionalIndependencies(dag))
 
-cat("\n--- All paths from structure to wis (open/closed unconditional) ---\n")
-print(paths(dag, from = "structure", to = "wis"))
+cat("\n--- All paths from model_structure to wis (open/closed unconditional) ---\n")
+print(paths(dag, from = "model_structure", to = "wis"))
 
 cat("\n--- Paths given the total-effect adjustment set ---\n")
 adj <- adjustmentSets(dag, effect = "total")
 if (length(adj) > 0) {
-  print(paths(dag, from = "structure", to = "wis", Z = adj[[1]]))
+  print(paths(dag, from = "model_structure", to = "wis", Z = adj[[1]]))
 }
 
 p <- ggdag_status(dag, text = FALSE, use_labels = "name") +

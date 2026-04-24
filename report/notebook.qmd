@@ -17,7 +17,6 @@ Code functionality
 Reporting
 
 - [ ] Add mathematical notation for the model in the main text, with explanation
-- [ ] create paragraph-by-paragraph one line summary OF THE CURRENT TEXT in a new section of `Research-narrative.md`
 - [ ] write an abstract based on Research-narrative.qmd
 - [ ] assess whether the flow of text matches with intended research narrative
 

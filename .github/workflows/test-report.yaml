@@ -23,22 +23,27 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Setup pandoc
-        uses: r-lib/actions/setup-pandoc@v2
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
 
       - name: Install latex
         uses: r-lib/actions/setup-tinytex@v2
+
+      - name: Install system dependencies
+        run: |
+          brew install gettext libpng
+          mkdir -p ~/.R
+          echo "CPPFLAGS += -I$(brew --prefix gettext)/include -I$(brew --prefix libpng)/include" >> ~/.R/Makevars
+          echo "LDFLAGS += -L$(brew --prefix gettext)/lib -L$(brew --prefix libpng)/lib" >> ~/.R/Makevars
 
       - name: Install dependencies
         uses: r-lib/actions/setup-renv@v2
 
       - name: Compile the report
-        run: |
-          rmarkdown::render("report/results.Rmd")
-        shell: Rscript {0}
+        run: quarto render report/results.qmd --to html
 
-      - name: Upload pdf as an artifact
+      - name: Upload html as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: results
-          path: report/results.pdf
+          path: report/results.html

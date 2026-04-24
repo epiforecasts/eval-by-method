@@ -19,6 +19,7 @@ library(purrr)
 library(mgcv)
 library(gammit)
 library(gratia)
+library(ggplot2)
 source(here("R", "process-data.R"))
 
 model_wis <- function(scoring_scale = "log", output_dir = "output") {
@@ -34,7 +35,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
   outcomes <- unique(m.data$epi_target)
 
   # --- Model formula ---
-  # Univariate for each explanatory variable
+  # Univariate for each
   m.formulas_uni <- list(
     method = wis ~ s(Method, bs = "re"),
     target = wis ~ s(CountryTargets, bs = "re"),

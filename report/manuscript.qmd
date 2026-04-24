@@ -21,11 +21,11 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Abstract
 
-{{< include _quarto/_abstract.qmd >}}
+<!-- {{< include _quarto/_abstract.qmd >}} -->
 
 ### Background
 
-{{< include _quarto/_background.qmd >}}
+<!-- {{< include _quarto/_background.qmd >}} -->
 
 ### Methods
 
@@ -37,8 +37,8 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Discussion
 
-{{< include _quarto/_discussion.qmd >}}
+<!-- {{< include _quarto/_discussion.qmd >}} -->
 
 ### References
 
-{{< include _quarto/_references.qmd >}}
+<!-- {{< include _quarto/_references.qmd >}} -->
