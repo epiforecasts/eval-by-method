@@ -1,0 +1,72 @@
+**Study design**
+
+*Forecast targets* We consider incidence of COVID-19 cases and deaths between 8 March 2021 to 10 March 2023, using data collated by Johns Hopkins University (JHU).
+Data comprised cumulative reported cases or deaths reported daily for each of the 32 European countries [(20)](https://www.zotero.org/google-docs/?cDnqeb).
+We calculated the incident weekly count of cases or deaths from the cumulative count, and used the dataset available as of 10 March 2023, when JHU stopped reporting new data.
+
+*Data collection* We collected forecast data from the European COVID-19 Forecast Hub.
+This is a public platform that collated real-time weekly forecasts for 32 European countries [(19)](https://www.zotero.org/google-docs/?5K4uXI).
+The platform solicited forecasts for between one and four weeks ahead incidence of COVID-19 cases, deaths, or hospitalisation.
+Forecasters were optionally able to express uncertainty by reporting a distribution of up to 23 probabilistic quantiles for each prediction.
+Forecasters also contributed a standard set of metadata describing their team and model.
+The Hub provided continuous real-time visualisation of each forecasting team's performance against observed data over the study period.
+
+*Participation* Forecasting teams were recruited to the Hub using existing networks and word of mouth.
+Participation was voluntary and open, and any forecaster meeting formatting requirements was eligible for inclusion in the Hub platform.
+The number and identity of forecasters contributing to the Hub project therefore varied over time.
+Over 50 modelling teams contributed prospective forecasts during the study period.
+
+*Inclusion criteria* In this study, we included forecasts from between 8 March 2021 to 10 March 2023.
+This includes all forecasts contributed to the Hub until the end of JHU data reporting.
+We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period.
+We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results (see model contributions in Supplement).
+We also excluded baseline and ensemble models created by the Hub team.
+
+**Covariates**
+
+*Performance evaluation* We log-transformed both forecasts and observations before scoring.
+This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate [(22,23)](https://www.zotero.org/google-docs/?NuBRI2).
+We then evaluated forecasts against observed data using the Weighted Interval Score (WIS) [(21)](https://www.zotero.org/google-docs/?T3es1k).
+The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS).
+This assigns each probabilistic forecast a score that reflects the forecast's dispersion, overprediction, and underprediction.
+The WIS was used to match the quantile-interval format of submitted forecasts.
+
+*Exposure classification* We categorised each model in terms of model structure.
+We assigned a classification according to the following types (in order of decreasing mechanistic detail): "Agent-based" (with detailed individual-level interactions), "Mechanistic" (broadly based on compartmental models), "Semi-mechanistic" (statistical models with epidemiologically informed elements, e.g. delay distributions and/or generation intervals), "Statistical" (context-agnostic time-series models), and "Judgement" (ensembles of human-judgement based predictions).
+
+Four members of the research team (KS, SF, FB, JM) were tasked with classifying models, with at least two investigators classifying each model.
+Each rater worked independently, and was asked to read each modelling teams' short description of their methods included in Hub metadata, and any additional links provided therein, such as citations or websites with model details.
+The majority vote determined the final classification with any potential ties flagged for an additional independent classification by another investigator.
+Two investigators (SF, KS) separately reviewed all classifications in discussion for any final revisions (see Supplement).
+
+We also classified models by number of geographic targets.
+We assessed the total number of countries that each model had provided a projection for at any time over the forecast period, noting that forecasters could change the number of targets they submitted.
+We classified each model as "single" or "multi-country" based on forecasting for one versus two or more countries.
+
+*Variables associated with epidemiological context*
+
+We considered aspects of the forecasting context that we believed could influence associations with forecast performance beyond the effects of interest.
+Among models, forecast performance typically declines with longer forecast horizons.
+We also considered the wider epidemiological setting of the forecast target.
+This included the trend of incidence in the target week for each location, which we categorised as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of \+/-5% as "Stable"; see Supplement).
+We also considered differing transmission characteristics with each Sars-Cov2 variant.
+We used publicly available sequence data to classify each target location-week according to the dominant circulating variant, creating a sequence of phases (see Supplement) (\#ref-variant-data).
+We considered extraneous variation at the country level, to account for, for example, effects of population size or different transmission probabilities with national policy.
+
+**Analysis**
+
+We used summary statistics to describe the performance as measured by WIS in our dataset by model structure and geographic target specificity.
+We considered the WIS of each individual forecast as an outcome variable, separately for cases and deaths, and fitted a univariate model for each covariate in order to create a comparison between effects from an "unadjusted" approach, or a fully adjusted model.
+
+We then fitted a generalised additive mixed effect model (GAMM).
+We used a Gaussian error model with a log-link (see Supplement).
+We added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values in order to avoid zeros.
+Covariates of interest included model structure, and whether a model targeted one or multiple countries, each modelled with random effects.
+We included covariates for confounding factors.
+We included the length of horizon in weeks as a factor smooth spline, separately for each forecasting model.
+Similarly, we included epidemic trend, dominant variant phase, and country location, as separate random effects.
+Last, we added a random effect for each individual model, to account for unknown variation beyond the factors considered here.
+
+In order to demonstrate the impact of adjusting for confounding factors, we further fitted univariate models for each of the explanatory variables and by individual model, and contrasted unadjusted and adjusted estimates of the partial effect of each factor.
+We fitted models with the *mgcv* package in R [(24)](https://www.zotero.org/google-docs/?Jv7oFh), using fast restricted maximum likelihood estimation (fREML).
+All data and code are publicly available online at [(25)](https://www.zotero.org/google-docs/?qHy24c), with details in Supplement.

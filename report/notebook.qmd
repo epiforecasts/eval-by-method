@@ -4,20 +4,21 @@ TODO bugs
 
 Codebase structure
 
-- [ ] use separate quarto docs in /report for: abstract, background, methods, results, discussion, supplement
-- [ ] combine in a full quarto manuscript using _includes
+- [x] use separate quarto docs in /report for: abstract, background, methods, results, discussion, supplement
+- [x] combine in a full quarto manuscript using _includes
 - [ ] Update CLAUDE.md to reflect structural changes
 
 Code functionality
 
 - [x] check results pipeline runs
-- [ ] update the figures
+- [ ] check the figures against rev comments
 - [x] fix variant code and data issues
 
 Reporting
 
 - [ ] Add mathematical notation for the model in the main text, with explanation
 - [ ] create paragraph-by-paragraph one line summary OF THE CURRENT TEXT in a new section of `Research-narrative.md`
+- [ ] write an abstract based on Research-narrative.qmd
 - [ ] assess whether the flow of text matches with intended research narrative
 
 Admin
@@ -28,8 +29,10 @@ Admin
 TODO features
 
 - [x] normalise by population before scoring #pr-148
-- [ ] create a DAG to represent modelling approach, include in supplement
 - [ ] remove geographic specificity as an exposure, add geographic specificity as an interaction
+- [ ] add case or death as covariate rather than splitting the data
+- [ ] create a DAG to represent modelling approach, include in supplement
+- [ ] use a schematic in the main text to demonstrate approach
 
 Future work (See: future-work.qmd)
 
