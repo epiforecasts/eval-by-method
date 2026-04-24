@@ -1,0 +1,33 @@
+Understanding the reasons behind forecast performance is useful for prioritising and interpreting modelling work.
+Modellers take many approaches to predicting the course of infectious diseases, and achieve a wide range of accuracy in resulting forecasting performance.
+For example, forecasters vary in their use of different underlying model structures, and in the extent to which they adapt a model to the specific forecast target.
+However, it has been difficult to evaluate the impact of these choices on realised forecast performance.
+Such evaluations need a comparable sample of forecasting models, while also accounting for varying predictive difficulty among multiple forecast targets.
+Here, we develop a model-based approach to jointly address these challenges.
+We apply this to a multi-country multi-model forecasting effort conducted during the COVID-19 pandemic, in order to assess the influence of models' structure and specificity to the epidemic target on forecast accuracy.
+
+We evaluated 181,851 probabilistic predictions from 47 forecasting models participating in the European COVID-19 Forecast Hub between 8 March 2021 and 10 March 2023.
+We classified by model structure (agent-based, mechanistic, semi-mechanistic, statistical, other); and specificity (the model produced forecasts for either one or multiple locations).
+We assessed performance of COVID-19 case and death forecasts, measured as the weighted interval score after log-transforming both forecasts and observations.
+We summarised unadjusted performance descriptively and compared this to adjusted estimates from a generalised additive mixed effects model.
+We included adjustment for variation between countries over time, the epidemiological situation, the forecast horizon, and variation among models.
+
+Whilst unadjusted estimates of predictive performance pointed to differences in between model structures, after adjustment there was little systematic difference in average performance.
+Models forecasting for only a single geographic target outperformed those that made predictions for multiple targets, although this was a weak signal.
+We noted substantial variation in model performance that our approach did not account for.
+
+We showed that valid comparisons of forecast performance depend on appropriately adjusting for the general predictive difficulty of the target.
+This work was limited by a small sample size of independent models and likely incomplete adjustment for effect modifiers and confounding factors influencing predictive difficulty.
+We recommend that multi-model comparisons encourage and document their methodological diversity and consider using more formal statistical methods to assess underlying factors driving predictive performance.
+
+### Author summary
+
+Accurately predicting the spread of infectious disease is essential to supporting public health during outbreaks.
+However, comparing the accuracy of different forecasting models is challenging.
+Existing evaluations struggle to isolate the impact of model design choices (like model structure or specificity to the forecast target) from the inherent difficulty of predicting complex outbreak dynamics.
+Our research introduces a novel approach to address this by systematically adjusting for common factors affecting epidemiological forecasts, accounting for multi-layered and non-linear effects on predictive difficulty.
+We applied this approach to evaluating the accuracy of 47 different models submitted to the European COVID-19 Forecast Hub.
+We adjusted for variation across epidemic dynamics, forecast horizon, location, time, and model-specific effects.
+This allowed us to isolate the impact of model structure and geographic specificity on predictive performance.
+Our findings suggest that after adjustment, apparent differences in performance between model structures became minimal, while models that were specific to a single location showed a slight performance advantage over multi-location models.
+Our work highlights the importance of considering predictive difficulty when evaluating across forecasting models, and provides a framework for more robust evaluations of infectious disease predictions.

@@ -1,0 +1,32 @@
+The predictive accuracy of infectious disease forecasts varies in time, space, and between forecasting models.
+When building models for prediction, forecasters have the choice of a range of underlying model structures, with complementary strengths and weaknesses and varying ability to tune a particular model to the forecasting target [(1–3)](https://www.zotero.org/google-docs/?XemggF).
+However, it has been difficult to evaluate the impact of these choices on resulting differences in accurate performance.
+A better understanding would offer insights into the utility of different models, supporting both longer-term model development and short-term selection for accurate prediction during outbreak responses.
+
+A fundamental difference among forecasting models is in the modeller's choice of underlying structure.
+This can range on a spectrum of statistical, to mechanistic, reflecting the level of prior understanding and belief in how transmission unfolds in the included population.
+While statistical methods can be purely data-driven, more mechanistic models develop explicit cause-and-effect hypotheses about biological or epidemiological drivers of transmission dynamics.
+Previous work has compared performance between these approaches, finding no evidence of substantial variation in predictive accuracy between these model structures [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
+
+An alternative way of looking at model development is to consider a model's specificity towards the target setting to which the forecasts are being applied.
+One approach to model building is to create a model able to produce forecasts for any given setting, given only updated data.
+This is the case, for example, for typical time-series forecasting and most semi-mechanistic models.
+A different approach is to adapt the model structure itself to the predictive target, for example to emphasise different mechanistic processes or to exploit differences in the availability and quality of multiple data sources.
+Such context-specific models may be more policy-relevant [(7,8)](https://www.zotero.org/google-docs/?vo794b), and a study of COVID-19 forecasts in Germany and Poland suggested the two best performing models were those most tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
+
+However, it has been difficult to establish clear associations between different choices in model development, such as model structure and specificity, and the predictive performance of resulting forecasts.
+Challenges include a lack of comparability between forecasts [(10)](https://www.zotero.org/google-docs/?8yn1XI), a small sample size of participating modelling teams [(11)](https://www.zotero.org/google-docs/?ZgO6IM), and the need to account for varying predictive difficulty among multiple forecast targets with differing outbreak characteristics [(12)](https://www.zotero.org/google-docs/?qtFeFg).
+
+A number of collaborative epidemic forecasting efforts have aimed to support such analyses.
+Such "Hubs" collate predictions from diverse participating modellers, often publishing these projections in real-time during an epidemic.
+Alongside informing public health, this enables like-for-like comparisons of predictive performance [(13)](https://www.zotero.org/google-docs/?7pIGoa).
+While there may be inherent limits to predictability [(14)](https://www.zotero.org/google-docs/?CZumUU), several factors have been suggested to contribute to general predictive difficulty.
+For example, infectious disease dynamics may be easier to predict in the short term [(15)](https://www.zotero.org/google-docs/?2K90bo), when they are more stable [(9)](https://www.zotero.org/google-docs/?KaFMKc), among larger population sizes [(16)](https://www.zotero.org/google-docs/?7uCfbD), reported with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), or have leading indicators in complementary data sources [(17)](https://www.zotero.org/google-docs/?gzkBxT).
+
+Analyses of forecast performance have typically used a univariate approach to describing differences in accuracy between models.
+However, such findings could be better supported by using more formal models of association.
+Such models are also able to capture co-varying factors affecting overall predictability [(11,16,18)](https://www.zotero.org/google-docs/?R3Ah2J).
+Accounting for these factors may support more robust inferences about underlying differences in forecast performance.
+
+Here, we develop a generalised additive mixed effect model, with forecast scores as an outcome while including covariate indicators of predictive difficulty, in the context of short-term forecasts of COVID-19 in Europe.
+We use this to evaluate the effects of model structure and geographic specificity on predictive performance.
