@@ -121,7 +121,7 @@ scores |>
 
 ```{r variant-phases, fig.cap="Variant phases identified by dominant variant in each location and week"}
 # see: R/utils-variants.R
-variant_phases <- classify_variant_phases() 
+variant_phases <- classify_variant_phases()
 variant_phases |>
     ggplot(aes(x = target_end_date, y = location, fill = VariantPhase)) +
     geom_tile() +
@@ -130,6 +130,8 @@ variant_phases |>
     theme_minimal() +
     theme(legend.position = "bottom")
 ```
+
+Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland). Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB. For each country, we identified the first week in which each named variant exceeded 50% of sequenced samples. We enforced chronological ordering by removing any out-of-sequence phases, then expanded phase assignments to all weeks by filling forward and backward from observed transition dates. This per-location approach accounts for the fact that variant dominance dates differed substantially across European countries. Where genomic surveillance data were too sparse to identify a transition (Hungary), we supplemented with epidemiological reports to set the Alpha-to-Delta transition date.
 
 \newpage
 
