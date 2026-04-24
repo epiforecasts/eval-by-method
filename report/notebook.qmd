@@ -1,0 +1,52 @@
+# Notebook
+
+TODO bugs
+
+Codebase structure
+
+- [ ] use separate quarto docs in /report for: abstract, background, methods, results, discussion, supplement
+- [ ] combine in a full quarto manuscript using _includes
+- [ ] Update CLAUDE.md to reflect structural changes
+
+Code functionality
+
+- [x] check results pipeline runs
+- [ ] update the figures
+- [x] fix variant code and data issues
+
+Reporting
+
+- [ ] Add mathematical notation for the model in the main text, with explanation
+- [ ] create paragraph-by-paragraph one line summary OF THE CURRENT TEXT in a new section of `Research-narrative.md`
+- [ ] assess whether the flow of text matches with intended research narrative
+
+Admin
+
+- [ ] flag remaining reviewer comments and suggest actions
+- [ ] refactor inline referencing with zotero citation keys (https://www.zotero.org/kathsherratt/library)
+
+TODO features
+
+- [x] normalise by population before scoring #pr-148
+- [ ] create a DAG to represent modelling approach, include in supplement
+- [ ] remove geographic specificity as an exposure, add geographic specificity as an interaction
+
+Future work (See: future-work.qmd)
+
+- [ ] consider identifying the simplest possible version of such a model that can be used to demonstrate the approach, and then build up to the more complex version
+- [ ] repeated measures stats (ICC)
+- [ ] compare the text against the STROBE reporting guidelines and flag issues: https://resources.equator-network.org/reporting-guidelines/strobe/#summary
+
+## notes
+
+### 2 April 2026
+
+- are there any examples of simpson's paradox where the ensemble changes direction from all component forecasts?
+- forecast trend vs observed trend / rate of change (aka log)
+- Cramer distance among models
+- predicting performance of ensemble based on size; bias-variance
+- What's driving the WIS?
+  Exploring the WIS as a composite score
+- use model contributors...
+  - orcID or author lookup, volume of publications/citations, as indicator of ... expertise
+  - number per team as indicator of resources
