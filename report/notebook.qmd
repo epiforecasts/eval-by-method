@@ -29,14 +29,14 @@ Admin
 TODO features
 
 - [x] normalise by population before scoring #pr-148
-- [ ] remove geographic specificity as an exposure, add geographic specificity as an interaction
-- [ ] add case or death as covariate rather than splitting the data
+- [x] remove geographic specificity as an exposure, add geographic specificity as -confounder-
+- [ ] add choice of one OR both case/death as -counfounder- (rationale: not independent; "were modellers for death targets also accounting for cases")
 - [ ] create a DAG to represent modelling approach, include in supplement
 - [ ] use a schematic in the main text to demonstrate approach
 
 Future work (See: future-work.qmd)
 
-- [ ] consider identifying the simplest possible version of such a model that can be used to demonstrate the approach, and then build up to the more complex version
+- [ ] expand to cover US
 - [ ] repeated measures stats (ICC)
 - [ ] compare the text against the STROBE reporting guidelines and flag issues: https://resources.equator-network.org/reporting-guidelines/strobe/#summary
 
