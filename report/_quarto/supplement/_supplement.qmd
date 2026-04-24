@@ -97,6 +97,19 @@ model_classifier |>
 
 # Statistical methods
 
+## Dtitle: "The influence of model structure and geographic specificity on predictive accuracy among European COVID-19 forecasts"
+subtitle: "Supplementary information"
+output:
+  bookdown::pdf_document2
+e suggest substantial further work is needed to support inferential approaches to forecast evaluation.
+
+```{r}
+#| label: dag
+#| 
+source(here::here("R", "dag-check.R"))
+p
+```
+
 ## Epidemic trend identification
 
 We retrospectively categorised each week as “Stable”, “Decreasing”, or “Increasing”, based on the difference over a three-week moving average of incidence (with a change of +/-5% as “Stable”).
