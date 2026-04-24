@@ -1,93 +1,122 @@
 **Study design**
 
-*Forecast targets* We consider incidence of COVID-19 cases and deaths between 8 March 2021 to 10 March 2023, using data collated by Johns Hopkins University (JHU).
+*Forecasting target*
+
+We consider incidence of COVID-19 cases and deaths between 8 March 2021 to 10 March 2023, using data collated by Johns Hopkins University (JHU).
 Data comprised cumulative reported cases or deaths reported daily for each of the 32 European countries [(20)](https://www.zotero.org/google-docs/?cDnqeb).
 We calculated the incident weekly count of cases or deaths from the cumulative count, and used the dataset available as of 10 March 2023, when JHU stopped reporting new data.
 
-*Data collection* We collected forecast data from the European COVID-19 Forecast Hub.
+We collected forecast data from the European COVID-19 Forecast Hub.
 This is a public platform that collated real-time weekly forecasts for 32 European countries [(19)](https://www.zotero.org/google-docs/?5K4uXI).
 The platform solicited forecasts for between one and four weeks ahead incidence of COVID-19 cases, deaths, or hospitalisation.
 Forecasters were optionally able to express uncertainty by reporting a distribution of up to 23 probabilistic quantiles for each prediction.
 Forecasters also contributed a standard set of metadata describing their team and model.
 The Hub provided continuous real-time visualisation of each forecasting team's performance against observed data over the study period.
 
-*Participation* Forecasting teams were recruited to the Hub using existing networks and word of mouth.
+*Study participation*
+
+Forecasting teams were recruited to the Hub using existing networks and word of mouth.
 Participation was voluntary and open, and any forecaster meeting formatting requirements was eligible for inclusion in the Hub platform.
 The number and identity of forecasters contributing to the Hub project therefore varied over time.
 Over 50 modelling teams contributed prospective forecasts during the study period.
 
-*Inclusion criteria* In this study, we included forecasts from between 8 March 2021 to 10 March 2023.
+In this study, we included forecasts from between 8 March 2021 to 10 March 2023.
 This includes all forecasts contributed to the Hub until the end of JHU data reporting.
 We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period.
 We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results (see model contributions in Supplement).
 We also excluded baseline and ensemble models created by the Hub team.
 
-*Performance evaluation* We evaluated forecasts against observed data using the Weighted Interval Score (WIS) [(21)](https://www.zotero.org/google-docs/?T3es1k).
-The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS).
-This assigns each probabilistic forecast a score that reflects the forecast's dispersion, overprediction, and underprediction.
+*Identifying model structure*
 
-**Model building**
-
-We considered the outcome (absolute WIS of each forecast) as the outcome of a set of interrelated factors, considering model structure as our main effect of interest.
-We also considered the potential for bias (confounding) in this relationship, as well as those affecting the variance of the outcome and therefore the precision of the effect estimate.
-For clarity and to illustrate our approach, we include a directed acyclic graph to represent these assumptions in the Supplement.
-However, we emphasise that in this work, our model building strategy is exploratory rather than inferential.
-We suggest substantial further work is needed to support inferential approaches to forecast evaluation (see Discussion and Supplement).
-
-*Exposure: model structure* We categorised each model in terms of its design structure.
+We collated participating forecasters' metadata and categorised each model in terms of its structure.
 We assigned a classification according to the following types (in order of decreasing human input): "Judgement" (ensembles of human-judgement based predictions), "Agent-based" (with detailed individual-level interactions), "Mechanistic" (broadly based on compartmental models), "Semi-mechanistic" (statistical models with epidemiologically informed elements, e.g. delay distributions and/or generation intervals), "Statistical" (context-agnostic time-series models).
-
-*Confounding: forecasting target* We considered the potential for bias from the number of targets a forecasting team participated in predicting.
-We hypothesised that this might influence both a forecasting team's choice of model structure, and their realised forecast performance.
-This would introduce confounding when estimating the effect of model structure on performance.
-For example, more data-driven model structures are typically more amenable to producing forecasts for multiple targets, compared to bespoke mechanistic approaches tailored to a single epidemiological context.
-At the same time, a forecaster contributing to many targets simulatenously may be less able to provide consistent quality assurance across targets, potentially impacting overall forecast performance.
-To address this, we used a simple binary classification of whether each forecaster provided predictions at any time for one single location target or more than one location target.
-We used a binary classification to address data sparsity (few teams submitting for between 2 and 32 countries).
-We note that this is a simplistic approach, and that forecasters could change the number of targets they submitted over time.
-We also note that selection of epidemiological target (case and/or death incidence) may act in the same way, but we did not include this in this analysis.
-
-*Precision: epidemiological context* We considered contextual factors that influence the variance of forecast performance across model-target pairs.
-We suggest that accounting for these factors improves the precision around the estimated effect of model structure, without impacting its point estimate.
-Firstly, we included forecast horizon to account for increasing difficulty of forecast performance further into the future.
-We also accounted for some variation in the epidemic transmission dynamics contributing to each observed forecast target.
-This included the trend of incidence in the target week for each location, which we categorised as "Stable", "Decreasing", or "Increasing".
-This was based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable"; see Supplement).
-We also considered differing transmission characteristics with each Sars-Cov2 variant.
-For this, we used publicly available sequence data to classify each target location-week according to the dominant circulating variant.
-This created a discrete sequence of phases (see Supplement) (\#ref-variant-data).
-We considered extraneous variation at the country level, to account for, for example, effects of different transmission probabilities with national policy.
-
-**Data processing**
-
-We downloaded all data from the open-source European COVID-19 Forecast Hub.
 
 Four members of the research team (KS, SF, FB, JM) were tasked with classifying models by their structure, with at least two investigators classifying each model.
 Each rater worked independently, and was asked to read each modelling teams' short description of their methods included in Hub metadata, and any additional links provided therein, such as citations or websites with model details.
 The majority vote determined the final classification with any potential ties flagged for an additional independent classification by another investigator.
 Two investigators (SF, KS) separately reviewed all classifications in discussion for any final revisions (see Supplement).
 
-We normalised both forecasts and observations to incidence per 100,000 population.
+*Performance evaluation*
+
+We evaluated forecasts against observed data using the Weighted Interval Score (WIS) [(21)](https://www.zotero.org/google-docs/?T3es1k).
+The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS).
+This assigns each probabilistic forecast a score that reflects the forecast's dispersion, overprediction, and underprediction.
+
+Prior to forecast scoring, we normalised both forecasts and observations to incidence per 100,000 population.
 We then log-transformed both forecasts and observations before scoring.
 This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate [(22,23)](https://www.zotero.org/google-docs/?NuBRI2).
+To avoid zeros, we added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values.
 
 **Analysis**
 
+*Analytical strategy*
+
+We considered the outcome (absolute WIS of each forecast) as the outcome of a set of interrelated factors, considering model structure as our main effect of interest.
+We stratified all analysis by epidemiological target of incident cases or deaths.
+We also considered the potential for bias (confounding) in this relationship, as well as those affecting the variance of the outcome and therefore the precision of the effect estimate.
+Last, we needed to account for the repeated sampling of each individual model.
+
+For clarity and to illustrate our approach, we include a directed acyclic graph to represent these assumptions in the Supplement.
+However, we emphasise that in this work, our model building strategy is exploratory rather than inferential.
+We suggest substantial further work is needed to support inferential approaches to forecast evaluation (see Discussion and Supplement).
+
+*Confounding*
+
+We considered the potential for bias from the number of targets a forecasting team participated in predicting.
+We hypothesised that this might influence both a forecasting team's choice of model structure, and their realised forecast performance.
+This would introduce confounding when estimating the effect of model structure on performance.
+For example, more data-driven model structures are typically more amenable to producing forecasts for multiple targets, compared to bespoke mechanistic approaches tailored to a single epidemiological context.
+At the same time, a forecaster contributing to many targets simulatenously may be less able to provide consistent quality assurance across targets, potentially impacting overall forecast performance.
+
+To address this, we used a simple binary classification of whether each forecaster provided predictions at any time for one single location target or more than one location target.
+We used a binary classification to address data sparsity (few teams submitting for between 2 and 32 countries).
+We note that this is a simplistic approach, and that forecasters could change the number of targets they submitted over time.
+We also note that selection of epidemiological target (case and/or death incidence) may act in the same way, but we did not include this in this analysis.
+
+*Precision*
+
+We considered contextual factors that influence the variance of forecast performance across model-target pairs.
+We suggest that accounting for these factors improves the precision around the estimated effect of model structure, without impacting its point estimate.
+We first included forecast horizon to account for increasing difficulty of forecast performance further into the future.
+
+We also accounted for some variation in the epidemic transmission dynamics contributing to each observed forecast target.
+This included the absolute incidence in the target week for each location, as well as its trend.
+We categorised trend as "Stable", "Decreasing", or "Increasing".
+This was based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable"; see Supplement).
+We also considered differing transmission characteristics with each Sars-Cov2 variant.
+For this, we used publicly available sequence data to classify each target location-week according to the dominant circulating variant.
+This created a discrete sequence of phases (see Supplement) (\#ref-variant-data).
+We considered extraneous variation at the country level, to account for, for example, effects of different transmission probabilities with national policy.
+
+*Model structure*
+
+We used a heirarchical model structure, fit separately for each epidemiological target (cases, deaths).
+We treated the WIS of each forecast $i$ as Gaussian with a log link, so that the linear predictor $\eta_i$ acts multiplicatively on expected score:
+
+$$
+\mathrm{WIS}_i \sim \mathcal{N}(\mu_i,\, \sigma^2), \qquad \log \mu_i = \eta_i.
+$$
+
+The linear predictor decomposed into a fixed intercept, a sum of random-effect contributions from categorical covariates, and two smooth terms for continuous covariates:
+
+$$
+\eta_i = \beta_0 \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+$$
+
+Here $j_g(i)$ denotes the level of grouping factor $g$ observed for forecast $i$.
+We assume random effects are drawn independently from a zero-mean Gaussian with its own variance:
+
+$$
+u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
+$$
+
+The two smooths captured continuous covariates.
+$f_{\text{Inc}}$ was a penalised thin-plate regression spline over (log-transformed) incidence, and $\{f^{\text{Horizon}}_k\}$ was a factor-smooth interaction (sum-to-zero constrained, with $k=3$ basis functions per forecasting model), allowing the horizon effect to vary by model.
+
+*Model fitting*
+
 We used summary statistics to describe WIS by model structure and country target specificity.
-We considered the WIS of each individual forecast as an outcome variable, separately for cases and deaths, and fitted a univariate model for each covariate in order to create a comparison between effects from an "unadjusted" approach, or a fully adjusted model.
-
-We then fitted a generalised additive mixed effect model (GAMM).
-We used a Gaussian error model with a log-link (see Supplement).
-We added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values in order to avoid zeros.
-Covariates of interest included model structure, and whether a model targeted one or multiple country targets, each modelled with random effects.
-We included covariates for additional factors affecting precision.
-We included the length of horizon in weeks as a factor smooth spline, separately for each forecasting model.
-We included epidemic trend; dominant variant phase; and each country location, as separate random effects.
-Last, we added a random effect for each individual model, to account for unknown variation beyond the factors considered here.
-
-**Model fitting**
-
-We fitted models with the *mgcv* package in R [(24)](https://www.zotero.org/google-docs/?Jv7oFh), using fast restricted maximum likelihood estimation (fREML).
 To assess confounding, we fitted univariate models to contrast unadjusted and adjusted estimates of the partial effect of model structure on WIS.
 We checked model fit with visual inspection of residuals via Q-Q plots.
+We used the *mgcv* package in R [(24)](https://www.zotero.org/google-docs/?Jv7oFh), using fast restricted maximum likelihood estimation (fREML).
 All data and code are publicly available online at [(25)](https://www.zotero.org/google-docs/?qHy24c), with details in Supplement.
