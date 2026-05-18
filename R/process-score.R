@@ -21,8 +21,8 @@ walk(c("case", "death"), \(target) {
   # Population normalisation
   forecasts <- forecasts |>
     mutate(
-      observed = observed / pop * 100000,
-      prediction = prediction / pop * 100000
+      observed = observed / population * 100000,
+      prediction = prediction / population * 100000
     )
 
   # Score forecasts on natural and log scales -----

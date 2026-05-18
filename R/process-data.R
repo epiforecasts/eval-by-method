@@ -102,4 +102,3 @@ process_data <- function(scoring_scale = "log") {
     filter(!is.na(Horizon)) ## horizon not in 1:4
   return(data)
 }
-
