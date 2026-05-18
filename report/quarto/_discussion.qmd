@@ -36,7 +36,9 @@ In particular, different model structures may be more or less well equipped to p
 For example, models incorporating underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics.
 Explicitly accounting for such interactions could be a useful insight from future work.
 
-A fuller causal treatment of this question is left to future work.
+Without adjustment, comparisons of model structure are confounded by the epidemiological characteristics of the targets each model happened to forecast.
+We suggest that accounting for these factors is necessary, not merely desirable, for drawing meaningful comparisons across predictive models.
+However, a fuller causal treatment of this question is left to future work.
 The analysis presented here is exploratory, aimed at describing variation in forecast performance across model structures once the most consequential sources of confounding are accounted for.
 A subsequent analysis could treat the causal estimand as primary: specifying a directed acyclic graph to derive the minimal sufficient adjustment set, stating the target estimand and contrasts precisely, examining positivity across model-structure by country-target strata, handling differential non-response explicitly, and reporting a quantitative bias analysis (such as an E-value) for unmeasured confounding.
 A natural candidate for unmeasured confounding in this setting is the latent capacity of a forecasting team to incorporate domain expertise, which may drive both the choice of model structure and the achievable forecast accuracy.

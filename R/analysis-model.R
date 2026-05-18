@@ -47,7 +47,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     model = wis ~ s(Model, bs = "re")
   )
 
-  # Full joint model
+  # Full model
   m.formula_joint <- wis ~
     s(Method, bs = "re") +
     s(CountryTargets, bs = "re") +

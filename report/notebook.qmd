@@ -41,6 +41,10 @@ Future work (See: future-work.qmd)
 
 ## notes
 
+### 28 April 2026
+
+- [propensity] match scores by similarity of forecast target?
+
 ### 2 April 2026
 
 - are there any examples of simpson's paradox where the ensemble changes direction from all component forecasts?
