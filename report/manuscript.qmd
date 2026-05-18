@@ -1,5 +1,5 @@
 ---
-title: "The influence of model structure and geographic specificity on predictive accuracy among European COVID-19 forecasts"
+title: "The influence of model structure on predictive accuracy among European COVID-19 forecasts"
 format:
   html: default
   docx: default
@@ -21,19 +21,19 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Abstract
 
-<!-- {{< include _quarto/_abstract.qmd >}} -->
+<!-- {{< include quarto/_abstract.qmd >}} -->
 
 ### Background
 
-<!-- {{< include _quarto/_background.qmd >}} -->
+<!-- {{< include quarto/_background.qmd >}} -->
 
 ### Methods
 
-{{< include _quarto/_methods.qmd >}}
+{{< include quarto/_methods.qmd >}}
 
 ### Results
 
-{{< include _quarto/_results.qmd >}}
+{{< include quarto/_results.qmd >}}
 
 ### Discussion
 

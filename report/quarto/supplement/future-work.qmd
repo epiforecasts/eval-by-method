@@ -1,0 +1,110 @@
+---
+title: "Future work: strengthening causal inference in comparative forecast evaluation"
+author: "Kath Sherratt"
+format: html
+---
+
+## Purpose
+
+This document outlines methodological extensions to the comparative forecast evaluation framework developed in this work. The primary manuscript establishes that adjustment for confounding factors is necessary to compare forecast performance across heterogeneous targets. The extensions below would strengthen the causal claims, handle structural features of the data more explicitly, and bring the analysis closer to established standards in observational epidemiology (STROBE, causal inference reporting guidance).
+
+They are listed as future work rather than incorporated into the revision because each is a substantive addition rather than a wording change, and because the current analysis is exploratory in aim. A subsequent paper could treat the causal estimand as primary and implement these in full.
+
+## 1. Formal DAG and adjustment set
+
+The current analysis specifies the adjustment set informally. A directed acyclic graph would make the assumed relationships between exposure, outcome, and covariates explicit, and allow the minimal sufficient adjustment set to be derived algorithmically (e.g. via the `dagitty` R package).
+
+Preliminary work suggests the minimal adjustment set for the total effect of model structure on WIS may be smaller than the full GAMM covariate list. Variables outside this set are precision variables: they reduce residual variance but are not required for identification. Distinguishing them explicitly would address the Table 2 fallacy and discipline the interpretation of coefficients on covariates such as variant phase and horizon.
+
+Smallest next step: encode the DAG, publish in the supplement, report the minimal adjustment set and any implied conditional independencies tested against the data.
+
+## 2. Precise estimand statement
+
+The current analysis targets "the effect of model structure on WIS", but does not specify:
+
+- the target population (all forecasting teams? the population of structures that could be submitted?)
+- the contrast (each structure versus a reference, or pairwise?)
+- whether the quantity is marginal or conditional on the random-effect distribution
+- whether it is per-forecast or per-model
+
+A GAMM with random effects returns conditional estimates by default. If the estimand of interest is the population-average effect, marginal standardisation or G-computation after fitting would be required.
+
+Smallest next step: a single estimand sentence in the form *"we estimate the marginal expected difference in log(WIS) between model structure X and reference Y, averaged over targets, countries, and horizons in the observed distribution."*
+
+## 3. Positivity and overlap
+
+Model structure is unlikely to be represented evenly across country-target-week strata. Mechanistic models may predominate in some targets; ensembles may be concentrated in later periods. The total effect is only identifiable in the region of common support. Where structures do not overlap, the GAMM extrapolates, and the interpretation of the marginal effect becomes implicit.
+
+Smallest next step: a cross-tabulation of model structure by country-target and variant phase, with a sentence on how non-overlapping cells are handled (restrict, trim, or extrapolate with explicit caveat). Where overlap is poor, results could be reported separately for the common-support subset.
+
+## 4. Missing data and differential non-response
+
+The current analysis flags non-response as a limitation. A more thorough treatment would:
+
+- quantify missingness by model, week, and target
+- classify the missingness mechanism (MCAR, MAR, MNAR) with respect to WIS
+- describe how missing forecasts are handled (absent, imputed, penalised)
+- run a sensitivity analysis restricting to models with coverage above a threshold (e.g. forecasts submitted in ≥80% of eligible weeks)
+
+This matters because strong models may drop out during harder forecasting periods, biasing the exposure contrast. Restriction, multiple imputation, or inverse-probability-of-response weighting are all tractable options.
+
+Smallest next step: a descriptive missingness figure (proportion of submitted forecasts per model over time) in the supplement, plus a single restricted-cohort sensitivity analysis.
+
+## 5. Effective sample size and precision justification
+
+With repeated measures at multiple levels (model, target, week, horizon), nominal sample size overstates independent information. Reviewers of causal analyses expect an effective sample size based on the ICC, and a statement of the precision target.
+
+Smallest next step: report n at each level (total forecasts, model-weeks, models per structure category) and the ICC-implied effective n for the structure coefficient.
+
+## 6. Statement of identifying assumptions
+
+The three core assumptions for causal interpretation are:
+
+- **Exchangeability**: no unmeasured confounders of the exposure-outcome relationship given the adjustment set.
+- **Consistency**: the exposure is well defined. This is non-trivial here. Hybrid models combining mechanistic and statistical components do not cleanly belong to a single structure; the classification decision is itself an analytic choice.
+- **Positivity**: every stratum of the adjustment set contains each exposure level with non-zero probability (see §3).
+
+A further assumption in the forecasting setting is **no interference**: one model's WIS does not depend on another model's forecast. This is violated for ensemble models whose components are also in the dataset, since ensemble and component scores are structurally related. Restricting the comparison to non-ensemble models, or modelling ensemble membership explicitly, would address this.
+
+Smallest next step: a short methods paragraph naming each assumption, its plausibility, and the design decisions that support it.
+
+## 7. Quantitative bias analysis for unmeasured confounding
+
+The hypothesis that mechanistic models perform better because of domain expertise is exactly the mechanism through which an unmeasured "team resources" variable would confound the exposure. Without a quantitative bound on the strength of unmeasured confounding required to explain the effect, the causal claim rests on the plausibility of the DAG alone.
+
+An E-value (VanderWeele and Ding, 2017) is cheap to compute and provides a defensible bound. It answers: how strong would unmeasured confounding need to be, on the risk ratio scale, to explain away the observed association?
+
+Smallest next step: compute E-values for the primary contrasts (each model structure versus reference), report alongside the effect estimate, interpret in one paragraph.
+
+## 8. Temporal correlation in the outcome
+
+The current analysis treats forecasts as independent after accounting for the random-effect structure. Forecasts from the same model in consecutive weeks are likely correlated, and errors may cluster during hard forecasting periods. Options include:
+
+- an autoregressive correlation structure on the residuals (e.g. `corAR1` within model within target)
+- scoring with the variogram score as a complement to WIS, to capture temporal dependence in the forecast errors
+- a block-bootstrap for inference that respects time
+
+Smallest next step: refit the primary GAMM with an AR(1) residual structure and compare structure coefficient SEs.
+
+## Priority order
+
+For a follow-up analysis, the order that delivers the most methodological value per unit of work is approximately:
+
+1. DAG + adjustment set (§1)
+2. Positivity cross-tab (§3)
+3. E-value for primary contrast (§7)
+4. Estimand statement and marginal standardisation (§2)
+5. Missing data sensitivity analysis (§4)
+6. Remaining items
+
+Items 1 to 3 would address the most consequential reviewer critiques that might be raised against a causally framed version of this work. Items 4 to 8 are substantive but incremental.
+
+## Relation to the current revision
+
+In the current revision, these points are deferred on the grounds that:
+
+- the primary aim is exploratory description of forecast performance variation, not a definitive causal estimate
+- the reviewer comments focus on model specification, figure clarity, and terminology rather than causal identification
+- implementing these additions would substantially delay submission
+
+A brief note in the Discussion signals that these extensions are planned, and directs interested readers to this document for the full specification.

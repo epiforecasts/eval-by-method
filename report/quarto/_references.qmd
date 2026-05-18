@@ -1,0 +1,76 @@
+[1\.	Woolhouse M. How to make predictions about future infectious disease risks. Philos Trans R Soc B Biol Sci. 2011 Jul 12;366(1573):2045–54.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[2\.	Dattner I, Huppert A. Modern statistical tools for inference and prediction of infectious diseases using mathematical models. Stat Methods Med Res. 2018 Jul 1;27(7):1927–9.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[3\.	Funk S, King AA. Choices and trade-offs in inference with infectious disease models. Epidemics. 2020 Mar 1;30:100383.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[4\.	Carlson CJ, Dougherty E, Boots M, Getz W, Ryan SJ. Consensus and conflict among ecological forecasts of Zika virus outbreaks in the United States. Sci Rep. 2018 Mar 21;8(1):4921.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[5\.	Viboud C, Sun K, Gaffey R, Ajelli M, Fumanelli L, Merler S, et al. The RAPIDD ebola forecasting challenge: Synthesis and lessons learnt. Epidemics. 2018 Mar 1;22:13–21.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[6\.	Reich NG, Brooks LC, Fox SJ, Kandula S, McGowan CJ, Moore E, et al. A collaborative multiyear, multimodel assessment of seasonal influenza forecasting in the United States. Proc Natl Acad Sci. 2019 Feb 19;116(8):3146–54.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[7\.	Becker AD, Grantz KH, Hegde ST, Bérubé S, Cummings DAT, Wesolowski A. Development and dissemination of infectious disease dynamic transmission models during the COVID-19 pandemic: what can we learn from other pathogens and how can we move forward? Lancet Digit Health. 2021 Jan;3(1):e41–50.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[8\.	Clapham H, Gad M, Gheorghe A, Hutubessy R, Megiddo I, Painter C, et al. Assessing fitness-for-purpose and comparing the suitability of COVID-19 multi-country models for local contexts and users \[Internet\]. Gates Open Research; 2021 \[cited 2022 Dec 12\]. Available from: https://gatesopenresearch.org/articles/5-79](https://www.zotero.org/google-docs/?7SKDbN)
+
+[9\.	Bracher J, Wolffram D, Deuschel J, Görgen K, Ketterer JL, Ullrich A, et al. National and subnational short-term forecasting of COVID-19 in Germany and Poland during early 2021\. Commun Med. 2022 Oct 31;2(1):1–17.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[10\.	Pollett S, Johansson M, Biggerstaff M, Morton LC, Bazaco SL, Brett Major DM, et al. Identification and evaluation of epidemic prediction and forecasting reporting guidelines: A systematic review and a call for action. Epidemics. 2020 Dec 1;33:100400.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[11\.	Holcomb KM, Mathis S, Staples JE, Fischer M, Barker CM, Beard CB, et al. Evaluation of an open forecasting challenge to assess skill of West Nile virus neuroinvasive disease prediction. Parasit Vectors. 2023 Jan 12;16(1):11.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[12\.	Sherratt K, Gruson H, Grah R, Johnson H, Niehus R, Prasse B, et al. Predictive performance of multi-model ensemble forecasts of COVID-19 across European nations. Wesolowski A, Ferguson NM, Shaman JL, Pei S, editors. eLife. 2023 Apr 21;12:e81916.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[13\.	Reich NG, Lessler J, Funk S, Viboud C, Vespignani A, Tibshirani RJ, et al. Collaborative Hubs: Making the Most of Predictive Epidemic Modeling. Am J Public Health. 2022 Jun;112(6):839–42.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[14\.	Scarpino SV, Petri G. On the predictability of infectious disease outbreaks. Nat Commun. 2019 Feb 22;10(1):898.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[15\.	Cramer EY, Ray EL, Lopez VK, Bracher J, Brennen A, Castro Rivadeneira AJ, et al. Evaluation of individual and ensemble probabilistic forecasts of COVID-19 mortality in the United States. Proc Natl Acad Sci. 2022 Apr 12;119(15):e2113561119.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[16\.	Lopez VK, Cramer EY, Pagano R, Drake JM, O’Dea EB, Adee M, et al. Challenges of COVID-19 Case Forecasting in the US, 2020–2021. PLOS Comput Biol. 2024 May 6;20(5):e1011200.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[17\.	Del Valle SY, McMahon BH, Asher J, Hatchett R, Lega JC, Brown HE, et al. Summary results of the 2014-2015 DARPA Chikungunya challenge. BMC Infect Dis. 2018 May 30;18(1):245.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[18\.	McGowan CJ, Biggerstaff M, Johansson M, Apfeldorf KM, Ben-Nun M, Brooks L, et al. Collaborative efforts to forecast seasonal influenza in the United States, 2015–2016. Sci Rep. 2019 Jan 24;9(1):683.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[19\.	European Covid-19 Forecast Hub \[Internet\]. \[cited 2021 Sep 1\]. Available from: https://covid19forecasthub.eu/index.html](https://www.zotero.org/google-docs/?7SKDbN)
+
+[20\.	Dong E, Du H, Gardner L. An interactive web-based dashboard to track COVID-19 in real time. Lancet Infect Dis. 2020 May 1;20(5):533–4.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[21\.	Bracher J, Ray EL, Gneiting T, Reich NG. Evaluating epidemic forecasts in an interval format. PLOS Comput Biol. 2021 Feb 12;17(2):e1008618.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[22\.	Bosse NI, Gruson H, Cori A, van Leeuwen E, Funk S, Abbott S. Evaluating Forecasts with scoringutils in R \[Internet\]. arXiv; 2022 \[cited 2024 May 1\]. Available from: http://arxiv.org/abs/2205.07090](https://www.zotero.org/google-docs/?7SKDbN)
+
+[23\.	Bosse NI, Abbott S, Cori A, Leeuwen E van, Bracher J, Funk S. Scoring epidemiological forecasts on transformed scales. PLOS Comput Biol. 2023 Aug 29;19(8):e1011393.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[24\.	Wood SN. Fast Stable Restricted Maximum Likelihood and Marginal Likelihood Estimation of Semiparametric Generalized Linear Models. J R Stat Soc Ser B Stat Methodol. 2011 Jan 1;73(1):3–36.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[25\.	Sherratt K, Funk S. epiforecasts/eval-by-method: v0.1.0 \[Internet\]. Zenodo; 2025\. Available from: https://doi.org/10.5281/zenodo.14903162](https://www.zotero.org/google-docs/?7SKDbN)
+
+[26\.	Johansson MA, Apfeldorf KM, Dobson S, Devita J, Buczak AL, Baugher B, et al. An open challenge to advance probabilistic forecasting for dengue epidemics. Proc Natl Acad Sci. 2019 Nov 26;116(48):24268–74.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[27\.	Reich NG, McGowan CJ, Yamana TK, Tushar A, Ray EL, Osthus D, et al. Accuracy of real-time multi-model ensemble forecasts for seasonal influenza in the U.S. PLoS Comput Biol. 2019 Nov;15(11):e1007486.](https://www.zotero.org/google-docs/?7SKDbN)
+
+[28\.	Wolffram D, Abbott S, Heiden M an der, Funk S, Günther F, Hailer D, et al. Collaborative nowcasting of COVID-19 hospitalization incidences in Germany. PLOS Comput Biol. 2023 Aug 11;19(8):e1011394.](https://www.zotero.org/google-docs/?7SKDbN)
+
+### Supporting Information
+
+**Supplementary Figure 1\.** Eligibility criteria for models contributing case and death forecasts to the European COVID-19 Forecast Hub, March 2021 \- March 2023
+
+**Supplementary Table 1\.** Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed
+
+**Supplementary Figure 2\.** Epidemic trends (cases)
+
+**Supplementary Figure 3\.** Epidemic trends (deaths)
+
+**Supplementary Figure 4\.** Model diagnostics (cases)
+
+**Supplementary Figure 5\.** Model diagnostics (deaths)
+
+### Data availability
+
+The codebase for this paper is publicly available at the Github repository "epiforecasts/eval-by-method" and Zenodo with DOI: 10.5281/zenodo.14903162.
+Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view online.
+All Hub data are now archived at the Github repository: "european-modelling-hubs/covid19-forecast-hub-europe_archive" and Zenodo with DOI: 10.5281/zenodo.13986751.
+Specific data used in this work are available in the Github repository for this paper.
