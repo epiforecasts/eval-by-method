@@ -23,6 +23,8 @@ library(ggplot2)
 source(here("R", "process-data.R"))
 
 model_wis <- function(scoring_scale = "log", output_dir = "output") {
+output_dir <- here(output_dir, scoring_scale)
+
   # --- Get data ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>

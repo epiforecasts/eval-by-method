@@ -225,35 +225,6 @@ plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) 
   return(score_plot)
 }
 
-# Ridge plot by model --------------------
-plot_ridges <- function(scores, target = "Deaths") {
-  scores |>
-    filter(epi_target == target) |>
-    group_by(Model) |>
-    mutate(
-      median_score = median(wis, na.rm = TRUE),
-      lq = quantile(wis, 0.25, na.rm = TRUE),
-      uq = quantile(wis, 0.75, na.rm = TRUE)
-    ) |>
-    ungroup() |>
-    mutate(Model = fct_reorder(Model, median_score)) |>
-    filter(wis >= lq & wis <= uq) |>
-    # Plot
-    ggplot(aes(x = wis, y = Model, fill = stat(x))) +
-    geom_density_ridges_gradient(
-      scale = 1.5,
-      rel_min_height = 0.01,
-      quantile_lines = TRUE, quantiles = 2
-    ) +
-    scale_fill_viridis_c(
-      name = "Interval score",
-      option = "C", direction = -1
-    ) +
-    theme_ridges() +
-    labs(x = "WIS (IQR)", y = "Model") +
-    theme(legend.position = "none")
-}
-
 # Table of targets by model -------------
 table_targets <- function(scores) {
   table_targets <- scores |>
@@ -358,6 +329,8 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
   return(plot)
 }
 
+# Supplement ---------------------------
+# trend of incidence (increase, decrease, stable)
 trends_plot <- function(scores) {
   trends <- scores |>
     select(Location, target_end_date, Incidence, Trend) |>
@@ -371,4 +344,33 @@ trends_plot <- function(scores) {
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
     xlab("")
   return(p)
+}
+
+# Ridge plot by model --------------------
+plot_ridges <- function(scores, target = "Deaths") {
+  scores |>
+    filter(epi_target == target) |>
+    group_by(Model) |>
+    mutate(
+      median_score = median(wis, na.rm = TRUE),
+      lq = quantile(wis, 0.25, na.rm = TRUE),
+      uq = quantile(wis, 0.75, na.rm = TRUE)
+    ) |>
+    ungroup() |>
+    mutate(Model = fct_reorder(Model, median_score)) |>
+    filter(wis >= lq & wis <= uq) |>
+    # Plot
+    ggplot(aes(x = wis, y = Model, fill = stat(x))) +
+    geom_density_ridges_gradient(
+      scale = 1.5,
+      rel_min_height = 0.01,
+      quantile_lines = TRUE, quantiles = 2
+    ) +
+    scale_fill_viridis_c(
+      name = "Interval score",
+      option = "C", direction = -1
+    ) +
+    theme_ridges() +
+    labs(x = "WIS (IQR)", y = "Model") +
+    theme(legend.position = "none")
 }
