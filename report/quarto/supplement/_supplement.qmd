@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r}
-#| label: set-up
+#| label: set-up-supplement
 #| include: false
 
 library(here)
@@ -21,7 +21,8 @@ source(here("R", "analysis-descriptive.R"))
 source(here("R", "plot-model-results.R"))
 theme_set(theme_classic())
 knitr::opts_chunk$set(
-  eval = TRUE, echo = FALSE,
+  eval = FALSE, 
+  echo = FALSE,
   message = FALSE, warning = FALSE
 )
 ```
@@ -56,7 +57,7 @@ Data for this work were downloaded on 30th May 2023.
 These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
 
 ```{r}
-#| label: load-data
+#| label: load-data-supplement
 
 # Load data
 scores <- process_data(scoring_scale = "log")
@@ -74,7 +75,7 @@ n_forecasts <- nrow(scores)
 ### Eligibility criteria
 
 ```{r}
-#| label: model-flow
+#| label: model-flow-supplement
 #| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
 
 # source(here("R", "plot-model-flow.R"))
@@ -85,7 +86,7 @@ knitr::include_graphics(here("output", "plots", "flowchart.png"))
 ### Model characteristics
 
 ```{r}
-#| label: metadata
+#| label: metadata-supplement
 
 table_metadata(scores) |>
   select(-Description) |>
@@ -93,7 +94,7 @@ table_metadata(scores) |>
 ```
 
 ```{r}
-#| label: classification
+#| label: classification-supplement
 
 model_classifier <- classify_models(return_majority = FALSE) |> 
   distinct(model, classification, raters, votes, agreement) |> 
@@ -120,23 +121,17 @@ We emphasise that this work is exploratory rather than inferential, and we sugge
 Latent nodes capture unobserved constructs for which we use observed variables as partial proxies.
 
 ```{r}
-#| label: dag
+#| label: dag-supplement
 #| fig-cap: "Directed acyclic graph of assumed causal relationships among forecast performance (wis), model structure (Method), and covariates."
 
 source(here::here("R", "dag-check.R"))
 p
 ```
 
-```{r}
-#| label: dag-adjustment
-#| fig-cap: "Minimal adjustment sets implied by the DAG for estimating the total effect of Method on wis. Note that the joint model fitted in the main analysis goes beyond this set by also conditioning on country-target specificity and individual model identity, both of which are downstream of Method in the DAG; this targets a controlled direct effect rather than the total effect."
-
-p_adj
-```
-
 The joint model fitted in the main analysis adjusts for task-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on country-target specificity (CountryTargets) and individual model identity (Model).
-Both of the latter are descendants of Method in the DAG: CountryTargets sits on a Method → Task difficulty → score pathway, and Model sits on a Method → Model → score pathway.
-Adjusting for them therefore does not estimate the total effect of Method on WIS but a controlled direct effect — the partial association between Method and log-WIS with these mediators held fixed at their observed values.
+Both of the latter are descendants of Method in the DAG.
+CountryTargets sits on a Method → Task difficulty → score pathway, and Model sits on a Method → Model → score pathway.
+Adjusting for them therefore does not estimate the total effect of Method on WIS, but a controlled direct effect, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
 Residual confounding from unobserved team resources, which feed into the latent *Modeller strategy* node, is not addressed by this adjustment and is the principal limitation of any causal reading of these estimates.
 A more extended discussion of estimand choice for forecast-hub evaluations, including the distinction between total effects, direct effects, and controlled direct effects in this setting, is given in the accompanying methodological sketch (`dag-reasoning-sketch.qmd`).
 
@@ -145,7 +140,7 @@ A more extended discussion of estimand choice for forecast-hub evaluations, incl
 We retrospectively categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
 
 ```{r}
-#| label: trends
+#| label: trends-supplement
 #| fig-cap: "Trends (cases)"
 #| fig-height: 8
 #| fig-width: 10
@@ -157,7 +152,7 @@ scores |>
 ```
 
 ```{r}
-#| label: death-trends
+#| label: death-trends-supplement
 #| fig-cap: "Trends (deaths)"
 #| fig-height: 8
 #| fig-width: 10
@@ -173,7 +168,7 @@ scores |>
 ### Variant phase identification
 
 ```{r}
-#| label: variant-phases
+#| label: variant-phases-supplement
 #| fig-cap: "Variant phases identified by dominant variant in each location and week"
 
 # see: R/utils-variants.R
@@ -199,7 +194,7 @@ Where genomic surveillance data were too sparse to identify a transition (Hungar
 ### Model fitting
 
 ```{r}
-#| label: model-wis
+#| label: model-wis-supplement
 
 results <- readRDS(here("output", "results.rds"))
 ```
@@ -213,7 +208,7 @@ results <- readRDS(here("output", "results.rds"))
 ##### Cases
 
 ```{r}
-#| label: gamm-diagnostics-cases
+#| label: gamm-diagnostics-cases-supplement
 
 # QQ plot, residuals
 knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
@@ -222,7 +217,7 @@ knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
 ##### Deaths
 
 ```{r}
-#| label: gamm-diagnostics-deaths
+#| label: gamm-diagnostics-deaths-supplement
 
 # QQ plot, residuals
 knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
@@ -233,7 +228,7 @@ knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
 ### Difference in effects for each modelled variable
 
 ```{r}
-#| label: plot-model-effects
+#| label: plot-model-effects-supplement
 #| fig-height: 10
 #| fig-cap: "Effect of counfounding factors on forecast performance (WIS), showing epidemic trend, country location, and dominant variant phase. An effect <0 indicates improved forecast performance relative to other forecast targets. Effects of each variable shown from a univariate model (unadjusted), and in a joint (adjusted) model accounting for all variables."
 
@@ -246,7 +241,7 @@ plot_effects(results$effects,
 We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is calculated.
 
 ```{r}
-#| label: scores-natural
+#| label: scores-natural-supplement
 
 scores <- process_data(scoring_scale = "natural")
 ensemble <- scores |>

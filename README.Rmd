@@ -25,12 +25,12 @@ Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3),
 
 - Accurately predicting the spread of infectious disease is essential to supporting public health during outbreaks. 
 However, comparing the accuracy of different forecasting models is challenging. 
-Existing evaluations struggle to isolate the impact of model design choices (like model structure or specificity to the forecast target) from the inherent difficulty of predicting complex outbreak dynamics. 
-Our research introduces a novel approach to address this by systematically adjusting for common factors affecting epidemiological forecasts, accounting for multi-layered and non-linear effects on predictive difficulty. 
+Existing evaluations struggle to isolate the impact of model design choices (like model structure, or specificity to the forecast target) from the inherent difficulty of predicting complex outbreak dynamics. 
+Our research moves towards a more principled approach to systematically adjusting for common factors affecting epidemiological forecasts, accounting for multi-layered and non-linear effects on predictive difficulty. 
 
-- We applied this approach to a large dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub. 
-We adjusted for variation across epidemic dynamics, forecast horizon, location, time, and model-specific effects. 
-This allowed us to isolate the impact of model structure and geographic specificity on predictive performance. 
+- We applied this approach to a dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub. 
+We adjusted for variation across epidemic dynamics, forecast horizon, and model-specific effects. 
+This allowed us to isolate the impact of model structure on predictive performance, while accounting for geographic specificity and predictive difficulty.
 
 - Our findings suggest that after adjustment, apparent differences in performance between model structures became minimal, while models that were specific to a single location showed a slight performance advantage over multi-location models. 
 Our work highlights the importance of considering predictive difficulty when evaluating across forecasting models, and provides a framework for more robust evaluations of infectious disease predictions.

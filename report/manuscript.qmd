@@ -2,7 +2,6 @@
 title: "The influence of model structure on predictive accuracy among European COVID-19 forecasts"
 format:
   html: default
-  docx: default
 ---
 
 Katharine Sherratt1\*, Rok Grah 2,3, Bastian Prasse2, Friederike Becker4, Jamie McLean1, Sam Abbott1, Sebastian Funk1
@@ -21,11 +20,13 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Abstract
 
-<!-- {{< include quarto/_abstract.qmd >}} -->
+{{< include quarto/_abstract.qmd >}}
+
+## Main text
 
 ### Background
 
-<!-- {{< include quarto/_background.qmd >}} -->
+{{< include quarto/_background.qmd >}}
 
 ### Methods
 
@@ -37,8 +38,19 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Discussion
 
-<!-- {{< include _quarto/_discussion.qmd >}} -->
+::: {.callout-caution collapse="true"}
+{{< include quarto/_discussion.qmd >}}
+
+:::
 
 ### References
 
-<!-- {{< include _quarto/_references.qmd >}} -->
+::: {.callout-caution collapse="true"}
+{{< include quarto/_references.qmd >}}
+:::
+
+## Supplement
+
+::: {.callout-caution collapse="true"}
+
+:::

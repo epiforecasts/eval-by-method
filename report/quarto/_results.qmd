@@ -141,7 +141,7 @@ scores_over_time
 ```
 
 ```{r}
-results <- readRDS(here("output", "results.rds"))
+results <- readRDS(here("output", "log", "results.rds"))
 table_effects <- results$effects |> 
   mutate(upper_97.5_text = if_else(
            upper_97.5 < 0,

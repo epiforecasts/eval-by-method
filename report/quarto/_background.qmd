@@ -1,26 +1,27 @@
 Forecasters addressing a forecast target may choose among many approaches to building a predictive model.
-This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), which may impact predictive accuracy.
+This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
 However, it has been difficult to evaluate how this choice of method influences resulting forecast performance.
-One concern is that such evaluations typically summarise performance across both models and forecast targets simultaneously.
-However, each unique forecast target has varying predictive difficulty.
+One concern is that such evaluations typically summarise performance across both models and forecast targets simultaneously, even while each unique forecast target has varying predictive difficulty.
 This means that comparisons may conflate differences in predictive power with differences in target difficulty.
 
-One fundamental choice in model building is the choice of underlying model structure.
-This structure might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
-Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting, and forecasting accuracy is only one lens through which to evaluate them.
-Previous work comparing predictive performance between these approaches found no evidence of substantial differences between model structures [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
-However, it is not clear whether this null result reflects a valid equivalence, or an artefact of comparisons that did not adequately account for varying target difficulty.
+A fundamental choice in model building is the choice of underlying model structure.
+This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
+Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
+While forecasting accuracy is only one lens through which to evaluate them, psrevious work has compared predictive performance between these approaches.
+This has found no evidence of substantial differences between model structures [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
+However, it is not clear whether this null result reflects a true equivalence, or an artefact of comparisons across multiple forecast targets of varying predictive difficulty.
 
-At the same time, a forecaster may be faced with multiple forecast targets of varying difficulty, and may choose to handle this problem in different ways.
+At the same time, a forecaster may be faced with multiple forecast targets of varying difficulty.
 One approach is to build a model able to produce forecasts for any given setting given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
 A different approach is to adapt the model itself to a specific target, for example emphasising particular mechanistic processes or exploiting local data sources.
 Such target-specific models may be more policy-relevant [(7,8)](https://www.zotero.org/google-docs/?vo794b), and a study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those most tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
-Notably, model structure and specificity are not independent.
+As a result, model structure and its specificity to a target are not independent modelling choices.
 Data-driven approaches are typically more amenable to forecasting many settings at once, while bespoke mechanistic models are more easily tailored to a single context.
-We suggest that any estimated effect of model structure needs to account for this relationship.
+This suggests that any estimated effect of model structure needs to account for this relationship.
 
 Establishing associations between model development choices and predictive performance is also complicated by limited comparability between forecasts [(10)](https://www.zotero.org/google-docs/?8yn1XI), small samples of independent models [(11)](https://www.zotero.org/google-docs/?ZgO6IM), and the many factors that drive predictive difficulty across targets: dynamics are generally easier to predict in the short term [(15)](https://www.zotero.org/google-docs/?2K90bo), when stable [(9)](https://www.zotero.org/google-docs/?KaFMKc), in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), or with informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT), though inherent limits to predictability remain [(14)](https://www.zotero.org/google-docs/?CZumUU).
-Collaborative forecasting Hubs, which collate predictions from diverse modellers and publish them in real time, help address comparability by enabling like-for-like evaluation across models [(13)](https://www.zotero.org/google-docs/?7pIGoa); what remains is to adjust for the co-varying influences on predictability that confound simple comparisons [(11,16,18)](https://www.zotero.org/google-docs/?R3Ah2J).
+Collaborative forecasting Hubs, which collate predictions from diverse modellers and publish them in real time, help address comparability by enabling like-for-like evaluation across models [(13)](https://www.zotero.org/google-docs/?7pIGoa).
+This consistent dataset enables us to adjust for the co-varying influences on predictability that are likely to confound simple comparisons [(11,16,18)](https://www.zotero.org/google-docs/?R3Ah2J).
 
 Here, we develop a generalised additive mixed effects model that jointly adjusts for the key sources of variation in predictive difficulty, applying it to short-term COVID-19 forecasts across Europe.
 Our target estimand is the controlled direct effect of model structure on performance.
