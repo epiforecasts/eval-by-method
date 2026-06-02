@@ -55,3 +55,4 @@ rsconnect/
 
 .DS_Store
 /.quarto/
+.claude/settings.local.json
