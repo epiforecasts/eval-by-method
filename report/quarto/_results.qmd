@@ -1,5 +1,5 @@
 ```{r}
-#| label: set-up
+#| label: results-set-up
 #| include: false
 
 library(here)
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r}
-#| label: data-pipeline
+#| label: results-data-pipeline
 
 source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
@@ -38,7 +38,7 @@ scores <- scores |>
 *Participation*
 
 ```{r}
-#| label: load-data
+#| label: results-load-data
 
 n_models <- length(unique(scores$Model))
 n_forecasts <- nrow(scores)
@@ -63,7 +63,7 @@ Between `r round(per_week[["Min."]])` and `r round(per_week[["Max."]])` models c
 On average each model contributed `r format(round(model_forecasts[["Mean"]]), big.mark = ",")` forecasts, with the median model contributing `r model_forecasts[["Median"]]` forecasts.
 
 ```{r}
-#| label: table-scores
+#| label: results-table-scores
 
 print_table1(scores)
 ```
@@ -71,7 +71,7 @@ print_table1(scores)
 *Participant characteristics*
 
 ```{r}
-#| label: structures
+#| label: results-desc-structures
 
 structures <- scores |>
   select(Model, Method, agreement) |>
@@ -92,7 +92,7 @@ In the volume of forecasts provided, mechanistic, semi-mechanistic, and statisti
 Agent-based and judgement models provided fewer forecasts, representing only 1-2% of forecasts.
 
 ```{r}
-#| label: target-description
+#| label: results-target-description
 
 targets <- scores |>
   select(Model, CountryTargets) |>
@@ -126,7 +126,7 @@ We explored the interval score (WIS) as a measure of predictive performance (Fig
 We used descriptive statistics and an unadjusted univariate model for each explanatory variable.
 
 ```{r, fig.cap=scores_over_time_cap}
-#| label: scores-over-time
+#| label: results-scores-over-time
 #| fig-height: 8
 #| fig-width: 6
 
@@ -141,6 +141,7 @@ scores_over_time
 ```
 
 ```{r}
+#| label: results-scores-results
 results <- readRDS(here("output", "log", "results.rds"))
 table_effects <- results$effects |> 
   mutate(upper_97.5_text = if_else(
