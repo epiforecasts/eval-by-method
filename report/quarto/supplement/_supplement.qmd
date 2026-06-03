@@ -6,7 +6,7 @@ output:
 ---
 
 ```{r}
-#| label: set-up-supplement
+#| label: supplement-set-up
 #| include: false
 
 library(here)
@@ -25,6 +25,17 @@ knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE, warning = FALSE
 )
+```
+```{r}
+#| label: supplement-load-data
+
+# Load data
+scores <- process_data(scoring_scale = "log")
+ensemble <- scores |>
+  filter(grepl("EuroCOVIDhub-ensemble", Model))
+scores <- scores |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+n_forecasts <- nrow(scores)
 ```
 
 ## Code and data availability
@@ -45,6 +56,34 @@ Please cite code using:
   epiforecasts/eval-by-method: Zenodo.
   <https://doi.org/10.5281/zenodo.14903162>
 
+
+\newpage
+
+## Study participation
+
+### Eligibility
+
+Forecasting teams were recruited to the European Covid-19 Forecast Hub using existing networks and ECDC publicity.
+Any forecaster was eligible to participate, and there were no selection criteria.
+All participation was voluntary and unrenumerated.
+Forecasters contributed a standard set of metadata describing their team and model, and uploaded forecasts weekly.
+Forecasters were optionally able to express uncertainty by reporting a distribution of up to 23 probabilistic quantiles for each prediction.
+Forecasts were validated against minimal formatting requirements for quantile intervals and that values were positive integers.
+
+For this study, we collected all forecasts from between 8 March 2021 to 10 March 2023.
+We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period.
+We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results.
+We also excluded baseline and ensemble models created by the Hub team.
+
+```{r}
+#| label: model-flow-supplement
+#| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
+
+# source(here("R", "plot-model-flow.R"))
+# flow_chart <- create_model_flow()
+knitr::include_graphics(here("output", "plots", "flowchart.png"))
+```
+
 ### Source data
 
 Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> .
@@ -55,33 +94,6 @@ All Hub data are now archived at:
 
 Data for this work were downloaded on 30th May 2023.
 These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
-
-```{r}
-#| label: load-data-supplement
-
-# Load data
-scores <- process_data(scoring_scale = "log")
-ensemble <- scores |>
-  filter(grepl("EuroCOVIDhub-ensemble", Model))
-scores <- scores |>
-  filter(!grepl("EuroCOVIDhub-ensemble", Model))
-n_forecasts <- nrow(scores)
-```
-
-\newpage
-
-## Participating model characteristics
-
-### Eligibility criteria
-
-```{r}
-#| label: model-flow-supplement
-#| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
-
-# source(here("R", "plot-model-flow.R"))
-# flow_chart <- create_model_flow()
-knitr::include_graphics(here("output", "plots", "flowchart.png"))
-```
 
 ### Model characteristics
 
