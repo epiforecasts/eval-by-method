@@ -1,73 +1,37 @@
 
-<!--- Paragraph 1: Big problem & field gap --->
+Forecasters attempting to predict infectious disease outbreaks have met with varying success [@]. 
+This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast tasks.
+To evaluate the contribution of these two factors in predictive performance, we need a comparable sample of many independent forecasting models across many forecast tasks [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
+This comparability is achieved in participatory forecast challenges [(13)](https://www.zotero.org/google-docs/?7pIGoa).
+Yet even with comparable evaluation between models, the relative contribution of factors influencing performance has not been well identified.
+Identifying these influences on performance is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
 
-<!------ Context: field domain --->
-
-<!------ Content: what the field knows --->
-
-<!------ Conclusion: remaining gap that matters --->
-
-*Infectious disease forecasting is difficult*
-
-Many factors drive predictive difficulty of infectious disease outbreaks. Dynamics are generally easier to predict in the short term [(15)](https://www.zotero.org/google-docs/?2K90bo), when stable [(9)](https://www.zotero.org/google-docs/?KaFMKc), in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), or with informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT), though inherent limits to predictability remain [(14)](https://www.zotero.org/google-docs/?CZumUU).
-
-Forecasters addressing a forecast target may choose among many approaches to building a predictive model.
+Among many forecasters, some variation in performance may be attributed to the variety of structural approaches to developing a forecasting model. 
+Forecasters may choose among many methods in model development. 
+This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission. 
+Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting. 
 This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
-However, it has been difficult to evaluate how this choice of method influences resulting forecast performance.
-One concern is that such evaluations typically summarise performance across both models and forecast targets simultaneously, even while each unique forecast target has varying predictive difficulty.
-This means that comparisons may conflate differences in predictive power with differences in target difficulty.
+Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences[(4–6)](https://www.zotero.org/google-docs/?piAg9a).
+However, evaluations typically summarise performance across many forecast tasks simultaneously.
+This means that comparisons may conflate differences in the predictive performance of each structural approach, with parallel differences in forecast task difficulty.
 
-<!----->
-<!--- Paragraph 2: Subfield problem & specific gap --->
+Variation in forecast task difficulty is also a factor in forecast performance. 
+We see better predictive performance when the forecast task is short term [(15)](https://www.zotero.org/google-docs/?2K90bo), with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc), in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), or with informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT). 
+At the same time, there may be inherent limits to infectious disease predictability [(14)](https://www.zotero.org/google-docs/?CZumUU). 
+Evaluating forecasts across multiple forecast tasks should therefore account for task difficulty, before comparing other factors influencing predictive performance. 
+This is typically accounted for qualitatively, based on knowledge of varying forecasting contexts [@sherratt]. 
+Few evaluations have explicitly accounted for task difficulty-related variables using more formal analytical methods.
 
-<!------ Context: field domain --->
+Such analysis is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast tasks. 
+A forecaster's strategy for participation across forecasting tasks may influence their structural approach to model development, their ability to participate in different forecast tasks, and their resulting predictive performance.
+One strategy for participating across forecasting tasks is to produce forecasts for any given task given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
+An alternative strategy is to develop a model to a specific forecast task, for example emphasising particular mechanistic processes or exploiting local data sources. 
+Bespoke mechanistic models are more easily tailored to a single task in this way [(7,8)](https://www.zotero.org/google-docs/?vo794b). 
+A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those specifically tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
+This suggests the hypothesis that task participation has a separate influence on predictive performance, and could confound an estimate of the effect of model structure on predictive performance.
 
-<!------ Content: what the field knows --->
-
-<!------ Conclusion: remaining gap that matters --->
-
-A fundamental choice in model building is the choice of underlying model structure.
-This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
-Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
-While forecasting accuracy is only one lens through which to evaluate them, previous work has compared predictive performance between these approaches.
-This has found no evidence of substantial differences between model structures [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
-However, it is not clear whether this result reflects a true equivalence, or an artefact of comparisons across multiple forecast targets of varying predictive difficulty.
-
-At the same time, a forecaster may be faced with multiple forecast targets of varying difficulty.
-One approach is to build a model able to produce forecasts for any given setting given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
-A different approach is to adapt the model itself to a specific target, for example emphasising particular mechanistic processes or exploiting local data sources.
-Such target-specific models may be more policy-relevant [(7,8)](https://www.zotero.org/google-docs/?vo794b), and a study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those most tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
-As a result, model structure and its specificity to a target are not independent modelling choices.
-Data-driven approaches are typically more amenable to forecasting many settings at once, while bespoke mechanistic models are more easily tailored to a single context.
-This suggests that any estimated effect of model structure needs to account for this relationship.
-
-<!----->
-<!--- Paragraph 3: A specific solvable problem & specific testable gap --->
-
-<!------ Context: field domain --->
-
-<!------ Content: what the field knows --->
-
-<!------ Conclusion: remaining paper gap --->
-
-*We need to discriminate between model performance and forecast task difficulty*
-
-Establishing associations between model development choices and predictive performance is also complicated by limited comparability between forecasts [(10)](https://www.zotero.org/google-docs/?8yn1XI), small samples of independent models [(11)](https://www.zotero.org/google-docs/?ZgO6IM).
-Collaborative forecasting Hubs, which collate predictions from diverse modellers and publish them in real time, help address this problem of comparability. Collating forecasts in identical format enables like-for-like evaluation across many models [(13)](https://www.zotero.org/google-docs/?7pIGoa).
-However, 
-
-This consistent dataset enables us to adjust for the co-varying influences on predictability that are likely to confound simple comparisons [(11,16,18)](https://www.zotero.org/google-docs/?R3Ah2J).
-
-<!----->
-<!--- Paragraph 4: Compact summary of results --->
-
-<!------ Brief, specific summary of key results --->
-
-<!------ Brief preview of the interpretation --->
-
-<!----->
-Here, we develop a generalised additive mixed effects model that jointly adjusts for the key sources of variation in predictive difficulty, applying it to short-term COVID-19 forecasts across Europe.
-Our target estimand is the controlled direct effect of model structure on performance.
-This is the partial contribution that is not transmitted through which specific model a team built, or how many countries they chose to forecast, as we hold target characteristics and geographic specificity at their observed values.
-We include a directed acyclic graph in the Supplement to represent our assumed causal structure.
-This work is exploratory rather than formally causal; we do not have the ability to fully test our assumptions, and we consider a fuller causal treatment to be valuable future work.
+Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast task difficulty and task participation. 
+We include a directed acyclic graph in the Supplement to represent our assumed causal structure, but note that our work is exploratory rather than formally causal.
+We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts and using a generalised additive mixed model to associate this with model structure, factors influencing task difficulty, and task participation.
+We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast task difficulty. 
+We do not have the ability to fully test our assumptions, and we consider directions for a fuller causal treatment in future work.
