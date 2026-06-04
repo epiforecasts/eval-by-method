@@ -1,8 +1,9 @@
 <!--- TODO: 
-Note that accounting for confounding in this way is a similar effort to understanding upper and lower bounds of predictability, and room for forecaster improvement. 
+1.  accounting for confounding in this way is a similar effort to understanding upper and lower bounds of predictability, and room for forecaster improvement. 
 - Here we've used "forecast target difficulty" achieve the effect of constraining our evaluation within the "inherent limits to predictability" or within the "upper bound on predictability" or "upper bound on room for improvement" or "lower bound on forecast error". 
 - We are then disentangling the other boundary - the lower bound of predictability - by separating out two factors of the forecaster-side: choice of model structure, and approach to selecting forecast targets.
 - This allows us to estimate the (modifiable) room for improvement from changing model structure alone.
+2. no diff between strctures = need portfolio of benchmarks.
 --->
 
 We aimed to assess influences on the accuracy of infectious disease forecasts, considering models' methodological structure and the specificity of the model to the geographic target.
