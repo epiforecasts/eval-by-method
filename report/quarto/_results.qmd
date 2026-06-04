@@ -124,7 +124,7 @@ Multi-country models forecast for a median of `r round(mean(multi_targets$median
 # could show mean or median WIS across all models as this is the "reference" class for the gamm
 # could show with some element of epi dynamics as task difficulty
 
-scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale, where a lower score indicates better performance. WIS was computed on log-transformed incidence per 100,000 population. Performance is summarised across 32 target countries and 1 through 4 week forecast horizons; the number of contributing models varied over time. Uncertainty intervals are omitted for clarity (see Supplementary Figure S4 for intervals). Shown for (A) model structure; (B) geographic scope (single- or multi-country); (C) total observed incidence across all 32 countries (log scale)."
+scores_over_time_cap <- "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale, where a lower score indicates better performance. WIS was computed on log-transformed incidence per 100,000 population. Performance is summarised across 32 target countries and 1 through 4 week forecast horizons; the number of contributing models varied over time. Uncertainty intervals are omitted for clarity (see Supplementary Figure S4 for intervals). Shown for (A) model structure; (B) target strategy (single- or multi-country); (C) total observed incidence across all 32 countries (log scale)."
 scores_over_time <- plot_over_time(
   scores = scores,
   ensemble = ensemble,
@@ -135,7 +135,7 @@ scores_over_time
 ```
 
 We descriptively summarised forecast performance across the study sample.
-Figure @ref(fig:scores-over-time) shows observed WIS over time by model structure (panel A) and geographic scope (panel B), with observed incidence for context (panel C). 
+Figure @ref(fig:scores-over-time) shows observed WIS over time by model structure (panel A) and target strategy (panel B), with observed incidence for context (panel C). 
 
 We noted apparently similar predictive performance between mechanistic, semi-mechanistic, and statistical models.
 These model structures appeared to perform relatively worse than agent-based and expert-judgement models.
@@ -175,7 +175,7 @@ effects_comp <- results$effects |>
   select(-c("effect", "Unadjusted"))
 ```
 
-We fitted a generalised additive mixed model (GAMM) to give adjusted estimates of the partial effect of model structure, while controlling for geographic target selection and other sources of variation.
+We fitted a generalised additive mixed model (GAMM) to give adjusted estimates of the partial effect of model structure, while controlling for target strategy and other sources of variation.
 In this structure, all partial effects are deviations from the grand mean WIS under sum-to-zero constraints, meaning that a negative value indicates better-than-average performance.
 The WIS was highly right-skewed with respect to all other variables (see Supplementary Figure S2), and we used a log-link to account for this.
 We report effects on the log-WIS scale. 
@@ -213,7 +213,7 @@ This indicated that our variable selection here was not sufficient to fully expl
 #| fig-height: 8
 #| fig-width: 10
 
-model_cap <- "Partial effect size (95% CI) by individual model, estimated from the GAMM. This represents adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location. Colour indicates model structure (method); shape indicates geographic scope (circle: single-country, triangle: multi-country). Remaining variation between models represents unexplained heterogeneity beyond the factors included."
+model_cap <- "Partial effect size (95% CI) by individual model, estimated from the GAMM. This represents adjusted performance after accounting for model structure, target strategy, forecast horizon, epidemic trend, variant phase, and location. Colour indicates model structure (method); shape indicates target strategy (circle: single-country, triangle: multi-country). Remaining variation between models represents unexplained heterogeneity beyond the factors included."
 plot_models(results$effects, scores)
 ```
 

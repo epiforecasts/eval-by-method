@@ -1,7 +1,15 @@
+<!--- TODO: 
+Note that accounting for confounding in this way is a similar effort to understanding upper and lower bounds of predictability, and room for forecaster improvement. 
+- Here we've used "forecast target difficulty" achieve the effect of constraining our evaluation within the "inherent limits to predictability" or within the "upper bound on predictability" or "upper bound on room for improvement" or "lower bound on forecast error". 
+- We are then disentangling the other boundary - the lower bound of predictability - by separating out two factors of the forecaster-side: choice of model structure, and approach to selecting forecast targets.
+- This allows us to estimate the (modifiable) room for improvement from changing model structure alone.
+--->
+
 We aimed to assess influences on the accuracy of infectious disease forecasts, considering models' methodological structure and the specificity of the model to the geographic target.
 Using data from the European COVID-19 Hub, we assessed comparable forecasts across 32 countries with independent epidemic processes, evaluating 181,851 predictions from 47 forecasting models.
 We used a mixed effects model to identify forecast performance while accounting for confounding factors affecting general predictive difficulty.
 After adjustment, we observed little systematic difference in average performance between model structures.
+Adjustment attenuated all differences, consistent with the hypothesis that target strategy confounds model structure comparisons.
 Models forecasting for only a single geographic target outperformed those that made predictions for multiple targets, although this was a weak signal with overlapping uncertainty.
 We noted substantial variation in model performance that our approach did not account for.
 

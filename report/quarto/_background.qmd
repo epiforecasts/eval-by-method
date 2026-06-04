@@ -29,10 +29,10 @@ Faced with multiple forecasting tasks, a forecaster might produce forecasts for 
 An alternative strategy is to develop a model to a specific forecast task, for example emphasising particular mechanistic processes or exploiting local data sources. 
 Bespoke mechanistic models are more easily tailored to a single task in this way [(7,8)](https://www.zotero.org/google-docs/?vo794b). 
 A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those specifically tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
-This suggests the hypothesis that task participation has a separate influence on predictive performance, and could confound an estimate of the effect of model structure on predictive performance.
+This suggests the hypothesis that target strategy has a separate influence on predictive performance, and could confound an estimate of the effect of model structure on predictive performance.
 
-Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast task difficulty and task participation. 
+Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast task difficulty and target strategy.
 We include a directed acyclic graph in the Supplement to represent our assumed causal structure, but note that our work is exploratory rather than formally causal.
-We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts and using a generalised additive mixed model to associate this with model structure, factors influencing task difficulty, and task participation.
+We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts and using a generalised additive mixed model to associate this with model structure, factors influencing task difficulty, and target strategy.
 We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast task difficulty. 
 We do not have the ability to fully test our assumptions, and we consider directions for a fuller causal treatment in future work.

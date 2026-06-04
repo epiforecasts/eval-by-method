@@ -84,7 +84,7 @@ $$
 The two smooths captured continuous covariates.
 $f_{\text{Inc}}$ was a penalised thin-plate regression spline over (log-transformed) incidence, and $\{f^{\text{Horizon}}_k\}$ was a factor-smooth interaction (sum-to-zero constrained, with $k=3$ basis functions per forecasting model), allowing the horizon effect to vary by model.
 
-We used summary statistics to describe WIS by model structure and country target specificity.
+We used summary statistics to describe WIS by model structure and target strategy.
 We fitted all models using the *mgcv* package in R [(24)](https://www.zotero.org/google-docs/?Jv7oFh), using fast restricted maximum likelihood estimation (fREML).
 We checked model fit with visual inspection of residuals via Q-Q plots.
 To assess confounding, we fitted univariate models to contrast unadjusted and adjusted estimates of the partial effect of model structure on WIS.
