@@ -22,9 +22,10 @@ Evaluating forecasts across multiple forecast tasks should therefore account for
 This is typically accounted for qualitatively, based on knowledge of varying forecasting contexts [@sherratt]. 
 Few evaluations have explicitly accounted for task difficulty-related variables using more formal analytical methods.
 
-Such analysis is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast tasks. 
-A forecaster's strategy for participation across forecasting tasks may influence their structural approach to model development, their ability to participate in different forecast tasks, and their resulting predictive performance.
-One strategy for participating across forecasting tasks is to produce forecasts for any given task given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
+Such analysis is challenging as it is prone to selection bias, confounding, and interaction effects (effect modification) when evaluating among forecasters with differential participation across forecast tasks. 
+One potential such interaction is where the effect of model structure is modified by a forecaster's strategy for selecting forecasting tasks. 
+This strategy may influence structural approach to model development, their ability to participate in different forecast tasks, and their resulting predictive performance.
+Faced with multiple forecasting tasks, a forecaster might produce forecasts for any given task given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
 An alternative strategy is to develop a model to a specific forecast task, for example emphasising particular mechanistic processes or exploiting local data sources. 
 Bespoke mechanistic models are more easily tailored to a single task in this way [(7,8)](https://www.zotero.org/google-docs/?vo794b). 
 A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those specifically tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
