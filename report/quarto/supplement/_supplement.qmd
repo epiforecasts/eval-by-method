@@ -25,17 +25,12 @@ knitr::opts_chunk$set(
   echo = FALSE,
   message = FALSE, warning = FALSE
 )
-```
-```{r}
-#| label: supplement-load-data
-
 # Load data
 scores <- process_data(scoring_scale = "log")
 ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
-n_forecasts <- nrow(scores)
 ```
 
 ## Code and data availability
@@ -55,7 +50,6 @@ Please cite code using:
   (2025).
   epiforecasts/eval-by-method: Zenodo.
   <https://doi.org/10.5281/zenodo.14903162>
-
 
 \newpage
 
@@ -78,6 +72,8 @@ We also excluded baseline and ensemble models created by the Hub team.
 ```{r}
 #| label: model-flow-supplement
 #| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
+#| TODO: output as csv, or similar so that participation can be described
+#|   throughout from a single source
 
 # source(here("R", "plot-model-flow.R"))
 # flow_chart <- create_model_flow()
@@ -99,15 +95,28 @@ These data are available in the Github repository for this paper at: <https://gi
 
 ```{r}
 #| label: metadata-supplement
-
 table_metadata(scores) |>
   select(-Description) |>
   kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.")
 ```
 
+Overall participation among forecast targets over the study period.
+
+```{r supplement-participation}
+target_matrix <- scores |>
+distinct(epi_target, Location, forecast_date, Horizon) |>
+mutate(across(everything(), as.factor)) |>
+complete(epi_target, Location, forecast_date, Horizon)
+
+target_count <- scores |>
+group_by(epi_target, Location, forecast_date, Horizon) |>
+add_count(Method)
+```
+
+We looked at how raters classified models according to methodological structures.
+
 ```{r}
 #| label: classification-supplement
-
 model_classifier <- classify_models(return_majority = FALSE) |> 
   distinct(model, classification, raters, votes, agreement) |> 
   group_by(model) |>
@@ -120,6 +129,31 @@ model_classifier <- classify_models(return_majority = FALSE) |>
 
 model_classifier |> 
     kable(caption = "Classification of models by number of raters in total and agreement on model structure")
+```
+
+We explored how models selected geographic targets over time.
+Forecasters both added and removed targets among the set for which they forecast each week.
+This figure shows number of targets submitted by each model at the 1-week ahead horizon.
+We noted the same variation for 2-4 week forecasts.
+
+```{r}
+#| label: supplement-target-count
+#| fig-cap: "The number of countries targeted by each model forecasting for 1-week ahead incidence of Covid-19 cases or deaths, shown by classification of model structure. Each forecaster selected any number of targets from a set of 32 countries."
+
+target_time <- scores|>
+group_by(epi_target, Method, Horizon, forecast_date, Model) |>
+summarise(targets = n_distinct(Location),
+ae_median = median(ae_median))
+
+target_time |>
+filter(Horizon==1) |>
+ggplot(aes(x = forecast_date, y = targets,
+col = Model)) +
+geom_line(alpha = 0.3) +
+geom_point(alpha = 0.3, position = "jitter") +
+facet_grid(cols = vars(epi_target), rows = vars(Method)) +
+labs(x = "Forecast week", y = "Number of target countries") +
+theme(legend.position = "none")
 ```
 
 \newpage
@@ -140,7 +174,7 @@ source(here::here("R", "dag-check.R"))
 p
 ```
 
-The joint model fitted in the main analysis adjusts for task-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on country-target specificity (CountryTargets) and individual model identity (Model).
+The joint model fitted in the main analysis adjusts for task-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
 Both of the latter are descendants of Method in the DAG.
 CountryTargets sits on a Method → Task difficulty → score pathway, and Model sits on a Method → Model → score pathway.
 Adjusting for them therefore does not estimate the total effect of Method on WIS, but a controlled direct effect, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
@@ -233,6 +267,21 @@ knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
 
 # QQ plot, residuals
 knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
+```
+
+#### Figure 1 with uncertainty intervals
+
+```{r}
+#| label: scores-over-time-uncertainty-supplement
+#| fig-height: 6
+#| fig-cap: "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time, with bootstrap 95% confidence intervals. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale. Rows show single- and multi-country models separately; columns show cases and deaths. Colour indicates model structure."
+
+scores_over_time_s4 <- plot_over_time(
+  scores = scores,
+  ensemble = ensemble,
+  show_uncertainty = TRUE
+)
+scores_over_time_s4
 ```
 
 ## Results

@@ -30,25 +30,43 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Methods
 
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] Compare joint model for cases/deaths (include results in supp)
+- [ ] check mean average WIS over time and by other confounders
+- [ ] natural scale fit with gamma dist
+:::
+
 {{< include quarto/_methods.qmd >}}
 
 ### Results
 
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] Figure 1 edit for clarity; use cohort mean performance over time?
+- [ ] table 2 check adjusted numbers
+- [ ] table 2 include adjustment set in caption
+:::
+
 {{< include quarto/_results.qmd >}}
 
 ### Discussion
-
-::: {.callout-caution collapse="true"}
-{{< include quarto/_discussion.qmd >}}
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] note should use survival analysis
 :::
+
+{{< include quarto/_discussion.qmd >}}
 
 ### References
 
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] sync with google doc zotero to bib file
+:::
 ::: {.callout-caution collapse="true"}
 {{< include quarto/_references.qmd >}}
 :::
 
 ## Supplement
 
-::: {.callout-caution collapse="true"}
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] check supplement includes natural scale results
+- [ ] include univariate associations of all variables
 :::

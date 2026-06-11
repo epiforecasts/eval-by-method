@@ -1,38 +1,40 @@
+Forecasters attempting to predict infectious disease outbreaks have met with varying success [@].
+This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets.
+By accounting for forecast target difficulty, we effectively adjust for a lower bound of error set by the forecast target itself, and estimate the modifiable room for improvement from forecaster strategy.
+To estimate the effect of changing model structure alone, we then further adjusted for forecaster selectiveness among geographic targets.
 
-Forecasters attempting to predict infectious disease outbreaks have met with varying success [@]. 
-This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast tasks.
-To evaluate the contribution of these two factors in predictive performance, we need a comparable sample of many independent forecasting models across many forecast tasks [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
+Among many forecast targets, forecaster performance is inherently variable due to differences in the processes generating each target.
+We see better predictive performance with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc), in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), and when the forecast target is short term [(15)](https://www.zotero.org/google-docs/?2K90bo) or has informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT).
+This is linked to recent interest in identifying boundaries to the predictability of infectious disease incidence [(14)](https://www.zotero.org/google-docs/?CZumUU).
+Evaluation across multiple forecast targets should therefore be sensitive to varying target difficulty.
+This can be addressed by using a method of evaluation with assumptions that mirror these process, such as normalising error to the size of the population, and evaluating on a log scale to reflect exponential growth patterns of transmission.
+
+Among many forecasters, some variation in performance may also be attributed to the variety of structural approaches to developing a forecasting model.
+Forecasters may choose among many methods in model development.
+This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
+Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
+This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
+Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences[(4–6)](https://www.zotero.org/google-docs/?piAg9a).
+However, evaluations typically summarise performance across many forecast targets simultaneously.
+This means that comparisons may conflate differences in the predictive performance of each structural approach, with parallel differences in forecast target difficulty.
+
+To evaluate the contribution of these two dimensions of predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
 This comparability is achieved in participatory forecast challenges [(13)](https://www.zotero.org/google-docs/?7pIGoa).
 Yet even with comparable evaluation between models, the relative contribution of factors influencing performance has not been well identified.
 Identifying these influences on performance is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
 
-Among many forecasters, some variation in performance may be attributed to the variety of structural approaches to developing a forecasting model. 
-Forecasters may choose among many methods in model development. 
-This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission. 
-Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting. 
-This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
-Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences[(4–6)](https://www.zotero.org/google-docs/?piAg9a).
-However, evaluations typically summarise performance across many forecast tasks simultaneously.
-This means that comparisons may conflate differences in the predictive performance of each structural approach, with parallel differences in forecast task difficulty.
+Such analysis is still challenging as it is prone to selection bias, confounding, and interactions (effect modification) when evaluating among forecasters with differential participation across forecast targets.
 
-Variation in forecast task difficulty is also a factor in forecast performance. 
-We see better predictive performance when the forecast task is short term [(15)](https://www.zotero.org/google-docs/?2K90bo), with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc), in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), or with informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT). 
-At the same time, there may be inherent limits to infectious disease predictability [(14)](https://www.zotero.org/google-docs/?CZumUU). 
-Evaluating forecasts across multiple forecast tasks should therefore account for task difficulty, before comparing other factors influencing predictive performance. 
-This is typically accounted for qualitatively, based on knowledge of varying forecasting contexts [@sherratt]. 
-Few evaluations have explicitly accounted for task difficulty-related variables using more formal analytical methods.
-
-Such analysis is challenging as it is prone to selection bias, confounding, and interaction effects (effect modification) when evaluating among forecasters with differential participation across forecast tasks. 
-One potential such interaction is where the effect of model structure is modified by a forecaster's strategy for selecting forecasting tasks. 
-This strategy may influence structural approach to model development, their ability to participate in different forecast tasks, and their resulting predictive performance.
-Faced with multiple forecasting tasks, a forecaster might produce forecasts for any given task given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
-An alternative strategy is to develop a model to a specific forecast task, for example emphasising particular mechanistic processes or exploiting local data sources. 
-Bespoke mechanistic models are more easily tailored to a single task in this way [(7,8)](https://www.zotero.org/google-docs/?vo794b). 
+One potential such concern is where the effect of model structure is modified by a forecaster's strategy for selecting forecasting targets.
+This selectiveness may influence both structural approach to model development, their participation in different forecast targets, and their resulting predictive performance.
+Faced with multiple forecasting targets, a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
+An alternative strategy is to develop a model to a specific forecast target, for example emphasising particular mechanistic processes or exploiting local data sources.
+Bespoke mechanistic models are more easily tailored to a single target in this way [(7,8)](https://www.zotero.org/google-docs/?vo794b).
 A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those specifically tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
 This suggests the hypothesis that target strategy has a separate influence on predictive performance, and could confound an estimate of the effect of model structure on predictive performance.
 
-Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast task difficulty and target strategy.
+Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast target difficulty and target strategy.
 We include a directed acyclic graph in the Supplement to represent our assumed causal structure, but note that our work is exploratory rather than formally causal.
-We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts and using a generalised additive mixed model to associate this with model structure, factors influencing task difficulty, and target strategy.
-We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast task difficulty. 
+We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts and using a generalised additive mixed model to associate this with model structure, factors influencing target difficulty, and target strategy.
+We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast target difficulty.
 We do not have the ability to fully test our assumptions, and we consider directions for a fuller causal treatment in future work.

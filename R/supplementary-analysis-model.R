@@ -36,7 +36,7 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
       mutate(Incidence = log(Incidence + 1))
     m.family <- gaussian(link = "log")
   } else if (scoring_scale == "natural") {
-    m.family <- gamma(link = "log")
+    m.family <- gaussian()
   }
 
   # --- Model formula ---
@@ -95,8 +95,9 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     mutate(model = "Unadjusted")
 
   random_effects_joint <- map_df(m.fits_joint,
-                                 extract_ranef,
-                                 .id = "epi_target") |>
+    extract_ranef,
+    .id = "epi_target"
+  ) |>
     mutate(model = "Adjusted")
 
   random_effects <- random_effects_joint |>
@@ -118,3 +119,5 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     ggsave(here(output_dir, "plots", paste0("check_", target, ".pdf")), p)
   })
 }
+
+model_wis(scoring_scale = "natural", output_dir = here("output", "natural"))

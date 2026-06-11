@@ -36,18 +36,17 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
         Model = factor(model, levels = c("Adjusted", "Unadjusted"))
       ) |>
       ggplot(aes(x = .data[[group_var]], col = classification,
-                 shape = CountryTargets, lty = Model, alpha = Model)) +
+                 shape = CountryTargets, lty = Model)) +
       geom_point(aes(y = value),
                  position = position_dodge(width=1)) +
       geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5),
                      position = position_dodge(width=1)) +
       geom_hline(yintercept = 0, lty = 2) +
-      labs(y = "Partial effect", x = "", colour = NULL, shape = NULL) +
+      labs(y = "Partial effect (log WIS scale)", x = "", colour = NULL, shape = NULL) +
       scale_shape_manual(
         values = c("Single-country" = 16, "Multi-country" = 17),
         drop = FALSE
       ) +
-      scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
       scale_colour_brewer(type = "qual", palette = 2) +
       facet_wrap(~epi_target, scales = "free_y", drop = TRUE) +
       theme(
@@ -75,15 +74,15 @@ plot_effects <- function(random_effects,
     mutate(group = factor(group, levels = unique(as.character(rev(group)))),
            Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
     ggplot(aes(x = group, col = group_var,
-               lty = Model, alpha = Model)) +
+               lty = Model, shape = Model)) +
     geom_point(aes(y = value),
                position = position_dodge(width=1)) +
     geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5,),
                    position = position_dodge(width=1)) +
     geom_hline(yintercept = 0, lty = 2, alpha = 0.25) +
-    scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
+    scale_shape_manual(values = c("Adjusted" = 16, "Unadjusted" = 1)) +
     facet_wrap(~epi_target, scales = "free_y") +
-    labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
+    labs(y = "Partial effect (log WIS scale)", x = NULL, colour = NULL) +
     scale_colour_brewer(type = "qual", palette = "Set1",
                         guide = "none") +
     theme(

@@ -122,3 +122,40 @@ Major R packages:
 - **DOI**: [10.5281/zenodo.14903161](https://doi.org/10.5281/zenodo.14903161)
 - **Pre-print**: [10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
 - **Slides**: [Google Slides](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p)
+
+## Revision task list
+
+Outstanding issues from critique of results section against STROBE / epi reporting standards.
+Status: [ ] not started, [x] done. Full detail in `.claude/plans/i-m-editing-these-paper-lovely-quill.md`.
+
+### Prose — `report/quarto/_results.qmd`
+- [x] Restructure subheadings (Model characteristics / Unadjusted performance / Adjusted estimates / Sensitivity analyses)
+- [x] Add figure/table interpretation sentences
+- [x] Fix sensitivity analyses incomplete sentence
+- [x] Standardise terminology to "adjusted estimates" / GAMM
+- [x] Fix Figure 3 caption (colour = Method, shape = geographic scope)
+- [x] Reference STROBE flow diagram for exclusion counts
+- [x] State sum-to-zero constraint and log-scale interpretation
+- [x] Add diagnostics sentence (Supp Fig S3)
+- [x] Back-transform key effects with inline `exp()` ratios
+- [x] Quantify confounding attenuation in prose
+- [x] Note uncertainty omitted from Figure 1 caption
+- [x] Fix "no clear difference" → "no clear evidence of systematic difference"
+
+### R scripts — figures and tables
+- [x] **Table 1** (`R/analysis-descriptive.R`): replace SD with IQR for WIS column (skewed outcome)
+- [x] **Table 1** caption: add "WIS on log-transformed incidence per 100,000" to caption text
+- [x] **Figure 1** (`R/analysis-descriptive.R:351`): fix y-axis label `"log(Incidence + 1)"` → `"Observed incidence (log scale)"`
+- [x] **Figure 1**: redesigned as stratified grid (CountryTargets × epi_target, colour = Method) replacing separate A/B panels; panel C (incidence) dropped
+- [x] **Figure 2** (`R/plot-model-results.R:86`): add scale to axis label → `"Partial effect (log WIS scale)"`
+- [x] **Figure 2**: replaced alpha=0.3 for unadjusted with hollow (shape=1) vs filled (shape=16) points
+- [x] **Figure 3**: y-axis label updated; unadjusted kept with lty distinction (alpha removed); shape encodes CountryTargets
+
+### Supplement
+- [x] Confirm STROBE flow diagram exists as Supp Fig S1 — confirmed at `model-flow-supplement`
+- [x] Confirm diagnostic plots exist as Supp Fig S3 — confirmed at `gamm-diagnostics-cases/deaths-supplement`
+- [x] Confirm Fig 1 with uncertainty exists as Supp Fig S4 — added `scores-over-time-uncertainty-supplement` chunk
+- [x] Add natural-scale results (reviewer 3.4) — section exists at `scores-natural-supplement`; verify renders
+
+### Verification
+After R script changes: render `report/manuscript.qmd` and check figures render correctly.

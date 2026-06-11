@@ -1,5 +1,5 @@
 ---
-title: "Using DAGs to reason about forecast accuracy in collaborative hubs"
+title: "Model selection: using DAGs to reason about forecast accuracy in collaborative hubs"
 subtitle: "Sketch for a separate methodological piece"
 format: html
 ---
@@ -7,8 +7,8 @@ format: html
 ## Motivation
 
 Forecast hubs generate a peculiar dataset: many *teams* run many *models* over many *targets* and *horizons*, and each combination yields a realised score.
-Researchers want to ask causal questions of this dataset --- "does method class X produce more accurate forecasts than Y?", "does using mobility data improve calibration?"
---- but the data are observational, exposures are bundled, and the most important confounder (team capacity) is unmeasured.
+Researchers want to ask causal questions of this dataset, such as: "does method class X produce more accurate forecasts than Y?", "does using mobility data improve calibration?".
+However, the data are observational, exposures are bundled, and the most important confounders (such as team capacity) are unmeasured.
 
 Directed acyclic graphs (DAGs) are an under-used tool for this setting.
 This sketch proposes a short methodological paper that develops DAG-based reasoning for forecast-hub evaluation, using the European COVID-19 Forecast Hub as a worked example.
