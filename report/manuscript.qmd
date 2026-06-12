@@ -1,5 +1,5 @@
 ---
-title: "The influence of model structure on predictive accuracy among European COVID-19 forecasts"
+title: "Evaluating model structures among European COVID-19 forecasts"
 format:
   html: default
 ---

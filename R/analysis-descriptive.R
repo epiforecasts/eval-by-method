@@ -202,13 +202,19 @@ print_table1 <- function(scores) {
 # Table 2: unadjusted vs adjusted effects (main result) --------------------
 print_table2 <- function(effects) {
   effects |>
-    filter(group_var %in% c("Method", "CountryTargets")) |>
+    filter(group_var %in% c("Method")) |>
     mutate(
       ci_text = paste0(
         round(value, 3),
         " (", round(lower_2.5, 3), ", ", round(upper_97.5, 3), ")"
       ),
-      ratio = round(exp(value), 3)
+      # Exponentiate point estimate and both CI bounds: multiplicative ratio
+      # relative to the grand-mean WIS. exp() is monotonic, so applying it to the
+      # symmetric link-scale interval gives a valid ratio interval.
+      ratio = paste0(
+        round(exp(value), 2),
+        " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"
+      )
     ) |>
     select(epi_target, group_var, group, model, ci_text, ratio) |>
     pivot_wider(
@@ -217,23 +223,21 @@ print_table2 <- function(effects) {
     ) |>
     arrange(epi_target, group_var, group) |>
     mutate(
-      group_var = factor(group_var,
-        levels = c("Method", "CountryTargets"),
-        labels = c("Method", "Geographic scope")
-      )
+      group_var = factor(group_var)
     ) |>
     select(
       epi_target, group_var, group,
-      ci_text_Unadjusted,
+      ci_text_Unadjusted, ratio_Unadjusted,
       ci_text_Adjusted, ratio_Adjusted
     ) |>
     rename(
       "Outcome" = epi_target,
       "Variable" = group_var,
       "Group" = group,
-      "Unadjusted (95% CI)" = ci_text_Unadjusted,
-      "Adjusted (95% CI)" = ci_text_Adjusted,
-      "Exp(adjusted)" = ratio_Adjusted
+      "Unadjusted effect (95% CI)" = ci_text_Unadjusted,
+      "Unadjusted ratio (95% CI)" = ratio_Unadjusted,
+      "Adjusted effect (95% CI)" = ci_text_Adjusted,
+      "Adjusted ratio (95% CI)" = ratio_Adjusted
     ) |>
     kable(
       caption = paste0(
@@ -242,10 +246,13 @@ print_table2 <- function(effects) {
         "from univariate (unadjusted) and joint (adjusted) generalised additive mixed models. ",
         "Effects are deviations from the grand mean under sum-to-zero constraints; ",
         "negative values indicate better-than-average performance. ",
-        "Exp(adjusted) gives the multiplicative ratio relative to the grand mean WIS. ",
+        "The ratio is the exponentiated partial effect (point estimate and ",
+        "95% CI), giving the multiplicative ratio relative to the grand-mean WIS on the ",
+        "log-incidence scale; a ratio of 1 indicates average performance and a ratio ",
+        "below 1 indicates better-than-average performance. ",
         "95% CI = 95% confidence interval."
       ),
-      align = c("l", "l", "l", "r", "r", "r")
+      align = c("l", "l", "l", "r", "r", "r", "r")
     ) |>
     collapse_rows(columns = 1:2, valign = "top") |>
       kable_styling(full_width = FALSE)

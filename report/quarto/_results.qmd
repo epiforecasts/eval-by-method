@@ -113,14 +113,33 @@ We classified 17 models as using mechanistic structure, 12 as statistical, 12 as
 Raters disagreed on 17 (36%) model classifications.
 The majority of 2/3 was used as the final classification, with additional manual review which in all cases retained the majority decision.
 Raters most often disagreed when classifying semi-mechanistic models, with 8 out of 12 receiving one or more votes for a statistical model structure.
-Under this classification, approximately one-third of all forecast predictions were from mechanistic, semi-mechanistic, and statistical models each.
-Agent-based and judgement models provided fewer forecasts, representing only 1-2% of forecasts.
+Under the final classification, approximately one-third of all forecast predictions were from mechanistic, semi-mechanistic, and statistical models each.
+Agent-based and judgement models provided fewer forecasts, representing <2% of forecasts.
 
-We explored geographic target selection among our binary classification of whether models forecast for only one country (`r targets[["Single-country"]]` models), or multiple countries (`r length(single_countries)` models).
-The most common country targets were Germany (`r single_countries[["DE"]]` single-country models), Poland (`r single_countries[["PL"]]`), Italy (`r single_countries[["IT"]]`), Spain (`r single_countries[["ES"]]`), and Czechia (`r single_countries[["CZ"]]`). One additional single-country model targeted Slovenia (`r single_countries[["SI"]]`).
-With the exception of Slovenia, these were also the most frequent countries most frequently targeted by multi-country models. However, we noted that among `r targets[["Multi-country"]]` multi-country models, only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of countries throughout the entire study period.
+We explored our binary classification of whether models forecast for only one country (`r targets[["Single-country"]]` models), or multiple countries (`r length(single_countries)` models).
+The most common country targets were Germany (`r single_countries[["DE"]]` single-country models), Poland (`r single_countries[["PL"]]`), Italy (`r single_countries[["IT"]]`), Spain (`r single_countries[["ES"]]`), and Czechia (`r single_countries[["CZ"]]`).
+One additional single-country model targeted Slovenia (`r single_countries[["SI"]]`).
+With the exception of Slovenia, these were also the countries most frequently targeted by multi-country models.
+However, we noted that among `r targets[["Multi-country"]]` multi-country models, only `r nrow(multi_targets |> filter(consistent))` models consistently forecast for the same number of countries throughout the entire study period.
 
-**Descriptive forecast performance**
+**Forecast performance**
+
+We descriptively summarised forecast performance across the study sample.
+Unadjusted performance varied across the entire cohort of models over space and time.
+We saw consistent worsening performance during summer 2021, coinciding with emergence of the Delta variant.
+By model structure, we noted apparent improved performance between agent-based and judgement models compared to mechanistic and statistical approaches; and single-country models appeared to outperform multi-country models, particularly for death outcomes from spring 2022.
+However, model structure differed substantially between geographic target selection and across features of the epidemiological target, making crude unadjusted comparisons unreliable.
+
+```{r}
+#| label: fig-scores-over-time
+#| fig-cap: "Predictive accuracy of forecasting models for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale; lower scores indicate better performance. WIS was computed on log-transformed incidence per 100,000 population, summarised across 32 countries and 1–4 week horizons. Rows: single- vs multi-country models. Columns: cases vs deaths. Colour: model structure. Uncertainty intervals omitted for clarity (see Supplementary Figure S4)."
+#| fig-height: 8
+#| fig-width: 6
+
+# plot: mean performance as line, model performance as dots coloured by structure; mark trends and variant phase; at 1wk horizon; cases over deaths
+# or tile plot mean performance over time across locations at 1wk horizon 
+# plot_over_time(scores = scores, ensemble = ensemble, show_uncertainty = TRUE)
+```
 
 ```{r}
 #| label: results-scores-results
@@ -132,75 +151,71 @@ table_effects <- results$effects |>
            paste0("(", round(upper_97.5, 2), ")"),
            as.character(round(upper_97.5, 2))
          )) |>
-  mutate(value_ci = paste0(round(value, 2), 
-                           " (", round(lower_2.5, 2), "-", 
+  mutate(value_ci = paste0(round(value, 2),
+                           " (", round(lower_2.5, 2), "-",
                            upper_97.5_text, ")"),
+         # exponentiated: multiplicative ratio vs grand-mean WIS (1 = average)
+         ratio_ci = paste0(round(exp(value), 2),
+                           " (", round(exp(lower_2.5), 2), "-",
+                           round(exp(upper_97.5), 2), ")"),
          group = paste(epi_target, model, group, sep = "_")) |>
   column_to_rownames("group")
 
 effects_comp <- results$effects |> 
   pivot_longer(cols = c(value, lower_2.5, upper_97.5, se)) |> 
   pivot_wider(names_from = model) |> 
-  mutate(diff = Adjusted - Unadjusted) |> 
-  filter(group_var %in% c("Method", "CountryTargets")) |> 
-  select(-c("effect", "Unadjusted"))
+  mutate(diff = Adjusted - Unadjusted,
+  diff_percent = diff / Unadjusted * 100) |> 
+  filter(group_var %in% c("Method"))
 ```
 
-```{r}
-#| label: fig-scores-over-time
-#| fig-cap: "Predictive accuracy of forecasting models for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale; lower scores indicate better performance. WIS was computed on log-transformed incidence per 100,000 population, summarised across 32 countries and 1–4 week horizons. Rows: single- vs multi-country models. Columns: cases vs deaths. Colour: model structure. Uncertainty intervals omitted for clarity (see Supplementary Figure S4)."
-#| fig-height: 8
-#| fig-width: 6
+**Effects of model structure**
 
-# plot_over_time(scores = scores, ensemble = ensemble, show_uncertainty = TRUE)
-```
-
-We descriptively summarised forecast performance across the study sample.
-@fig-scores-over-time shows mean WIS over time, stratified by geographic scope (rows) and epidemiological target (columns), with colour indicating model structure.
-
-Unadjusted performance varied across the entire cohort of models over time, and between model structures.
-All models saw worsening performance during summer 2021, coinciding with emergence of the Delta variant.
-We noted apparent differences between agent-based and judgement models compared to mechanistic and statistical approaches; and single-country models appearing to outperform multi-country models in unadjusted comparisons, particularly for death outcomes from spring 2022.
-However, model structure differed substantially between geographic target selection (table 1), making crude unadjusted comparisons unreliable.
-
-**Adjusted estimates of forecast performance**
-
-We fitted a generalised additive mixed model to give adjusted estimates of the partial effect of model structure, while controlling for target strategy and other sources of variation.
+We fitted a generalised additive mixed model to give adjusted estimates of the partial effect of model structure, while controlling for varyig forecaster target selection and epidemic dymamics between targets.
 In this structure, all partial effects are deviations from the grand mean WIS under sum-to-zero constraints, meaning that a negative value indicates better-than-average performance.
-The WIS was highly right-skewed with respect to all other variables (see Supplementary Figure S2), and we used a log-link to account for this.
-We report effects on the log-WIS scale.
-Exponentiated values give the multiplicative ratio relative to the grand mean (e.g. a partial effect of −0.1 corresponds to a WIS approximately `r round((1 - exp(-0.1)) * 100)`% lower than average).
+The WIS was highly right-skewed with respect to all other variables (see Supplementary Figure S2), and we used a log link to account for this.
 Model diagnostic plots showed some deviation from normality in the tails of the residual distribution (Supplementary Figure S3).
+Because the WIS here was itself computed on the log-incidence scale, partial effects are deviations in mean log-incidence WIS. 
 
-<!--- Main results: by model structure --->
-```{r}
-#| label: fig-plot-coeffs
-#| fig-cap: "Partial effect (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding. A lower WIS indicates better forecast performance; effects <0 indicate better-than-average performance. Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Filled symbols: adjusted; open symbols: unadjusted. Partial effects and 95% confidence intervals estimated from a generalised additive mixed model. WIS = weighted interval score."
-#| fig-height: 3
-#| fig-width: 5
+Exponentiating gives a multiplicative ratio relative to the grand-mean WIS, where a ratio of 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
+Refitting with an identity link in place of the log link left all partial effects unchanged to two decimal places, indicating the link choice did not influence our estimates.
+We report both the partial effect and the exponentiated ratio (with 95% confidence intervals) in @results-table2.
 
-plot_effects(results$effects, variables = c("Method", "CountryTargets"))
-```
+After adjustment for confounding, we found no evidence for differences in performance between model structures (@results-table2).
+Adjustment attenuated all differences to null.
+The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean).
+We noted that adjustment consistently shrank the standard error compared to univariate estimates, producing a confident demonstration of overlapping performance between model structures (@fig-plot-coeffs).
 
 ```{r}
 #| label: results-table2
 
 print_table2(results$effects)
 ```
+```{r}
+#| label: fig-plot-coeffs
+#| fig-cap: "Partial effect (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding. A lower WIS indicates better forecast performance; effects <0 indicate better-than-average performance. Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Filled symbols: adjusted; open symbols: unadjusted. Partial effects and 95% confidence intervals estimated from a generalised additive mixed model. WIS = weighted interval score."
+#| fig-height: 3
+#| fig-width: 5
 
-After adjustment for confounding, we found no clear evidence for systematic differences in accuracy between model structures (@fig-plot-coeffs; Table 2).
-The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates (cases: `r table_effects["Cases_Unadjusted_Agent-based","value_ci"]` and `r table_effects["Cases_Unadjusted_Judgement","value_ci"]`; deaths: `r table_effects["Deaths_Unadjusted_Agent-based","value_ci"]` and `r table_effects["Deaths_Unadjusted_Judgement","value_ci"]`) but showed smaller, less certain differences after adjustment (cases: `r table_effects["Cases_Adjusted_Agent-based","value_ci"]` and `r table_effects["Cases_Adjusted_Judgement","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Agent-based","value_ci"]` and `r table_effects["Deaths_Adjusted_Judgement","value_ci"]`).
-We continued to see a weak difference among model structures in predictive accuracy for deaths, for which statistical models may have performed slightly better (partial effect `r table_effects["Deaths_Adjusted_Statistical","value_ci"]`, WIS ratio `r round(exp(as.numeric(table_effects["Deaths_Adjusted_Statistical","value"])), 2)`) and semi-mechanistic models worse (`r table_effects["Deaths_Adjusted_Semi-mechanistic","value_ci"]`, ratio `r round(exp(as.numeric(table_effects["Deaths_Adjusted_Semi-mechanistic","value"])), 2)`) than average, with overlapping uncertainty.
+plot_effects(results$effects, variables = c("Method"))
+```
 
-Forecast target selection and difficulty may have influenced performance.
-In the fully adjusted model, single-country models showed slightly better performance than multi-country models (cases: `r table_effects["Cases_Adjusted_Single-country","value_ci"]` vs `r table_effects["Cases_Adjusted_Multi-country","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Single-country","value_ci"]` vs `r table_effects["Deaths_Adjusted_Multi-country","value_ci"]`), after adjustment, although with overlapping uncertainty.
-Among all models' overall mean performance, we saw relatively improved predictive performance during stable periods of the outbreak curve (cases: `r table_effects["Cases_Adjusted_Stable","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Stable","value_ci"]`), and worse predictive performance when targeting periods of decreasing incidence (cases: `r table_effects["Cases_Adjusted_Decreasing","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Decreasing","value_ci"]`).
-Forecast performance also varied by dominant variant phase, with worse performance after the first Omicron BA.1 variant (cases: `r table_effects["Cases_Adjusted_Omicron-BA.1","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Omicron-BA.1","value_ci"]`), compared to the Alpha (cases: `r table_effects["Cases_Adjusted_Alpha","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Alpha","value_ci"]`) and Delta (cases: `r table_effects["Cases_Adjusted_Delta","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Delta","value_ci"]`) dominant periods.
+**Other drivers of forecast performance**
 
-We also identified residual confounding, with substantial unexplained variation between individual model performance.
+Among our selection of covariates, we found performance was more driven by the target epidemiological features than by forecaster model features (with full reporting in Supplement).
+Holding all other features constant, the most predictable forecast targets appeared during periods of stability in the epidemic curve, with better predictive performance relative to periods of increasing or decreasing trends (cases: `r table_effects["Cases_Adjusted_Stable","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Stable","value_ci"]`).
+More difficult forecasting periods were during increasing trends in the incidence of cases (`r table_effects["Cases_Adjusted_Increasing","value_ci"]` performance compared to stable or increasing periods).
+However incident deaths were more difficult to forecast during periods of decline (`r table_effects["Deaths_Adjusted_Increasing","value_ci"]`).
+
+Predictability also varied between phases of variant dominance.
+This influence was stronger for forecasts of case incidence than deaths, while direction of effects was similar.
+We estimated better predicitive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha cases: `r table_effects["Cases_Adjusted_Alpha","value_ci"]`, deaths: `r table_effects["Deaths_Adjusted_Alpha","value_ci"]`; Delta cases: `r table_effects["Cases_Adjusted_Delta","value_ci"]`, deaths: `r table_effects["Deaths_Adjusted_Delta","value_ci"]`).
+We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant for cases: `r table_effects["Cases_Adjusted_Omicron-BA.1","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Omicron-BA.1","value_ci"]`).
+
+We identified residual confounding, with substantial unexplained variation between individual model performance.
 @fig-plot-models shows the adjusted partial effect for each individual model.
 This can be interpreted as variation in model-specific performance after accounting for all other factors considered here.
-This indicated that our variable selection was not sufficient to fully explain differences in performance.
+This indicated that the variables we selected to account for variation between forecasters (i.e. model structure; one or multiple geographic targets) were not sufficient to fully explain differences in performance.
 
 ```{r}
 #| label: fig-plot-models
@@ -211,7 +226,7 @@ This indicated that our variable selection was not sufficient to fully explain d
 plot_models(results$effects, scores)
 ```
 
-**Sensitivity analyses**
+**Sensitivity analysis**
 
 We repeated this analysis to look at performance on the natural scale (rather than log-transformed predictions and observations), presented in the Supplement.
 In developing this work, we considered several alternative model specifications.

@@ -5,7 +5,7 @@
 We consider forecasts of incident COVID-19 cases and deaths between 8 March 2021 to 10 March 2023 for 32 European countries.
 
 We used forecast data collected via the public European COVID-19 Forecast Hub, described in [(19)](https://www.zotero.org/google-docs/?5K4uXI).
-The platform solicited real-time forecasts for between one and four weeks ahead for 32 European countries. 
+The platform solicited real-time forecasts for between one and four weeks ahead for 32 European countries.
 Any forecaster was eligible to participate in the Hub, and there were no selection criteria.
 
 For this study, we collected all forecasts from between 8 March 2021 to 10 March 2023.
@@ -28,7 +28,7 @@ This assigns each probabilistic forecast a score that reflects the forecast's di
 
 *Forecasting model structure*
 
-We designed a classification scheme for participating forecasters' model structures. 
+We designed a classification scheme for participating forecasters' model structures.
 This included: "Agent-based" (with detailed individual-level interactions), "Mechanistic" (broadly based on compartmental models), "Semi-mechanistic" (statistical models with epidemiological elements, e.g. delay distributions and/or generation intervals), "Statistical" (context-agnostic time-series models), "Judgement" (ensembles of human-judgement based predictions).
 
 We classified each participating model using self-reported metadata.
@@ -39,15 +39,15 @@ Each rater worked independently, and was asked to read each modelling teams' sho
 The majority vote determined the final classification with any potential ties flagged for an additional independent classification by another investigator.
 Two investigators (SF, KS) separately reviewed all classifications in discussion for any final revisions (see Supplement).
 
-*Forecast task difficulty*
+*Forecast target difficulty*
 
 We stratified all analysis by epidemiological target of incident cases or deaths.
 We then included a variety of covariates to account for forecast task difficulty.
 
 We first included forecast horizon to account for the increasing difficulty of forecasting further into the future.
 We then accounted for variation in epidemic transmission dynamics underlying each forecast target.
-As the transmission state is unobserved, we adjusted for observed factors associated with transmission dynamics. 
-Factors upstream of transmission included: country location, as a proxy for dynamics e.g. national policy or population structure influencing transmission; and dominant variant phase. 
+As the transmission state is unobserved, we adjusted for observed factors associated with transmission dynamics.
+Factors upstream of transmission included: country location, as a proxy for dynamics e.g. national policy or population structure influencing transmission; and dominant variant phase.
 We used publicly available sequence data to classify each target location-week according to the dominant circulating SARS-CoV-2 variant, producing a discrete sequence of phases (see Supplement) [@variant-data].
 Factors downstream of transmission included: count of incident outcomes in the target week; and trend of incidence: "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable"; see Supplement).
 
@@ -89,4 +89,4 @@ We fitted all models using the *mgcv* package in R [(24)](https://www.zotero.org
 We checked model fit with visual inspection of residuals via Q-Q plots.
 To assess confounding, we fitted univariate models to contrast unadjusted and adjusted estimates of the partial effect of model structure on WIS.
 
-All data and code are publicly available online at [(25)](https://www.zotero.org/google-docs/?qHy24c), with details in Supplement.
+All data and code are publicly available online [(25)](https://www.zotero.org/google-docs/?qHy24c).

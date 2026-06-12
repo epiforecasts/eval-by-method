@@ -42,7 +42,7 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
       geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5),
                      position = position_dodge(width=1)) +
       geom_hline(yintercept = 0, lty = 2) +
-      labs(y = "Partial effect (log WIS scale)", x = "", colour = NULL, shape = NULL) +
+      labs(y = "Partial effect on log WIS", x = "", colour = NULL, shape = NULL) +
       scale_shape_manual(
         values = c("Single-country" = 16, "Multi-country" = 17),
         drop = FALSE

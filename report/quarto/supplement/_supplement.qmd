@@ -2,7 +2,7 @@
 title: "The influence of model structure on predictive accuracy among European COVID-19 forecasts"
 subtitle: "Supplementary information"
 output:
-  bookdown::pdf_document2
+bookdown::pdf_document2
 ---
 
 ```{r}
@@ -72,8 +72,7 @@ We also excluded baseline and ensemble models created by the Hub team.
 ```{r}
 #| label: model-flow-supplement
 #| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
-#| TODO: output as csv, or similar so that participation can be described
-#|   throughout from a single source
+#| TODO: output as csv, or similar so that participation can be described throughout from a single source
 
 # source(here("R", "plot-model-flow.R"))
 # flow_chart <- create_model_flow()
@@ -95,14 +94,17 @@ These data are available in the Github repository for this paper at: <https://gi
 
 ```{r}
 #| label: metadata-supplement
+
 table_metadata(scores) |>
   select(-Description) |>
   kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.")
 ```
 
-Overall participation among forecast targets over the study period.
+Number of models participating in forecasting 1-week ahead case incidence for each country over the study period.
 
-```{r supplement-participation}
+```{r}
+#| label: supplement-participation
+
 target_matrix <- scores |>
 distinct(epi_target, Location, forecast_date, Horizon) |>
 mutate(across(everything(), as.factor)) |>
@@ -111,12 +113,28 @@ complete(epi_target, Location, forecast_date, Horizon)
 target_count <- scores |>
 group_by(epi_target, Location, forecast_date, Horizon) |>
 add_count(Method)
+
+scores_mean_method <- scores |>
+  group_by(epi_target, Location, target_end_date, Horizon, Method) |>
+  summarise(
+    wis_mean_method = mean(wis, na.rm = TRUE),
+    n = n()
+  )
+scores_mean_method |>
+  filter(Horizon == 1) |>
+  ggplot(aes(x = target_end_date, y = Location, fill = n)) +
+  geom_tile() +
+  scale_fill_binned(breaks = 0:10, palette = "Viridis") +
+  labs(x = NULL, y = "Country", fill = "Number of models") +
+  facet_grid(rows = vars(Method), cols = vars(epi_target)) +
+  theme(legend.position = "bottom")
 ```
 
 We looked at how raters classified models according to methodological structures.
 
 ```{r}
 #| label: classification-supplement
+
 model_classifier <- classify_models(return_majority = FALSE) |> 
   distinct(model, classification, raters, votes, agreement) |> 
   group_by(model) |>
@@ -160,11 +178,10 @@ theme(legend.position = "none")
 
 ## Statistical methods
 
-### Assumptions
+### Model building
 
-To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy as a directed acyclic graph (DAG).
+To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram.
 We emphasise that this work is exploratory rather than inferential, and we suggest substantial further work is needed to support inferential approaches to forecast evaluation.
-Latent nodes capture unobserved constructs for which we use observed variables as partial proxies.
 
 ```{r}
 #| label: dag-supplement
@@ -174,16 +191,14 @@ source(here::here("R", "dag-check.R"))
 p
 ```
 
-The joint model fitted in the main analysis adjusts for task-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
-Both of the latter are descendants of Method in the DAG.
-CountryTargets sits on a Method → Task difficulty → score pathway, and Model sits on a Method → Model → score pathway.
-Adjusting for them therefore does not estimate the total effect of Method on WIS, but a controlled direct effect, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
-Residual confounding from unobserved team resources, which feed into the latent *Modeller strategy* node, is not addressed by this adjustment and is the principal limitation of any causal reading of these estimates.
-A more extended discussion of estimand choice for forecast-hub evaluations, including the distinction between total effects, direct effects, and controlled direct effects in this setting, is given in the accompanying methodological sketch (`dag-reasoning-sketch.qmd`).
+The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
+Adjustment produces the controlled direct effect of model structure, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
 
-### Epidemic trend identification
+### Implementation
 
-We retrospectively categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
+#### Epidemic trend identification
+
+We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
 
 ```{r}
 #| label: trends-supplement
@@ -211,7 +226,7 @@ scores |>
 
 \newpage
 
-### Variant phase identification
+#### Variant phase identification
 
 ```{r}
 #| label: variant-phases-supplement
@@ -249,57 +264,59 @@ results <- readRDS(here("output", "results.rds"))
 
 `r results$formula`
 
-#### Model diagnostics
-
-##### Cases
-
-```{r}
-#| label: gamm-diagnostics-cases-supplement
-
-# QQ plot, residuals
-knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
-```
-
-##### Deaths
-
-```{r}
-#| label: gamm-diagnostics-deaths-supplement
-
-# QQ plot, residuals
-knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
-```
-
-#### Figure 1 with uncertainty intervals
-
-```{r}
-#| label: scores-over-time-uncertainty-supplement
-#| fig-height: 6
-#| fig-cap: "Predictive accuracy of multiple models' forecasts for COVID-19 cases and deaths across 32 European countries over time, with bootstrap 95% confidence intervals. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale. Rows show single- and multi-country models separately; columns show cases and deaths. Colour indicates model structure."
-
-scores_over_time_s4 <- plot_over_time(
-  scores = scores,
-  ensemble = ensemble,
-  show_uncertainty = TRUE
-)
-scores_over_time_s4
-```
+\newpage
 
 ## Results
 
-### Difference in effects for each modelled variable
+### Model diagnostics
 
-```{r}
-#| label: plot-model-effects-supplement
-#| fig-height: 10
-#| fig-cap: "Effect of counfounding factors on forecast performance (WIS), showing epidemic trend, country location, and dominant variant phase. An effect <0 indicates improved forecast performance relative to other forecast targets. Effects of each variable shown from a univariate model (unadjusted), and in a joint (adjusted) model accounting for all variables."
+(A) Cases
+    ```{r}
+    #| label: gamm-diagnostics-cases-supplement
 
-plot_effects(results$effects, 
-             variables = c("Trend", "Location", "VariantPhase"))
-```
+    # QQ plot, residuals
+    knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
+    ```
+
+(B) Deaths
+    ```{r}
+    #| label: gamm-diagnostics-deaths-supplement
+
+    # QQ plot, residuals
+    knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
+    ```
+
+### Partial effects across covariates
+
+Partial effect on forecast performance of key covariates included in the fully adjusted model for (A) spatial and (B) temporal covariates.
+Partial effects of individual model structure and individual model are presented in main text.
+The full model included covariates for: model structure, individual model, number of countries targeted by a given model, the specific country target, the epidemic trend in the 3 weeks around the target, and the dominant variant at the time of the target.
+
+(A) Spatial covariates
+    ```{r}
+    #| label: plot-model-effects-supplement
+    #| fig-height: 10
+    #| fig-cap: "Effect of counfounding factors on forecast performance (WIS), showing epidemic trend, country location, and dominant variant phase. An effect <0 indicates improved forecast performance relative to other forecast targets. Effects of each variable shown from a univariate model (unadjusted), and in a joint (adjusted) model accounting for all variables."
+
+    plot_effects(results$effects, 
+                 variables = c("CountryTargets", "Location"))
+    ```
+
+(B) Temporal covariates
+    ```{r}
+    #| label: plot-model-effects-supplement
+    #| fig-height: 10
+    #| fig-cap: "Effect of counfounding factors on forecast performance (WIS), showing epidemic trend, country location, and dominant variant phase. An effect <0 indicates improved forecast performance relative to other forecast targets. Effects of each variable shown from a univariate model (unadjusted), and in a joint (adjusted) model accounting for all variables."
+
+    plot_effects(results$effects, 
+                 variables = c("Trend", "VariantPhase"))
+    ```
+
+\newpage
 
 ### Results on the natural scale
 
-We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is calculated.
+We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.
 
 ```{r}
 #| label: scores-natural-supplement

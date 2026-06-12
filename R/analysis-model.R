@@ -22,7 +22,8 @@ library(gratia)
 library(ggplot2)
 source(here("R", "process-data.R"))
 
-model_wis <- function(scoring_scale = "log", output_dir = "output") {
+model_wis <- function(scoring_scale = "log", family_link = "log",
+ output_dir = "output") {
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
@@ -34,9 +35,9 @@ model_wis <- function(scoring_scale = "log", output_dir = "output") {
     # log-transform incidence to match scoring on log scale
     m.data <- m.data |>
       mutate(Incidence = log(Incidence + 1))
-    m.family <- gaussian(link = "log")
+    m.family <- gaussian(link = family_link)
   } else if (scoring_scale == "natural") {
-    m.family <- gamma(link = "log")
+    m.family <- gamma(link = family_link)
   }
 
   # --- Model formula ---
