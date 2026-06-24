@@ -1,0 +1,94 @@
+---
+title: "Model building"
+format: html
+---
+
+```{r}
+library(here, dplyr, readr, readr, tidyr, purrr, ggplot2) #essentials
+library(mgcv, gammit, gratia) # model specific
+source(here("R", "process-data.R")) # reads and cleans forecasts and observations
+```
+
+## Context
+
+Aim: to address bias and confounding when scoring forecasts against observations.
+
+Study design: cohort Unit of analysis: individual models Outcome: weighted interval score Exposure of interest: model structure
+
+## Application
+
+### Data set up
+
+Load the data and remove the Hub ensemble and baseline models.
+
+```{r}
+m.data <- process_data(scoring_scale = "log") 
+m.data <- m.data |> filter(!grepl("EuroCOVIDhub-", Model))
+```
+
+### Characteristics and selection
+
+### Bias and precision
+
+*Selection bias*
+
+Participation rate: did we see a similar distribution of model structures compared to frequency in the general population (i.e. the US Hub)?
+
+Is there differential attrition between model types?
+
+*Misclassification*
+
+Did raters disagree on model structure classification more often in some groups of the exposure (i.e. model structures) than others?
+
+This suggests we should try a sensitivity analysis where we reallocate classifications by second-ranked.
+
+### Evaluating confounding
+
+We believe each of the following factors is associated in some way with the exposure and the outcome, but is not on the causal pathway from exposure (model structure) to outcome (performance).
+
+##### Level of incidence
+
+We have scored forecasts against observations on a log scale, to help downweight differences of magnitude between targets.
+Since we are using incidence as a separate covariate, we should use the same log transform to match.
+
+```{r}
+m.data <- m.data |> mutate(Incidence = log(Incidence + 1), Epi_target = as.factor(epi_target)) 
+m.family <- gaussian(link = "log")
+```
+
+```{r}
+m.fit <- bam(formula = wis ~ s(Method, bs = "re"), 
+data = m.data, family = m.family, 
+method = "fREML", control = gam.control(trace = TRUE), discrete = TRUE) unadjusted <- extract_ranef(m.fit)
+
+m.fit <- bam(formula = wis ~ s(Method, bs = "re"), 
+data = m.data, family = m.family, 
+method = "fREML", control = gam.control(trace = TRUE), discrete = TRUE)
+```
+
+#### Association with exposures
+
+```{r}
+m.formulas_uni <- list( method = wis \~ s(Method, bs = "re"), target = wis \~ s(CountryTargets, bs = "re"), incidence = wis \~ s(Incidence), trend = wis \~ s(Trend, bs = "re"), location = wis \~ s(Location, bs = "re"), variant = wis \~ s(VariantPhase, bs = "re"), horizon = wis \~ s(Horizon, by = Model, k = 3, bs = "sz"), model = wis \~ s(Model, bs = "re") )
+```
+
+#### Association with outcomes
+
+### Joint model
+
+```{r}
+m.formula_joint <- wis ~ s(Method, bs = "re") + 
+s(CountryTargets, bs = "re") + 
+s(Incidence) + 
+s(Trend, bs = "re") + 
+s(Location, bs = "re") + 
+s(VariantPhase, bs = "re") + 
+s(Horizon, by = Model, k = 3, bs = "sz") + 
+s(Model, bs = "re")
+
+random_effects_uni <- m.fits_uni[!grepl("horizon|incidence", names(m.fits_uni))] |> 
+map_depth(.depth = 2, ~ extract_ranef(.x)) |> 
+map(~ list_rbind(.x, names_to = "epi_target")) |> 
+list_rbind() |> 
+mutate(model = "Unadjusted")
+```

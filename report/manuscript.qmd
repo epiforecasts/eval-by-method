@@ -1,7 +1,6 @@
 ---
 title: "Evaluating model structures among European COVID-19 forecasts"
-format:
-  html: default
+format: pdf
 ---
 
 Katharine Sherratt^1\*, Rok Grah^2,3, Bastian Prasse^2, Friederike Becker^4, Jamie McLean^1, Sam Abbott^1, Sebastian Funk^1
@@ -31,7 +30,8 @@ Email: katharine.sherratt@lshtm.ac.uk
 ### Methods
 
 ::: {.callout-caution collapse="true" title="TODO"}
-- [ ] Compare joint model for cases/deaths (include results in supp)
+- [ ] joint model to include cases/deaths (include results in supp)
+- [ ] list the many model specs we tried in the supplement
 - [ ] check mean average WIS over time and by other confounders
 - [ ] natural scale fit with gamma dist
 :::

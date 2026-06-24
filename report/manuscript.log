@@ -1,0 +1,30 @@
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2026.5.27)  24 JUN 2026 16:12
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**manuscript.tex
+(./manuscript.tex
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-03-14>
+
+! LaTeX Error: File `scrartcl.cls' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: cls)
+
+Enter file name: 
+! Emergency stop.
+<read *> 
+         
+l.11 \usepackage
+                {xcolor}^^M 
+Here is how much of TeX's memory you used:
+ 30 strings out of 476760
+ 580 string characters out of 5801044
+ 1918145 words of memory out of 5000000
+ 22163 multiletter control sequences out of 15000+600000
+ 558069 words of font info for 36 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 19i,0n,29p,109b,17s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+No pages of output.

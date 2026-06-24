@@ -1,8 +1,9 @@
 ---
-title: "The influence of model structure on predictive accuracy among European COVID-19 forecasts"
-subtitle: "Supplementary information"
-output:
-bookdown::pdf_document2
+title: "Supplementary information"
+format:
+  html:
+    toc: true
+    code-fold: true
 ---
 
 ```{r}
@@ -31,11 +32,23 @@ ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
+results <- readRDS(here("output", "log", "results.rds"))
 ```
 
-## Code and data availability
+\newpage
 
-### Code
+## Methods
+
+### Source data and code
+
+Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> .
+All Hub data are now archived at:
+
+- Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
+- Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
+
+Data for this work were downloaded on 30th May 2023.
+These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
 
 The codebase for this paper is publicly available at:
 
@@ -51,11 +64,7 @@ Please cite code using:
   epiforecasts/eval-by-method: Zenodo.
   <https://doi.org/10.5281/zenodo.14903162>
 
-\newpage
-
-## Study participation
-
-### Eligibility
+### Study participation
 
 Forecasting teams were recruited to the European Covid-19 Forecast Hub using existing networks and ECDC publicity.
 Any forecaster was eligible to participate, and there were no selection criteria.
@@ -70,7 +79,7 @@ We excluded forecasts that did not report the full set of 23 quantiles, in order
 We also excluded baseline and ensemble models created by the Hub team.
 
 ```{r}
-#| label: model-flow-supplement
+#| label: supplement-model-flow
 #| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
 #| TODO: output as csv, or similar so that participation can be described throughout from a single source
 
@@ -79,21 +88,36 @@ We also excluded baseline and ensemble models created by the Hub team.
 knitr::include_graphics(here("output", "plots", "flowchart.png"))
 ```
 
-### Source data
-
-Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> .
-All Hub data are now archived at:
-
-- Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
-- Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
-
-Data for this work were downloaded on 30th May 2023.
-These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
-
-### Model characteristics
+Characteristics of contributing models:
 
 ```{r}
-#| label: metadata-supplement
+#| label: supplement-metadata
+
+table_metadata <- function(scores) {
+    classification <- classify_models() |>
+        select(Model = model, Method = classification)
+    model_scores <- scores |>
+        group_by(Model, epi_target) |>
+        table_confint() |>
+        select(Model, epi_target, Forecasts)
+    country_targets <- table_targets(scores) |>
+        select(Model, epi_target, CountryTargets)
+    metadata_table <- classification |>
+        left_join(model_scores) |>
+        mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
+        inner_join(country_targets) |>
+        mutate(
+            epi_target = sub("s$", " forecasts", epi_target)
+        ) |>
+        pivot_wider(
+            names_from = "epi_target",
+            values_from = "Forecasts",
+            values_fill = ""
+        ) |>
+        rename("Country Targets" = CountryTargets) |>
+        arrange(Model)
+    return(metadata_table)
+}
 
 table_metadata(scores) |>
   select(-Description) |>
@@ -130,25 +154,6 @@ scores_mean_method |>
   theme(legend.position = "bottom")
 ```
 
-We looked at how raters classified models according to methodological structures.
-
-```{r}
-#| label: classification-supplement
-
-model_classifier <- classify_models(return_majority = FALSE) |> 
-  distinct(model, classification, raters, votes, agreement) |> 
-  group_by(model) |>
-  mutate(final = classification[which.max(votes)]) |> 
-  pivot_wider(names_from = classification, values_from = votes, values_fill = 0) |> 
-  filter(model %in% unique(scores$Model)) |>
-  select(Model = model, `Final classification` = final,
-         Agreement = agreement, `Total raters` = raters, everything()) |>
-  arrange(Agreement, Model)
-
-model_classifier |> 
-    kable(caption = "Classification of models by number of raters in total and agreement on model structure")
-```
-
 We explored how models selected geographic targets over time.
 Forecasters both added and removed targets among the set for which they forecast each week.
 This figure shows number of targets submitted by each model at the 1-week ahead horizon.
@@ -174,37 +179,51 @@ labs(x = "Forecast week", y = "Number of target countries") +
 theme(legend.position = "none")
 ```
 
-\newpage
+### Model structure classification
 
-## Statistical methods
-
-### Model building
-
-To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram.
-We emphasise that this work is exploratory rather than inferential, and we suggest substantial further work is needed to support inferential approaches to forecast evaluation.
+Human raters classified models according to methodological structures.
 
 ```{r}
-#| label: dag-supplement
-#| fig-cap: "Directed acyclic graph of assumed causal relationships among forecast performance (wis), model structure (Method), and covariates."
+#| label: supplement-classification
 
-source(here::here("R", "dag-check.R"))
-p
+model_classifier <- classify_models(return_majority = FALSE) |> 
+  distinct(model, classification, raters, votes, agreement) |> 
+  group_by(model) |>
+  mutate(final = classification[which.max(votes)]) |> 
+  pivot_wider(names_from = classification, values_from = votes, values_fill = 0) |> 
+  filter(model %in% unique(scores$Model)) |>
+  select(Model = model, `Final classification` = final,
+         Agreement = agreement, `Total raters` = raters, everything()) |>
+  arrange(Agreement, Model)
+
+model_classifier |> 
+    kable(caption = "Classification of models by number of raters in total and agreement on model structure")
 ```
-
-The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
-Adjustment produces the controlled direct effect of model structure, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
-
-### Implementation
 
 #### Epidemic trend identification
 
 We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
 
 ```{r}
-#| label: trends-supplement
+#| label: supplement-trends
 #| fig-cap: "Trends (cases)"
 #| fig-height: 8
 #| fig-width: 10
+
+trends_plot <- function(scores) {
+    trends <- scores |>
+        select(Location, target_end_date, Incidence, Trend) |>
+        distinct()
+    p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
+        geom_point(mapping = aes(colour = Trend), size = 1) +
+        geom_line() +
+        scale_colour_brewer(palette = "Set2", na.value = "grey") +
+        theme(legend.position = "bottom") +
+        facet_wrap(~Location, scales = "free_y") +
+        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+        xlab("")
+    return(p)
+}
 
 scores |>
   filter(epi_target == "Cases") |>
@@ -213,7 +232,7 @@ scores |>
 ```
 
 ```{r}
-#| label: death-trends-supplement
+#| label: supplement-death-trends
 #| fig-cap: "Trends (deaths)"
 #| fig-height: 8
 #| fig-width: 10
@@ -228,8 +247,15 @@ scores |>
 
 #### Variant phase identification
 
+Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
+Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB.
+For each country, we identified the first week in which each named variant exceeded 50% of sequenced samples.
+We enforced chronological ordering by removing any out-of-sequence phases, then expanded phase assignments to all weeks by filling forward and backward from observed transition dates.
+This per-location approach accounts for the fact that variant dominance dates differed substantially across European countries.
+Where genomic surveillance data were too sparse to identify a transition (Hungary), we supplemented with epidemiological reports to set the Alpha-to-Delta transition date.
+
 ```{r}
-#| label: variant-phases-supplement
+#| label: supplement-variant-phases
 #| fig-cap: "Variant phases identified by dominant variant in each location and week"
 
 # see: R/utils-variants.R
@@ -243,24 +269,25 @@ variant_phases |>
     theme(legend.position = "bottom")
 ```
 
-Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
-Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB.
-For each country, we identified the first week in which each named variant exceeded 50% of sequenced samples.
-We enforced chronological ordering by removing any out-of-sequence phases, then expanded phase assignments to all weeks by filling forward and backward from observed transition dates.
-This per-location approach accounts for the fact that variant dominance dates differed substantially across European countries.
-Where genomic surveillance data were too sparse to identify a transition (Hungary), we supplemented with epidemiological reports to set the Alpha-to-Delta transition date.
-
 \newpage
 
-### Model fitting
+### Model building
+
+To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram.
+We emphasise that this work is exploratory rather than inferential, and we suggest substantial further work is needed to support inferential approaches to forecast evaluation.
 
 ```{r}
-#| label: model-wis-supplement
+#| label: supplement-dag
+#| fig-cap: "Directed acyclic graph of assumed causal relationships among forecast performance (wis), model structure (Method), and covariates."
 
-results <- readRDS(here("output", "results.rds"))
+source(here::here("R", "dag-check.R"))
+p
 ```
 
-#### Model formula
+The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
+Adjustment produces the controlled direct effect of model structure, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
+
+We used the following model formula with the mgcv package in R 4.1.
 
 `r results$formula`
 
@@ -271,20 +298,22 @@ results <- readRDS(here("output", "results.rds"))
 ### Model diagnostics
 
 (A) Cases
-    ```{r}
-    #| label: gamm-diagnostics-cases-supplement
 
-    # QQ plot, residuals
-    knitr::include_graphics(here("output", "plots", "check_Cases.pdf"))
-    ```
+```{r}
+#| label: supplement-gamm-diagnostics
+
+# QQ plot, residuals
+knitr::include_graphics(here("output", "log", "plots", "check_Cases.pdf"))
+```
 
 (B) Deaths
-    ```{r}
-    #| label: gamm-diagnostics-deaths-supplement
 
-    # QQ plot, residuals
-    knitr::include_graphics(here("output", "plots", "check_Deaths.pdf"))
-    ```
+```{r}
+#| label: supplement-gamm-diagnostics-deaths
+
+# QQ plot, residuals
+knitr::include_graphics(here("output", "log", "plots", "check_Deaths.pdf"))
+```
 
 ### Partial effects across covariates
 
@@ -293,24 +322,22 @@ Partial effects of individual model structure and individual model are presented
 The full model included covariates for: model structure, individual model, number of countries targeted by a given model, the specific country target, the epidemic trend in the 3 weeks around the target, and the dominant variant at the time of the target.
 
 (A) Spatial covariates
-    ```{r}
-    #| label: plot-model-effects-supplement
-    #| fig-height: 10
-    #| fig-cap: "Effect of counfounding factors on forecast performance (WIS), showing epidemic trend, country location, and dominant variant phase. An effect <0 indicates improved forecast performance relative to other forecast targets. Effects of each variable shown from a univariate model (unadjusted), and in a joint (adjusted) model accounting for all variables."
 
-    plot_effects(results$effects, 
-                 variables = c("CountryTargets", "Location"))
-    ```
+```{r}
+#| label: supplement-plot-spatial-effects
+
+plot_effects(results$effects, 
+                     variables = c("CountryTargets", "Location"))
+```
 
 (B) Temporal covariates
-    ```{r}
-    #| label: plot-model-effects-supplement
-    #| fig-height: 10
-    #| fig-cap: "Effect of counfounding factors on forecast performance (WIS), showing epidemic trend, country location, and dominant variant phase. An effect <0 indicates improved forecast performance relative to other forecast targets. Effects of each variable shown from a univariate model (unadjusted), and in a joint (adjusted) model accounting for all variables."
 
-    plot_effects(results$effects, 
-                 variables = c("Trend", "VariantPhase"))
-    ```
+```{r}
+#| label: supplement-plot-temporal-effects
+
+plot_effects(results$effects, 
+                     variables = c("Trend", "VariantPhase"))
+```
 
 \newpage
 
@@ -319,7 +346,7 @@ The full model included covariates for: model structure, individual model, numbe
 We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.
 
 ```{r}
-#| label: scores-natural-supplement
+#| label: supplement-natural-scale
 
 scores <- process_data(scoring_scale = "natural")
 ensemble <- scores |>

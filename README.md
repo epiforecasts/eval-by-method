@@ -1,8 +1,9 @@
 
+
 [![Zenodo](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161)
 [![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
-## The influence of model structure and geographic specificity on forecast accuracy among European COVID-19 forecasts
+## Evaluating model structures among European COVID-19 forecasts
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike
 Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
@@ -25,27 +26,31 @@ Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
   supporting public health during outbreaks. However, comparing the
   accuracy of different forecasting models is challenging. Existing
   evaluations struggle to isolate the impact of model design choices
-  (like model structure or specificity to the forecast target) from the
+  (like model structure, or specificity to the forecast target) from the
   inherent difficulty of predicting complex outbreak dynamics. Our
-  research introduces a novel approach to address this by systematically
+  research moves towards a more principled approach to systematically
   adjusting for common factors affecting epidemiological forecasts,
   accounting for multi-layered and non-linear effects on predictive
   difficulty.
 
-- We applied this approach to a large dataset of forecasts from 47
-  different models submitted to the European COVID-19 Forecast Hub. We
-  adjusted for variation across epidemic dynamics, forecast horizon,
-  location, time, and model-specific effects. This allowed us to isolate
-  the impact of model structure and geographic specificity on predictive
-  performance.
+- We applied this approach to 181,851 probabilistic predictions from 47
+  models submitted to the European COVID-19 Forecast Hub between March
+  2021 and March 2023. We classified models by structure (agent-based,
+  mechanistic, semi-mechanistic, statistical, or human judgement) and by
+  target strategy (forecasting one or multiple countries). We adjusted
+  for forecast horizon, epidemic trend, dominant variant phase, country
+  location, and individual model variation, isolating the impact of
+  model structure on predictive performance.
 
 - Our findings suggest that after adjustment, apparent differences in
-  performance between model structures became minimal, while models that
-  were specific to a single location showed a slight performance
-  advantage over multi-location models. Our work highlights the
-  importance of considering predictive difficulty when evaluating across
-  forecasting models, and provides a framework for more robust
-  evaluations of infectious disease predictions.
+  performance between model structures became minimal. Models
+  forecasting a single geographic target showed some indication of
+  better performance than those forecasting multiple targets, though
+  with overlapping uncertainty. Substantial residual variation between
+  individual models remained unexplained by our adjustment. Our work
+  highlights the importance of accounting for predictive difficulty when
+  evaluating across forecasting models, and provides a framework for
+  more robust evaluations of infectious disease predictions.
 
 - Read the pre-print:
   [medRxiv](https://doi.org/10.1101/2025.04.10.25325611)
@@ -98,12 +103,14 @@ source(here("R", "analysis-model.R"))
 
 #### Results
 
-View results:
+The full manuscript (background, methods, results, discussion) is
+written in [report/manuscript.qmd](./report/manuscript.qmd), which
+sources the R scripts and assembles section files from
+[report/quarto/](./report/quarto/). The supplement is in
+[report/quarto/supplement/\_supplement.qmd](./report/quarto/supplement/_supplement.qmd).
 
-- [Results](./report/results.pdf)
-- [Supplement](./report/supplement/supplement.pdf)
+Re-render the manuscript:
 
-Re-generate results pdf:
-
-- [results.Rmd](./report/results.Rmd)
-- [supplement.Rmd](./report/supplement/supplement.Rmd)
+``` r
+quarto::quarto_render("report/manuscript.qmd")
+```

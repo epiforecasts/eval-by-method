@@ -1,4 +1,4 @@
-# Aim: describe interval score in terms of model structure and country target type
+# Describe interval score in terms of model structure and country target type
 # Load data:
 # source(here("R", "process-data.R"))
 # scores <- process_data(scoring_scale = "log")
@@ -16,7 +16,7 @@ library(kableExtra)
 library(stringr)
 library(boot)
 
-# Plot over time by explanatory variable ----------------------------------
+# Plot over time ----------------------------------
 plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) {
     plot_data <- scores |>
         group_by(target_end_date, epi_target, CountryTargets, Method) |>
@@ -78,33 +78,6 @@ plot_ridges <- function(scores, target = "Deaths") {
         theme(legend.position = "none")
 }
 
-# Metadata ----------------------------------------------------------------
-table_metadata <- function(scores) {
-    classification <- classify_models() |>
-        select(Model = model, Method = classification)
-    model_scores <- scores |>
-        group_by(Model, epi_target) |>
-        table_confint() |>
-        select(Model, epi_target, Forecasts)
-    country_targets <- table_targets(scores) |>
-        select(Model, epi_target, CountryTargets)
-    metadata_table <- classification |>
-        left_join(model_scores) |>
-        mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
-        inner_join(country_targets) |>
-        mutate(
-            epi_target = sub("s$", " forecasts", epi_target)
-        ) |>
-        pivot_wider(
-            names_from = "epi_target",
-            values_from = "Forecasts",
-            values_fill = ""
-        ) |>
-        rename("Country Targets" = CountryTargets) |>
-        arrange(Model)
-    return(metadata_table)
-}
-
 # Data --------------------
 # plot mean wis [supplement]
 data_plot <- function(scores, log = FALSE, all = FALSE) {
@@ -154,19 +127,4 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
         theme(strip.background = element_blank())
 
     return(plot)
-}
-# plot trends [supplement]
-trends_plot <- function(scores) {
-    trends <- scores |>
-        select(Location, target_end_date, Incidence, Trend) |>
-        distinct()
-    p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
-        geom_point(mapping = aes(colour = Trend), size = 1) +
-        geom_line() +
-        scale_colour_brewer(palette = "Set2", na.value = "grey") +
-        theme(legend.position = "bottom") +
-        facet_wrap(~Location, scales = "free_y") +
-        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-        xlab("")
-    return(p)
 }
