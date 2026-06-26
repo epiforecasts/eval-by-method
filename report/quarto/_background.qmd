@@ -1,15 +1,15 @@
-Forecasters attempting to predict infectious disease outbreaks have met with varying success [@].
-This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets.
-In this work, we account for forecast target difficulty, we effectively adjust for a lower bound of error set by the forecast target itself, and estimate the modifiable room for improvement from forecaster strategy.
-To estimate the effect of changing model structure alone, we then further adjusted for forecaster selectiveness among geographic targets.
+Forecasters attempting to predict infectious disease outbreaks have met with varying success [CITE].
+This variation may arise from two distinct sources: the forecast-generating process — the modeller's choices of structure, implementation, and target selection — and the target-generating process — the epidemic dynamics, surveillance systems, and data revisions that create each forecast target.
+In this work, we account for the target-generating process in order to isolate and estimate the modifiable variation arising from the forecast-generating process.
 
-Among many forecast targets, forecaster performance is inherently variable due to differences in the processes generating each target.
+Among many forecast targets, forecaster performance is inherently variable due to differences in the target-generating process.
 We see better predictive performance with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc), in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), with timely surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN), and when the forecast target is short term [(15)](https://www.zotero.org/google-docs/?2K90bo) or has informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT).
+Performance also depends on how the target itself is observed: surveillance systems differ in timeliness and completeness, and reported counts are frequently revised after a forecast has been made [(11)](https://www.zotero.org/google-docs/?c33gx9).
 This is linked to recent interest in identifying boundaries to the predictability of infectious disease incidence [(14)](https://www.zotero.org/google-docs/?CZumUU).
 Evaluation across multiple forecast targets should therefore be sensitive to varying target difficulty.
-This can be addressed by using a method of evaluation with assumptions that mirror these process, such as normalising error to the size of the population, and evaluating on a log scale to reflect exponential growth patterns of transmission.
+This can be addressed by using a method of evaluation with assumptions that mirror these processes, such as normalising error to the size of the population, and evaluating on a log scale to reflect the growth rate of transmission.
 
-Among many forecasters, some variation in performance may also be attributed to the variety of structural approaches to developing a forecasting model.
+Variation in performance also arises from the forecast-generating process: the structural approaches and implementation choices made in developing a forecasting model.
 Forecasters may choose among many methods in model development.
 This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
 Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
@@ -17,15 +17,35 @@ This choice demands a trade-off among complementary strengths and weaknesses of 
 Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences[(4–6)](https://www.zotero.org/google-docs/?piAg9a).
 However, evaluations typically summarise performance across many forecast targets simultaneously.
 This means that comparisons may conflate differences in the predictive performance of each structural approach, with parallel differences in forecast target difficulty.
+These two processes, and the components through which each shapes forecast performance, are shown in @fig-processes.
+
+```{mermaid}
+%%| label: fig-processes
+%%| fig-cap: "Two processes generating variation in realised predictive performance. The forecast-generating process (the modeller's choices) and the target-generating process (the epidemic and its observation) each contribute, through the components shown, to realised predictive performance."
+%%{init: {"theme": "base", "flowchart": {"curve": "linear"}, "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#000000", "primaryTextColor": "#000000", "clusterBkg": "#ffffff", "clusterBorder": "#000000", "lineColor": "#000000", "fontFamily": "inherit"}}}%%
+flowchart TB
+  subgraph FG["Forecast-generating process"]
+    direction TB
+    F1["Model design"]
+    F2["Model implementation"]
+    F3["Forecaster participation"]
+  end
+  subgraph TG["Target-generating process"]
+    direction TB
+    T1["Epidemic processes"]
+    T2["Observation process"]
+  end
+  FG --> P["Realised predictive performance"]
+  TG --> P
+```
 
 To evaluate the contribution of these two dimensions of predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
 This comparability is achieved in participatory forecast challenges [(13)](https://www.zotero.org/google-docs/?7pIGoa).
-Yet even with comparable evaluation between models, the relative contribution of factors influencing performance has not been well identified.
-Identifying these influences on performance is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
-
+Yet even with comparable evaluation between models, the relative contribution of different factors influencing performance has not been well identified.
+Identifying these influences is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
 Such analysis is still challenging as it is prone to selection bias, confounding, and interactions (effect modification) when evaluating among forecasters with differential participation across forecast targets.
 
-One potential such concern is where the effect of model structure is modified by a forecaster's strategy for selecting forecasting targets.
+One such concern is where the effect of model structure is modified by a forecaster's strategy for selecting forecasting targets.
 This selectiveness may influence both structural approach to model development, their participation in different forecast targets, and their resulting predictive performance.
 Faced with multiple forecasting targets, a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
 An alternative strategy is to develop a model to a specific forecast target, for example emphasising particular mechanistic processes or exploiting local data sources.
@@ -39,11 +59,13 @@ We apply this framework to evaluate short-term forecasts of COVID-19 across Euro
 We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast target difficulty.
 We do not have the ability to fully test our assumptions, and we consider directions for a fuller causal treatment in future work.
 
-Some existing approaches include exclusion criteria; stratification; data transformation; and relative performance measures, however each of these also has limitations (table 1).
+Some existing approaches include exclusion criteria; stratification; data transformation; and relative performance measures, however each of these also has limitations (@tbl-approaches).
 
-  | Target difficulty  | Approach                                                                                                                                               | Advantage                                                                                                                                                                                | Limitation                                                                                                      | Example          |
-  | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------- |
-  | Restriction | Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts | Simplicity, easy to communicate                                                                                                                                                          | Excludes some targets altogether; penalises forecasters who may appropriately forecast the revised data         | Sherratt 2021    |
-  | Stratification     | Present forecast scores only stratified by factors of interest (e.g. model structure) or assumed to confound performance (e.g. forecast horizon)       | Classical observational study approach                                                                                                                                                   | Very small sample size (forecasting models) among multiple interacting strata                                   | Reich, Johansson |
-  | Transformation     | Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair                                                     | Maintain some comparability across targets of different magnitudes, with the log transform closer to reflecting a standard way to reduce a target to the underlying epidemic growth rate | Uncontrolled factors influence forecast target difficulty                                                       | Bosse            |
-  | Matching    | Restrict pairwise comparison to each target; often by relative skill score: relative, compared with the paired performance of a single baseline         | Systematic inclusion of all models, able to compare any against any                                                                                                                      | Choice of baseline ('control') unclear; difficult to interpret absolute performance (where all models perform well or poorly) | Bracher          |
+  | Approach          | Description                                                                                                                                             | Advantage                                                                                                                                                                                | Limitation                                                                                                                    | Example          |
+  | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+  | Restriction       | Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts | Simplicity, easy to communicate                                                                                                                                                          | Excludes some targets altogether; penalises forecasters who may appropriately forecast the revised data                       | Sherratt 2021    |
+  | Stratification    | Present forecast scores only stratified by factors of interest (e.g. model structure) or assumed to confound performance (e.g. forecast horizon)       | Classical observational study approach                                                                                                                                                   | Very small sample size (forecasting models) among multiple interacting strata                                                 | Reich, Johansson |
+  | Transformation    | Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair                                                     | Maintain some comparability across targets of different magnitudes, with the log transform closer to reflecting a standard way to reduce a target to the underlying epidemic growth rate | Uncontrolled factors influence forecast target difficulty                                                                     | Bosse            |
+  | Matching          | Restrict pairwise comparison to each target; often by relative skill score: relative, compared with the paired performance of a single baseline        | Systematic inclusion of all models, able to compare any against any                                                                                                                      | Choice of baseline ('control') unclear; difficult to interpret absolute performance (where all models perform well or poorly) | Bracher          |
+
+  : Existing approaches to accounting for forecast target difficulty, with their advantages and limitations. {#tbl-approaches}

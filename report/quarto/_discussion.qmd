@@ -1,9 +1,8 @@
 In this work, we aimed to assess the influence of methodological structure on the accuracy of infectious disease forecasts.
-We developed a model-based approach to adjust for the key sources of variation in predictive difficulty, targeting the controlled direct effect of model structure on performance.
+We developed a model-based approach to adjust for the key sources of variation in predictive difficulty, estimating the adjusted partial association between model structure and performance.
 We applied this to a multi-country multi-model forecasting effort conducted during the COVID-19 pandemic, in order to assess the influence of models' structure and target strategy on forecast accuracy.
-Unadjusted estimates suggested differences between model structures, but after adjustment there was little systematic difference in average performance, with variation driven by factors inherent to the forecast target itself.
 
-After adjustment for confounding, we observed no systematic difference in average performance between model structures, though substantial variation in individual model performance remained unexplained.
+After adjustment for factors inherent to the forecast target, no single structural approach dominated: adjusted estimates clustered around the average with overlapping confidence intervals, so we could not distinguish performance between model structures, though substantial variation in individual model performance remained unexplained.
 We suggest that accounting for variance in epidemiological characteristics across forecast targets is necessary for drawing meaningful comparisons across predictive models.
 
 However, we only partially accounted for variation among forecast targets.
@@ -33,7 +32,6 @@ Explicitly accounting for such interactions could be a useful insight from futur
 Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies.
 Previous work has also failed to differentiate performance among model structures, across a variety of outbreaks and epidemic dynamics [(4–6)](https://www.zotero.org/google-docs/?4Vrj6C).
 Some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches [(17,18,26)](https://www.zotero.org/google-docs/?pn8kMa).
-The typical advantage of statistical models is that they capture the autocorrelated nature of incidence time series.
 However, we also noted that the more mechanistic models in our study produced a wide range of predictive performance.
 This may reflect a greater range of flexibility to incorporate forecaster experience [(18)](https://www.zotero.org/google-docs/?tYe1Rg), and understanding of the data generating processes that lead the forecast target [(28)](https://www.zotero.org/google-docs/?2rqVL1): for example, country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes.
 While not considered here, we note the widely replicated finding that ensemble combinations across multiple models often produces the most reliable predictive performance (e.g. [(12,15,27)](https://www.zotero.org/google-docs/?EMHzzA)).
@@ -42,20 +40,15 @@ Unlike past work, our conclusions are based on assessing performance using forec
 We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak [(23)](https://www.zotero.org/google-docs/?bNboAJ).
 In particular, we saw reduced variability among the scores of semi-mechanistic models on the log scale, compared to the natural scale.
 
-This suggests the importance of accounting for epidemic characteristics in assessing forecast performance, where we chose to prioritise relative assessment of the growth rate rather than absolute counts.
-It remains important to bear in mind that our conclusions towards the chosen metric may not hold when choosing other scoring rules.
-We also note that we modelled the interval score using a Gaussian error model with a log-link.
-This impacted the propriety of the score as effects were multiplicative, making estimates unsuitable for direct comparison or ranking performance among individual models.
+In doing so we prioritised relative assessment of the growth rate over absolute counts, and our conclusions may not hold under other scoring rules.
+Modelling the interval score with a Gaussian error model and log-link also made effects multiplicative, rendering estimates unsuitable for directly ranking individual models.
+These choices point to the importance of explicitly identifying the assumptions that underlie the method of forecast evaluation.
 
-This points to the importance of explicitly identifying the assumptions that underlie the method of forecast evaluation.
-
-Alternatively, we could target the data generating process as the outcome under evaluation.
+Alternatively, we could target the target-generating process as the outcome under evaluation.
 This would mean building evaluation metrics that express a mechanistic understanding of how different processes contribute to creating the single target timeseries.
 This would enable us to identify the accuracy of different models in capturing causal epidemic processes, rather than artefacts of the epidemic setting [(11)](https://www.zotero.org/google-docs/?c33gx9).
 Different assumptions within the evaluation metric may be useful for different purposes, which suggests developing a more diverse portfolio approach to evaluation methods.
-
-Any aggregation of forecasts over time will contain within it the autocorrelation of the timeseries.
-As infectious disease timeseries are inherently highly autocorrelated, such aggregation will by default favour statistical model structures based on estimating this autocorrelation component.
+Relatedly, any aggregation of forecasts over time contains the autocorrelation of the timeseries; as infectious disease timeseries are inherently highly autocorrelated, such aggregation will by default favour statistical model structures based on estimating this component.
 
 With increasing forecasting datasets subject to evaluation, random error decreases but bias remains.
 The analysis presented here is exploratory, aimed at describing variation in forecast performance across model structures once the most consequential sources of confounding are accounted for.
@@ -64,7 +57,7 @@ However, subsequent analysis could target the causal estimand: pre-specifying a 
 Accounting for confounding in this way is analogous to constraining evaluation above a lower bound of common forecast error.
 This can also be achieved by using evaluation relative to the performance of a baseline forecaster.
 However, it is unclear which among multiple possible baselines are appropriate for infectious disease forecasting [@stapper, kaitlyn].
-The selection of baseline model still faces the question of whether to capture features that represent the data generating process of the forecast target.
+The selection of baseline model still faces the question of whether to capture features that represent the target-generating process.
 In this work, we make this process of model selection explicit by directly including these forecast target features in a single joint estimation of performance score.
 
 Comparisons like the one we have conducted here support a more informed view of the role of modelling in pandemic preparedness and response.
@@ -78,83 +71,3 @@ By accounting for forecast target difficulty, we adjust for the lower bound of e
 To estimate the effect of changing model structure alone, we then further adjusted for forecaster selectiveness among geographic targets.
 We then found that no single structural approach dominates.
 In this study we contributed to better understanding the drivers of predictive performance among forecasting models, and highlighted the importance of appropriately adjusting for the general predictive difficulty of the forecast target.
-
-This work is exploratory.
-A fuller causal treatment would pre-specify a directed acyclic graph, examine overlap across model-structure strata, and provide a quantitative bias analysis for unmeasured confounding.
-This work was also limited by a small sample of independent models and likely incomplete adjustment for confounding factors.
-We recommend that multi-model comparisons encourage and document their methodological diversity, and collate detailed structured metadata on model methods alongside numerical predictions.
-
-<!-- ============ TIDY: decisions needed (HTML-commented; does not render) ============
-
-Each block below collects every phrasing of one repeated idea, verbatim, with its source.
-Pick ONE phrasing per idea (fill the CHOICE line). That wording will then be used at every
-listed site; the rejected phrasings will be deleted from the prose but stay preserved here.
-
----- WHOLE-PARAGRAPH DUPLICATES (decide whether to collapse) ----
-
-* D1 + D2 (lines 1-6) restate the same finding twice within two paragraphs.
-  D1 (line 2): "Unadjusted estimates suggested differences between model structures, but after adjustment there was little systematic difference in average performance, with variation driven by factors inherent to the forecast target itself."
-  D2 (line 5): "After adjustment for confounding, we observed no systematic difference in average performance between model structures, though substantial variation in individual model performance remained unexplained."
-  -> "After adjustment for factors inherent to the forecast target, we observed no systematic difference in average performance between model structures, though substantial variation in individual model performance remained unexplained."
-
-* D18 (lines 82-85, the final paragraph) is a compressed re-draft of D4 + D13 + D16 + D17.
-  Overlaps: "exploratory / DAG / bias analysis" (= IDEA 3), "small sample + incomplete
-  adjustment" (= IDEA 4), "encourage diversity + collate metadata" (= IDEA 5).
-  -> RETIRE
-
----- IDEA 1: lower bound of error / room for improvement ----
-- [A] abstract A1 (line 6): "We effectively adjust for a minimum lower bound of error within each forecast target, to demonstrate where individual forecasters have remaining room to reduce forecast error."
-- [B] background B1 (line 3): "we account for forecast target difficulty, we effectively adjust for a lower bound of error set by the forecast target itself, and estimate the modifiable room for improvement from forecaster strategy."
-- [C] discussion D17 (line 76): "By accounting for forecast target difficulty, we adjust for the lower bound of error set by the forecast target itself, and estimate the realistic room for improvement from improving forecasting methods."
-- [D] discussion D14 (line 63): "Accounting for confounding in this way is analogous to constraining evaluation above a lower bound of common forecast error."  (related but distinct framing)
-  -> "Accounting for features of the forecast target in this way constrains evaluation above a lower bound of common forecast error." OR "By accounting for forecast target difficulty, we adjust for the lower bound of error within the forecast target itself, and this allows us to estimate the realistic room for improvement from increasingly accurate forecasting methods."
-
----- IDEA 2: core finding (after adjustment, no systematic structure difference; variation driven by target) ----
-- [A] abstract A4 (line 18): "Our findings suggest that after adjustment, apparent differences in performance between model structures became minimal."
-- [B] results R8 (line 184): "After adjustment for confounding, we found no evidence for differences in performance between model structures (@results-table2). Adjustment attenuated all differences to null."
-- [C] discussion D1 (line 2): "after adjustment there was little systematic difference in average performance, with variation driven by factors inherent to the forecast target itself."
-- [D] discussion D2 (line 5): "After adjustment for confounding, we observed no systematic difference in average performance between model structures, though substantial variation in individual model performance remained unexplained."
-- [E] discussion D7 (line 32): "Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies."
-- [F] discussion D17 (line 78): "We then found that no single structural approach dominates."
-  NOTE: these sit in different roles (abstract / result statement / interpretation). Likely keep one in each role but unify wording. 
-  -> CHOICE per role: abstract _D17_  results _R8(replace 'confounding' with 'features of the forecast target')_  discussion _D7_
-
----- IDEA 3: exploratory not causal; future DAG + adjustment set + bias analysis / E-value ----
-- [A] background B7 (line 37): "We include a directed acyclic graph in the Supplement to represent our assumed causal structure, but note that our work is exploratory rather than formally causal."
-- [B] discussion D13 (lines 60-61): "The analysis presented here is exploratory... subsequent analysis could target the causal estimand: pre-specifying a directed acyclic graph to derive a minimal sufficient adjustment set of covariates, and reporting a quantitative bias analysis (such as an E-value) for unmeasured confounding."
-- [C] discussion D18 (lines 82-83): "This work is exploratory. A fuller causal treatment would pre-specify a directed acyclic graph, examine overlap across model-structure strata, and provide a quantitative bias analysis for unmeasured confounding."
-  -> CHOICE: _B7_
-
----- IDEA 4: small sample of independent models + little metadata limits power ----
-- [A] discussion D4 (lines 12-13): "A key limitation of this work was its limited power to detect potential differences in performance between model structures or target specificity. While we used a large dataset of forecasts over time, we had a relatively small sample size of independent models and little metadata with which to classify model structures."
-- [B] discussion D18 (line 84): "This work was also limited by a small sample of independent models and likely incomplete adjustment for confounding factors."
-  -> CHOICE: _D4_
-
----- IDEA 5: encourage methodological diversity + collate structured metadata ----
-- [A] discussion D16 (line 72): "Further model comparison projects should enable this by encouraging methodological diversity among participants, and ensuring that detailed structured information on model metadata (such as methodology and model revisions) is collated alongside numerical predictions."
-- [B] discussion D18 (line 85): "We recommend that multi-model comparisons encourage and document their methodological diversity, and collate detailed structured metadata on model methods alongside numerical predictions."
-  -> CHOICE: _D16_
-
----- IDEA 6: log scale -> growth-rate interpretation / moderates scores ----
-- [A] methods M5 (line 22): "This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate."
-- [B] background B2 (line 10): "...such as normalising error to the size of the population, and evaluating on a log scale to reflect exponential growth patterns of transmission."
-- [C] discussion D8 (lines 40-41): "our conclusions are based on assessing performance using forecasts on a log scale, rather than the natural scale of observed data. We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak."
-- [D] discussion D9 (line 44): "...where we chose to prioritise relative assessment of the growth rate rather than absolute counts."
-  NOTE: methods/background/discussion serve different purposes; likely keep each but unify the  "growth rate" phrasing.
-  > CHOICE of canonical growth-rate phrasing: __
-
----- IDEA 7: aggregation/autocorrelation favours statistical structures ----
-- [A] discussion D7 (line 35): "The typical advantage of statistical models is that they capture the autocorrelated nature of incidence time series."
-- [B] discussion D12 (lines 56-57): "Any aggregation of forecasts over time will contain within it the autocorrelation of the timeseries. As infectious disease timeseries are inherently highly autocorrelated, such aggregation will by default favour statistical model structures based on estimating this autocorrelation component."
-  -> CHOICE: __
-
----- IDEA 8: target-strategy selectiveness (single vs multi-country / bespoke tailoring) ----
-- [A] background B6 (lines 30-32): "a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models. An alternative strategy is to develop a model to a specific forecast target... Bespoke mechanistic models are more easily tailored to a single target in this way."
-- [B] methods M12 (line 56): "We classified each model as participating in forecasting either a single country location or more than one location."
-- [C] discussion D17 (line 77): "To estimate the effect of changing model structure alone, we then further adjusted for forecaster selectiveness among geographic targets."
-  NOTE: B is a methods definition (keep); A and C are framing repeats of the concept.
-  -> CHOICE of canonical framing phrasing (A/C): __
-
-============ end TIDY ============ -->
-
-

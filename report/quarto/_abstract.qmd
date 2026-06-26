@@ -2,8 +2,7 @@
 
 Forecasters attempting to predict infectious disease outbreaks have met with varying success [@].
 This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets.
-In this work, we attempt to tune out sources of variation from the epidemic processes creating different forecast targets, in order to gain a more precise understanding of variation among different forecasters.
-We effectively adjust for a minimum lower bound of error within each forecast target, to demonstrate where individual forecasters have remaining room to reduce forecast error.
+In this work, we attempt to tune out variation from the target-generating process — the epidemic dynamics, surveillance, and data revisions that create each forecast target — in order to gain a more precise understanding of variation arising from the forecast-generating process.
 
 We applied this approach to a dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub.
 We adjusted for variation across epidemic dynamics, forecast horizon, and whether a forecaster predicted for one or multiple countries.
@@ -13,9 +12,9 @@ We evaluated probabilistic predictions from 47 forecasting models participating 
 We assessed performance of COVID-19 case and death forecasts, measured as the weighted interval score applied to forecasts and observations normalised to incidence per 100,000 population and log-transformed.
 We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and by target strategy (whether forecasts were produced for one or multiple countries).
 We adjusted for forecast horizon, epidemic trend, dominant variant phase, country location, and individual model variation.
-We summarised unadjusted performance descriptively and compared this to adjusted estimates from a generalised additive mixed effects model.
+We summarised unadjusted performance descriptively and compared this to adjusted estimates from a generalised additive mixed model.
 
-Our findings suggest that after adjustment, apparent differences in performance between model structures became minimal.
+Our findings suggest that after adjustment, no single structural approach dominated: adjusted estimates clustered around the average and their confidence intervals overlapped, so we could not distinguish performance between model structures.
 We could not explain substantial variation in performance between individual models, suggesting the importance of factors beyond those commonly documented, such as team capacity, domain expertise, and model evolution over time.
 
 Our work highlights the importance of accounting for predictive difficulty in order to correctly attribute why performance is so different between different forecasters.
