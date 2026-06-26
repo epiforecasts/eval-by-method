@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 
 [![Zenodo](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161) [![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
-## Evaluating model structures among European COVID-19 forecasts
+## Evaluating the role of model structure in the predictive performance of European COVID-19 forecasts
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 

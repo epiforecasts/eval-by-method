@@ -1,19 +1,13 @@
 ---
-title: "Evaluating model structures among European COVID-19 forecasts"
-format: pdf
+title: "Evaluating the role of model structure in the predictive performance of European COVID-19 forecasts"
+format: html
 ---
 
-Katharine Sherratt^1\*, Rok Grah^2,3, Bastian Prasse^2, Friederike Becker^4, Jamie McLean^1, Sam Abbott^1, Sebastian Funk^1
+Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
-1 Centre for Mathematical Modelling of Infectious Disease, London School of Hygiene & Tropical Medicine, London, UK
-
-2 European Centre for Disease Prevention and Control, Stockholm, Sweden
-
-3 Safinea, Dublin, Ireland
-
-4 Institute of Statistics, Karlsruhe Institute of Technology, Karlsruhe, Germany
-
-\*Corresponding author
+(1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
+(2) European Centre for Disease Prevention and Control
+(3) Institute of Statistics, Karlsruhe Institute of Technology
 
 Email: katharine.sherratt@lshtm.ac.uk
 
@@ -24,6 +18,10 @@ Email: katharine.sherratt@lshtm.ac.uk
 ## Main text
 
 ### Background
+
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] update all references
+:::
 
 {{< include quarto/_background.qmd >}}
 
@@ -50,7 +48,7 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Discussion
 ::: {.callout-caution collapse="true" title="TODO"}
-- [ ] note should use survival analysis
+- [ ] note should/could use proportional methods from survival analysis
 :::
 
 {{< include quarto/_discussion.qmd >}}
@@ -60,9 +58,8 @@ Email: katharine.sherratt@lshtm.ac.uk
 ::: {.callout-caution collapse="true" title="TODO"}
 - [ ] sync with google doc zotero to bib file
 :::
-::: {.callout-caution collapse="true"}
+
 {{< include quarto/_references.qmd >}}
-:::
 
 ## Supplement
 
@@ -70,3 +67,5 @@ Email: katharine.sherratt@lshtm.ac.uk
 - [ ] check supplement includes natural scale results
 - [ ] include univariate associations of all variables
 :::
+
+{{< include quarto/supplement/_supplement.qmd >}}
