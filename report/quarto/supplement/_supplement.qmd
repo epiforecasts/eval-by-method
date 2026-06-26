@@ -1,5 +1,4 @@
 ---
-title: "Supplementary information"
 format:
   html:
     toc: true
@@ -285,11 +284,11 @@ p
 ```
 
 The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
-Adjustment produces the controlled direct effect of model structure, as the partial association between Method and log-WIS with these mediators held fixed at their observed values.
+Adjustment gives the partial association between Method and log-WIS with these covariates held fixed at their observed values.
 
 We used the following model formula with the mgcv package in R 4.1.
 
-`r results$formula`
+`r paste(deparse(results$formula), collapse = " ")`
 
 \newpage
 
