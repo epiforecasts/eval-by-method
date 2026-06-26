@@ -296,22 +296,13 @@ We used the following model formula with the mgcv package in R 4.1.
 
 ### Model diagnostics
 
-(A) Cases
+Diagnostic plots (QQ, residuals vs linear predictor, histogram of residuals, and observed vs fitted) for the single combined model fitted jointly across both epidemiological targets.
 
 ```{r}
 #| label: supplement-gamm-diagnostics
 
 # QQ plot, residuals
-knitr::include_graphics(here("output", "log", "plots", "check_Cases.pdf"))
-```
-
-(B) Deaths
-
-```{r}
-#| label: supplement-gamm-diagnostics-deaths
-
-# QQ plot, residuals
-knitr::include_graphics(here("output", "log", "plots", "check_Deaths.pdf"))
+knitr::include_graphics(here("output", "log", "plots", "check_joint.pdf"))
 ```
 
 ### Partial effects across covariates
