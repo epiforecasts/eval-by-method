@@ -69,10 +69,13 @@ plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
     geom_point(alpha = 0.1, size = 0.4) +
     geom_abline(slope = 1, intercept = 0, lty = 2, colour = "red") +
     labs(x = paste("Observed", scale_label), y = paste("Fitted", scale_label)) +
-    coord_equal() +
     theme(strip.background = element_blank())
   if ("epi_target" %in% names(fit_obs)) {
+    # free scales (case/death WIS ranges differ) are incompatible with a fixed
+    # aspect ratio, so omit coord_equal here
     p <- p + facet_wrap(~epi_target, scales = "free")
+  } else {
+    p <- p + coord_equal()
   }
   return(p)
 }

@@ -681,27 +681,1118 @@ TODO
 <h3 class="anchored" data-anchor-id="study-participation">Study participation</h3>
 <p>Forecasting teams were recruited to the European Covid-19 Forecast Hub using existing networks and ECDC publicity. Any forecaster was eligible to participate, and there were no selection criteria. All participation was voluntary and unrenumerated. Forecasters contributed a standard set of metadata describing their team and model, and uploaded forecasts weekly. Forecasters were optionally able to express uncertainty by reporting a distribution of up to 23 probabilistic quantiles for each prediction. Forecasts were validated against minimal formatting requirements for quantile intervals and that values were positive integers.</p>
 <p>For this study, we collected all forecasts from between 8 March 2021 to 10 March 2023. We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period. We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results. We also excluded baseline and ensemble models created by the Hub team.</p>
+<div class="cell" data-todo="output as csv, or similar so that participation can be described throughout from a single source">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../output/log/plots/flowchart.png" class="img-fluid figure-img" width="1500"></p>
+<figcaption>Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <p>Characteristics of contributing models:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.</caption>
+<colgroup>
+<col style="width: 31%">
+<col style="width: 18%">
+<col style="width: 17%">
+<col style="width: 15%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Country Targets</th>
+<th style="text-align: left;">Case forecasts</th>
+<th style="text-align: left;">Death forecasts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">AMM-EpiInvert</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">2,788</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CovidMetrics-epiBATS</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">343</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DSMPG-bayes</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">760</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">EuroCOVIDhub-baseline</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">13,082</td>
+<td style="text-align: left;">13,040</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">FIAS_FZJ-Epi1Ger</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">264</td>
+<td style="text-align: left;">264</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">GoeWroc-BaseBayes</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HZI-AgeExtendedSEIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">382</td>
+<td style="text-align: left;">382</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ICM-agentModel</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">334</td>
+<td style="text-align: left;">334</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IEM_Health-CovidProject</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">7,710</td>
+<td style="text-align: left;">7,708</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ILM-EKF</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">11,998</td>
+<td style="text-align: left;">11,961</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ITWW-county_repro</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">650</td>
+<td style="text-align: left;">600</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Imperial-DeCa</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">571</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Imperial-RtI0</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">571</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Imperial-sbkp</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">571</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">JBUD-HMXK</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">1,324</td>
+<td style="text-align: left;">1,324</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KITmetricslab-bivar_branching</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Karlen-pypm</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">3,208</td>
+<td style="text-align: left;">3,186</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LANL-GrowthRate</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">3,692</td>
+<td style="text-align: left;">3,696</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LeipzigIMISE-SECIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MIMUW-StochSEIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">76</td>
+<td style="text-align: left;">76</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MIT_CovidAnalytics-DELPHI</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">348</td>
+<td style="text-align: left;">500</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MOCOS-agent1</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">386</td>
+<td style="text-align: left;">386</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MUNI-ARIMA</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">10,979</td>
+<td style="text-align: left;">11,314</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MUNI-LaggedRegARIMA</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">736</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MUNI-VAR</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">976</td>
+<td style="text-align: left;">976</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MUNI_DMS-SEIAR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">224</td>
+<td style="text-align: left;">200</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PL_GRedlarski-DistrictsSum</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">378</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RobertWalraven-ESG</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">9,190</td>
+<td style="text-align: left;">10,465</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SDSC_ISG-TrendModel</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">1,756</td>
+<td style="text-align: left;">1,744</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UB-BSLCoV</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">96</td>
+<td style="text-align: left;">96</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UC3M-EpiGraph</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">94</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ULZF-SEIRC19SI</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">249</td>
+<td style="text-align: left;">249</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UMass-MechBayes</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">5,948</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UMass-SemiMech</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">1,888</td>
+<td style="text-align: left;">1,904</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UNED-PreCoV2</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">147</td>
+<td style="text-align: left;">147</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UNIPV-BayesINGARCHX</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">426</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">USC-SIkJalpha</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">12,900</td>
+<td style="text-align: left;">12,688</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UpgUmibUsi-MultiBayes</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">99</td>
+<td style="text-align: left;">99</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bisop-seirfilter</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">32</td>
+<td style="text-align: left;">32</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bisop-seirfilterlite</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">336</td>
+<td style="text-align: left;">336</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">epiMOX-SUIHTER</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">134</td>
+<td style="text-align: left;">134</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">epiforecasts-EpiExpert</td>
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">945</td>
+<td style="text-align: left;">948</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">epiforecasts-EpiExpert_Rt</td>
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">404</td>
+<td style="text-align: left;">404</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">epiforecasts-EpiExpert_direct</td>
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">394</td>
+<td style="text-align: left;">392</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">epiforecasts-EpiNow2</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">8,843</td>
+<td style="text-align: left;">7,721</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">epiforecasts-weeklygrowth</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">5,971</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">itwm-dSEIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">Single-country</td>
+<td style="text-align: left;">406</td>
+<td style="text-align: left;">406</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">prolix-euclidean</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: left;">800</td>
+<td style="text-align: left;">800</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Number of models participating in forecasting 1-week ahead case incidence for each country over the study period.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-participation-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <p>We explored how models selected geographic targets over time. Forecasters both added and removed targets among the set for which they forecast each week. This figure shows number of targets submitted by each model at the 1-week ahead horizon. We noted the same variation for 2-4 week forecasts.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-target-count-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>The number of countries targeted by each model forecasting for 1-week ahead incidence of Covid-19 cases or deaths, shown by classification of model structure. Each forecaster selected any number of targets from a set of 32 countries.</figcaption>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="model-structure-classification" class="level3">
 <h3 class="anchored" data-anchor-id="model-structure-classification">Model structure classification</h3>
 <p>Human raters classified models according to methodological structures.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Classification of models by number of raters in total and agreement on model structure</caption>
+<colgroup>
+<col style="width: 18%">
+<col style="width: 13%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 10%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 3%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Final classification</th>
+<th style="text-align: left;">Agreement</th>
+<th style="text-align: right;">Total raters</th>
+<th style="text-align: right;">Semi-mechanistic</th>
+<th style="text-align: right;">Mechanistic</th>
+<th style="text-align: right;">Agent-based</th>
+<th style="text-align: right;">Statistical</th>
+<th style="text-align: right;">Judgement</th>
+<th style="text-align: right;">Other</th>
+<th style="text-align: right;">Machine Learning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">AMM-EpiInvert</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DSMPG-bayes</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ILM-EKF</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ITWW-county_repro</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Imperial-DeCa</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Imperial-RtI0</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Imperial-sbkp</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KITmetricslab-bivar_branching</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Karlen-pypm</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LANL-GrowthRate</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SDSC_ISG-TrendModel</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UMass-SemiMech</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">USC-SIkJalpha</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UpgUmibUsi-MultiBayes</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">bisop-seirfilter</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">bisop-seirfilterlite</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">prolix-euclidean</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CovidMetrics-epiBATS</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">EuroCOVIDhub-baseline</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">FIAS_FZJ-Epi1Ger</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">GoeWroc-BaseBayes</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HZI-AgeExtendedSEIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ICM-agentModel</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IEM_Health-CovidProject</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">JBUD-HMXK</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LeipzigIMISE-SECIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MIMUW-StochSEIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MIT_CovidAnalytics-DELPHI</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MOCOS-agent1</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MUNI-ARIMA</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MUNI-LaggedRegARIMA</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MUNI-VAR</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MUNI_DMS-SEIAR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PL_GRedlarski-DistrictsSum</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RobertWalraven-ESG</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UB-BSLCoV</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UC3M-EpiGraph</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ULZF-SEIRC19SI</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UMass-MechBayes</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">UNED-PreCoV2</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UNIPV-BayesINGARCHX</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">epiMOX-SUIHTER</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">epiforecasts-EpiExpert</td>
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">epiforecasts-EpiExpert_Rt</td>
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">epiforecasts-EpiExpert_direct</td>
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">epiforecasts-EpiNow2</td>
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">epiforecasts-weeklygrowth</td>
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">itwm-dSEIR</td>
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <section id="epidemic-trend-identification" class="level4">
 <h4 class="anchored" data-anchor-id="epidemic-trend-identification">Epidemic trend identification</h4>
 <p>We categorised each week as “Stable”, “Decreasing”, or “Increasing”, based on the difference over a three-week moving average of incidence (with a change of +/-5% as “Stable”).</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-trends-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>Trends (cases)</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-death-trends-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>Trends (deaths)</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="variant-phase-identification" class="level4">
 <h4 class="anchored" data-anchor-id="variant-phase-identification">Variant phase identification</h4>
 <p>Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland). Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB. For each country, we identified the first week in which each named variant exceeded 50% of sequenced samples. We enforced chronological ordering by removing any out-of-sequence phases, then expanded phase assignments to all weeks by filling forward and backward from observed transition dates. This per-location approach accounts for the fact that variant dominance dates differed substantially across European countries. Where genomic surveillance data were too sparse to identify a transition (Hungary), we supplemented with epidemiological reports to set the Alpha-to-Delta transition date.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-variant-phases-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Variant phases identified by dominant variant in each location and week</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </section>
 </section>
 <section id="model-building" class="level3">
 <h3 class="anchored" data-anchor-id="model-building">Model building</h3>
 <p>To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram. We emphasise that this work is exploratory rather than inferential, and we suggest substantial further work is needed to support inferential approaches to forecast evaluation.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-dag-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>Directed acyclic graph of assumed causal relationships among forecast performance (wis), model structure (Method), and covariates.</figcaption>
+</figure>
+</div>
+</div>
+</div>
 <p>The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model). Adjustment gives the partial association between Method and log-WIS with these covariates held fixed at their observed values.</p>
 <p>We used the following model formula with the mgcv package in R 4.1.</p>
 <p>wis ~ Epi_target + s(Method, bs = “re”) + s(CountryTargets, bs = “re”) + s(Incidence) + s(Trend, bs = “re”) + s(Location, bs = “re”) + s(VariantPhase, bs = “re”) + s(Horizon, by = Model, k = 3, bs = “sz”) + s(Model, bs = “re”)</p>
@@ -713,8 +1804,26 @@ TODO
 <section id="model-diagnostics" class="level3">
 <h3 class="anchored" data-anchor-id="model-diagnostics">Model diagnostics</h3>
 <p>Diagnostic plots (QQ, residuals vs linear predictor, histogram of residuals, and observed vs fitted) for the single combined model fitted jointly across both epidemiological targets.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><embed src="../output/log/plots/check_joint.pdf" class="img-fluid"></p>
+</figure>
+</div>
+</div>
+</div>
 <p>The primary model uses a Gaussian family with a log link applied to the (untransformed) weighted interval score. This models the score multiplicatively but assumes additive, constant-variance Gaussian residuals on the raw score scale. Because the WIS is strongly right-skewed, the observation-level residuals retain a heavy upper tail (residual skewness ≈ 5.5, excess kurtosis well above the Gaussian reference), visible in the QQ plot above. The fitted relationships and partial effects are nonetheless stable: a reparameterisation that instead models the log-transformed score directly (below) substantially improves the residual distribution without materially changing the estimated effects.</p>
 <p>Observed versus fitted WIS for the primary model is shown below; points concentrate along the identity line, with the dispersion in the upper tail reflecting the residual skewness noted above.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-fit-obs-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="partial-effects-across-covariates" class="level3">
 <h3 class="anchored" data-anchor-id="partial-effects-across-covariates">Partial effects across covariates</h3>
@@ -722,20 +1831,143 @@ TODO
 <ol type="A">
 <li>Spatial covariates</li>
 </ol>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-plot-spatial-effects-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <ol start="2" type="A">
 <li>Temporal covariates</li>
 </ol>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-plot-temporal-effects-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="results-on-the-natural-scale" class="level3">
 <h3 class="anchored" data-anchor-id="results-on-the-natural-scale">Results on the natural scale</h3>
 <p>We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Characteristics of models and forecasts sampled from the European COVID-19 Forecast Hub, March 2021-2023. Models (%) shows number of models and percentage of all included models. Single-country shows models targeting one country as a fraction and percentage of models in each method group.</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="text-align: left; empty-cells: hide; border-bottom: hidden;"></th>
+<th data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Cases
+</div></th>
+<th data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Deaths
+</div></th>
+<th data-quarto-table-cell-role="th" style="text-align: right; empty-cells: hide; border-bottom: hidden;"></th>
+</tr>
+<tr class="even">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Models (%)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Models (%)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Single-country (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Overall</td>
+<td style="text-align: right;">42 (100%)</td>
+<td style="text-align: right;">38 (100%)</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even" data-grouplength="5">
+<td colspan="4" style="text-align: left; border-bottom: 1px solid;"><strong>Method</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Semi-mechanistic</td>
+<td style="text-align: right;">9 (21.4%)</td>
+<td style="text-align: right;">10 (26.3%)</td>
+<td style="text-align: right;">2/12 (17%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Statistical</td>
+<td style="text-align: right;">11 (26.2%)</td>
+<td style="text-align: right;">7 (18.4%)</td>
+<td style="text-align: right;">4/12 (33%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Mechanistic</td>
+<td style="text-align: right;">16 (38.1%)</td>
+<td style="text-align: right;">16 (42.1%)</td>
+<td style="text-align: right;">10/17 (59%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Agent-based</td>
+<td style="text-align: right;">3 (7.1%)</td>
+<td style="text-align: right;">2 (5.3%)</td>
+<td style="text-align: right;">3/3 (100%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Judgement</td>
+<td style="text-align: right;">3 (7.1%)</td>
+<td style="text-align: right;">3 (7.9%)</td>
+<td style="text-align: right;">0/3 (0%)</td>
+</tr>
+<tr class="even" data-grouplength="1">
+<td colspan="4" style="text-align: left; border-bottom: 1px solid;"><strong>2</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Single-country</td>
+<td style="text-align: right;">19 (45.2%)</td>
+<td style="text-align: right;">14 (36.8%)</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: right;">23 (54.8%)</td>
+<td style="text-align: right;">24 (63.2%)</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </section>
 <section id="sensitivity-log-transformed-response" class="level3">
 <h3 class="anchored" data-anchor-id="sensitivity-log-transformed-response">Sensitivity: log-transformed response</h3>
 <p>The primary model applies a log <em>link</em> to the untransformed WIS, which leaves the residuals skewed (above). As a sensitivity analysis we refit the same joint specification but instead model the <em>log-transformed</em> score directly (<code>log(WIS)</code>, with near-zero scores floored at <span class="math inline">\(10^{-4}\)</span> before transformation), using a Gaussian family with the identity link. This is the conventional treatment for skewed forecast scores: <code>log(WIS)</code> is close to symmetric, so the Gaussian error assumption is far better satisfied.</p>
 <p>The residual distribution improves markedly under this reparameterisation: residual skewness falls from approximately 5.5 (primary, raw score with log link) to approximately −0.8 (log-transformed response), with a correspondingly lighter tail. The diagnostic plots and observed-versus-fitted relationship for the log-response model are shown below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><embed src="../output/log-resp/plots/check_joint.pdf" class="img-fluid"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="manuscript_files/figure-html/supplement-logresp-fit-obs-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <p>Despite the improved residual behaviour, the substantive conclusions are unchanged. The model-structure and geographic-scope effects remain centred on zero under both specifications (the headline finding of no systematic structural difference is identical), and the direction of every covariate effect is preserved (correlation of adjusted partial effects ≈ 0.96 across the focal covariates). The magnitudes of some target-difficulty effects are attenuated on the log-response scale — for example the stable-trend advantage is smaller — reflecting the different treatment of the skewed upper tail, but no effect changes sign. We therefore retain the log-link specification in the main text for continuity with the scoring scale and report this transformation as a robustness check.</p>
 </section>
 </section>

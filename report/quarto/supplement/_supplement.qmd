@@ -21,7 +21,7 @@ source(here("R", "analysis-descriptive.R"))
 source(here("R", "plot-model-results.R"))
 theme_set(theme_classic())
 knitr::opts_chunk$set(
-  eval = FALSE, 
+  eval = TRUE,
   echo = FALSE,
   message = FALSE, warning = FALSE
 )
@@ -84,7 +84,7 @@ We also excluded baseline and ensemble models created by the Hub team.
 
 # source(here("R", "plot-model-flow.R"))
 # flow_chart <- create_model_flow()
-knitr::include_graphics(here("output", "plots", "flowchart.png"))
+knitr::include_graphics(here("output", "log", "plots", "flowchart.png"))
 ```
 
 Characteristics of contributing models:
@@ -98,7 +98,7 @@ table_metadata <- function(scores) {
     model_scores <- scores |>
         group_by(Model, epi_target) |>
         table_confint() |>
-        select(Model, epi_target, Forecasts)
+        select(Model, epi_target, Forecasts = n_forecasts)
     country_targets <- table_targets(scores) |>
         select(Model, epi_target, CountryTargets)
     metadata_table <- classification |>
@@ -160,7 +160,9 @@ We noted the same variation for 2-4 week forecasts.
 
 ```{r}
 #| label: supplement-target-count
-#| fig-cap: "The number of countries targeted by each model forecasting for 1-week ahead incidence of Covid-19 cases or deaths, shown by classification of model structure. Each forecaster selected any number of targets from a set of 32 countries."
+#| fig-cap: >-
+#|   The number of countries targeted by each model forecasting for 1-week ahead incidence of Covid-19 cases or deaths, shown by classification of model structure.
+#|   Each forecaster selected any number of targets from a set of 32 countries.
 
 target_time <- scores|>
 group_by(epi_target, Method, Horizon, forecast_date, Model) |>
@@ -385,5 +387,5 @@ plot_fit_obs(readRDS(here("output", "log-resp", "fit_obs.rds")),
 
 Despite the improved residual behaviour, the substantive conclusions are unchanged.
 The model-structure and geographic-scope effects remain centred on zero under both specifications (the headline finding of no systematic structural difference is identical), and the direction of every covariate effect is preserved (correlation of adjusted partial effects ≈ 0.96 across the focal covariates).
-The magnitudes of some target-difficulty effects are attenuated on the log-response scale — for example the stable-trend advantage is smaller — reflecting the different treatment of the skewed upper tail, but no effect changes sign.
+The magnitudes of some target-difficulty effects are attenuated on the log-response scale --- for example the stable-trend advantage is smaller --- reflecting the different treatment of the skewed upper tail, but no effect changes sign.
 We therefore retain the log-link specification in the main text for continuity with the scoring scale and report this transformation as a robustness check.
