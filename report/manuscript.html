@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Evaluating the role of model structure in the predictive performance of European COVID-19 forecasts</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="manuscript_files/libs/clipboard/clipboard.min.js"></script>
+<script src="manuscript_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="manuscript_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="manuscript_files/libs/quarto-html/popper.min.js"></script>
+<script src="manuscript_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="manuscript_files/libs/quarto-html/anchor.min.js"></script>
+<link href="manuscript_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="manuscript_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="manuscript_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="manuscript_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="manuscript_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="manuscript_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="manuscript_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="manuscript_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<script src="manuscript_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="manuscript_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#abstract" id="toc-abstract" class="nav-link active" data-scroll-target="#abstract">Abstract</a></li>
+  <li><a href="#main-text" id="toc-main-text" class="nav-link" data-scroll-target="#main-text">Main text</a>
+  <ul class="collapse">
+  <li><a href="#background" id="toc-background" class="nav-link" data-scroll-target="#background">Background</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  <li><a href="#supporting-information" id="toc-supporting-information" class="nav-link" data-scroll-target="#supporting-information">Supporting Information</a></li>
+  <li><a href="#data-availability" id="toc-data-availability" class="nav-link" data-scroll-target="#data-availability">Data availability</a></li>
+  </ul></li>
+  <li><a href="#supplement" id="toc-supplement" class="nav-link" data-scroll-target="#supplement">Supplement</a></li>
+  <li><a href="#methods-1" id="toc-methods-1" class="nav-link" data-scroll-target="#methods-1">Methods</a>
+  <ul class="collapse">
+  <li><a href="#source-data-and-code" id="toc-source-data-and-code" class="nav-link" data-scroll-target="#source-data-and-code">Source data and code</a></li>
+  <li><a href="#study-participation" id="toc-study-participation" class="nav-link" data-scroll-target="#study-participation">Study participation</a></li>
+  <li><a href="#model-structure-classification" id="toc-model-structure-classification" class="nav-link" data-scroll-target="#model-structure-classification">Model structure classification</a></li>
+  <li><a href="#model-building" id="toc-model-building" class="nav-link" data-scroll-target="#model-building">Model building</a></li>
+  </ul></li>
+  <li><a href="#results-1" id="toc-results-1" class="nav-link" data-scroll-target="#results-1">Results</a>
+  <ul class="collapse">
+  <li><a href="#model-diagnostics" id="toc-model-diagnostics" class="nav-link" data-scroll-target="#model-diagnostics">Model diagnostics</a></li>
+  <li><a href="#partial-effects-across-covariates" id="toc-partial-effects-across-covariates" class="nav-link" data-scroll-target="#partial-effects-across-covariates">Partial effects across covariates</a></li>
+  <li><a href="#results-on-the-natural-scale" id="toc-results-on-the-natural-scale" class="nav-link" data-scroll-target="#results-on-the-natural-scale">Results on the natural scale</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Evaluating the role of model structure in the predictive performance of European COVID-19 forecasts</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)</p>
+<ol type="1">
+<li>Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene &amp; Tropical Medicine</li>
+<li>European Centre for Disease Prevention and Control</li>
+<li>Institute of Statistics, Karlsruhe Institute of Technology</li>
+</ol>
+<p>Email: katharine.sherratt@lshtm.ac.uk</p>
+<section id="abstract" class="level3">
+<h3 class="anchored" data-anchor-id="abstract">Abstract</h3>
+<section id="abstract-1" class="level4">
+<h4 class="anchored" data-anchor-id="abstract-1">Abstract</h4>
+<p>Forecasters attempting to predict infectious disease outbreaks have met with varying success [@]. This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets. In this work, we attempt to tune out variation from the target-generating process — the epidemic dynamics, surveillance, and data revisions that create each forecast target — in order to gain a more precise understanding of variation arising from the forecast-generating process.</p>
+<p>We applied this approach to a dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub. We adjusted for variation across epidemic dynamics, forecast horizon, and whether a forecaster predicted for one or multiple countries. This allowed us to isolate the impact of model structure on predictive performance.</p>
+<p>We evaluated probabilistic predictions from 47 forecasting models participating in the European COVID-19 Forecast Hub between 8 March 2021 and 10 March 2023. We assessed performance of COVID-19 case and death forecasts, measured as the weighted interval score applied to forecasts and observations normalised to incidence per 100,000 population and log-transformed. We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and by target strategy (whether forecasts were produced for one or multiple countries). We adjusted for forecast horizon, epidemic trend, dominant variant phase, country location, and individual model variation. We summarised unadjusted performance descriptively and compared this to adjusted estimates from a generalised additive mixed model.</p>
+<p>Our findings suggest that after adjustment, no single structural approach dominated: adjusted estimates clustered around the average and their confidence intervals overlapped, so we could not distinguish performance between model structures. We could not explain substantial variation in performance between individual models, suggesting the importance of factors beyond those commonly documented, such as team capacity, domain expertise, and model evolution over time.</p>
+<p>Our work highlights the importance of accounting for predictive difficulty in order to correctly attribute why performance is so different between different forecasters. We provide a framework for more robust evaluations of infectious disease predictions, and suggest what a fuller causal treatment of this question would require. This work moves towards a more principled approach to systematically identifying what factors influence forecast performance.</p>
+</section>
+</section>
+<section id="main-text" class="level2">
+<h2 class="anchored" data-anchor-id="main-text">Main text</h2>
+<section id="background" class="level3">
+<h3 class="anchored" data-anchor-id="background">Background</h3>
+<div class="callout callout-style-default callout-caution callout-titled" title="TODO">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+TODO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">update all references</label></li>
+</ul>
+</div>
+</div>
+</div>
+<p>Forecasters attempting to predict infectious disease outbreaks have met with varying success [CITE]. This variation may arise from two distinct sources: the forecast-generating process — the modeller’s choices of structure, implementation, and target selection — and the target-generating process — the epidemic dynamics, surveillance systems, and data revisions that create each forecast target. In this work, we account for the target-generating process in order to isolate and estimate the modifiable variation arising from the forecast-generating process.</p>
+<p>Among many forecast targets, forecaster performance is inherently variable due to differences in the target-generating process. We see better predictive performance with stable epidemic dynamics <a href="https://www.zotero.org/google-docs/?KaFMKc">(9)</a>, in larger populations <a href="https://www.zotero.org/google-docs/?7uCfbD">(16)</a>, with timely surveillance <a href="https://www.zotero.org/google-docs/?YLVYXN">(6)</a>, and when the forecast target is short term <a href="https://www.zotero.org/google-docs/?2K90bo">(15)</a> or has informative leading indicators <a href="https://www.zotero.org/google-docs/?gzkBxT">(17)</a>. Performance also depends on how the target itself is observed: surveillance systems differ in timeliness and completeness, and reported counts are frequently revised after a forecast has been made <a href="https://www.zotero.org/google-docs/?c33gx9">(11)</a>. This is linked to recent interest in identifying boundaries to the predictability of infectious disease incidence <a href="https://www.zotero.org/google-docs/?CZumUU">(14)</a>. Evaluation across multiple forecast targets should therefore be sensitive to varying target difficulty. This can be addressed by using a method of evaluation with assumptions that mirror these processes, such as normalising error to the size of the population, and evaluating on a log scale to reflect the growth rate of transmission.</p>
+<p>Variation in performance also arises from the forecast-generating process: the structural approaches and implementation choices made in developing a forecasting model. Forecasters may choose among many methods in model development. This might range from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission. Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting. This choice demands a trade-off among complementary strengths and weaknesses of different methods <a href="https://www.zotero.org/google-docs/?XemggF">(1–3)</a>, any of which may impact predictive accuracy. Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences<a href="https://www.zotero.org/google-docs/?piAg9a">(4–6)</a>. However, evaluations typically summarise performance across many forecast targets simultaneously. This means that comparisons may conflate differences in the predictive performance of each structural approach, with parallel differences in forecast target difficulty. These two processes, and the components through which each shapes forecast performance, are shown in <a href="#fig-processes" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-processes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-processes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<pre class="mermaid mermaid-js" data-label="fig-processes">%%{init: {"theme": "base", "flowchart": {"curve": "linear"}, "themeVariables": {"primaryColor": "#ffffff", "primaryBorderColor": "#000000", "primaryTextColor": "#000000", "clusterBkg": "#ffffff", "clusterBorder": "#000000", "lineColor": "#000000", "fontFamily": "inherit"}}}%%
+flowchart TB
+  subgraph FG["Forecast-generating process"]
+    direction TB
+    F1["Model design"]
+    F2["Model implementation"]
+    F3["Forecaster participation"]
+  end
+  subgraph TG["Target-generating process"]
+    direction TB
+    T1["Epidemic processes"]
+    T2["Observation process"]
+  end
+  FG --&gt; P["Realised predictive performance"]
+  TG --&gt; P
+</pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-processes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Two processes generating variation in realised predictive performance. The forecast-generating process (the modeller’s choices) and the target-generating process (the epidemic and its observation) each contribute, through the components shown, to realised predictive performance.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To evaluate the contribution of these two dimensions of predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets <a href="https://www.zotero.org/google-docs/?8yn1XI">(10)</a><a href="https://www.zotero.org/google-docs/?ZgO6IM">(11)</a>. This comparability is achieved in participatory forecast challenges <a href="https://www.zotero.org/google-docs/?7pIGoa">(13)</a>. Yet even with comparable evaluation between models, the relative contribution of different factors influencing performance has not been well identified. Identifying these influences is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings. Such analysis is still challenging as it is prone to selection bias, confounding, and interactions (effect modification) when evaluating among forecasters with differential participation across forecast targets.</p>
+<p>One such concern is where the effect of model structure is modified by a forecaster’s strategy for selecting forecasting targets. This selectiveness may influence both structural approach to model development, their participation in different forecast targets, and their resulting predictive performance. Faced with multiple forecasting targets, a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models. An alternative strategy is to develop a model to a specific forecast target, for example emphasising particular mechanistic processes or exploiting local data sources. Bespoke mechanistic models are more easily tailored to a single target in this way <a href="https://www.zotero.org/google-docs/?vo794b">(7,8)</a>. A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those specifically tuned to the national context <a href="https://www.zotero.org/google-docs/?7QAdmm">(9)</a>. This suggests the hypothesis that target strategy has a separate influence on predictive performance, and could confound an estimate of the effect of model structure on predictive performance.</p>
+<p>Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast target difficulty and target strategy. We include a directed acyclic graph in the Supplement to represent our assumed causal structure, but note that our work is exploratory rather than formally causal. We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts and using a generalised additive mixed model to associate this with model structure, factors influencing target difficulty, and target strategy. We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast target difficulty. We do not have the ability to fully test our assumptions, and we consider directions for a fuller causal treatment in future work.</p>
+<p>Some existing approaches include exclusion criteria; stratification; data transformation; and relative performance measures, however each of these also has limitations (<a href="#tbl-approaches" class="quarto-xref">Table&nbsp;1</a>).</p>
+<div id="tbl-approaches" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-approaches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Existing approaches to accounting for forecast target difficulty, with their advantages and limitations.
+</figcaption>
+<div aria-describedby="tbl-approaches-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 30%">
+<col style="width: 37%">
+<col style="width: 25%">
+<col style="width: 3%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Description</th>
+<th>Advantage</th>
+<th>Limitation</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Restriction</td>
+<td>Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g.&nbsp;&gt;10% difference in retrospectively observed counts</td>
+<td>Simplicity, easy to communicate</td>
+<td>Excludes some targets altogether; penalises forecasters who may appropriately forecast the revised data</td>
+<td>Sherratt 2021</td>
+</tr>
+<tr class="even">
+<td>Stratification</td>
+<td>Present forecast scores only stratified by factors of interest (e.g.&nbsp;model structure) or assumed to confound performance (e.g.&nbsp;forecast horizon)</td>
+<td>Classical observational study approach</td>
+<td>Very small sample size (forecasting models) among multiple interacting strata</td>
+<td>Reich, Johansson</td>
+</tr>
+<tr class="odd">
+<td>Transformation</td>
+<td>Normalise (e.g.&nbsp;per 100,000 population) and/or transform (e.g.&nbsp;log) each forecast-observation pair</td>
+<td>Maintain some comparability across targets of different magnitudes, with the log transform closer to reflecting a standard way to reduce a target to the underlying epidemic growth rate</td>
+<td>Uncontrolled factors influence forecast target difficulty</td>
+<td>Bosse</td>
+</tr>
+<tr class="even">
+<td>Matching</td>
+<td>Restrict pairwise comparison to each target; often by relative skill score: relative, compared with the paired performance of a single baseline</td>
+<td>Systematic inclusion of all models, able to compare any against any</td>
+<td>Choice of baseline (‘control’) unclear; difficult to interpret absolute performance (where all models perform well or poorly)</td>
+<td>Bracher</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+<section id="methods" class="level3">
+<h3 class="anchored" data-anchor-id="methods">Methods</h3>
+<div class="callout callout-style-default callout-caution callout-titled" title="TODO">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+TODO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">joint model to include cases/deaths (include results in supp)</label></li>
+<li><label><input type="checkbox">list the many model specs we tried in the supplement</label></li>
+<li><label><input type="checkbox">check mean average WIS over time and by other confounders</label></li>
+<li><label><input type="checkbox">natural scale fit with gamma dist</label></li>
+</ul>
+</div>
+</div>
+</div>
+<p><strong>Study design</strong></p>
+<p><em>Forecast performance</em></p>
+<p>We consider forecasts of incident COVID-19 cases and deaths between 8 March 2021 to 10 March 2023 for 32 European countries.</p>
+<p>We used forecast data collected via the public European COVID-19 Forecast Hub, described in <a href="https://www.zotero.org/google-docs/?5K4uXI">(19)</a>. The platform solicited real-time forecasts for between one and four weeks ahead for 32 European countries. Any forecaster was eligible to participate in the Hub, and there were no selection criteria.</p>
+<p>We excluded forecasts that did not report the full set of 23 quantiles, to ensure fair comparison among probabilistic results, and excluded baseline and ensemble models created by the Hub team. Full study eligibility and a STROBE flow diagram are detailed in the Supplement.</p>
+<p>We evaluated forecasts against observed data collated by Johns Hopkins University (JHU). This included cumulative daily reported cases or deaths <a href="https://www.zotero.org/google-docs/?cDnqeb">(20)</a>. We calculated incident weekly counts, and used the dataset available as of 10 March 2023, when JHU stopped collating data.</p>
+<p>Prior to evaluation, we normalised both forecasts and observations to incidence per 100,000 population. We then log-transformed both forecasts and observations. This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate <a href="https://www.zotero.org/google-docs/?NuBRI2">(22,23)</a>. To avoid zeros, we added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values.</p>
+<p>We evaluated forecasts against observed data using the Weighted Interval Score (WIS) <a href="https://www.zotero.org/google-docs/?T3es1k">(21)</a>. The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS). This assigns each probabilistic forecast a score that reflects the forecast’s dispersion, overprediction, and underprediction.</p>
+<p><em>Forecasting model structure</em></p>
+<p>We designed a classification scheme for participating forecasters’ model structures. This included: “Agent-based” (with detailed individual-level interactions), “Mechanistic” (broadly based on compartmental models), “Semi-mechanistic” (statistical models with epidemiological elements, e.g.&nbsp;delay distributions and/or generation intervals), “Statistical” (context-agnostic time-series models), “Judgement” (ensembles of human-judgement based predictions).</p>
+<p>We classified each model using self-reported metadata: an optional description of methods, and links to model code, website or publication (schema and example in the Supplement). Four members of the research team (KS, SF, FB, JM) classified models independently, with at least two rating each model. The majority vote determined the final classification, with ties resolved by an additional independent rater and all classifications reviewed by two investigators (SF, KS) for final revisions (see Supplement).</p>
+<p><em>Forecast target difficulty</em></p>
+<p>We included the epidemiological target (incident cases or deaths) as a fixed factor within a single model, rather than stratifying the analysis. With only two levels, a fixed factor gives one fully-identified, interpretable contrast (deaths versus cases on the log scale), whereas a random effect would require more levels to identify its variance. We then included a variety of covariates to account for forecast task difficulty.</p>
+<p>We first included forecast horizon to account for the increasing difficulty of forecasting further into the future. We then accounted for variation in epidemic transmission dynamics underlying each forecast target. As the transmission state is unobserved, we adjusted for observed factors associated with it. Factors upstream of transmission included: country location, as a proxy for dynamics e.g.&nbsp;national policy or population structure influencing transmission; and dominant variant phase. We used publicly available sequence data to classify each target location-week according to the dominant circulating SARS-CoV-2 variant, producing a discrete sequence of phases (see Supplement) <span class="citation" data-cites="variant-data">[@variant-data]</span>. Factors downstream of transmission included: count of incident outcomes in the target week; and trend of incidence: “Stable”, “Decreasing”, or “Increasing”, based on the difference over a three-week moving average of incidence (with a change of +/-5% as “Stable”; see Supplement).</p>
+<p><em>Task participation and residual confounding</em></p>
+<p>We classified each model as participating in forecasting either a single country location or more than one location. We used a binary classification rather than a count to address data sparsity (few teams submitted for between 2 and 32 countries), and because forecasters could change the number of targets they submitted over time.</p>
+<p>We additionally included a random effect for individual model identity, to separate the between-method-class contribution from variation between individual model implementations. We did not attempt to adjust for unobserved characteristics of the forecasting team, such as capacity, infrastructure, or experience, although these plausibly shape both model structure choices and realised forecast performance.</p>
+<p><strong>Analysis</strong></p>
+<p>We used a single hierarchical model structure fit across both epidemiological targets, with target included as a fixed factor. We treated the WIS of each forecast <span class="math inline">\(i\)</span> as Gaussian with a log link, so that the linear predictor <span class="math inline">\(\eta_i\)</span> acts multiplicatively on expected score:</p>
+<p><span class="math display">\[
+\mathrm{WIS}_i \sim \mathcal{N}(\mu_i,\, \sigma^2), \qquad \log \mu_i = \eta_i.
+\]</span></p>
+<p>The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological target, a sum of random-effect contributions from categorical covariates, and two smooth terms for continuous covariates:</p>
+<p><span class="math display">\[
+\eta_i = \beta_0 \;+\; \beta_{\text{target}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+\]</span></p>
+<p>Here <span class="math inline">\(\beta_{\text{target}}\)</span> is a fixed parametric coefficient (cases as the reference level), giving the deaths-versus-cases contrast on the log scale; it is not part of the zero-mean Gaussian random-effects set <span class="math inline">\(\mathcal{G}\)</span>.</p>
+<p>Here <span class="math inline">\(j_g(i)\)</span> denotes the level of grouping factor <span class="math inline">\(g\)</span> observed for forecast <span class="math inline">\(i\)</span>. We assume random effects are drawn independently from a zero-mean Gaussian with its own variance:</p>
+<p><span class="math display">\[
+u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
+\]</span></p>
+<p>The two smooths captured continuous covariates. <span class="math inline">\(f_{\text{Inc}}\)</span> was a penalised thin-plate regression spline over (log-transformed) incidence, and <span class="math inline">\(\{f^{\text{Horizon}}_k\}\)</span> was a factor-smooth interaction (sum-to-zero constrained, with <span class="math inline">\(k=3\)</span> basis functions per forecasting model), allowing the horizon effect to vary by model.</p>
+<p>We used summary statistics to describe WIS by model structure and target strategy. We fitted all models using the <em>mgcv</em> package in R <a href="https://www.zotero.org/google-docs/?Jv7oFh">(24)</a>, using fast restricted maximum likelihood estimation (fREML). We checked model fit with visual inspection of residuals via Q-Q plots. To assess confounding, we fitted univariate models to contrast unadjusted and adjusted estimates of the partial effect of model structure on WIS.</p>
+<p>All data and code are publicly available online <a href="https://www.zotero.org/google-docs/?qHy24c">(25)</a>.</p>
+</section>
+<section id="results" class="level3">
+<h3 class="anchored" data-anchor-id="results">Results</h3>
+<div class="callout callout-style-default callout-caution callout-titled" title="TODO">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+TODO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">Figure 1 edit for clarity; use cohort mean performance over time?</label></li>
+<li><label><input type="checkbox">table 2 check adjusted numbers</label></li>
+<li><label><input type="checkbox">table 2 include adjustment set in caption</label></li>
+</ul>
+</div>
+</div>
+</div>
+<!---Summary--->
+<p>We evaluated the predictive performance of 47 forecasting models produced by 37 separate modelling teams participating in the European COVID-19 Forecast Hub. We identified both differential participation and varying performance among models, using the weighted interval score (WIS) as a standardised measure of performance. We then used a generalised additive mixed model (GAMM) to associate predictive performance with model structure. We accounted for confounding from forecasters’ selection of geographic targets (the number of countries a model targeted), and forecast target difficulty (factors associated with the epidemiological context).</p>
+<p><strong>Forecaster characteristics</strong></p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Characteristics of models and forecasts sampled from the European COVID-19 Forecast Hub, March 2021-2023. Models (%) shows number of models and percentage of all included models. Single-country shows models targeting one country as a fraction and percentage of models in each method group.</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th" style="text-align: left; empty-cells: hide; border-bottom: hidden;"></th>
+<th data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Cases
+</div></th>
+<th data-quarto-table-cell-role="th" style="text-align: center; border-bottom: hidden; padding-bottom: 0; padding-left: 3px; padding-right: 3px;"><div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Deaths
+</div></th>
+<th data-quarto-table-cell-role="th" style="text-align: right; empty-cells: hide; border-bottom: hidden;"></th>
+</tr>
+<tr class="even">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Models (%)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Models (%)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Single-country (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Overall</td>
+<td style="text-align: right;">42 (100%)</td>
+<td style="text-align: right;">38 (100%)</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even" data-grouplength="5">
+<td colspan="4" style="text-align: left; border-bottom: 1px solid;"><strong>Method</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Semi-mechanistic</td>
+<td style="text-align: right;">9 (21.4%)</td>
+<td style="text-align: right;">10 (26.3%)</td>
+<td style="text-align: right;">2/12 (17%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Statistical</td>
+<td style="text-align: right;">11 (26.2%)</td>
+<td style="text-align: right;">7 (18.4%)</td>
+<td style="text-align: right;">4/12 (33%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Mechanistic</td>
+<td style="text-align: right;">16 (38.1%)</td>
+<td style="text-align: right;">16 (42.1%)</td>
+<td style="text-align: right;">10/17 (59%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Agent-based</td>
+<td style="text-align: right;">3 (7.1%)</td>
+<td style="text-align: right;">2 (5.3%)</td>
+<td style="text-align: right;">3/3 (100%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Judgement</td>
+<td style="text-align: right;">3 (7.1%)</td>
+<td style="text-align: right;">3 (7.9%)</td>
+<td style="text-align: right;">0/3 (0%)</td>
+</tr>
+<tr class="even" data-grouplength="1">
+<td colspan="4" style="text-align: left; border-bottom: 1px solid;"><strong>2</strong></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; padding-left: 2em;" data-indentlevel="1">Single-country</td>
+<td style="text-align: right;">19 (45.2%)</td>
+<td style="text-align: right;">14 (36.8%)</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Multi-country</td>
+<td style="text-align: right;">23 (54.8%)</td>
+<td style="text-align: right;">24 (63.2%)</td>
+<td style="text-align: right;">NA</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We summarised 47 model characteristics by model structure and geographic target selection (Table 1). We included all participant forecasts for any target; full eligibility criteria and exclusion counts are shown in the STROBE flow diagram (Supplementary Figure S1). Over the study period, forecasters could participate in any of 26,624 available forecast targets (comprising 104 weeks, 32 countries, 4 horizons, and 2 epidemiological outcomes). Median forecaster participation was 3% (IQR: 2-12%, ranging from 0 to 96) across available targets, reflecting substantial variation in participation across countries and time.</p>
+<p>We classified 17 models as using mechanistic structure, 12 as statistical, 12 as semi-mechanistic, 3 as agent-based and 3 that used human judgement forecasting (Table 1; Supplementary Table S2). Raters disagreed on 17 (36%) model classifications. The majority of 2/3 was used as the final classification, with additional manual review which in all cases retained the majority decision. Raters most often disagreed when classifying semi-mechanistic models, with 8 out of 12 receiving one or more votes for a statistical model structure. Under the final classification, approximately one-third of all forecast predictions were from mechanistic, semi-mechanistic, and statistical models each. Agent-based and judgement models provided fewer forecasts, representing &lt;2% of forecasts.</p>
+<p>We classified 19 models as forecasting for a single country and 6 for multiple countries; the countries targeted are detailed in the Supplement. Among the 28 multi-country models, only 2 consistently forecast for the same number of countries throughout the study period.</p>
+<p><strong>Forecast performance</strong></p>
+<p>We descriptively summarised forecast performance across the study sample. Unadjusted performance varied across the entire cohort of models over space and time. We saw consistent worsening performance during summer 2021, coinciding with emergence of the Delta variant. By model structure, we noted apparent improved performance between agent-based and judgement models compared to mechanistic and statistical approaches; and single-country models appeared to outperform multi-country models, particularly for death outcomes from spring 2022. However, model structure differed substantially between geographic target selection and across features of the epidemiological target, making crude unadjusted comparisons unreliable.</p>
+<p><strong>Effects of model structure</strong></p>
+<p>We fitted a generalised additive mixed model to give adjusted estimates of the partial effect of model structure, while controlling for varying forecaster target selection and epidemic dynamics between targets. In this structure, all partial effects are deviations from the grand mean WIS under sum-to-zero constraints, so a negative value indicates better-than-average performance. The WIS was highly right-skewed, and we used a log link to account for this (diagnostics in Supplementary Figures S2–S3). Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g.&nbsp;a partial effect of −0.1 corresponds to a ratio of 0.9, a WIS approximately 10% lower than average). We report both the partial effect and the exponentiated ratio (with 95% confidence intervals) in <span class="citation" data-cites="results-table2">@results-table2</span>.</p>
+<p>After adjustment for features of the forecast target, no single structural approach dominated: adjusted point estimates clustered around the grand mean, and their confidence intervals overlapped throughout, so we could not distinguish performance between model structures (<span class="citation" data-cites="results-table2">@results-table2</span>). The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean). We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (<a href="#fig-plot-coeffs" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Partial effects of model structure and geographic scope on forecast accuracy (weighted interval score, log scale), from univariate (unadjusted) and joint (adjusted) generalised additive mixed models. Effects are deviations from the grand mean under sum-to-zero constraints; negative values indicate better-than-average performance. The ratio is the exponentiated partial effect (point estimate and 95% CI), giving the multiplicative ratio relative to the grand-mean WIS on the log-incidence scale; a ratio of 1 indicates average performance and a ratio below 1 indicates better-than-average performance. 95% CI = 95% confidence interval.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Variable</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Group</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Unadjusted effect (95% CI)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Unadjusted ratio (95% CI)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Adjusted effect (95% CI)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Adjusted ratio (95% CI)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="5" style="text-align: left; vertical-align: top !important;">Method</td>
+<td style="text-align: left;">Agent-based</td>
+<td style="text-align: right;">-0.143 (-0.34, 0.054)</td>
+<td style="text-align: right;">0.87 (0.71, 1.06)</td>
+<td style="text-align: right;">0 (-0.002, 0.002)</td>
+<td style="text-align: right;">1 (1, 1)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Judgement</td>
+<td style="text-align: right;">-0.276 (-0.466, -0.086)</td>
+<td style="text-align: right;">0.76 (0.63, 0.92)</td>
+<td style="text-align: right;">0 (-0.002, 0.002)</td>
+<td style="text-align: right;">1 (1, 1)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mechanistic</td>
+<td style="text-align: right;">0.076 (-0.105, 0.256)</td>
+<td style="text-align: right;">1.08 (0.9, 1.29)</td>
+<td style="text-align: right;">0 (-0.002, 0.002)</td>
+<td style="text-align: right;">1 (1, 1)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Semi-mechanistic</td>
+<td style="text-align: right;">0.154 (-0.027, 0.334)</td>
+<td style="text-align: right;">1.17 (0.97, 1.4)</td>
+<td style="text-align: right;">0 (-0.002, 0.002)</td>
+<td style="text-align: right;">1 (1, 1)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Statistical</td>
+<td style="text-align: right;">0.19 (0.009, 0.37)</td>
+<td style="text-align: right;">1.21 (1.01, 1.45)</td>
+<td style="text-align: right;">0 (-0.002, 0.002)</td>
+<td style="text-align: right;">1 (1, 1)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-plot-coeffs" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-plot-coeffs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="manuscript_files/figure-html/fig-plot-coeffs-1.png" class="img-fluid figure-img" width="480">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-coeffs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Partial effect (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding. A lower WIS indicates better forecast performance; effects &lt;0 indicate better-than-average performance. Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Filled symbols: adjusted; open symbols: unadjusted. Partial effects and 95% confidence intervals estimated from a generalised additive mixed model. WIS = weighted interval score.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Other drivers of forecast performance</strong></p>
+<p>Among our selection of covariates, we found performance was more driven by the target epidemiological features than by forecaster model features (with full reporting in Supplement). These features were modelled jointly across both epidemiological targets, so each estimate is a single effect shared by case and death forecasts. Holding all other features constant, the most predictable forecast targets appeared during periods of stability in the epidemic curve, with better predictive performance relative to periods of increasing or decreasing trends (-0.7 (-1.39-(0))). Forecasting was more difficult during increasing trends (0.45 (-0.25-1.14)), compared to stable or decreasing periods.</p>
+<p>Predictability also varied between phases of variant dominance. We estimated better predictive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha: -0.32 (-0.5-(-0.13)); Delta: -0.19 (-0.38-(-0.01))). We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant: 0.28 (0.09-0.46)). Death forecasts achieved a lower WIS on the log-incidence scale than case forecasts, as a fixed contrast holding all other features constant (-1.32 (-1.33-(-1.3))).</p>
+<p>We identified residual confounding, with substantial unexplained variation between individual model performance. <a href="#fig-plot-models" class="quarto-xref">Figure&nbsp;3</a> shows the adjusted partial effect for each individual model. This can be interpreted as variation in model-specific performance after accounting for all other factors considered here. This indicated that the variables we selected to account for variation between forecasters (i.e.&nbsp;model structure; one or multiple geographic targets) were not sufficient to fully explain differences in performance.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-plot-models" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-plot-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="manuscript_files/figure-html/fig-plot-models-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Estimated partial effect size (95% CI) by individual model. Adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location. Colour: model structure. Shape: geographic scope (circle = single-country, triangle = multi-country). Remaining variation represents unexplained heterogeneity.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Sensitivity analysis</strong></p>
+<p>We repeated this analysis to look at performance on the natural scale (rather than log-transformed predictions and observations), presented in the Supplement. In developing this work, we considered several alternative model specifications. We selected an initial set of variables a priori, and changed this selection after updating our view of confounding factors, for example including an effect for dominant variant phase. We indicate these choices in the Supplement. Regardless of a priori variable selection, we did not find any meaningful change in partial effect sizes among alternate model specifications. Refitting with an identity link in place of the log link also left all partial effects unchanged to two decimal places.</p>
+</section>
+<section id="discussion" class="level3">
+<h3 class="anchored" data-anchor-id="discussion">Discussion</h3>
+<div class="callout callout-style-default callout-caution callout-titled" title="TODO">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+TODO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">note should/could use proportional methods from survival analysis</label></li>
+</ul>
+</div>
+</div>
+</div>
+<p>In this work, we aimed to assess the influence of methodological structure on the accuracy of infectious disease forecasts. We developed a model-based approach to adjust for the key sources of variation in predictive difficulty, estimating the adjusted partial association between model structure and performance. We applied this to a multi-country multi-model forecasting effort conducted during the COVID-19 pandemic, in order to assess the influence of models’ structure and target strategy on forecast accuracy.</p>
+<p>After adjustment for factors inherent to the forecast target, no single structural approach dominated: adjusted estimates clustered around the average with overlapping confidence intervals, so we could not distinguish performance between model structures, though substantial variation in individual model performance remained unexplained. We suggest that accounting for variance in epidemiological characteristics across forecast targets is necessary for drawing meaningful comparisons across predictive models.</p>
+<p>However, we only partially accounted for variation among forecast targets. For example, we noted that real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems <a href="https://www.zotero.org/google-docs/?c33gx9">(11)</a>. <!--- Add: 1–2 sentences on what residual confounders remain — e.g. within-country heterogeneity not captured by location effects; variant phase as a crude proxy for outbreak regime. ---></p>
+<p>A key limitation of this work was its limited power to detect potential differences in performance between model structures or target specificity. While we used a large dataset of forecasts over time, we had a relatively small sample size of independent models and little metadata with which to classify model structures. For example, only 3 agent-based models, where all three represented here targeted a single country. Future work could approach this by combining data from across multiple similar Hub projects and a more detailed assessment of the characteristics of the model cohort.</p>
+<p>Further, the Hub relied on an opportunistic cohort of models from voluntary contributions. This meant our results could be biased by unobserved characteristics that differentially affected participation, such as the resource intensity of model development. One source of unmeasured confounding in this setting is the latent capacity of a forecasting team to incorporate domain expertise, which may drive both the choice of model structure and the achievable forecast accuracy. In addition, we did not track changes to each model’s individual methods over time, or account for this in our analysis. We did not see clear patterns in how models changed their selection of country targets by type of model. This helped to mitigate our concern that using a binary classification for one or multiple targets was overly crude. A more systematic sample of models would support a deeper investigation of factors driving model performance. <!--- Add: sentence on generalisability — findings based on COVID-19 forecasting in Europe; applicability to other pathogens, forecast settings, or hub structures is uncertain. ---></p>
+<p>There are likely many interactions between the effects explored here as well as residual confounding. For example, a modeller’s choice of model structure may interact with their chosen number of targets, as in agent-based models. Notably, different model structures may be more or less well equipped to predict at each interval of the one to four week forecast horizon. For example, models incorporating underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics. Explicitly accounting for such interactions could be a useful insight from future work.</p>
+<p>Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies. Previous work has also failed to differentiate performance among model structures, across a variety of outbreaks and epidemic dynamics <a href="https://www.zotero.org/google-docs/?4Vrj6C">(4–6)</a>. Some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches <a href="https://www.zotero.org/google-docs/?pn8kMa">(17,18,26)</a>. However, we also noted that the more mechanistic models in our study produced a wide range of predictive performance. This may reflect a greater range of flexibility to incorporate forecaster experience <a href="https://www.zotero.org/google-docs/?tYe1Rg">(18)</a>, and understanding of the data generating processes that lead the forecast target <a href="https://www.zotero.org/google-docs/?2rqVL1">(28)</a>: for example, country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes. While not considered here, we note the widely replicated finding that ensemble combinations across multiple models often produces the most reliable predictive performance (e.g.&nbsp;<a href="https://www.zotero.org/google-docs/?EMHzzA">(12,15,27)</a>).</p>
+<p>Unlike past work, our conclusions are based on assessing performance using forecasts on a log scale, rather than the natural scale of observed data. We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak <a href="https://www.zotero.org/google-docs/?bNboAJ">(23)</a>. In particular, we saw reduced variability among the scores of semi-mechanistic models on the log scale, compared to the natural scale.</p>
+<p>In doing so we prioritised relative assessment of the growth rate over absolute counts, and our conclusions may not hold under other scoring rules. Modelling the interval score with a Gaussian error model and log-link also made effects multiplicative, rendering estimates unsuitable for directly ranking individual models. These choices point to the importance of explicitly identifying the assumptions that underlie the method of forecast evaluation.</p>
+<p>Alternatively, we could target the target-generating process as the outcome under evaluation. This would mean building evaluation metrics that express a mechanistic understanding of how different processes contribute to creating the single target timeseries. This would enable us to identify the accuracy of different models in capturing causal epidemic processes, rather than artefacts of the epidemic setting <a href="https://www.zotero.org/google-docs/?c33gx9">(11)</a>. Different assumptions within the evaluation metric may be useful for different purposes, which suggests developing a more diverse portfolio approach to evaluation methods. Relatedly, any aggregation of forecasts over time contains the autocorrelation of the timeseries; as infectious disease timeseries are inherently highly autocorrelated, such aggregation will by default favour statistical model structures based on estimating this component.</p>
+<p>With increasing forecasting datasets subject to evaluation, random error decreases but bias remains. The analysis presented here is exploratory, aimed at describing variation in forecast performance across model structures once the most consequential sources of confounding are accounted for. However, subsequent analysis could target the causal estimand: pre-specifying a directed acyclic graph to derive a minimal sufficient adjustment set of covariates, and reporting a quantitative bias analysis (such as an E-value) for unmeasured confounding.</p>
+<p>Accounting for confounding in this way is analogous to constraining evaluation above a lower bound of common forecast error. This can also be achieved by using evaluation relative to the performance of a baseline forecaster. However, it is unclear which among multiple possible baselines are appropriate for infectious disease forecasting <span class="citation" data-cites="stapper">[@stapper, kaitlyn]</span>. The selection of baseline model still faces the question of whether to capture features that represent the target-generating process. In this work, we make this process of model selection explicit by directly including these forecast target features in a single joint estimation of performance score.</p>
+<p>Comparisons like the one we have conducted here support a more informed view of the role of modelling in pandemic preparedness and response. Ultimately, improving surveillance data quality or target understanding may yield more performance gains than advancing specific modelling techniques.</p>
+<p>Further model comparison projects should enable this by encouraging methodological diversity among participants, and ensuring that detailed structured information on model metadata (such as methodology and model revisions) is collated alongside numerical predictions. We would particularly encourage studies that can assess the amount of local context that modellers use in creating or adapting their forecast model, and similarly whether performance scales with efforts to continually revise models, incorporate domain knowledge, or evaluate model performance in the real-time forecasting process. Future performance evaluations should combine information from multiple collaborative efforts and ultimately lead to a convergence of recommendations for which models to use when making epidemiological forecasts in an epidemic or pandemic.</p>
+<p>By accounting for forecast target difficulty, we adjust for the lower bound of error set by the forecast target itself, and estimate the realistic room for improvement from improving forecasting methods. To estimate the effect of changing model structure alone, we then further adjusted for forecaster selectiveness among geographic targets. We then found that no single structural approach dominates. In this study we contributed to better understanding the drivers of predictive performance among forecasting models, and highlighted the importance of appropriately adjusting for the general predictive difficulty of the forecast target.</p>
+</section>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<div class="callout callout-style-default callout-caution callout-titled" title="TODO">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+TODO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">sync with google doc zotero to bib file</label></li>
+</ul>
+</div>
+</div>
+</div>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">1. Woolhouse M. How to make predictions about future infectious disease risks. Philos Trans R Soc B Biol Sci. 2011 Jul 12;366(1573):2045–54.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">2. Dattner I, Huppert A. Modern statistical tools for inference and prediction of infectious diseases using mathematical models. Stat Methods Med Res. 2018 Jul 1;27(7):1927–9.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">3. Funk S, King AA. Choices and trade-offs in inference with infectious disease models. Epidemics. 2020 Mar 1;30:100383.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">4. Carlson CJ, Dougherty E, Boots M, Getz W, Ryan SJ. Consensus and conflict among ecological forecasts of Zika virus outbreaks in the United States. Sci Rep.&nbsp;2018 Mar 21;8(1):4921.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">5. Viboud C, Sun K, Gaffey R, Ajelli M, Fumanelli L, Merler S, et al.&nbsp;The RAPIDD ebola forecasting challenge: Synthesis and lessons learnt. Epidemics. 2018 Mar 1;22:13–21.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">6. Reich NG, Brooks LC, Fox SJ, Kandula S, McGowan CJ, Moore E, et al.&nbsp;A collaborative multiyear, multimodel assessment of seasonal influenza forecasting in the United States. Proc Natl Acad Sci. 2019 Feb 19;116(8):3146–54.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">7. Becker AD, Grantz KH, Hegde ST, Bérubé S, Cummings DAT, Wesolowski A. Development and dissemination of infectious disease dynamic transmission models during the COVID-19 pandemic: what can we learn from other pathogens and how can we move forward? Lancet Digit Health. 2021 Jan;3(1):e41–50.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">8. Clapham H, Gad M, Gheorghe A, Hutubessy R, Megiddo I, Painter C, et al.&nbsp;Assessing fitness-for-purpose and comparing the suitability of COVID-19 multi-country models for local contexts and users [Internet]. Gates Open Research; 2021 [cited 2022 Dec 12]. Available from: https://gatesopenresearch.org/articles/5-79</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">9. Bracher J, Wolffram D, Deuschel J, Görgen K, Ketterer JL, Ullrich A, et al.&nbsp;National and subnational short-term forecasting of COVID-19 in Germany and Poland during early 2021. Commun Med. 2022 Oct 31;2(1):1–17.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">10. Pollett S, Johansson M, Biggerstaff M, Morton LC, Bazaco SL, Brett Major DM, et al.&nbsp;Identification and evaluation of epidemic prediction and forecasting reporting guidelines: A systematic review and a call for action. Epidemics. 2020 Dec 1;33:100400.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">11. Holcomb KM, Mathis S, Staples JE, Fischer M, Barker CM, Beard CB, et al.&nbsp;Evaluation of an open forecasting challenge to assess skill of West Nile virus neuroinvasive disease prediction. Parasit Vectors. 2023 Jan 12;16(1):11.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">12. Sherratt K, Gruson H, Grah R, Johnson H, Niehus R, Prasse B, et al.&nbsp;Predictive performance of multi-model ensemble forecasts of COVID-19 across European nations. Wesolowski A, Ferguson NM, Shaman JL, Pei S, editors. eLife. 2023 Apr 21;12:e81916.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">13. Reich NG, Lessler J, Funk S, Viboud C, Vespignani A, Tibshirani RJ, et al.&nbsp;Collaborative Hubs: Making the Most of Predictive Epidemic Modeling. Am J Public Health. 2022 Jun;112(6):839–42.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">14. Scarpino SV, Petri G. On the predictability of infectious disease outbreaks. Nat Commun. 2019 Feb 22;10(1):898.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">15. Cramer EY, Ray EL, Lopez VK, Bracher J, Brennen A, Castro Rivadeneira AJ, et al.&nbsp;Evaluation of individual and ensemble probabilistic forecasts of COVID-19 mortality in the United States. Proc Natl Acad Sci. 2022 Apr 12;119(15):e2113561119.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">16. Lopez VK, Cramer EY, Pagano R, Drake JM, O’Dea EB, Adee M, et al.&nbsp;Challenges of COVID-19 Case Forecasting in the US, 2020–2021. PLOS Comput Biol. 2024 May 6;20(5):e1011200.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">17. Del Valle SY, McMahon BH, Asher J, Hatchett R, Lega JC, Brown HE, et al.&nbsp;Summary results of the 2014-2015 DARPA Chikungunya challenge. BMC Infect Dis. 2018 May 30;18(1):245.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">18. McGowan CJ, Biggerstaff M, Johansson M, Apfeldorf KM, Ben-Nun M, Brooks L, et al.&nbsp;Collaborative efforts to forecast seasonal influenza in the United States, 2015–2016. Sci Rep.&nbsp;2019 Jan 24;9(1):683.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">19. European Covid-19 Forecast Hub [Internet]. [cited 2021 Sep 1]. Available from: https://covid19forecasthub.eu/index.html</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">20. Dong E, Du H, Gardner L. An interactive web-based dashboard to track COVID-19 in real time. Lancet Infect Dis. 2020 May 1;20(5):533–4.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">21. Bracher J, Ray EL, Gneiting T, Reich NG. Evaluating epidemic forecasts in an interval format. PLOS Comput Biol. 2021 Feb 12;17(2):e1008618.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">22. Bosse NI, Gruson H, Cori A, van Leeuwen E, Funk S, Abbott S. Evaluating Forecasts with scoringutils in R [Internet]. arXiv; 2022 [cited 2024 May 1]. Available from: http://arxiv.org/abs/2205.07090</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">23. Bosse NI, Abbott S, Cori A, Leeuwen E van, Bracher J, Funk S. Scoring epidemiological forecasts on transformed scales. PLOS Comput Biol. 2023 Aug 29;19(8):e1011393.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">24. Wood SN. Fast Stable Restricted Maximum Likelihood and Marginal Likelihood Estimation of Semiparametric Generalized Linear Models. J R Stat Soc Ser B Stat Methodol. 2011 Jan 1;73(1):3–36.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">25. Sherratt K, Funk S. epiforecasts/eval-by-method: v0.1.0 [Internet]. Zenodo; 2025. Available from: https://doi.org/10.5281/zenodo.14903162</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">26. Johansson MA, Apfeldorf KM, Dobson S, Devita J, Buczak AL, Baugher B, et al.&nbsp;An open challenge to advance probabilistic forecasting for dengue epidemics. Proc Natl Acad Sci. 2019 Nov 26;116(48):24268–74.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">27. Reich NG, McGowan CJ, Yamana TK, Tushar A, Ray EL, Osthus D, et al.&nbsp;Accuracy of real-time multi-model ensemble forecasts for seasonal influenza in the U.S. PLoS Comput Biol. 2019 Nov;15(11):e1007486.</a></p>
+<p><a href="https://www.zotero.org/google-docs/?7SKDbN">28. Wolffram D, Abbott S, Heiden M an der, Funk S, Günther F, Hailer D, et al.&nbsp;Collaborative nowcasting of COVID-19 hospitalization incidences in Germany. PLOS Comput Biol. 2023 Aug 11;19(8):e1011394.</a></p>
+</section>
+<section id="supporting-information" class="level3">
+<h3 class="anchored" data-anchor-id="supporting-information">Supporting Information</h3>
+<p><strong>Supplementary Figure 1.</strong> Eligibility criteria for models contributing case and death forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023</p>
+<p><strong>Supplementary Table 1.</strong> Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed</p>
+<p><strong>Supplementary Figure 2.</strong> Epidemic trends (cases)</p>
+<p><strong>Supplementary Figure 3.</strong> Epidemic trends (deaths)</p>
+<p><strong>Supplementary Figure 4.</strong> Model diagnostics (cases)</p>
+<p><strong>Supplementary Figure 5.</strong> Model diagnostics (deaths)</p>
+</section>
+<section id="data-availability" class="level3">
+<h3 class="anchored" data-anchor-id="data-availability">Data availability</h3>
+<p>The codebase for this paper is publicly available at the Github repository “epiforecasts/eval-by-method” and Zenodo with DOI: 10.5281/zenodo.14903162. Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view online. All Hub data are now archived at the Github repository: “european-modelling-hubs/covid19-forecast-hub-europe_archive” and Zenodo with DOI: 10.5281/zenodo.13986751. Specific data used in this work are available in the Github repository for this paper.</p>
+</section>
+</section>
+<section id="supplement" class="level2">
+<h2 class="anchored" data-anchor-id="supplement">Supplement</h2>
+<div class="callout callout-style-default callout-caution callout-titled" title="TODO">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+TODO
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">check supplement includes natural scale results</label></li>
+<li><label><input type="checkbox">include univariate associations of all variables</label></li>
+</ul>
+</div>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="methods-1" class="level2">
+<h2 class="anchored" data-anchor-id="methods-1">Methods</h2>
+<section id="source-data-and-code" class="level3">
+<h3 class="anchored" data-anchor-id="source-data-and-code">Source data and code</h3>
+<p>Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <a href="https://covid19forecasthub.eu/" class="uri">https://covid19forecasthub.eu/</a> . All Hub data are now archived at:</p>
+<ul>
+<li>Github: <a href="https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive" class="uri">https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive</a></li>
+<li>Zenodo with DOI: <a href="https://doi.org/10.5281/zenodo.13986751" class="uri">https://doi.org/10.5281/zenodo.13986751</a></li>
+</ul>
+<p>Data for this work were downloaded on 30th May 2023. These data are available in the Github repository for this paper at: <a href="https://github.com/epiforecasts/eval-by-method/tree/main/data" class="uri">https://github.com/epiforecasts/eval-by-method/tree/main/data</a></p>
+<p>The codebase for this paper is publicly available at:</p>
+<ul>
+<li>Github: <a href="https://github.com/epiforecasts/eval-by-method" class="uri">https://github.com/epiforecasts/eval-by-method</a></li>
+<li>Zenodo with DOI: <a href="https://doi.org/10.5281/zenodo.14903162" class="uri">https://doi.org/10.5281/zenodo.14903162</a></li>
+</ul>
+<p>Comments and code contributions are welcome - please use Github <a href="https://github.com/epiforecasts/eval-by-method/issues">Issues</a>.</p>
+<p>Please cite code using:</p>
+<ul>
+<li>Katharine Sherratt &amp; Sebastian Funk. (2025). epiforecasts/eval-by-method: Zenodo. <a href="https://doi.org/10.5281/zenodo.14903162" class="uri">https://doi.org/10.5281/zenodo.14903162</a></li>
+</ul>
+</section>
+<section id="study-participation" class="level3">
+<h3 class="anchored" data-anchor-id="study-participation">Study participation</h3>
+<p>Forecasting teams were recruited to the European Covid-19 Forecast Hub using existing networks and ECDC publicity. Any forecaster was eligible to participate, and there were no selection criteria. All participation was voluntary and unrenumerated. Forecasters contributed a standard set of metadata describing their team and model, and uploaded forecasts weekly. Forecasters were optionally able to express uncertainty by reporting a distribution of up to 23 probabilistic quantiles for each prediction. Forecasts were validated against minimal formatting requirements for quantile intervals and that values were positive integers.</p>
+<p>For this study, we collected all forecasts from between 8 March 2021 to 10 March 2023. We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period. We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results. We also excluded baseline and ensemble models created by the Hub team.</p>
+<p>Characteristics of contributing models:</p>
+<p>Number of models participating in forecasting 1-week ahead case incidence for each country over the study period.</p>
+<p>We explored how models selected geographic targets over time. Forecasters both added and removed targets among the set for which they forecast each week. This figure shows number of targets submitted by each model at the 1-week ahead horizon. We noted the same variation for 2-4 week forecasts.</p>
+</section>
+<section id="model-structure-classification" class="level3">
+<h3 class="anchored" data-anchor-id="model-structure-classification">Model structure classification</h3>
+<p>Human raters classified models according to methodological structures.</p>
+<section id="epidemic-trend-identification" class="level4">
+<h4 class="anchored" data-anchor-id="epidemic-trend-identification">Epidemic trend identification</h4>
+<p>We categorised each week as “Stable”, “Decreasing”, or “Increasing”, based on the difference over a three-week moving average of incidence (with a change of +/-5% as “Stable”).</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="variant-phase-identification" class="level4">
+<h4 class="anchored" data-anchor-id="variant-phase-identification">Variant phase identification</h4>
+<p>Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland). Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB. For each country, we identified the first week in which each named variant exceeded 50% of sequenced samples. We enforced chronological ordering by removing any out-of-sequence phases, then expanded phase assignments to all weeks by filling forward and backward from observed transition dates. This per-location approach accounts for the fact that variant dominance dates differed substantially across European countries. Where genomic surveillance data were too sparse to identify a transition (Hungary), we supplemented with epidemiological reports to set the Alpha-to-Delta transition date.</p>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+<section id="model-building" class="level3">
+<h3 class="anchored" data-anchor-id="model-building">Model building</h3>
+<p>To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram. We emphasise that this work is exploratory rather than inferential, and we suggest substantial further work is needed to support inferential approaches to forecast evaluation.</p>
+<p>The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model). Adjustment gives the partial association between Method and log-WIS with these covariates held fixed at their observed values.</p>
+<p>We used the following model formula with the mgcv package in R 4.1.</p>
+<p>wis ~ Epi_target + s(Method, bs = “re”) + s(CountryTargets, bs = “re”) + s(Incidence) + s(Trend, bs = “re”) + s(Location, bs = “re”) + s(VariantPhase, bs = “re”) + s(Horizon, by = Model, k = 3, bs = “sz”) + s(Model, bs = “re”)</p>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+<section id="results-1" class="level2">
+<h2 class="anchored" data-anchor-id="results-1">Results</h2>
+<section id="model-diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="model-diagnostics">Model diagnostics</h3>
+<ol type="A">
+<li>Cases</li>
+</ol>
+<ol start="2" type="A">
+<li>Deaths</li>
+</ol>
+</section>
+<section id="partial-effects-across-covariates" class="level3">
+<h3 class="anchored" data-anchor-id="partial-effects-across-covariates">Partial effects across covariates</h3>
+<p>Partial effect on forecast performance of key covariates included in the fully adjusted model for (A) spatial and (B) temporal covariates. Partial effects of individual model structure and individual model are presented in main text. The full model included covariates for: model structure, individual model, number of countries targeted by a given model, the specific country target, the epidemic trend in the 3 weeks around the target, and the dominant variant at the time of the target.</p>
+<ol type="A">
+<li>Spatial covariates</li>
+</ol>
+<ol start="2" type="A">
+<li>Temporal covariates</li>
+</ol>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="results-on-the-natural-scale" class="level3">
+<h3 class="anchored" data-anchor-id="results-on-the-natural-scale">Results on the natural scale</h3>
+<p>We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

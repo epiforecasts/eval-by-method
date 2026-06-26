@@ -155,7 +155,7 @@ table_effects <- results$effects |>
          ratio_ci = paste0(round(exp(value), 2),
                            " (", round(exp(lower_2.5), 2), "-",
                            round(exp(upper_97.5), 2), ")"),
-         group = paste(epi_target, model, group, sep = "_")) |>
+         group = paste(model, group, sep = "_")) |>
   column_to_rownames("group")
 
 effects_comp <- results$effects |> 
@@ -195,13 +195,14 @@ plot_effects(results$effects, variables = c("Method"))
 **Other drivers of forecast performance**
 
 Among our selection of covariates, we found performance was more driven by the target epidemiological features than by forecaster model features (with full reporting in Supplement).
-Holding all other features constant, the most predictable forecast targets appeared during periods of stability in the epidemic curve, with better predictive performance relative to periods of increasing or decreasing trends (cases: `r table_effects["Cases_Adjusted_Stable","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Stable","value_ci"]`).
-Forecasting was more difficult during increasing trends for both cases (`r table_effects["Cases_Adjusted_Increasing","value_ci"]`) and deaths (`r table_effects["Deaths_Adjusted_Increasing","value_ci"]`), compared to stable or decreasing periods.
+These features were modelled jointly across both epidemiological targets, so each estimate is a single effect shared by case and death forecasts.
+Holding all other features constant, the most predictable forecast targets appeared during periods of stability in the epidemic curve, with better predictive performance relative to periods of increasing or decreasing trends (`r table_effects["Adjusted_Stable","value_ci"]`).
+Forecasting was more difficult during increasing trends (`r table_effects["Adjusted_Increasing","value_ci"]`), compared to stable or decreasing periods.
 
 Predictability also varied between phases of variant dominance.
-This influence was stronger for forecasts of case incidence than deaths, while direction of effects was similar.
-We estimated better predictive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha cases: `r table_effects["Cases_Adjusted_Alpha","value_ci"]`, deaths: `r table_effects["Deaths_Adjusted_Alpha","value_ci"]`; Delta cases: `r table_effects["Cases_Adjusted_Delta","value_ci"]`, deaths: `r table_effects["Deaths_Adjusted_Delta","value_ci"]`).
-We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant for cases: `r table_effects["Cases_Adjusted_Omicron-BA.1","value_ci"]`; deaths: `r table_effects["Deaths_Adjusted_Omicron-BA.1","value_ci"]`).
+We estimated better predictive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha: `r table_effects["Adjusted_Alpha","value_ci"]`; Delta: `r table_effects["Adjusted_Delta","value_ci"]`).
+We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant: `r table_effects["Adjusted_Omicron-BA.1","value_ci"]`).
+Death forecasts achieved a lower WIS on the log-incidence scale than case forecasts, as a fixed contrast holding all other features constant (`r table_effects["Adjusted_Deaths","value_ci"]`).
 
 We identified residual confounding, with substantial unexplained variation between individual model performance.
 @fig-plot-models shows the adjusted partial effect for each individual model.

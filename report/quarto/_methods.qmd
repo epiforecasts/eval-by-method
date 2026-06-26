@@ -35,7 +35,8 @@ The majority vote determined the final classification, with ties resolved by an 
 
 *Forecast target difficulty*
 
-We stratified all analysis by epidemiological target of incident cases or deaths.
+We included the epidemiological target (incident cases or deaths) as a fixed factor within a single model, rather than stratifying the analysis.
+With only two levels, a fixed factor gives one fully-identified, interpretable contrast (deaths versus cases on the log scale), whereas a random effect would require more levels to identify its variance.
 We then included a variety of covariates to account for forecast task difficulty.
 
 We first included forecast horizon to account for the increasing difficulty of forecasting further into the future.
@@ -54,18 +55,20 @@ We did not attempt to adjust for unobserved characteristics of the forecasting t
 
 **Analysis**
 
-We used a hierarchical model structure, fit separately for each epidemiological target (cases, deaths).
+We used a single hierarchical model structure fit across both epidemiological targets, with target included as a fixed factor.
 We treated the WIS of each forecast $i$ as Gaussian with a log link, so that the linear predictor $\eta_i$ acts multiplicatively on expected score:
 
 $$
 \mathrm{WIS}_i \sim \mathcal{N}(\mu_i,\, \sigma^2), \qquad \log \mu_i = \eta_i.
 $$
 
-The linear predictor decomposed into a fixed intercept, a sum of random-effect contributions from categorical covariates, and two smooth terms for continuous covariates:
+The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological target, a sum of random-effect contributions from categorical covariates, and two smooth terms for continuous covariates:
 
 $$
-\eta_i = \beta_0 \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+\eta_i = \beta_0 \;+\; \beta_{\text{target}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
 $$
+
+Here $\beta_{\text{target}}$ is a fixed parametric coefficient (cases as the reference level), giving the deaths-versus-cases contrast on the log scale; it is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$.
 
 Here $j_g(i)$ denotes the level of grouping factor $g$ observed for forecast $i$.
 We assume random effects are drawn independently from a zero-mean Gaussian with its own variance:
