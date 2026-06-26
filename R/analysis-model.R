@@ -22,12 +22,27 @@ library(gratia)
 library(ggplot2)
 source(here("R", "process-data.R"))
 
+# Shared joint-model RHS, reused by model_wis() and the log-response
+# sensitivity arm (model_wis_logresp() in R/sensitivity/model-logresp.R) so
+# both fit an identical specification.
+m.formula_joint <- wis ~
+  Epi_target +
+  s(Method, bs = "re") +
+  s(CountryTargets, bs = "re") +
+  s(Incidence) +
+  s(Trend, bs = "re") +
+  s(Location, bs = "re") +
+  s(VariantPhase, bs = "re") +
+  s(Horizon, by = Model, k = 3, bs = "sz") +
+  s(Model, bs = "re")
+
 model_wis <- function(scoring_scale = "log", family_link = "log",
  output_dir = "output") {
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-", Model)) |>
+    filter(!is.na(wis)) |> # drop unscored forecasts explicitly (bam would drop these silently)
     mutate(Epi_target = as.factor(epi_target))
 
   # Settings for log or natural scale
@@ -54,17 +69,7 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     model = wis ~ s(Model, bs = "re")
   )
 
-  # Full model
-  m.formula_joint <- wis ~
-    Epi_target +
-    s(Method, bs = "re") +
-    s(CountryTargets, bs = "re") +
-    s(Incidence) +
-    s(Trend, bs = "re") +
-    s(Location, bs = "re") +
-    s(VariantPhase, bs = "re") +
-    s(Horizon, by = Model, k = 3, bs = "sz") +
-    s(Model, bs = "re")
+  # Full model: shared RHS defined at file scope (see top of file)
 
   # --- Model fitting ---
   # Single fit over the full dataset; epi_target is a fixed factor inside the model
@@ -129,6 +134,16 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   )
 
   saveRDS(results, here(output_dir, "results.rds"))
+
+  # Observed vs fitted, for a model-fit diagnostic plot in the supplement.
+  # NAs are filtered upstream, so m.data rows align 1:1 with the fitted values.
+  stopifnot(nrow(m.data) == length(m.fits_joint$y))
+  fit_obs <- tibble::tibble(
+    observed = m.fits_joint$y,
+    fitted = fitted(m.fits_joint),
+    epi_target = m.data$epi_target
+  )
+  saveRDS(fit_obs, here(output_dir, "fit_obs.rds"))
 
   p <- appraise(m.fits_joint)
   ggsave(here(output_dir, "plots", "check_joint.pdf"), p)

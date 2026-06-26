@@ -64,6 +64,19 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
   return(plot)
 }
 
+plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
+  p <- ggplot(fit_obs, aes(observed, fitted)) +
+    geom_point(alpha = 0.1, size = 0.4) +
+    geom_abline(slope = 1, intercept = 0, lty = 2, colour = "red") +
+    labs(x = paste("Observed", scale_label), y = paste("Fitted", scale_label)) +
+    coord_equal() +
+    theme(strip.background = element_blank())
+  if ("epi_target" %in% names(fit_obs)) {
+    p <- p + facet_wrap(~epi_target, scales = "free")
+  }
+  return(p)
+}
+
 plot_effects <- function(random_effects,
                          variables = NULL) {
   if(is.null(variables)){variables <- unique(random_effects$group_var)}
