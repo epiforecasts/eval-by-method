@@ -27,8 +27,8 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
-    filter(!grepl("EuroCOVIDhub-", Model))
-  outcomes <- unique(m.data$epi_target)
+    filter(!grepl("EuroCOVIDhub-", Model)) |>
+    mutate(Epi_target = as.factor(epi_target))
 
   # Settings for log or natural scale
   if (scoring_scale == "log") {
@@ -37,13 +37,14 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
       mutate(Incidence = log(Incidence + 1))
     m.family <- gaussian(link = family_link)
   } else if (scoring_scale == "natural") {
-    m.family <- gamma(link = family_link)
+    m.family <- Gamma(link = family_link)
   }
 
   # --- Model formula ---
   # Univariate for each
   m.formulas_uni <- list(
     method = wis ~ s(Method, bs = "re"),
+    epi_target = wis ~ Epi_target,
     target = wis ~ s(CountryTargets, bs = "re"),
     incidence = wis ~ s(Incidence),
     trend = wis ~ s(Trend, bs = "re"),
@@ -55,6 +56,7 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
 
   # Full model
   m.formula_joint <- wis ~
+    Epi_target +
     s(Method, bs = "re") +
     s(CountryTargets, bs = "re") +
     s(Incidence) +
@@ -65,47 +67,61 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     s(Model, bs = "re")
 
   # --- Model fitting ---
-  # Set up to fit to each outcome target (cases, deaths)
-  m.fit <- function(outcomes, m.formula) {
-    outcomes |>
-      set_names() |>
-      map(\(outcome) {
-        bam(
-          formula = m.formula,
-          data = m.data |> filter(epi_target == outcome),
-          family = m.family,
-          method = "fREML",
-          control = gam.control(trace = TRUE),
-          discrete = TRUE
-        )
-      })
+  # Single fit over the full dataset; epi_target is a fixed factor inside the model
+  m.fit <- function(m.formula) {
+    bam(
+      formula = m.formula,
+      data = m.data,
+      family = m.family,
+      method = "fREML",
+      control = gam.control(trace = TRUE),
+      discrete = TRUE
+    )
   }
   # Fit
   message("--------fitting univariate models")
-  m.fits_uni <- map(m.formulas_uni, ~ m.fit(outcomes, .x))
+  m.fits_uni <- map(m.formulas_uni, m.fit)
 
   message("--------fitting joint model")
-  m.fits_joint <- m.fit(outcomes, m.formula_joint)
+  m.fits_joint <- m.fit(m.formula_joint)
 
   # --- Output handling ---
-  # Extract estimates for random effects
-  random_effects_uni <- m.fits_uni[!grepl("horizon|incidence", names(m.fits_uni))] |>
-    map_depth(.depth = 2, ~ extract_ranef(.x)) |>
-    map(~ list_rbind(.x, names_to = "epi_target")) |>
-    list_rbind() |>
-    mutate(model = "Unadjusted")
+  # Epi_target is a fixed parametric term, so it is NOT returned by extract_ranef.
+  # Pull the Deaths-vs-Cases contrast from the parametric table and shape it to
+  # match the random-effects columns, so downstream plotting/tables treat it as a
+  # pseudo group_var = "Epi_target".
+  extract_target_effect <- function(fit, model_label) {
+    fe <- gammit::extract_fixed(fit)
+    ci_cols <- grep("^lower_|^upper_", names(fe), value = TRUE)
+    fe |>
+      filter(term == "Epi_targetDeaths") |>
+      transmute(
+        group_var = "Epi_target",
+        group = "Deaths",
+        value, se,
+        lower_2.5 = .data[[ci_cols[grepl("^lower", ci_cols)]]],
+        upper_97.5 = .data[[ci_cols[grepl("^upper", ci_cols)]]],
+        model = model_label
+      )
+  }
 
-  random_effects_joint <- map_df(m.fits_joint,
-                                 extract_ranef,
-                                 .id = "epi_target") |>
-    mutate(model = "Adjusted")
+  # Univariate random effects (exclude smooth-only and the fixed target fit)
+  random_effects_uni <- m.fits_uni[!grepl("horizon|incidence|epi_target", names(m.fits_uni))] |>
+    map(extract_ranef) |>
+    list_rbind() |>
+    mutate(model = "Unadjusted") |>
+    bind_rows(extract_target_effect(m.fits_uni$epi_target, "Unadjusted"))
+
+  random_effects_joint <- extract_ranef(m.fits_joint) |>
+    mutate(model = "Adjusted") |>
+    bind_rows(extract_target_effect(m.fits_joint, "Adjusted"))
 
   random_effects <- random_effects_joint |>
     bind_rows(random_effects_uni)
 
   # Extract model checks
-  checks <- map(m.fits_joint, k.check)
-  formula <- m.fits_joint[[1]]$formula
+  checks <- k.check(m.fits_joint)
+  formula <- m.fits_joint$formula
   results <- list(
     effects = random_effects,
     checks = checks,
@@ -114,8 +130,6 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
 
   saveRDS(results, here(output_dir, "results.rds"))
 
-  iwalk(m.fits_joint, \(x, target) {
-    p <- appraise(x)
-    ggsave(here(output_dir, "plots", paste0("check_", target, ".pdf")), p)
-  })
+  p <- appraise(m.fits_joint)
+  ggsave(here(output_dir, "plots", "check_joint.pdf"), p)
 }

@@ -216,22 +216,21 @@ print_table2 <- function(effects) {
         " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"
       )
     ) |>
-    select(epi_target, group_var, group, model, ci_text, ratio) |>
+    select(group_var, group, model, ci_text, ratio) |>
     pivot_wider(
       names_from = model,
       values_from = c(ci_text, ratio)
     ) |>
-    arrange(epi_target, group_var, group) |>
+    arrange(group_var, group) |>
     mutate(
       group_var = factor(group_var)
     ) |>
     select(
-      epi_target, group_var, group,
+      group_var, group,
       ci_text_Unadjusted, ratio_Unadjusted,
       ci_text_Adjusted, ratio_Adjusted
     ) |>
     rename(
-      "Outcome" = epi_target,
       "Variable" = group_var,
       "Group" = group,
       "Unadjusted effect (95% CI)" = ci_text_Unadjusted,
@@ -252,8 +251,8 @@ print_table2 <- function(effects) {
         "below 1 indicates better-than-average performance. ",
         "95% CI = 95% confidence interval."
       ),
-      align = c("l", "l", "l", "r", "r", "r", "r")
+      align = c("l", "l", "r", "r", "r", "r")
     ) |>
-    collapse_rows(columns = 1:2, valign = "top") |>
+    collapse_rows(columns = 1, valign = "top") |>
       kable_styling(full_width = FALSE)
 }
