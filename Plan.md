@@ -2,6 +2,27 @@
 
 Running log of analysis and manuscript changes. Newest first.
 
+## 2026-06-27 — Main text reports exp() ratios only; raw log effects → supplement
+
+**Problem:** main-text figures, Table 2, and prose reported partial effects on both
+the raw log-WIS scale and the exponentiated ratio scale side-by-side. The raw
+log-scale coefficients are uninterpretable to an epi audience; the multiplicative
+ratio (1 = grand-mean WIS) is the natural quantity and matches RR/IRR conventions.
+
+**Changes:**
+- `R/plot-model-results.R`: `plot_effects()` and `plot_models()` now plot
+  `exp(value)` with `exp()` CI bounds, reference line at 1.0 (was 0), `scale_y_log10()`,
+  and axis label "Performance ratio (vs average model)". Smooth terms (Incidence,
+  Horizon) were already excluded from these plots, so no wiggly-curve issue.
+- `R/analysis-descriptive.R` (`print_table2`): dropped the two raw `ci_text` columns;
+  table now shows only Unadjusted/Adjusted ratio columns. Caption reworded to ratio
+  framing (below 1 = better than average) and points to the Supplement for raw effects.
+- `report/quarto/_results.qmd`: inline Trend/Variant/Deaths stats switched from
+  `value_ci` → `ratio_ci` (already computed); Fig 2/3 captions and the methods
+  interpretation paragraph reworded for ratios.
+- `report/quarto/supplement/_supplement.qmd`: added a raw log-scale coefficient table
+  (`supplement-raw-coefficients`) so the dropped main-text numbers remain available.
+
 ## 2026-06-27 — Model-fit diagnostics + log-response sensitivity arm
 
 Commit `3cef9db` (and `21695b9` for the prerequisite include fix).
@@ -9,7 +30,7 @@ Commit `3cef9db` (and `21695b9` for the prerequisite include fix).
 **Problem:** the primary GAMM uses `gaussian(link = "log")` on the raw WIS. A log
 *link* models the score mean multiplicatively but assumes Gaussian errors on the raw,
 right-skewed score scale, so observation-level residuals were heavily skewed (skew
-≈ 5.5, kurtosis ≈ 62) and the supplement QQ plot looked "wild".
+≈ 5.5, kurtosis ≈ 62).
 
 **Changes:**
 - `R/analysis-model.R`: explicit `filter(!is.na(wis))` in preprocessing (`bam` was

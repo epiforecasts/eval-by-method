@@ -172,7 +172,7 @@ We fitted a generalised additive mixed model to give adjusted estimates of the p
 In this structure, all partial effects are deviations from the grand mean WIS under sum-to-zero constraints, so a negative value indicates better-than-average performance.
 The WIS was highly right-skewed, and we used a log link to account for this (diagnostics in Supplementary Figures S2–S3). The log link models the score multiplicatively but leaves some skew in the residuals; a sensitivity analysis modelling the log-transformed score directly substantially improves the residual distribution while preserving the direction of all effects and leaving the model-structure conclusions unchanged (Supplement).
 Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
-We report both the partial effect and the exponentiated ratio (with 95% confidence intervals) in @results-table2.
+We report the exponentiated ratio (with 95% confidence intervals) in the main text (@results-table2); the raw partial effects on the log scale are given in the Supplement.
 
 After adjustment for features of the forecast target, no single structural approach dominated: adjusted point estimates clustered around the grand mean, and their confidence intervals overlapped throughout, so we could not distinguish performance between model structures (@results-table2).
 The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean).
@@ -185,7 +185,7 @@ print_table2(results$effects)
 ```
 ```{r}
 #| label: fig-plot-coeffs
-#| fig-cap: "Partial effect (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding. A lower WIS indicates better forecast performance; effects <0 indicate better-than-average performance. Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Filled symbols: adjusted; open symbols: unadjusted. Partial effects and 95% confidence intervals estimated from a generalised additive mixed model. WIS = weighted interval score."
+#| fig-cap: "Performance ratio (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding. The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance. Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Filled symbols: adjusted; open symbols: unadjusted. Ratios and 95% confidence intervals estimated from a generalised additive mixed model. WIS = weighted interval score."
 #| fig-height: 3
 #| fig-width: 5
 
@@ -196,13 +196,13 @@ plot_effects(results$effects, variables = c("Method"))
 
 Among our selection of covariates, we found performance was more driven by the target epidemiological features than by forecaster model features (with full reporting in Supplement).
 These features were modelled jointly across both epidemiological targets, so each estimate is a single effect shared by case and death forecasts.
-Holding all other features constant, the most predictable forecast targets appeared during periods of stability in the epidemic curve, with better predictive performance relative to periods of increasing or decreasing trends (`r table_effects["Adjusted_Stable","value_ci"]`).
-Forecasting was more difficult during increasing trends (`r table_effects["Adjusted_Increasing","value_ci"]`), compared to stable or decreasing periods.
+Holding all other features constant, the most predictable forecast targets appeared during periods of stability in the epidemic curve, with better predictive performance relative to periods of increasing or decreasing trends (ratio `r table_effects["Adjusted_Stable","ratio_ci"]`).
+Forecasting was more difficult during increasing trends (ratio `r table_effects["Adjusted_Increasing","ratio_ci"]`), compared to stable or decreasing periods.
 
 Predictability also varied between phases of variant dominance.
-We estimated better predictive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha: `r table_effects["Adjusted_Alpha","value_ci"]`; Delta: `r table_effects["Adjusted_Delta","value_ci"]`).
-We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant: `r table_effects["Adjusted_Omicron-BA.1","value_ci"]`).
-Death forecasts achieved a lower WIS on the log-incidence scale than case forecasts, as a fixed contrast holding all other features constant (`r table_effects["Adjusted_Deaths","value_ci"]`).
+We estimated better predictive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha ratio: `r table_effects["Adjusted_Alpha","ratio_ci"]`; Delta ratio: `r table_effects["Adjusted_Delta","ratio_ci"]`).
+We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant, ratio: `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`).
+Death forecasts achieved a lower WIS on the log-incidence scale than case forecasts, as a fixed contrast holding all other features constant (ratio: `r table_effects["Adjusted_Deaths","ratio_ci"]`).
 
 We identified residual confounding, with substantial unexplained variation between individual model performance.
 @fig-plot-models shows the adjusted partial effect for each individual model.
@@ -211,7 +211,7 @@ This indicated that the variables we selected to account for variation between f
 
 ```{r}
 #| label: fig-plot-models
-#| fig-cap: "Estimated partial effect size (95% CI) by individual model. Adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location. Colour: model structure. Shape: geographic scope (circle = single-country, triangle = multi-country). Remaining variation represents unexplained heterogeneity."
+#| fig-cap: "Estimated performance ratio (95% CI) by individual model. The ratio is the exponentiated partial effect relative to the grand-mean WIS, where a ratio below 1 indicates better-than-average performance. Adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location. Colour: model structure. Shape: geographic scope (circle = single-country, triangle = multi-country). Remaining variation represents unexplained heterogeneity."
 #| fig-height: 8
 #| fig-width: 10
 

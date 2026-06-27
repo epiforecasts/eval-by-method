@@ -37,12 +37,14 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
       ) |>
       ggplot(aes(x = .data[[group_var]], col = classification,
                  shape = CountryTargets, lty = Model)) +
-      geom_point(aes(y = value),
+      geom_point(aes(y = exp(value)),
                  position = position_dodge(width=1)) +
-      geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5),
+      geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5)),
                      position = position_dodge(width=1)) +
-      geom_hline(yintercept = 0, lty = 2) +
-      labs(y = "Partial effect on log WIS", x = "", colour = NULL, shape = NULL) +
+      geom_hline(yintercept = 1, lty = 2) +
+      labs(y = "Performance ratio (vs average model)", x = "",
+           colour = NULL, shape = NULL) +
+      scale_y_log10() +
       scale_shape_manual(
         values = c("Single-country" = 16, "Multi-country" = 17),
         drop = FALSE
@@ -90,13 +92,14 @@ plot_effects <- function(random_effects,
            Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
     ggplot(aes(x = group, col = group_var,
                lty = Model, shape = Model)) +
-    geom_point(aes(y = value),
+    geom_point(aes(y = exp(value)),
                position = position_dodge(width=1)) +
-    geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5,),
+    geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5),),
                    position = position_dodge(width=1)) +
-    geom_hline(yintercept = 0, lty = 2, alpha = 0.25) +
+    geom_hline(yintercept = 1, lty = 2, alpha = 0.25) +
+    scale_y_log10() +
     scale_shape_manual(values = c("Adjusted" = 16, "Unadjusted" = 1)) +
-    labs(y = "Partial effect (log WIS scale)", x = NULL, colour = NULL) +
+    labs(y = "Performance ratio (vs average model)", x = NULL, colour = NULL) +
     scale_colour_brewer(type = "qual", palette = "Set1",
                         guide = "none") +
     theme(

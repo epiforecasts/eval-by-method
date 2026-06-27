@@ -340,8 +340,40 @@ plot_effects(results$effects,
 ```{r}
 #| label: supplement-plot-temporal-effects
 
-plot_effects(results$effects, 
+plot_effects(results$effects,
                      variables = c("Trend", "VariantPhase"))
+```
+
+(C) Raw partial effects on the log scale
+
+The main-text figures and tables report exponentiated effects (multiplicative ratios relative to the grand-mean WIS).
+For reference and reproducibility, the table below gives the underlying raw partial effects on the log-WIS scale, with 95% confidence intervals, from the fully adjusted joint model.
+Negative values indicate better-than-average performance; effects are deviations from the grand mean under a sum-to-zero constraint.
+
+```{r}
+#| label: supplement-raw-coefficients
+
+results$effects |>
+  filter(model == "Adjusted") |>
+  transmute(
+    Variable = group_var,
+    Group = group,
+    `Partial effect (95% CI), log scale` = paste0(
+      round(value, 3),
+      " (", round(lower_2.5, 3), ", ", round(upper_97.5, 3), ")"
+    )
+  ) |>
+  arrange(Variable, Group) |>
+  kable(
+    caption = paste0(
+      "Raw partial effects on the log-WIS scale from the fully adjusted joint ",
+      "generalised additive mixed model. Negative values indicate ",
+      "better-than-average performance. 95% CI = 95% confidence interval."
+    ),
+    align = c("l", "l", "r")
+  ) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  kable_styling(full_width = FALSE)
 ```
 
 \newpage

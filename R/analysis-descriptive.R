@@ -199,27 +199,22 @@ print_table1 <- function(scores) {
     add_header_above(headers_to_add)
 }
 
-# Table 2: unadjusted vs adjusted effects (main result) --------------------
-print_table2 <- function(effects) {
+# Table 2: unadjusted vs adjusted effects --------------------
+print_table2 <- function(effects, show_ratio = TRUE) {
   effects |>
     filter(group_var %in% c("Method")) |>
     mutate(
-      ci_text = paste0(
-        round(value, 3),
-        " (", round(lower_2.5, 3), ", ", round(upper_97.5, 3), ")"
-      ),
       # Exponentiate point estimate and both CI bounds: multiplicative ratio
-      # relative to the grand-mean WIS. exp() is monotonic, so applying it to the
-      # symmetric link-scale interval gives a valid ratio interval.
+      # relative to the grand-mean WIS
       ratio = paste0(
         round(exp(value), 2),
         " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"
       )
     ) |>
-    select(group_var, group, model, ci_text, ratio) |>
+    select(group_var, group, model, ratio) |>
     pivot_wider(
       names_from = model,
-      values_from = c(ci_text, ratio)
+      values_from = ratio
     ) |>
     arrange(group_var, group) |>
     mutate(
@@ -227,31 +222,26 @@ print_table2 <- function(effects) {
     ) |>
     select(
       group_var, group,
-      ci_text_Unadjusted, ratio_Unadjusted,
-      ci_text_Adjusted, ratio_Adjusted
+      Unadjusted, Adjusted
     ) |>
     rename(
       "Variable" = group_var,
       "Group" = group,
-      "Unadjusted effect (95% CI)" = ci_text_Unadjusted,
-      "Unadjusted ratio (95% CI)" = ratio_Unadjusted,
-      "Adjusted effect (95% CI)" = ci_text_Adjusted,
-      "Adjusted ratio (95% CI)" = ratio_Adjusted
+      "Unadjusted ratio (95% CI)" = Unadjusted,
+      "Adjusted ratio (95% CI)" = Adjusted
     ) |>
     kable(
       caption = paste0(
-        "Partial effects of model structure and geographic scope on forecast accuracy ",
-        "(weighted interval score, log scale), ",
-        "from univariate (unadjusted) and joint (adjusted) generalised additive mixed models. ",
-        "Effects are deviations from the grand mean under sum-to-zero constraints; ",
-        "negative values indicate better-than-average performance. ",
-        "The ratio is the exponentiated partial effect (point estimate and ",
-        "95% CI), giving the multiplicative ratio relative to the grand-mean WIS on the ",
-        "log-incidence scale; a ratio of 1 indicates average performance and a ratio ",
-        "below 1 indicates better-than-average performance. ",
+        "Partial effects of model structure on the performance of COVID-19 forecasts ",
+        "(weighted interval score), ",
+        "from univariate (unadjusted) and a joint (adjusted) generalised additive mixed model. ",
+        "Effects represent deviations from the grand mean under a sum-to-zero constraint, ",
+        "expressed as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean WIS. ",
+        "A ratio below 1 indicates better-than-average performance; 1 indicates the grand-mean WIS. ",
+        "Raw partial effects on the log scale are reported in the Supplement. ",
         "95% CI = 95% confidence interval."
       ),
-      align = c("l", "l", "r", "r", "r", "r")
+      align = c("l", "l", "r", "r")
     ) |>
     collapse_rows(columns = 1, valign = "top") |>
       kable_styling(full_width = FALSE)
