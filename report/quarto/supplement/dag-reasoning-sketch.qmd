@@ -1,0 +1,118 @@
+---
+title: "Model selection: using DAGs to reason about forecast accuracy in collaborative hubs"
+subtitle: "Sketch for a separate methodological piece"
+format: html
+---
+
+## Motivation
+
+Forecast hubs generate a peculiar dataset: many *teams* run many *models* over many *targets* and *horizons*, and each combination yields a realised score.
+Researchers want to ask causal questions of this dataset, such as: "does method class X produce more accurate forecasts than Y?", "does using mobility data improve calibration?".
+However, the data are observational, exposures are bundled, and the most important confounders (such as team capacity) are unmeasured.
+
+Directed acyclic graphs (DAGs) are an under-used tool for this setting.
+This sketch proposes a short methodological paper that develops DAG-based reasoning for forecast-hub evaluation, using the European COVID-19 Forecast Hub as a worked example.
+
+## Argument in one paragraph
+
+Most published forecast-hub evaluations report scores stratified by model attributes and treat differences as substantive.
+This conflates predictive ranking with causal inference.
+A DAG forces explicit reasoning about (i) what the *target* causal estimand is --- total effect of a strategy choice, direct effect holding execution constant, or controlled direct effect under a counterfactual recalibration; (ii) which task-difficulty variables are confounders versus precision variables; (iii) which apparently-useful adjustments are colliders that bias the comparison (ensemble inclusion, submission persistence).
+The European Hub is a useful demonstration case because the team has iterated on multiple DAG formulations, each surfacing a different identification problem.
+
+## Proposed structure
+
+### 1. The problem
+
+- Hub evaluations report differences in scores across model attributes; readers (and modellers) interpret these as evidence about *what works*.
+- The leap from "X scores better than Y" to "choosing X causes better forecasts" requires assumptions that are rarely stated.
+- DAGs make those assumptions auditable.
+
+### 2. A minimal causal vocabulary for forecast evaluation
+
+- Exposure: a *feature of a modelling strategy* (method class, data inputs, calibration approach, geographic scope, update cadence, uncertainty representation).
+- Outcome: a realised score (WIS, log score, coverage).
+  Note: the score is one realisation from a distribution; expected score is the estimand.
+- Unit: forecast-instance, nested within model, nested within team.
+- Confounder taxonomy: team-level (latent capacity), task-level (calendar time, location, variant phase, horizon, incidence, trend), and selection-induced (submission persistence, ensemble inclusion).
+
+### 3. Total vs direct effects
+
+This is the section the European Hub work makes vivid.
+
+- **Total effect** of method class on WIS = effect through *all* downstream pathways, including any post-hoc recalibration the team applies because of their method choice.
+  This is what most readers think they're getting.
+- **Direct effect** = effect not mediated by validation effort (recalibration, ensembling).
+  This requires controlling for those mediators and risks overadjustment.
+- **Controlled direct effect** under a counterfactual ("what if every team applied the same recalibration?")
+  is often what we *should* want to estimate, but is not identifiable without an explicit model of the mediator.
+
+The Schlesinger (1979) triad --- qualification, verification, validation --- gives a useful sub-structure of the Strategy node:
+
+- *Qualification* choices (method class, state space, data inputs) sit upstream;
+- *Verification* (code correctness, pipeline integrity) is mostly latent and produces tail-risk;
+- *Validation* effort (recalibration, ensembling, backtesting) sits downstream, between qualification and realised WIS, and is itself a strategy choice.
+
+The total effect of a qualification choice flows partly through validation effort.
+Whether to block that pathway depends on the question.
+
+### 4. A minimum adjustment set for the European Hub
+
+For the effect of method class on log WIS, we propose:
+
+- **Block task-difficulty backdoors**: calendar time, location, variant phase, horizon, incidence, trend.
+- **Partially block team-capacity backdoor**: capacity proxies (number of locations, number of targets, submission consistency).
+  All are themselves strategy features, so this is overadjustment-aware.
+- **Do not condition on**: ensemble membership (collider), submission persistence (collider on the team→accuracy path), Model identity (absorbs the exposure).
+- **Random effects**: Location, VariantPhase as crossed random effects to capture residual task heterogeneity; Team (not Model) as the cluster for capacity.
+
+What this gives us: a *bounded* estimate of the between-team effect, with the residual capacity confounding quantified via E-values or similar bias analysis.
+
+What it does not give us: the within-team controlled direct effect.
+That requires a different design (same team running multiple methods over the same period --- rare but does occur in the Hub).
+
+### 5. DAGs we have iterated through
+
+This is the empirical/historical section, drawing on the project's actual development.
+
+- **DAG v1**: Method → WIS, with Location/Horizon/Trend as confounders.
+  Team capacity invisible.
+  *Problem identified*: open backdoor through capacity.
+- **DAG v2**: Capacity proxied by CountryTargets; Method → WIS adjusted for CountryTargets.
+  *Problem identified*: CountryTargets is itself a strategy feature, so adjustment partially blocks the effect of geographic scope.
+- **DAG v3** : Strategy node decomposed into qualification/verification/validation; Calendar time elevated to top-level confounder; explicit collider warnings (ensemble inclusion, submission persistence); Verification-failure node added to absorb pipeline-bug variance.
+
+Each iteration revealed an assumption the previous version had buried.
+The methodological point: *a single DAG is rarely the answer; a sequence of DAGs documents which assumptions were testable and which weren't.*
+
+### 6. What is and isn't identifiable from hub data
+
+A short table:
+
+  | Question                                                          | Identifiable?       | Why / why not                                                |
+  | ----------------------------------------------------------------- | ------------------- | ------------------------------------------------------------ |
+  | Within-team change in calibration approach over time              | Yes                 | Capacity differenced out                                     |
+  | Between-team method-class comparison, capacity proxies adjusted   | Bounded             | Residual capacity confounding; quantify with E-values        |
+  | Marginal causal effect of "choosing mechanistic over statistical" | No                  | No instrument, no within-team variation, capacity unmeasured |
+  | Effect of ensembling on WIS                                       | Mediator-on-pathway | Depends on whether qualification choice is held fixed        |
+
+### 7. Practical recommendations for hub evaluators
+
+- State the estimand before the model.
+- Draw the DAG and publish it with the evaluation.
+- Distinguish reporting (predictive ranking) from inference (causal claims).
+- Treat capacity proxies as partial; report bias bounds.
+- Avoid colliders that look like obvious adjustments (ensemble inclusion is the worst offender).
+
+## Output format options
+
+- A short methodological paper (\~3000 words)
+- A commentary tied to the main project paper, in the same journal.
+- A blog post / preprint as a lower-stakes first version.
+
+## Open questions for the methodological piece
+
+- Is the right comparison case the European Hub alone, or a parallel treatment using the US Hub for external validity?
+- Should it engage with the wider scoring-rule literature (proper scores as estimands) or stay narrowly causal?
+- Do we want simulation evidence (generate a known DGP, show that naive comparisons recover the wrong sign) or stay at the conceptual level?
+- How much space for the Schlesinger framing --- a paragraph, a section, or a structuring device throughout?
