@@ -28,6 +28,10 @@ ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
   filter(!grepl("EuroCOVIDhub-", Model))
+
+# natural-scale scores for descriptive error-vs-observation figure
+scores_natural <- process_data(scoring_scale = "natural") |>
+  filter(!grepl("EuroCOVIDhub-", Model))
 ```
 
 <!---Summary--->
@@ -116,26 +120,46 @@ Raters most often disagreed when classifying semi-mechanistic models, with 8 out
 Under the final classification, approximately one-third of all forecast predictions were from mechanistic, semi-mechanistic, and statistical models each.
 Agent-based and judgement models provided fewer forecasts, representing <2% of forecasts.
 
-We classified `r targets[["Single-country"]]` models as forecasting for a single country and `r length(single_countries)` for multiple countries; the countries targeted are detailed in the Supplement.
+We classified `r targets[["Single-country"]]` models as forecasting for a single country and `r targets[["Multi-country"]]` as forecasting for multiple countries; the countries targeted are detailed in the Supplement.
 Among the `r targets[["Multi-country"]]` multi-country models, only `r nrow(multi_targets |> filter(consistent))` consistently forecast for the same number of countries throughout the study period.
 
 **Forecast performance**
 
 We descriptively summarised forecast performance across the study sample.
 Unadjusted performance varied across the entire cohort of models over space and time.
-We saw consistent worsening performance during summer 2021, coinciding with emergence of the Delta variant.
-By model structure, we noted apparent improved performance between agent-based and judgement models compared to mechanistic and statistical approaches; and single-country models appeared to outperform multi-country models, particularly for death outcomes from spring 2022.
-However, model structure differed substantially between geographic target selection and across features of the epidemiological target, making crude unadjusted comparisons unreliable.
+We saw consistently worsening performance during summer 2021, coinciding with emergence of the Delta variant.
+By model structure, we noted apparent improved performance from agent-based and judgement models, compared to mechanistic and statistical approaches; and single-country models appeared to outperform multi-country models, particularly for death outcomes from spring 2022.
+However, model structure differed substantially between geographic targets and across features of the epidemiological target, making crude unadjusted comparisons unreliable.
+
+```{r}
+#| label: fig-error-vs-obs
+#| fig-cap: >-
+#|   Forecast error scales with the magnitude of the observed outcome.
+#|   Weighted interval score (WIS) is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
+#|   Faint points show individual forecasts; lines show a generalised additive model smooth fit per model-structure group, with shaded 95% confidence intervals.
+#|   Both axes are shown on the log scale; lower WIS indicates better performance.
+#|   Colour: model structure.
+#| fig-height: 4
+#| fig-width: 8
+
+plot_error_vs_obs(scores_natural)
+```
 
 ```{r}
 #| label: fig-scores-over-time
-#| fig-cap: "Predictive accuracy of forecasting models for COVID-19 cases and deaths across 32 European countries over time. Forecast performance is shown as the mean weighted interval score (WIS) on the log scale; lower scores indicate better performance. WIS was computed on log-transformed incidence per 100,000 population, summarised across 32 countries and 1–4 week horizons. Rows: single- vs multi-country models. Columns: cases vs deaths. Colour: model structure. Uncertainty intervals omitted for clarity (see Supplementary Figure S4)."
+#| fig-cap: >-
+#|   Predictive accuracy of forecasting models for COVID-19 cases and deaths across 32 European countries over time.
+#|   Forecast performance is shown as the mean weighted interval score (WIS) on the log scale; lower scores indicate better performance.
+#|   WIS was computed on log-transformed incidence per 100,000 population, summarised across 32 countries and 1–4 week horizons.
+#|   Rows: single- vs multi-country models.
+#|   Columns: cases vs deaths.
+#|   Colour: model structure.
+#|   Uncertainty intervals omitted for clarity (see Supplementary Figure S4).
 #| fig-height: 8
 #| fig-width: 6
 
 # plot: mean performance as line, model performance as dots coloured by structure; mark trends and variant phase; at 1wk horizon; cases over deaths
 # or tile plot mean performance over time across locations at 1wk horizon 
-# plot_over_time(scores = scores, ensemble = ensemble, show_uncertainty = TRUE)
 ```
 
 ```{r}
@@ -166,15 +190,18 @@ effects_comp <- results$effects |>
   filter(group_var %in% c("Method"))
 ```
 
-**Effects of model structure**
+**Effect of model structure**
 
 We fitted a generalised additive mixed model to give adjusted estimates of the partial effect of model structure, while controlling for varying forecaster target selection and epidemic dynamics between targets.
-In this structure, all partial effects are deviations from the grand mean WIS under sum-to-zero constraints, so a negative value indicates better-than-average performance.
-The WIS was highly right-skewed, and we used a log link to account for this (diagnostics in Supplementary Figures S2–S3). The log link models the score multiplicatively but leaves some skew in the residuals; a sensitivity analysis modelling the log-transformed score directly substantially improves the residual distribution while preserving the direction of all effects and leaving the model-structure conclusions unchanged (Supplement).
+In this structure, partial effects are deviations from the grand mean WIS under a sum-to-zero constraint, so a negative value indicates better-than-average performance.
+The WIS was highly right-skewed, and we used a log link to account for this (diagnostics in Supplementary Figures S2-S3).
+The log link models the score multiplicatively but leaves some skew in the residuals.
+A sensitivity analysis modelling the log-transformed score directly substantially improves the residual distribution while preserving the direction of all effects and leaving the model-structure conclusions unchanged (Supplement).
 Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
-We report the exponentiated ratio (with 95% confidence intervals) in the main text (@results-table2); the raw partial effects on the log scale are given in the Supplement.
+We report the exponentiated ratio (with 95% confidence intervals) in the main text (@results-table2), with the raw partial effects on the log scale in the Supplement.
 
-After adjustment for features of the forecast target, no single structural approach dominated: adjusted point estimates clustered around the grand mean, and their confidence intervals overlapped throughout, so we could not distinguish performance between model structures (@results-table2).
+After adjustment forfeatures of the forecast target , no single structural approach dominated.
+Adjusted point estimates clustered around the grand mean, and confidence intervals overlapped throughout (@results-table2).
 The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean).
 We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (@fig-plot-coeffs).
 
@@ -185,7 +212,13 @@ print_table2(results$effects)
 ```
 ```{r}
 #| label: fig-plot-coeffs
-#| fig-cap: "Performance ratio (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding. The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance. Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation. Filled symbols: adjusted; open symbols: unadjusted. Ratios and 95% confidence intervals estimated from a generalised additive mixed model. WIS = weighted interval score."
+#| fig-cap: >-
+#|   Performance ratio (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance.
+#|   Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation.
+#|   Filled symbols: adjusted; open symbols: unadjusted.
+#|   Ratios and 95% confidence intervals estimated from a generalised additive mixed model.
+#|   WIS = weighted interval score.
 #| fig-height: 3
 #| fig-width: 5
 
@@ -211,7 +244,13 @@ This indicated that the variables we selected to account for variation between f
 
 ```{r}
 #| label: fig-plot-models
-#| fig-cap: "Estimated performance ratio (95% CI) by individual model. The ratio is the exponentiated partial effect relative to the grand-mean WIS, where a ratio below 1 indicates better-than-average performance. Adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location. Colour: model structure. Shape: geographic scope (circle = single-country, triangle = multi-country). Remaining variation represents unexplained heterogeneity."
+#| fig-cap: >-
+#|   Estimated performance ratio (95% CI) by individual model.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean WIS, where a ratio below 1 indicates better-than-average performance.
+#|   Adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location.
+#|   Colour: model structure.
+#|   Shape: geographic scope (circle = single-country, triangle = multi-country).
+#|   Remaining variation represents unexplained heterogeneity.
 #| fig-height: 8
 #| fig-width: 10
 
