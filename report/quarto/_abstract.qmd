@@ -1,23 +1,14 @@
-#### Abstract
-
 Forecasters attempting to predict infectious disease outbreaks have met with varying success.
-This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets.
-In this work, we attempt to clarify variation from the target-generating process (the epidemic dynamics, surveillance, and data revisions that create each observed forecast target), in order to gain a more precise understanding of variation arising from the forecast-generating process (modeller choice).
+This variation may be attributed to varying predictive power between forecast estimation methods, or to varying difficulty between forecast target estimands.
+Attributing performance is especially challenging when faced with many forecasters estimating many different forecast target estimands.
+In this case, using aggregated summary statistics may obscure different sources of variation underlying individual forecast performance.
+Here, we developed a regression framework to identify partial effects on forecast performance, adjusting for factors contributing to forecast target difficulty.
 
-We applied this approach to a dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub.
-We adjusted for variation across epidemic dynamics, forecast horizon, and whether a forecaster predicted for one or multiple countries.
-This allowed us to isolate the impact of model structure on predictive performance.
+We evaluated forecasts of incident COVID-19 cases and deaths over two years for 32 European countries. We evaluated forecasts against observed data using the Weighted Interval Score (WIS).
+We classified 47 forecasting models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement), estimating the partial effect on performance. We used a generalised additive mixed model to adjust for the target epidemiological outcome, burden, trend, dominant variant phase; country location, forecast horizon, and individual model variation.
 
-We evaluated probabilistic predictions from 47 forecasting models participating in the European COVID-19 Forecast Hub between 8 March 2021 and 10 March 2023.
-We assessed performance of COVID-19 case and death forecasts, measured as the weighted interval score applied to forecasts and observations normalised to incidence per 100,000 population and log-transformed.
-We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and by target strategy (whether forecasts were produced for one or multiple countries).
-We adjusted for forecast horizon, epidemic trend, dominant variant phase, country location, and individual model variation.
-We summarised unadjusted performance descriptively and compared this to adjusted estimates from a generalised additive mixed model.
+After adjustment for features of the forecast target, no single structural approach dominated.
+Our findings suggest that variation in European Covid-19 forecast performance is driven more by differences among features of the forecast target, than by differences among specific modelling approaches.
 
-We find that that after adjustment, no single structural approach dominated.
-Adjusted estimates clustered around the average and their confidence intervals overlapped, so we could not distinguish performance between model structures.
-This is consistent with the hypothesis that variation in forecast performance is driven more by differences among forecast targets, than by differences among forecasting strategies.
-We still could not explain substantial variation in performance between individual models, suggesting the importance of factors beyond those commonly documented, such as team capacity, domain expertise, and model evolution over time.
-
-Our analysis represents a middle ground in formally considering bias when designing evaluation studies.
+This method of analysis represents a middle ground in formally considering bias when designing evaluation studies.
 As the field of infectious disease forecasting expands, we encourage evaluators to consider a wider range of study designs, adopting informal to formal methods where appropriate in order to isolate specific components of forecast performance.
