@@ -6,7 +6,7 @@
 # should give near-identical Method / CountryTargets partial effects. This script
 # fits both and prints a side-by-side comparison
 #
-# Run: source(here::here("R", "check-link-robustness.R"))
+# Run: source(here::here("R", "sensitivity", "check-link-robustness.R"))
 
 library(here)
 library(dplyr)

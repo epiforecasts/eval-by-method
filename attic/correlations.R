@@ -13,14 +13,20 @@ scores <- scores |>
   filter(!grepl("EuroCOVIDhub-", Model))
 #-----------------------
 
-target_id <- c(epi_target, Location, target_end_date, Horizon)
+target_id <- c("epi_target", "Location", "target_end_date", "Horizon")
+
+scores_ens <- scores |>
+  left_join(
+    ensemble |>
+      select(all_of(target_id), wis_ens = wis),
+    by = target_id
+  )
 
 scores_ens |>
   ggplot(aes(x = wis_ens, y = wis, col = Model)) +
   geom_point() +
   facet_wrap(~Method) +
-  theme(legend.position = none)
-
+  theme(legend.position = "none")
 scores_mean_target <- scores |>
   group_by(epi_target, Location, target_end_date, Horizon) |>
   summarise(

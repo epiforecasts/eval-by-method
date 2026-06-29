@@ -3,12 +3,6 @@ title: "Model building"
 format: html
 ---
 
-```{r}
-library(here, dplyr, readr, readr, tidyr, purrr, ggplot2) #essentials
-library(mgcv, gammit, gratia) # model specific
-source(here("R", "process-data.R")) # reads and cleans forecasts and observations
-```
-
 ## Context
 
 Aim: to address bias and confounding when scoring forecasts against observations.
@@ -56,21 +50,26 @@ m.data <- m.data |> mutate(Incidence = log(Incidence + 1), Epi_target = as.facto
 m.family <- gaussian(link = "log")
 ```
 
-```{r}
-m.fit <- bam(formula = wis ~ s(Method, bs = "re"), 
-data = m.data, family = m.family, 
-method = "fREML", control = gam.control(trace = TRUE), discrete = TRUE) unadjusted <- extract_ranef(m.fit)
+````{r}
+unadjusted <- extract_ranef(m.fit)
 
-m.fit <- bam(formula = wis ~ s(Method, bs = "re"), 
-data = m.data, family = m.family, 
-method = "fREML", control = gam.control(trace = TRUE), discrete = TRUE)
-```
+m.fit <- bam(
+  formula = wis ~ s(Method, bs = "re"),
+  data = m.data,
+  family = m.family,
+  method = "fREML",
+  control = gam.control(trace = TRUE),
+  discrete = TRUE
+)
+unadjusted <- extract_ranef(m.fit)
 
-#### Association with exposures
-
-```{r}
-m.formulas_uni <- list( method = wis \~ s(Method, bs = "re"), target = wis \~ s(CountryTargets, bs = "re"), incidence = wis \~ s(Incidence), trend = wis \~ s(Trend, bs = "re"), location = wis \~ s(Location, bs = "re"), variant = wis \~ s(VariantPhase, bs = "re"), horizon = wis \~ s(Horizon, by = Model, k = 3, bs = "sz"), model = wis \~ s(Model, bs = "re") )
-```
+m.fit <- bam(
+  formula = wis ~ s(Method, bs = "re"),
+  data = m.data,
+  family = m.family,
+  method = "fREML",
+  control = gam.control(trace = TRUE),
+  discrete = TRUE)
 
 #### Association with outcomes
 
@@ -91,4 +90,4 @@ map_depth(.depth = 2, ~ extract_ranef(.x)) |>
 map(~ list_rbind(.x, names_to = "epi_target")) |> 
 list_rbind() |> 
 mutate(model = "Unadjusted")
-```
+````
