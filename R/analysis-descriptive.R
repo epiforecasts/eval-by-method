@@ -194,9 +194,43 @@ print_table1 <- function(scores) {
     pack_rows(index = c(
       " " = 1,
       "Method" = 5,
-      "Geographic scope" <- 2
+      "Geographic scope" = 2
     )) |>
     add_header_above(headers_to_add)
+}
+
+# Descriptive ---------
+# Figure: forecast error vs observed incidence ------------------------
+# Simple descriptive: how forecast error (WIS) scales with the magnitude of
+# the observed outcome, by model structure. Pass natural-scale scores
+# (process_data("natural")) so WIS and observed incidence share natural units.
+# Forecast-level points are shown faintly with a per-Method GAM smooth on top,
+# avoiding arbitrary binning. Both quantities are analysed on the log scale
+# throughout (log(x + 1)); the smooth is fit in log space. Axis ticks are
+# displayed at round powers of 10 for legibility (display base does not affect
+# the fit).
+plot_error_vs_obs <- function(scores_natural) {
+  plot_data <- scores_natural |>
+    filter(!is.na(wis),
+           !is.na(Incidence),
+           Incidence > 0
+    )
+
+  ggplot(plot_data, aes(x = Incidence, y = wis, colour = Method, fill = Method)) +
+    geom_point(alpha = 0.03, size = 0.4, stroke = 0) +
+    geom_smooth(method = "gam", formula = y ~ s(x), alpha = 0.15, linewidth = 0.8) +
+    facet_wrap(~epi_target, scales = "free", nrow = 1) +
+    scale_x_log10(labels = scales::label_comma()) +
+    scale_y_log10(labels = scales::label_comma()) +
+    scale_colour_brewer(type = "qual", palette = 2, aesthetics = c("colour", "fill")) +
+    labs(
+      x = "Observed incidence (log scale)",
+      y = "WIS (log scale)",
+      colour = "Model structure",
+      fill = "Model structure"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
 }
 
 # Table 2: unadjusted vs adjusted effects --------------------

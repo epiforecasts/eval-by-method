@@ -53,6 +53,8 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     m.family <- gaussian(link = family_link)
   } else if (scoring_scale == "natural") {
     m.family <- Gamma(link = family_link)
+  } else {
+    stop("scoring_scale must be either 'log' or 'natural'")
   }
 
   # --- Model formula ---
