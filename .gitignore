@@ -58,4 +58,12 @@ rsconnect/
 .claude/settings.local.json
 
 
-report/manuscript_files/*
+# Rendered manuscript output
+report/manuscript.html
+report/manuscript_files/
+
+# Rendered plots (regenerable; keep result .rds which the report reads)
+/output/**/plots/
+
+# Tool caches
+.panache-cache/
