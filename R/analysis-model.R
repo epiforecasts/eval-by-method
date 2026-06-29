@@ -135,6 +135,8 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     formula = formula
   )
 
+  dir.create(here(output_dir, "plots"), recursive = TRUE, showWarnings = FALSE)
+
   saveRDS(results, here(output_dir, "results.rds"))
 
   # Observed vs fitted, for a model-fit diagnostic plot in the supplement.

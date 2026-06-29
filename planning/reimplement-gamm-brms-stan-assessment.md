@@ -2,30 +2,10 @@
 
 ## Context
 
-User asked how hard it would be to port the primary forecast-evaluation GAMM
+Evaluating how hard it would be to port the primary forecast-evaluation GAMM
 ([R/analysis-model.R](../../Documents/Github/eval-by-method/R/analysis-model.R), the
 `m.formula_joint` object) from `mgcv::bam` (fREML, frequentist) to a Bayesian fit in
-**brms** or **raw Stan**. Plan-mode-only: assessment, not implementation.
-
-Environment already has it all: `brms` 2.23.0, `rstan` 2.32.7, `cmdstanr` 0.8.1.9000,
-`mgcv` 1.9.4.
-
-**Data scale (the dominant cost factor):** 181,591 rows. Random-effect level counts:
-Model 47, Location 32, VariantPhase 6, Method 5, Trend 3, CountryTargets 2. Horizon
-takes only 4 values (1–4).
-
-## Verdict
-
-- **brms: easy to write, expensive to run.** ~1–2 hours to write + validate the
-  formula; the model is almost a mechanical translation. The real cost is sampling
-  time on 181k rows with several REs + a factor-smooth — plausibly hours per chain.
-- **Raw Stan: substantially harder, not worth it.** You would hand-build the smooth
-  basis matrices and all RE structures that brms/mgcv generate for you. Weeks of work
-  for no modelling gain over brms. Only justified if you need a likelihood brms can't
-  express (not the case here).
-
-**Recommendation: brms, if a Bayesian fit is actually wanted.** Raw Stan is not
-warranted.
+**brms**.
 
 ## Term-by-term translation (mgcv → brms)
 
@@ -56,7 +36,7 @@ bf(wis ~ Epi_target
    family = gaussian(link = "log"))
 ```
 
-## The one genuinely awkward term: `s(Horizon, by=Model, k=3, bs="sz")`
+## Handling `s(Horizon, by=Model, k=3, bs="sz")`
 
 This is a **factor-smooth-by interaction** — a separate horizon curve per model (47
 of them), sum-to-zero constrained (`bs="sz"`) so they are deviations from a shared
@@ -102,17 +82,7 @@ sentence in the methods if results are reported from a brms fit.
   contract the report depends on must be reproduced from posterior draws (CIs become
   credible intervals).
 
-## What you'd gain / lose
-
-- **Gain:** genuine posterior uncertainty (credible intervals, full distributions),
-  natural propagation into any downstream prediction, principled handling of the RE
-  variances, easy posterior predictive checks (`pp_check`) — which directly serves the
-  current diagnostics goal (the skewed-residual problem shows up cleanly in a PPC).
-- **Lose:** speed (fREML on 181k rows is seconds–minutes; NUTS is hours), and exact
-  comparability to the published fREML estimates unless the `bs="sz"` term is matched
-  carefully.
-
-## If you want to proceed (smallest viable path)
+## To proceed
 
 1. Subset to ~10k rows; fit the brms formula above with `backend="cmdstanr"`,
    2 chains × 500 iters, to confirm it compiles + samples + the `by` smooth behaves.
@@ -121,8 +91,3 @@ sentence in the methods if results are reported from a brms fit.
 3. Fit on full data with threading; check `pp_check`, Rhat, ESS.
 4. Rewrite output extraction to the report's effects-table contract from posterior
    draws (the genuinely time-consuming step).
-
-**Bottom line:** brms port is *low difficulty to express, moderate-to-high effort to
-run and re-plumb*, dominated by sample-time and rewriting the extraction layer — not
-by model translation. Raw Stan is not recommended.
-```

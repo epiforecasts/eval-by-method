@@ -65,7 +65,7 @@ table_targets <- function(scores) {
     ungroup() |>
     group_by(Model, epi_target) |>
     summarise(
-      CountryTargets = all(target_count <= 2),
+      CountryTargets = all(target_count == 1),
       min_targets = min(target_count),
       max_targets = max(target_count),
       mean = mean(target_count),

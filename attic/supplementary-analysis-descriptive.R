@@ -79,19 +79,3 @@ data_plot <- function(scores, log = FALSE, all = FALSE) {
     if (all) {
         plot <- plot + geom_line(data = data, alpha = 0.1)
     }
-
-data_plot <- function(scores, log_scale = FALSE, all = FALSE) {
-    data <- scores |>
-        select(Location, epi_target, target_end_date, Incidence) |>
-        distinct()
-    pop <- read_csv(here("data", "populations.csv"), show_col_types = FALSE) |>
-        rename(Location = location)
-    data <- data |>
-        left_join(pop, by = join_by(Location)) |>
-        mutate(
-            rel_inc = Incidence / population * 1e5,
-            log_inc = log(Incidence + 1)
-        )
-
-    return(plot)
-}

@@ -17,7 +17,7 @@ Different structural approaches may be better suited to different purposes, for 
 This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
 Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
 
-This creates two set of contributing factors to any single instance of realised performance @fig-processes.
+This creates two sets of contributing factors to any single instance of realised performance @fig-processes.
 Identifying these influences is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
 
 ```{r}
@@ -57,7 +57,7 @@ digraph processes {
 ')
 ```
 
-To evaluate the contribution of different factors predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
+To evaluate the contribution of different factors to predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
 This comparability is achieved in participatory forecast challenges, which collate multiple forecasters' predictions for pre-specified targets in a standardised format [(13)](https://www.zotero.org/google-docs/?7pIGoa).
 This offers the opportunity for consistent evaluation between models, with the potential to explicitly compare the value of different modelling approaches @reich-hubs.
 However, such analysis is challenging, as it is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast targets.
@@ -94,7 +94,7 @@ For example, we may wish to assess the performance of different model designs us
 When assessing across multiple forecast targets, we would need to separate out the model structure from the adaptability of different model structures to produce predictions across the different forecast targets.
 Faced with multiple forecasting targets, a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
 An alternative strategy is to structure a model to mechanistically capture the data-generating processes of a specific forecast target, for example emphasising particular epidemic dynamics or exploiting local data sources.
-This suggests the hypothesis that design strategy has a seperate influence on predictive performance, confounding an estimate of the effect of model structure alone on predictive performance.
+This suggests the hypothesis that design strategy has a separate influence on predictive performance, confounding an estimate of the effect of model structure alone on predictive performance.
 
 Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for factors contributing to forecast target difficulty.
 We use proper scoring rules to evaluate short-term forecasts of COVID-19 across Europe.

@@ -21,9 +21,9 @@ check_link_robustness <- function() {
   m.data <- process_data(scoring_scale = "log") |>
     filter(!grepl("EuroCOVIDhub-", Model)) |>
     mutate(Incidence = log(Incidence + 1))
-  outcomes <- unique(m.data$epi_target)
 
   m.formula_joint <- wis ~
+  Epi_target +
     s(Method, bs = "re") +
     s(CountryTargets, bs = "re") +
     s(Incidence) +
@@ -33,10 +33,10 @@ check_link_robustness <- function() {
     s(Horizon, by = Model, k = 3, bs = "sz") +
     s(Model, bs = "re")
 
-  fit_one <- function(outcome, family) {
+  fit_one <- function(family) {
     bam(
       formula = m.formula_joint,
-      data = m.data |> filter(epi_target == outcome),
+      data = m.data,
       family = family,
       method = "fREML",
       discrete = TRUE
@@ -50,8 +50,7 @@ check_link_robustness <- function() {
   effects <- imap(links, \(fam, link_name) {
     outcomes |>
       set_names() |>
-      map(\(o) extract_ranef(fit_one(o, fam))) |>
-      list_rbind(names_to = "epi_target") |>
+      extract_ranef(fit_one(fam)) |>
       filter(group_var %in% c("Method", "CountryTargets")) |>
       mutate(link = link_name)
   }) |>
