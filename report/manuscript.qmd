@@ -3,6 +3,8 @@ title: "Evaluating the role of model structure in the predictive performance of 
 format: html
 ---
 
+Using model-based analysis to evaluate multi-dimensional forecast performance: tracing the effect of model structure in predictions of Covid-19 in Europe
+
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
 (1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
@@ -28,10 +30,8 @@ Email: katharine.sherratt@lshtm.ac.uk
 ### Methods
 
 ::: {.callout-caution collapse="true" title="TODO"}
-- [ ] joint model to include cases/deaths (include results in supp)
 - [ ] list the many model specs we tried in the supplement
 - [ ] check mean average WIS over time and by other confounders
-- [ ] natural scale fit with gamma dist
 :::
 
 {{< include quarto/_methods.qmd >}}
@@ -39,8 +39,6 @@ Email: katharine.sherratt@lshtm.ac.uk
 ### Results
 
 ::: {.callout-caution collapse="true" title="TODO"}
-- [ ] Figure 1 edit for clarity; use cohort mean performance over time?
-- [ ] table 2 check adjusted numbers
 - [ ] table 2 include adjustment set in caption
 :::
 
@@ -64,8 +62,6 @@ Email: katharine.sherratt@lshtm.ac.uk
 ## Supplement
 
 ::: {.callout-caution collapse="true" title="TODO"}
-- [ ] check supplement includes natural scale results
-- [ ] include univariate associations of all variables
 :::
 
 {{< include quarto/supplement/_supplement.qmd >}}

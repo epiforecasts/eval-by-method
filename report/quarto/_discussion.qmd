@@ -1,73 +1,57 @@
-In this work, we aimed to assess the influence of methodological structure on the accuracy of infectious disease forecasts.
-We developed a model-based approach to adjust for the key sources of variation in predictive difficulty, estimating the adjusted partial association between model structure and performance.
-We applied this to a multi-country multi-model forecasting effort conducted during the COVID-19 pandemic, in order to assess the influence of models' structure and target strategy on forecast accuracy.
+In this work, we aimed to assess the partial effect of model structure on the accuracy of forecasts of Covid-19 across European countries.
+We developed a model-based approach to adjust for the key sources of variation between different forecast targets.
+After adjustment, no single structural approach dominated.
+Adjusted estimates for each model structure were no different from the overall average, though substantial variation in individual model performance remained unexplained.
+We suggest that when evaluating across multiple forecast targets, it is necessary to account for the factors contributing to variation between targets, before considering factors within the forecasting process.
 
-After adjustment for factors inherent to the forecast target, no single structural approach dominated: adjusted estimates clustered around the average with overlapping confidence intervals, so we could not distinguish performance between model structures, though substantial variation in individual model performance remained unexplained.
-We suggest that accounting for variance in epidemiological characteristics across forecast targets is necessary for drawing meaningful comparisons across predictive models.
-
-However, we only partially accounted for variation among forecast targets.
-For example, we noted that real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [(11)](https://www.zotero.org/google-docs/?c33gx9).
-<!--- Add: 1–2 sentences on what residual confounders remain — e.g. within-country heterogeneity not captured by location effects; variant phase as a crude proxy for outbreak regime. --->
-
-A key limitation of this work was its limited power to detect potential differences in performance between model structures or target specificity.
-While we used a large dataset of forecasts over time, we had a relatively small sample size of independent models and little metadata with which to classify model structures.
-For example, only 3 agent-based models, where all three represented here targeted a single country.
+In this work we had limited ability to demonstrate the model-based approach used here, with a small and biased sample reducing any power to detect true differences in performance between model structures.
+While we used a large dataset of predictions over time, we had a much smaller effective sample size of 47 independent models.
+We relied on an opportunistic cohort of models from voluntary contributions to the European Hub.
+For example, we only observed 3 agent-based models, where all three represented here targeted a single country.
+This meant our results may be biased by unobserved characteristics that differentially affected participation, such as the resource intensity of model development, or the capacity to incorporate domain expertise.
+These factors may drive both the choice of model structure and be more useful as targets for identifying potential for modifying forecaster performance.
+In addition, we may have misclassified the exposure, with very little metadata to classify model structures.
+Independent raters disagreed on the classification of most semi-mechanistic models, and we did not track changes to each model's individual methods over time.
+A more systematic sample of models would support a deeper investigation of factors driving model performance.
 Future work could approach this by combining data from across multiple similar Hub projects and a more detailed assessment of the characteristics of the model cohort.
 
-Further, the Hub relied on an opportunistic cohort of models from voluntary contributions.
-This meant our results could be biased by unobserved characteristics that differentially affected participation, such as the resource intensity of model development.
-One source of unmeasured confounding in this setting is the latent capacity of a forecasting team to incorporate domain expertise, which may drive both the choice of model structure and the achievable forecast accuracy.
-In addition, we did not track changes to each model's individual methods over time, or account for this in our analysis.
-We did not see clear patterns in how models changed their selection of country targets by type of model.
-This helped to mitigate our concern that using a binary classification for one or multiple targets was overly crude.
-A more systematic sample of models would support a deeper investigation of factors driving model performance.
-<!--- Add: sentence on generalisability — findings based on COVID-19 forecasting in Europe; applicability to other pathogens, forecast settings, or hub structures is uncertain. --->
-
-There are likely many interactions between the effects explored here as well as residual confounding.
-For example, a modeller's choice of model structure may interact with their chosen number of targets, as in agent-based models.
+<!--- sensitivity
+There are likely many additional interactions between the effects explored here.
 Notably, different model structures may be more or less well equipped to predict at each interval of the one to four week forecast horizon.
 For example, models incorporating underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics.
+We fit the effect of horizon to each individual model, and this may have absorbed some of this difference which could have been attributable to model structure.
 Explicitly accounting for such interactions could be a useful insight from future work.
+We also only partially accounted for variation among forecast targets.
+For example, we noted that real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [(11)](https://www.zotero.org/google-docs/?c33gx9).
+
+We prioritised relative assessment of the growth rate over absolute counts.
+We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak [(23)](https://www.zotero.org/google-docs/?bNboAJ).
+In particular, we saw reduced variability among the scores of semi-mechanistic models on the log scale, compared to the natural scale.
+Modelling the interval score with a Gaussian error model and log-link also made effects multiplicative, rendering estimates unsuitable for directly ranking individual models.
+Different assumptions within each evaluation method may be useful for different purposes, which suggests developing a more diverse portfolio approach to evaluation methods.
+-->
 
 Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies.
 Previous work has also failed to differentiate performance among model structures, across a variety of outbreaks and epidemic dynamics [(4–6)](https://www.zotero.org/google-docs/?4Vrj6C).
 Some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches [(17,18,26)](https://www.zotero.org/google-docs/?pn8kMa).
-However, we also noted that the more mechanistic models in our study produced a wide range of predictive performance.
+On the other hand, bespoke mechanistic models are more easily tailored to a single target which may give a specific performance advantage for such targets [(7,8)](https://www.zotero.org/google-docs/?vo794b).
+A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those agent-based models specifically tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
+In this study, we noted that the more mechanistic models produced a wide range of predictive performance.
 This may reflect a greater range of flexibility to incorporate forecaster experience [(18)](https://www.zotero.org/google-docs/?tYe1Rg), and understanding of the data generating processes that lead the forecast target [(28)](https://www.zotero.org/google-docs/?2rqVL1): for example, country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes.
 While not considered here, we note the widely replicated finding that ensemble combinations across multiple models often produces the most reliable predictive performance (e.g. [(12,15,27)](https://www.zotero.org/google-docs/?EMHzzA)).
 
-Unlike past work, our conclusions are based on assessing performance using forecasts on a log scale, rather than the natural scale of observed data.
-We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak [(23)](https://www.zotero.org/google-docs/?bNboAJ).
-In particular, we saw reduced variability among the scores of semi-mechanistic models on the log scale, compared to the natural scale.
-
-In doing so we prioritised relative assessment of the growth rate over absolute counts, and our conclusions may not hold under other scoring rules.
-Modelling the interval score with a Gaussian error model and log-link also made effects multiplicative, rendering estimates unsuitable for directly ranking individual models.
-These choices point to the importance of explicitly identifying the assumptions that underlie the method of forecast evaluation.
-
-Alternatively, we could target the target-generating process as the outcome under evaluation.
-This would mean building evaluation metrics that express a mechanistic understanding of how different processes contribute to creating the single target timeseries.
-This would enable us to identify the accuracy of different models in capturing causal epidemic processes, rather than artefacts of the epidemic setting [(11)](https://www.zotero.org/google-docs/?c33gx9).
-Different assumptions within the evaluation metric may be useful for different purposes, which suggests developing a more diverse portfolio approach to evaluation methods.
-Relatedly, any aggregation of forecasts over time contains the autocorrelation of the timeseries; as infectious disease timeseries are inherently highly autocorrelated, such aggregation will by default favour statistical model structures based on estimating this component.
-
-With increasing forecasting datasets subject to evaluation, random error decreases but bias remains.
-The analysis presented here is exploratory, aimed at describing variation in forecast performance across model structures once the most consequential sources of confounding are accounted for.
-However, subsequent analysis could target the causal estimand: pre-specifying a directed acyclic graph to derive a minimal sufficient adjustment set of covariates, and reporting a quantitative bias analysis (such as an E-value) for unmeasured confounding.
-
-Accounting for confounding in this way is analogous to constraining evaluation above a lower bound of common forecast error.
-This can also be achieved by using evaluation relative to the performance of a baseline forecaster.
-However, it is unclear which among multiple possible baselines are appropriate for infectious disease forecasting [@stapper, kaitlyn].
-The selection of baseline model still faces the question of whether to capture features that represent the target-generating process.
-In this work, we make this process of model selection explicit by directly including these forecast target features in a single joint estimation of performance score.
+Greater capacity [@], investment [@rivers], and standardisation [@reich] of infectious disease forecasting has created a much broader comparable sample of forecast performance.
+While this may reduce the likelihood of random error, it cannot alone account for bias in comparisons of performance.
+Our analysis represents a middle ground in formally considering bias when designing evaluation studies.
+On one hand, this degree of formality may not be necessary when there are minimal sources of confounding (e.g. a single forecast target), or if the effective sample size is large enough to support a simpler stratification.
+In our setting, however, cross-classifying forecasts by the categorical covariates alone (epidemiological target, horizon, location, trend, variant phase, geographic scope, and model structure) yields over 46,000 strata; the resulting cells are sparse and highly uneven, and incidence, a continuous covariate, cannot be stratified without arbitrary binning.
+On the other hand, a more formal analysis could fully specify the causal estimand with a directed acyclic graph; use this to derive a minimal sufficient adjustment set of covariates, and report a quantitative bias analysis (such as an E-value) for unmeasured confounding.
+Further model comparison projects could enable this by encouraging methodological diversity among participants, and ensuring that detailed structured information on model metadata (such as methodology and model revisions) is collated alongside numerical predictions [(11)](https://www.zotero.org/google-docs/?c33gx9).
+We would particularly encourage studies that combine information from multiple collaborative efforts to increase sample size of independent models.
+This could enable assessing more detailed components of the forecasting process, such as the amount of local context that modellers use in creating or adapting their forecast model, and similarly whether performance scales with efforts to revise, incorporate domain knowledge, or evaluate model performance.
 
 Comparisons like the one we have conducted here support a more informed view of the role of modelling in pandemic preparedness and response.
-Ultimately, improving surveillance data quality or target understanding may yield more performance gains than advancing specific modelling techniques.
-
-Further model comparison projects should enable this by encouraging methodological diversity among participants, and ensuring that detailed structured information on model metadata (such as methodology and model revisions) is collated alongside numerical predictions.
-We would particularly encourage studies that can assess the amount of local context that modellers use in creating or adapting their forecast model, and similarly whether performance scales with efforts to continually revise models, incorporate domain knowledge, or evaluate model performance in the real-time forecasting process.
-Future performance evaluations should combine information from multiple collaborative efforts and ultimately lead to a convergence of recommendations for which models to use when making epidemiological forecasts in an epidemic or pandemic.
-
-By accounting for forecast target difficulty, we adjust for the lower bound of error set by the forecast target itself, and estimate the realistic room for improvement from improving forecasting methods.
-To estimate the effect of changing model structure alone, we then further adjusted for forecaster selectiveness among geographic targets.
-We then found that no single structural approach dominates.
-In this study we contributed to better understanding the drivers of predictive performance among forecasting models, and highlighted the importance of appropriately adjusting for the general predictive difficulty of the forecast target.
+By accounting for forecast target difficulty, we adjusted for a lower bound of error set by the forecast target itself, and estimated the realistic room for improvement from improving forecasting methods.
+Our specific results suggest that focusing on improving understanding of the forecast target may yield more gains in forecast performance than advancing specific modelling techniques.
+Future performance evaluations should ultimately lead to a convergence of recommendations for which models are appropriate to meet different use cases for real-time forecasting.
+As the field of infectious disease forecasting develops, we encourage evaluators to consider a wider range of study designs, adopting informal to formal methods where appropriate in order to isolate specific components of forecast performance.

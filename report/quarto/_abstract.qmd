@@ -1,6 +1,6 @@
 #### Abstract
 
-Forecasters attempting to predict infectious disease outbreaks have met with varying success [@].
+Forecasters attempting to predict infectious disease outbreaks have met with varying success.
 This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets.
 In this work, we attempt to tune out variation from the target-generating process — the epidemic dynamics, surveillance, and data revisions that create each forecast target — in order to gain a more precise understanding of variation arising from the forecast-generating process.
 

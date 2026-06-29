@@ -39,6 +39,8 @@ Future work (See: future-work.qmd)
 - [ ] use a simulation approach
 - [ ] expand to cover all forecast challenges
 - [ ] repeated measures stats (intraclass correlation)
+- [ ] hazards models
+- [ ] matched cohort: select a 'control' baseline forecaster of each type (timeseries, mechanistic)
 
 ## notes
 

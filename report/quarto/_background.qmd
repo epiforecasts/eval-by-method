@@ -3,21 +3,19 @@ This variation might come from many contributing factors.
 One such set of varying factors is the predictive ability of different forecasting methods.
 Another set of varying factors is the predictive difficulty of different forecast targets.
 With increasing numbers of both forecasters and forecast targets, we have more potential to learn about which factors can be modified to improve forecast performance, and to set appropriate expectations for performance between different forecast settings.
-However, this needs careful and explicit accounting of factors underlying performance.
+This requires careful accounting among the many factors contributing to performance.
 Here, we suggest one approach to this using a joint modelling framework, and apply this to illustrate varying performance of forecasts of Covid-19 in Europe.
 
-Variation in performance between targets can be attributed to differences in the underlying processes generating each target.
-We see better predictive performance over shorter than longer horizons [(15)](https://www.zotero.org/google-docs/?2K90bo), with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc) in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), and when the target is observed with timely, accurate surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN) [(11)](https://www.zotero.org/google-docs/?c33gx9), and has informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT).
-This line of inquiry has prompted attempts to establish whether there is an inherent boundary to the predictability of infectious disease [(14)](https://www.zotero.org/google-docs/?CZumUU).
-Evaluation methods have incorporated this by reflecting this variation, such as normalising error to the size of the population, and evaluating on a log scale to reflect the growth rate of transmission.
+Some of the variation in performance can be attributed to differences between infectious disease targets.
+We see better predictive performance with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc) in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), and when the target is observed with timely, accurate surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN) [(11)](https://www.zotero.org/google-docs/?c33gx9), or has informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT).
+Meanwhile, performance is consistently better at shorter than longer horizons [(15)](https://www.zotero.org/google-docs/?2K90bo), possibly based on the disease-specific serial interval that links disease to observation (Sherratt 2021), prompting suggestions that there are inherent limits to the predictability of infectious diseases based on the complexity of the disease-surveillance-response system [(14)](https://www.zotero.org/google-docs/?CZumUU).
+This variability makes it difficult to make fair comparisons across multiple forecast targets.
 
-Variation in performance between forecasters arises from individual differences in the forecast-generating process: the structural approaches and implementation choices made in developing a forecasting model.
+At the same time, variation in performance between forecasters arises from individual differences in the forecast-generating process: the structural approaches and implementation choices made in developing a forecasting model.
 Forecasters may use many methods, ranging from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
 Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
 This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
 Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
-This line of inquiry has prompted developing baseline forecaster methods.
-Evaluation is then conducted relative to this baseline forecaster.
 
 This creates two set of contributing factors to any single instance of realised performance @fig-processes.
 Identifying these influences is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
@@ -25,8 +23,8 @@ Identifying these influences is important in order to fairly evaluate between di
 ```{r}
 #| label: fig-processes
 #| fig-cap: >-
-#|   Two processes generating variation in realised predictive performance.
-#|   The forecast-generating process (the modeller's choices) and the target-generating process (the epidemic and its observation) each contribute, through the components shown, to realised predictive performance.
+#|   Two processes generating variation in predictive performance, with examples of factors contributing to each process.
+#|   Factors that generate the forecast (e.g. model specification), and factors that generate the target (e.g. epidemic dynamics) may each contribute to realised predictive performance.
 
 DiagrammeR::grViz('
 digraph processes {
@@ -37,32 +35,40 @@ digraph processes {
 
   subgraph cluster_FG {
     label = "Forecast-generating process"; color = "black"; fontcolor = "black"
-    F1 [label = "Model design"]
-    F2 [label = "Model implementation"]
-    F3 [label = "Forecaster participation"]
+    F1 [label = "Forecaster participation"]
+    F2 [label = "Model specification"]
+    F3 [label = "Model implementation"]
   }
   subgraph cluster_TG {
     label = "Target-generating process"; color = "black"; fontcolor = "black"
     T1 [label = "Epidemic dynamics"]
     T2 [label = "Observation process"]
+    T3 [label = "Target specification"]
   }
-  P [label = "Realised predictive performance"]
+  F [label = "Forecast"]
+  T [label = "Target"]
+  P [label = "Predictive performance"]
 
-  F1 -> P; F2 -> P; F3 -> P
-  T1 -> P; T2 -> P
+  F1 -> F; F2 -> F; F3 -> F
+  F -> P
+  T1 -> T; T2 -> T; T3 -> T
+  T -> P
 }
 ')
 ```
 
-To evaluate the contribution of these two dimensions of predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
-This comparability is achieved in participatory forecast challenges [(13)](https://www.zotero.org/google-docs/?7pIGoa).
-Offering comparable evaluation between models creates the potential to learn about which factors can be modified to improve forecast performance, and to set appropriate expectations for performance between different forecast settings.
+To evaluate the contribution of different factors predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
+This comparability is achieved in participatory forecast challenges, which collate multiple forecasters' predictions for pre-specified targets in a standardised format [(13)](https://www.zotero.org/google-docs/?7pIGoa).
+This offers the opportunity for consistent evaluation between models, with the potential to explicitly compare the value of different modelling approaches @reich-hubs.
+However, such analysis is challenging, as it is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast targets.
+Aggregated comparisons may conflate differences in the predictive performance of each modelling approach, with differences in forecast target difficulty.
 
-Yet such analysis is still challenging, as it is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast targets.
-Aggregated comparisons may conflate differences in the predictive performance of each structural approach, with differences in forecast target difficulty.
-
-Existing strategies to address this challenge include restricting the sample using exclusion criteria; stratification; data transformation; and using relative performance compared to a baseline, equivalent to a matched study design (@tbl-approaches).
-While each of these may be necessary, even together they are insufficient when evaluating among many forecast targets and many participating forecasters simultaneously.
+Some evaluators facing this challenge have used a range of study designs to account for this in evaluation.
+This typically includes controlling for factors in the data-generating process underlying the target.
+These study designs include: restricting the sample using exclusion criteria; stratification; data transformation; and assessing performance relative to a baseline (@tbl-approaches).
+Each of these study design strategies may usefully simplify some aspect of the problem.
+However, evaluators facing large, open forecasting challenges must handle a high degree of variation across both many forecast targets and many forecasting models simultaneously.
+The noisiness of these mixed signals means that any of these strategies for simplification may not be sufficient to isolate a single component of forecast performance and trace its effect.
 
 ```{r}
 #| label: tbl-approaches
@@ -70,30 +76,30 @@ While each of these may be necessary, even together they are insufficient when e
 #|   Existing approaches to accounting for forecast target difficulty, with their advantages and limitations.
 
 tibble::tribble(
-  ~Approach, ~Description, ~Advantage, ~Limitation, ~Example,
+  ~"Study design", ~"Example usage", ~"Considerations",
   #---
-  "Restriction", "Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts", "Simplicity, easy to communicate", "Excludes some targets altogether; penalises forecasters who may appropriately forecast the revised data", "Sherratt 2021",
+  "Restriction", "Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts (Sherratt 2021)", "Simple and easy to communicate; loses power by excluding some targets altogether, and penalises forecasters who may appropriately forecast the revised data", 
   #---
-  "Stratification", "Present forecast scores only stratified by factors of interest (e.g. model structure) or assumed to confound performance (e.g. forecast horizon)", "Classical observational study approach", "Very small sample size (forecasting models) among multiple interacting strata", "Reich, Johansson",
+  "Stratification", "Present forecast scores stratified by factors of interest (e.g. model structure) or factors assumed to confound performance (e.g. forecast horizon) (Reich 2019)", "Classical observational study design; increasingly sparse sample with multiple interacting strata",
   #---
-  "Transformation", "Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair", "Maintain some comparability across targets of different magnitudes, with the log transform closer to reflecting a standard way to reduce a target to the underlying epidemic growth rate", "Uncontrolled factors influence forecast target difficulty", "Bosse",
+  "Transformation", "Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair (Bosse 2022)", "Maintains comparability across targets of different magnitudes, and the log transform may be closer to reflecting underlying epidemic growth rate; moving away from natural error scale requires clear communication", 
   #---
-  "Matching", "Restrict pairwise comparison to each target; often by relative skill score: relative, compared with the paired performance of a single baseline", "Systematic inclusion of all models, able to compare any against any", "Choice of baseline ('control') unclear; difficult to interpret absolute performance (where all models perform well or poorly)", "Bracher"
+  "Matching", "Post-process the set of forecast scores to create a pairwise comparison between forecasters. This relative score may be aggregated to include any forecaster against any other, or restricted to matching forecasters per-target (Bracher 2021). The pairwise comparison may be against a 'baseline forecaster' available for all targets @stapper", "Able to include all forecast predictions; however the appropriate choice of comparator or baseline is unclear, and gives no interpretation of performance on an absolute scale (when all models perform well or poorly)", 
 ) |>
   knitr::kable() |>
-  kableExtra::kable_styling(full_width = FALSE)
+  kableExtra::kable_styling(full_width = TRUE)
 ```
 
-For example, analysis of the effect of model structure is likely influenced by a forecaster's strategy for selecting forecasting targets.
-This selectiveness may influence both structural approach to model development, their participation in different forecast targets, and their resulting predictive performance.
+For example, we may wish to assess the performance of different model designs used by a set of independent forecasters participating in any number of different forecast targets.
+When assessing across multiple forecast targets, we would need to separate out the model structure from the adaptability of different model structures to produce predictions across the different forecast targets.
 Faced with multiple forecasting targets, a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
-An alternative strategy is to develop a model to a specific forecast target, for example emphasising particular mechanistic processes or exploiting local data sources.
-Bespoke mechanistic models are more easily tailored to a single target in this way [(7,8)](https://www.zotero.org/google-docs/?vo794b).
-A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those specifically tuned to the national context [(9)](https://www.zotero.org/google-docs/?7QAdmm).
-This suggests the hypothesis that target strategy has a separate influence on predictive performance, confounding an estimate of the effect of model structure on predictive performance.
+An alternative strategy is to structure a model to mechanistically capture the data-generating processes of a specific forecast target, for example emphasising particular epidemic dynamics or exploiting local data sources.
+This suggests the hypothesis that design strategy has a seperate influence on predictive performance, confounding an estimate of the effect of model structure alone on predictive performance.
 
-Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for forecast target difficulty and target strategy.
+Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for factors contributing to forecast target difficulty.
+We use proper scoring rules to evaluate short-term forecasts of COVID-19 across Europe.
+We analyse performance by model structure, using a generalised additive mixed model to also account for variation in the target epidemiological outcome, trend and level of incident outcomes, dominant variant phase, country, forecast horizon, and random error of each individual model.
+Rather than stratifying scores across these sparse, interacting subgroups, our hierarchical approach pools information across sparsely populated groups through partial shrinkage of the random effects, and represents continuous sources of difficulty such as incidence as smooth functions.
 We include a directed acyclic graph in the Supplement to represent the structure of our assumptions, but note that our work is exploratory rather than formally causal.
-We apply this framework to evaluate short-term forecasts of COVID-19 across Europe, using proper scoring rules to evaluate forecasts within a generalised additive mixed model.
-We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with forecast target difficulty.
-We then consider directions for a fuller treatment of principled model evaluation in future work.
+We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with the forecast target rather than the forecasting method.
+We conclude by noting the increasing breadth and application of infectious disease forecasting efforts, and call for a wider range of evaluative study designs able to accurately and robustly capture their value.
