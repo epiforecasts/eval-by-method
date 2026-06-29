@@ -2,6 +2,38 @@
 
 Running log of analysis and manuscript changes. Newest first.
 
+## 2026-06-28 — Temporal autocorrelation diagnostic
+
+**Problem:** the joint GAMM carries no temporal correlation structure, so it treats
+weekly forecast scores (horizons 1–4) as conditionally independent given the random
+effects. Needed to quantify within-model score autocorrelation to justify or qualify
+that assumption.
+
+**Changes:**
+- `R/sensitivity/check-autocorrelation.R` (new): refits the log-response arm
+  (`model_wis_logresp()`), takes its near-symmetric residuals, and reports (A) per-series
+  lag-1..4 ACF on `log(WIS)`, (B) the same on residuals, (C) cross-horizon correlation at
+  a fixed forecast origin. Auto-runs on the CLI; `CHECK_AUTOCORR_NORUN=1` sources the
+  function only (for the supplement).
+- `report/quarto/supplement/_supplement.qmd`: new "Temporal autocorrelation" subsection
+  under Model diagnostics — ACF table, cross-horizon residual correlation matrix, and an
+  honest SE caveat.
+
+**Findings:** serial autocorrelation is modest and short-lived (median lag-1 ≈ 0.37 raw,
+0.33 residual; ~0 by lag 3–4 across 3,353 series). Stronger dependence is across horizons
+sharing a forecast origin (residual r ≈ 0.39–0.76). Treated as a diagnostic only — no AR
+structure added to the production model; SEs read as a lower bound.
+
+Added a spaghetti plot (`spaghetti_plot` in the returned list; 300 sampled origins,
+residual across horizons 1–4, faceted by target) visualising the within-origin
+dependence, and expanded the supplement limitation prose: an origin-level random effect
+would absorb the correlation but is collinear with the within-origin trend/variant/
+incidence/location terms, so the correction belongs on the SEs (block bootstrap over
+origins) not the model structure. Noted that the between-origin covariates (trend,
+variant) — not the focal Method/CountryTargets effects — are the ones whose precision is
+most overstated, since the correlation lives within origins where those covariates are
+constant.
+
 ## 2026-06-27 — Main text reports exp() ratios only; raw log effects → supplement
 
 **Problem:** main-text figures, Table 2, and prose reported partial effects on both
