@@ -2,7 +2,7 @@
 
 Forecasters attempting to predict infectious disease outbreaks have met with varying success.
 This variation may be because of varying predictive power among forecasting methods, or because of varying difficulty among forecast targets.
-In this work, we attempt to tune out variation from the target-generating process — the epidemic dynamics, surveillance, and data revisions that create each forecast target — in order to gain a more precise understanding of variation arising from the forecast-generating process.
+In this work, we attempt to clarify variation from the target-generating process (the epidemic dynamics, surveillance, and data revisions that create each observed forecast target), in order to gain a more precise understanding of variation arising from the forecast-generating process (modeller choice).
 
 We applied this approach to a dataset of forecasts from 47 different models submitted to the European COVID-19 Forecast Hub.
 We adjusted for variation across epidemic dynamics, forecast horizon, and whether a forecaster predicted for one or multiple countries.
@@ -14,9 +14,10 @@ We classified models by structure (agent-based, mechanistic, semi-mechanistic, s
 We adjusted for forecast horizon, epidemic trend, dominant variant phase, country location, and individual model variation.
 We summarised unadjusted performance descriptively and compared this to adjusted estimates from a generalised additive mixed model.
 
-Our findings suggest that after adjustment, no single structural approach dominated: adjusted estimates clustered around the average and their confidence intervals overlapped, so we could not distinguish performance between model structures.
-We could not explain substantial variation in performance between individual models, suggesting the importance of factors beyond those commonly documented, such as team capacity, domain expertise, and model evolution over time.
+We find that that after adjustment, no single structural approach dominated.
+Adjusted estimates clustered around the average and their confidence intervals overlapped, so we could not distinguish performance between model structures.
+This is consistent with the hypothesis that variation in forecast performance is driven more by differences among forecast targets, than by differences among forecasting strategies.
+We still could not explain substantial variation in performance between individual models, suggesting the importance of factors beyond those commonly documented, such as team capacity, domain expertise, and model evolution over time.
 
-Our work highlights the importance of accounting for predictive difficulty in order to correctly attribute why performance is so different between different forecasters.
-We provide a framework for more robust evaluations of infectious disease predictions, and suggest what a fuller causal treatment of this question would require.
-This work moves towards a more principled approach to systematically identifying what factors influence forecast performance.
+Our analysis represents a middle ground in formally considering bias when designing evaluation studies.
+As the field of infectious disease forecasting expands, we encourage evaluators to consider a wider range of study designs, adopting informal to formal methods where appropriate in order to isolate specific components of forecast performance.

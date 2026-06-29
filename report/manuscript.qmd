@@ -1,5 +1,5 @@
 ---
-title: "Evaluating the role of model structure in the predictive performance of European COVID-19 forecasts"
+title: "Using a model-based approach to evaluate contributions to forecast performance: the role of model structure among European COVID-19 forecasts"
 format: html
 ---
 
