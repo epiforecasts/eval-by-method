@@ -1,9 +1,8 @@
 
-
 [![Zenodo](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161)
 [![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
-## Evaluating model structures among European COVID-19 forecasts
+## Using model-based evaluation to interpret variation in infectious disease forecast performance
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike
 Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
@@ -13,47 +12,124 @@ Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 2)  European Centre for Disease Prevention and Control
 3)  Institute of Statistics, Karlsruhe Institute of Technology
 
-#### Overview
+<details>
 
-- A [slide
-  deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p)
-  offers high level context for what we were interested in, what we did,
-  and what we found.
+<summary>
 
-#### Summary
+Abstract
+</summary>
 
-- Accurately predicting the spread of infectious disease is essential to
-  supporting public health during outbreaks. However, comparing the
-  accuracy of different forecasting models is challenging. Existing
-  evaluations struggle to isolate the impact of model design choices
-  (like model structure, or specificity to the forecast target) from the
-  inherent difficulty of predicting complex outbreak dynamics. Our
-  research moves towards a more principled approach to systematically
-  adjusting for common factors affecting epidemiological forecasts,
-  accounting for multi-layered and non-linear effects on predictive
-  difficulty.
+Forecasters predicting infectious disease outbreaks have met with
+varying success. Some of this variation in performance comes from the
+method used to make a forecast, when different models are better or
+worse at prediction. The rest comes from the target being forecast, when
+some outbreaks are easier or harder to predict than others. However,
+when many forecasters each predict many different targets, it becomes
+difficult to trace the impact of these factors shaping performance. Here
+we use a regression model to separate the effect of the forecasting
+method, from the difficulty of the target, in forecast performance.
 
-- We applied this approach to 181,851 probabilistic predictions from 47
-  models submitted to the European COVID-19 Forecast Hub between March
-  2021 and March 2023. We classified models by structure (agent-based,
-  mechanistic, semi-mechanistic, statistical, or human judgement) and by
-  target strategy (forecasting one or multiple countries). We adjusted
-  for forecast horizon, epidemic trend, dominant variant phase, country
-  location, and individual model variation, isolating the impact of
-  model structure on predictive performance.
+We evaluated forecasts of weekly COVID-19 cases and deaths over two
+years across 32 European countries, scoring them against observed data
+with the Weighted Interval Score (WIS). We expected a model’s structure
+to shape how well it predicted, so we classified 47 models by structure
+(agent-based, mechanistic, semi-mechanistic, statistical, or human
+judgement) and estimated how much structure alone affected performance.
+A generalised additive mixed model let us adjust for everything that
+makes a target easier or harder to predict: the outcome being forecast,
+its level and trend, the dominant variant, the country, the forecast
+horizon, and differences between individual models.
 
-- Our findings suggest that after adjustment, apparent differences in
-  performance between model structures became minimal. Models
-  forecasting a single geographic target showed some indication of
-  better performance than those forecasting multiple targets, though
-  with overlapping uncertainty. Substantial residual variation between
-  individual models remained unexplained by our adjustment. Our work
-  highlights the importance of accounting for predictive difficulty when
-  evaluating across forecasting models, and provides a framework for
-  more robust evaluations of infectious disease predictions.
+Once we accounted for the difficulty of the target, no single type of
+model performed best. Differences in European COVID-19 forecast
+performance were driven more by which targets were hard to predict than
+by which modelling approach a forecaster used.
 
-- Read the pre-print:
-  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611)
+This approach sits between informal and fully formal ways of handling
+bias in evaluation studies. As infectious disease forecasting grows, we
+encourage evaluators to choose from a wider range of study designs,
+matching the formality of the method to the question, so they can
+isolate the part of performance they actually want to measure.
+
+</details>
+
+------------------------------------------------------------------------
+
+### Getting started
+
+#### Read
+
+Read the work as it stands:
+
+- The full paper (background, methods, results, discussion) is in
+  [report/manuscript.qmd](./report/manuscript.qmd), which assembles the
+  section files in [report/quarto/](./report/quarto/).
+- The supplement is in
+  [report/quarto/supplement/\_supplement.qmd](./report/quarto/supplement/_supplement.qmd).
+- The pre-print is on
+  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611).
+
+#### Reproduce
+
+To re-run the analysis end to end, without editing anything:
+
+1.  Restore the package environment
+    ([renv](https://rstudio.github.io/renv/articles/renv.html)):
+
+    ``` r
+       renv::restore()
+    ```
+
+2.  Data is already in `data/`. To re-download it from public sources,
+    see the [data/README](data/README.md).
+
+3.  Score forecasts on the log and natural scales (writes to `data/`):
+
+    ``` r
+       source(here("R", "process-score.R"))
+    ```
+
+4.  Assemble scores with explanatory variables:
+
+    ``` r
+       source(here("R", "process-data.R"))
+    ```
+
+5.  Fit the GAMM to the weighted interval score (writes to `output/`):
+
+    ``` r
+       source(here("R", "analysis-model.R"))
+    ```
+
+6.  Render the manuscript (includes the results section and supplement):
+
+    ``` r
+       quarto::quarto_render("report/manuscript.qmd")
+    ```
+
+    `analysis-model.R` must be run before rendering — it is not sourced
+    by the results section.
+
+#### Explore
+
+A guide to the codebase:
+
+- `R/` — analysis and utility scripts:
+  - `process-score.R` scores forecasts; `process-data.R` joins scores to
+    explanatory variables; `analysis-model.R` fits the GAMM;
+    `analysis-descriptive.R` builds summary tables;
+    `plot-model-results.R` and `plot-model-flow.R` make the figures;
+    `dag-check.R` defines the confounding DAG.
+  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` — data
+    access, model metadata, and variant-phase classification.
+  - `R/sensitivity/` — robustness checks (autocorrelation, link
+    function, log-response model, model-building notebook).
+- `data/` — forecasts (`covid19-forecast-hub-europe.parquet`), observed
+  incidence, populations, model classification, and computed scores.
+- `report/quarto/` — the manuscript section files;
+  `report/quarto/supplement/` the supplement.
+- `output/` — fitted model results and diagnostic plots, under
+  scale-named subdirectories (`log/`, `log-resp/`, `natural/`).
 
 ------------------------------------------------------------------------
 
@@ -64,53 +140,6 @@ Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 - Submitted
   [manuscript](https://docs.google.com/document/d/1B_HviobjSIak4c1FKoSOqgFwRF_DxMrJM6zsdbdth4E/edit?tab=t.0)
 - [Authorship](https://docs.google.com/spreadsheets/d/18mt6c47MCzLdMAKth6Bv2PC7b10KYgWieExHHWLnP3Q/edit?gid=0#gid=0)
-
-------------------------------------------------------------------------
-
-### Getting started
-
-#### Code environment
-
-Packages are managed using
-[renv](https://rstudio.github.io/renv/articles/renv.html). In order to
-install all the required packages, install the `renv` package and run
-
-``` r
-renv::restore()
-```
-
-#### Data
-
-All the data used in the analysis is stored in the `data/` directory. It
-has been obtained from public sources. To re-download the data in the
-`data/` directory, see the [data/README](data/README.md).
-
-#### Analyses
-
-In order to re-generate the forecast scores, use
-
-``` r
-## Score forecasts & ensembles on the log and natural scales; save to data/
-source(here("R", "process-score.R"))
-```
-
-In order to run the GAM on the scores, use
-
-``` r
-## Model the weighted interval score; save to data/
-source(here("R", "analysis-model.R"))
-```
-
-#### Results
-
-The full manuscript (background, methods, results, discussion) is
-written in [report/manuscript.qmd](./report/manuscript.qmd), which
-sources the R scripts and assembles section files from
-[report/quarto/](./report/quarto/). The supplement is in
-[report/quarto/supplement/\_supplement.qmd](./report/quarto/supplement/_supplement.qmd).
-
-Re-render the manuscript:
-
-``` r
-quarto::quarto_render("report/manuscript.qmd")
-```
+- [Slide
+  deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p)
+  — high-level context
