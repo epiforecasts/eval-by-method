@@ -6,12 +6,12 @@ With increasing numbers of both forecasters and forecast targets, we have more p
 This requires careful accounting among the many factors contributing to performance.
 Here, we suggest one approach to this using a joint modelling framework, and apply this to illustrate varying performance of forecasts of Covid-19 in Europe.
 
-Some of the variation in performance can be attributed to differences between infectious disease targets.
+Some of the variation in performance can be attributed to differences between infectious disease target estimands.
 We see better predictive performance with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc) in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), and when the target is observed with timely, accurate surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN) [(11)](https://www.zotero.org/google-docs/?c33gx9), or has informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT).
 Meanwhile, performance is consistently better at shorter than longer horizons [(15)](https://www.zotero.org/google-docs/?2K90bo), possibly based on the disease-specific serial interval that links disease to observation (Sherratt 2021), prompting suggestions that there are inherent limits to the predictability of infectious diseases based on the complexity of the disease-surveillance-response system [(14)](https://www.zotero.org/google-docs/?CZumUU).
 This variability makes it difficult to make fair comparisons across multiple forecast targets.
 
-At the same time, variation in performance between forecasters arises from individual differences in the forecast-generating process: the structural approaches and implementation choices made in developing a forecasting model.
+At the same time, variation in performance between forecasters arises from individual differences in the forecast estimation process: the structural approach and implementation choices made in developing a forecasting model.
 Forecasters may use many methods, ranging from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
 Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
 This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
