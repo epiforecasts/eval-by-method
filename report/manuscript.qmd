@@ -1,6 +1,8 @@
 ---
 title: "Using model-based evaluation to interpret variation in infectious disease forecast performance"
 format: html
+bibliography: bib.bib
+csl: vancouver.csl
 ---
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
@@ -9,7 +11,7 @@ Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3),
 (2) European Centre for Disease Prevention and Control
 (3) Institute of Statistics, Karlsruhe Institute of Technology
 
-Email: katharine.sherratt@lshtm.ac.uk
+Email: katharine.sherratt\@lshtm.ac.uk
 
 ### Abstract
 
@@ -18,10 +20,6 @@ Email: katharine.sherratt@lshtm.ac.uk
 ## Main text
 
 ### Background
-
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] update all references
-:::
 
 {{< include quarto/_background.qmd >}}
 
@@ -39,7 +37,8 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### References
 
-{{< include quarto/_references.qmd >}}
+::: {#refs}
+:::
 
 ## Supplement
 
