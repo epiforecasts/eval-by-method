@@ -4,7 +4,7 @@
 
 We consider forecasts of incident COVID-19 cases and deaths between 8 March 2021 to 10 March 2023 for 32 European countries.
 
-We used forecast data collected via the public European COVID-19 Forecast Hub, described in [(19)](https://www.zotero.org/google-docs/?5K4uXI).
+We used forecast data collected via the public European COVID-19 Forecast Hub, described in [@euroHub2021].
 The platform solicited real-time forecasts for between one and four weeks ahead for 32 European countries.
 Any forecaster was eligible to participate in the Hub, and there were no selection criteria.
 
@@ -12,15 +12,15 @@ We excluded forecasts that did not report the full set of 23 quantiles, to ensur
 Full study eligibility and a STROBE flow diagram are detailed in the Supplement.
 
 We evaluated forecasts against observed data collated by Johns Hopkins University (JHU).
-This included cumulative daily reported cases or deaths [(20)](https://www.zotero.org/google-docs/?cDnqeb).
+This included cumulative daily reported cases or deaths [@dong2020].
 We calculated incident weekly counts, and used the dataset available as of 10 March 2023, when JHU stopped collating data.
 
 Prior to evaluation, we normalised both forecasts and observations to incidence per 100,000 population.
 We then log-transformed both forecasts and observations.
-This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate [(22,23)](https://www.zotero.org/google-docs/?NuBRI2).
+This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate [@bosse2022; @bosse2023].
 To avoid zeros, we added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values.
 
-We evaluated forecasts against observed data using the Weighted Interval Score (WIS) [(21)](https://www.zotero.org/google-docs/?T3es1k).
+We evaluated forecasts against observed data using the Weighted Interval Score (WIS) [@bracher2021].
 The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS).
 This assigns each probabilistic forecast a score that reflects the forecast's dispersion, overprediction, and underprediction.
 
@@ -81,8 +81,8 @@ The two smooths captured continuous covariates.
 $f_{\text{Inc}}$ was a penalised thin-plate regression spline over (log-transformed) incidence, and $\{f^{\text{Horizon}}_k\}$ was a factor-smooth interaction (sum-to-zero constrained, with $k=3$ basis functions per forecasting model), allowing the horizon effect to vary by model.
 
 We used summary statistics to describe WIS by model structure and target strategy.
-We fitted all models using the *mgcv* package in R [(24)](https://www.zotero.org/google-docs/?Jv7oFh), using fast restricted maximum likelihood estimation (fREML).
+We fitted all models using the *mgcv* package in R [@wood2011], using fast restricted maximum likelihood estimation (fREML).
 We checked model fit with visual inspection of residuals via Q-Q plots.
 To assess confounding, we fitted univariate models to contrast unadjusted and adjusted estimates of the partial effect of model structure on WIS.
 
-All data and code are publicly available online [(25)](https://www.zotero.org/google-docs/?qHy24c).
+All data and code are publicly available online [@sherratt2025].

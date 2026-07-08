@@ -1,6 +1,8 @@
 ---
 title: "Using a model-based approach to evaluate contributions to forecast performance: the role of model structure among European COVID-19 forecasts"
 format: html
+bibliography: references.bib
+csl: plos-computational-biology.csl
 ---
 
 Using model-based analysis to evaluate multi-dimensional forecast performance: tracing the effect of model structure in predictions of Covid-19 in Europe
