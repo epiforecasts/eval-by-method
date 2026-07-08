@@ -70,25 +70,14 @@ Each of these study design strategies may usefully simplify some aspect of the p
 However, evaluators facing large, open forecasting challenges must handle a high degree of variation across both many forecast targets and many forecasting models simultaneously.
 The noisiness of these mixed signals means that any of these strategies for simplification may not be sufficient to isolate a single component of forecast performance and trace its effect.
 
-```{r}
-#| label: tbl-approaches
-#| tbl-cap: >-
-#|   Existing approaches to accounting for forecast target difficulty, with their advantages and limitations.
+| Study design | Example usage | Considerations |
+|---|---|---|
+| Restriction | Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts [@sherratt2021] | Simple and easy to communicate; loses power by excluding some targets altogether, and penalises forecasters who may appropriately forecast the revised data |
+| Stratification | Present forecast scores stratified by factors of interest (e.g. model structure) or factors assumed to confound performance (e.g. forecast horizon) [@reich2019] | Classical observational study design; increasingly sparse sample with multiple interacting strata |
+| Transformation | Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair [@bosse2022] | Maintains comparability across targets of different magnitudes, and the log transform may be closer to reflecting underlying epidemic growth rate; moving away from natural error scale requires clear communication |
+| Matching | Post-process the set of forecast scores to create a pairwise comparison between forecasters. This relative score may be aggregated to include any forecaster against any other, or restricted to matching forecasters per-target [@bracher2021]. The pairwise comparison may be against a 'baseline forecaster' available for all targets [@stapper] | Able to include all forecast predictions; however the appropriate choice of comparator or baseline is unclear, and gives no interpretation of performance on an absolute scale (when all models perform well or poorly) |
 
-tibble::tribble(
-  ~"Study design", ~"Example usage", ~"Considerations",
-  #---
-  "Restriction", "Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts (Sherratt 2021)", "Simple and easy to communicate; loses power by excluding some targets altogether, and penalises forecasters who may appropriately forecast the revised data", 
-  #---
-  "Stratification", "Present forecast scores stratified by factors of interest (e.g. model structure) or factors assumed to confound performance (e.g. forecast horizon) (Reich 2019)", "Classical observational study design; increasingly sparse sample with multiple interacting strata",
-  #---
-  "Transformation", "Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair (Bosse 2022)", "Maintains comparability across targets of different magnitudes, and the log transform may be closer to reflecting underlying epidemic growth rate; moving away from natural error scale requires clear communication", 
-  #---
-  "Matching", "Post-process the set of forecast scores to create a pairwise comparison between forecasters. This relative score may be aggregated to include any forecaster against any other, or restricted to matching forecasters per-target (Bracher 2021). The pairwise comparison may be against a 'baseline forecaster' available for all targets @stapper", "Able to include all forecast predictions; however the appropriate choice of comparator or baseline is unclear, and gives no interpretation of performance on an absolute scale (when all models perform well or poorly)", 
-) |>
-  knitr::kable() |>
-  kableExtra::kable_styling(full_width = TRUE)
-```
+: Existing approaches to accounting for forecast target difficulty, with their advantages and limitations. {#tbl-approaches}
 
 For example, we may wish to assess the performance of different model designs used by a set of independent forecasters participating in any number of different forecast targets.
 When assessing across multiple forecast targets, we would need to separate out the model structure from the adaptability of different model structures to produce predictions across the different forecast targets.
