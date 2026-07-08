@@ -1,0 +1,52 @@
+---
+title: "The influence of model structure and geographic specificity on predictive accuracy among European COVID-19 forecasts"
+format: html
+---
+
+Katharine Sherratt^1^\*, Rok Grah^2,3^, Bastian Prasse^2^, Friederike
+Becker^4^, Jamie McLean^1^, Sam Abbott^1^, Sebastian Funk^1^
+
+^1^ Centre for Mathematical Modelling of Infectious Disease, London
+School of Hygiene & Tropical Medicine, London, UK
+
+^2^ European Centre for Disease Prevention and Control, Stockholm,
+Sweden
+
+^3^ Safinea, Dublin, Ireland
+
+^4^ Institute of Statistics, Karlsruhe Institute of Technology,
+Karlsruhe, Germany
+
+\*Corresponding author
+
+Email katharine.sherratt@lshtm.ac.uk (KS)
+
+### Abstract
+
+{{< include quarto/_abstract.qmd >}}
+
+## Main text
+
+### Background
+
+{{< include quarto/_background.qmd >}}
+
+### Methods
+
+{{< include quarto/_methods.qmd >}}
+
+### Results
+
+{{< include quarto/_results.qmd >}}
+
+### Discussion
+
+{{< include quarto/_discussion.qmd >}}
+
+### References
+
+{{< include quarto/_references.qmd >}}
+
+## Supplement
+
+{{< include quarto/supplement/_supplement.qmd >}}
