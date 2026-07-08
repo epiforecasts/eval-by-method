@@ -1,5 +1,5 @@
 We evaluated forecasts from the European COVID-19 Forecast Hub between 8 March 2021 to 10 March 2023.
-This is a public platform launched in March 2021 that collated real-time weekly forecasts of COVID-19 for 32 European countries (19).
+This is a public platform launched in March 2021 that collated real-time weekly forecasts of COVID-19 for 32 European countries [@euroHub2021].
 Over 50 modelling teams contributed prospective forecasts during the study period, predicting between one and four weeks ahead incidence of COVID-19 cases, deaths, or hospitalisations.
 Forecasters were able to express uncertainty by reporting a distribution of up to 23 given probabilistic quantiles for each prediction.
 Forecasters also contributed a standard set of metadata describing their team and model.
@@ -20,14 +20,14 @@ We also classified models by geographic target specificity.
 We assessed the total number of countries that each model had provided a projection for at any time over the forecast period, noting that forecasters could change the number of targets they submitted.
 We classified each model as "single" or "multi-country" based on forecasting for one versus two or more countries.
 
-We compared forecasts against data collated by Johns Hopkins University (JHU) comprising cumulative reported cases or deaths reported daily for each of the 32 European countries (20).
+We compared forecasts against data collated by Johns Hopkins University (JHU) comprising cumulative reported cases or deaths reported daily for each of the 32 European countries [@dong2020].
 This had been communicated to participating teams as being the "truth" data set.
 We calculated the incident weekly number of cases or deaths and used the dataset available as of 10 March 2023, when JHU stopped reporting new data.
 We excluded forecasts after this time in order to use a single consistent data source against which to evaluate forecasts.
 
 We evaluated forecasts using the Weighted Interval Score (WIS).
-This assigns forecasts a score as a combination of dispersion, overprediction, and underprediction, reflecting both the width of the forecast and whether it was centred above or below the observed value (21).
-We log-transformed all forecasts and observations before applying the weighted interval score, which leads to more comparable scores across locations and times, and can be interpreted as scoring the ability of models to predict the growth rate (22,23).
+This assigns forecasts a score as a combination of dispersion, overprediction, and underprediction, reflecting both the width of the forecast and whether it was centred above or below the observed value [@bracher2021].
+We log-transformed all forecasts and observations before applying the weighted interval score, which leads to more comparable scores across locations and times, and can be interpreted as scoring the ability of models to predict the growth rate [@bosse2022; @bosse2023].
 
 We used summary statistics to describe the performance as measured by WIS in our dataset by model structure and geographic target specificity.
 In order to make more robust inferences about effects on forecast performance, we further fitted a generalised additive mixed effect model (GAMM).
@@ -43,5 +43,5 @@ In order to account for any differences in difficulty of forecasting different l
 Last, we added a random effect for individual models to account for any variation in accuracy beyond the other factors included in our model.
 
 In order to demonstrate the impact of adjusting for confounding factors, we further fitted univariate models for each of the explanatory variables and by individual model, and contrasted unadjusted and adjusted estimates of the partial effect of each factor.
-We fitted models with the *mgcv* package in R (24), using restricted maximum likelihood estimation (REML).
-All data and code are publicly available online at (25) (with details in Supplement).
+We fitted models with the *mgcv* package in R [@wood2011], using restricted maximum likelihood estimation (REML).
+All data and code are publicly available online at [@sherratt2025] (with details in Supplement).

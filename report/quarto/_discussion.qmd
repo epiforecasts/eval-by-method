@@ -5,20 +5,20 @@ After adjustment, we observed little systematic difference in average performanc
 Models forecasting for only a single geographic target outperformed those that made predictions for multiple targets, although this was a weak signal with overlapping uncertainty.
 We noted substantial variation in model performance that our approach did not account for.
 
-Our findings extend previous work that has failed to find evidence for substantial differences between different model types' predictive performance, across a variety of outbreaks and epidemic dynamics (4--6).
-In contrast, some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches (17,18,26).
+Our findings extend previous work that has failed to find evidence for substantial differences between different model types' predictive performance, across a variety of outbreaks and epidemic dynamics [@carlson2018; @viboud2018; @reich2019].
+In contrast, some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches [@delvalle2018; @mcgowan2019; @johansson2019].
 The typical advantage of statistical models is that they capture the autocorrelated nature of incidence time series.
 However, we also noted that the more mechanistic models in our study produced a wide range of predictive performance, and some of the best-performing individual models in our sample were mechanistic or agent-based.
 This indicates that factors beyond our structural categorisation may have played a role in driving performance.
-At the same time, we note widely replicated work demonstrating that the most reliable method for achieving predictive accuracy is to combine forecasts across models and model types using ensemble methods, rather than relying on any single model (e.g. (12,15,27)).
+At the same time, we note widely replicated work demonstrating that the most reliable method for achieving predictive accuracy is to combine forecasts across models and model types using ensemble methods, rather than relying on any single model (e.g. [@sherratt2023; @cramer2022; @reich2019accuracy]).
 
 We observed some weak evidence that models tended to perform better when they were focused on single countries versus multiple countries.
 This could suggest that the flexibility to incorporate knowledge about a specific forecast target can yield a performance advantage.
 This could derive from a better understanding of the nature of the underlying data generating processes that modellers were asked to forecast, such as country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes.
-Other work has similarly noted forecaster experience as a contributing factor in improving performance (18).
+Other work has similarly noted forecaster experience as a contributing factor in improving performance [@mcgowan2019].
 
 We also noted that real-time data were frequently updated retrospectively, and such data revisions might also explain some of the improved performance of target-specific models.
-Teams focussing on only one country's data may have been more easily able to detect anomalous observations or be aware of their cause, and consequently to adapt forecasts to predict a value closer to the "true" observation that would later be reflected in a retrospective data revision (e.g. (28)).
+Teams focussing on only one country's data may have been more easily able to detect anomalous observations or be aware of their cause, and consequently to adapt forecasts to predict a value closer to the "true" observation that would later be reflected in a retrospective data revision (e.g. [@wolffram2023]).
 
 A key limitation of this work was its limited power to detect potential differences in performance between model structures or target specificity.
 While we used a large dataset of forecasts over time, we had a relatively small sample size of independent models: for example, only 3 agent-based models.
@@ -35,13 +35,13 @@ For example, models incorporating underlying epidemic mechanisms may be less res
 Explicitly accounting for such interactions could be a useful insight from future work.
 
 Further, we did not account for a wide range of additional confounding factors likely influencing performance.
-These may include the presence of anomalies in real-time data, or varying uses of model assumptions, or data sources (11).
+These may include the presence of anomalies in real-time data, or varying uses of model assumptions, or data sources [@holcomb2023].
 We did not attempt to quantify the amount of resources or effort that teams put into model development or producing forecasts, or explore how this might relate to model structures that require more or less tuning and input.
 In addition, we did not track changes to each model's individual methods over time, or account for this in our analysis.
 Further work could particularly investigate in more detail the interactions between methodological choices and the broader context of epidemiological predictability, for example accounting for turning points or changes to underlying transmission dynamics such as new variant introductions or management interventions.
 
 Unlike past work, our conclusions are based on assessing performance using forecasts on a log scale, rather than the natural scale of observed data.
-We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak (23).
+We observed that the log scale moderated scores overall, and in general this method appears to give less weight to penalising inaccurate forecasts after a peak [@bosse2023].
 In particular, we saw reduced variability among the scores of semi-mechanistic models on the log scale, compared to the natural scale.
 This suggests the importance of accounting for epidemic characteristics in assessing forecast performance, where we chose to prioritise relative assessment of the growth rate rather than absolute counts.
 We think that interpreting performance against trends in underlying epidemic dynamics better reflects decision maker needs.

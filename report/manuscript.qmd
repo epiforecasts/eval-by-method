@@ -1,6 +1,8 @@
 ---
 title: "The influence of model structure and geographic specificity on predictive accuracy among European COVID-19 forecasts"
 format: html
+bibliography: references.bib
+csl: plos-computational-biology.csl
 ---
 
 Katharine Sherratt^1^\*, Rok Grah^2,3^, Bastian Prasse^2^, Friederike
