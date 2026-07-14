@@ -22,9 +22,7 @@ library(gratia)
 library(ggplot2)
 source(here("R", "process-data.R"))
 
-# Shared joint-model RHS, reused by model_wis() and the log-response
-# sensitivity arm (model_wis_logresp() in R/sensitivity/model-logresp.R) so
-# both fit an identical specification.
+# Shared joint-model RHS, reused by model_wis() and sensitivity analysis
 m.formula_joint <- wis ~
   Epi_target +
   s(Method, bs = "re") +
@@ -37,7 +35,7 @@ m.formula_joint <- wis ~
   s(Model, bs = "re")
 
 model_wis <- function(scoring_scale = "log", family_link = "log",
- output_dir = "output") {
+output_dir = "output") {
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
