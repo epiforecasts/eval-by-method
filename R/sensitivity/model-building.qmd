@@ -3,83 +3,40 @@ title: "Model building"
 format: html
 ---
 
-## Context
+In developing this analysis we produced two substantive versions.
+The first (version 1) was developed over 2023-24 and published as a pre-print.
+We substantially revised this work in order to develop a more robust theoretical framework that clarified factors affecting the forecast estimate or forecast estimand.
 
-Aim: to address bias and confounding when scoring forecasts against observations.
+In this process, we considered a range of model specifications.
+We note these decisions here for completeness and reproducible evaluation.
+A record of model development is also shown in the code history committed to: [analysis-model.R](https://github.com/epiforecasts/eval-by-method/commits/main/R/analysis-model.R).
 
-Study design: cohort Unit of analysis: individual models Outcome: weighted interval score Exposure of interest: model structure
+## Covariate selection
 
-## Application
+We used a fully prior-driven approach to selecting covariates.
+In version 1 we specified a framework for influences on forecast performance based on co-authors' domain expertise, and data availability.
+At no point did we use quantitative measures of statistical effect to select covariates.
+In version 2 we further clarified this approach using a directed acyclic graph.
 
-### Data set up
+|   | Version 1 (code) | Version 2 (code) |
+|----|----|----|
+|  |  |  |
+|  |  |  |
+| Epidemiological outcome (cases / deaths) | Originally not included within the model; all data were stratified by outcome and models fitted separately. | We considered epi outcome as a factor of the forecast estimand, and included as a fixed effect covariate |
+|  |  |  |
 
-Load the data and remove the Hub ensemble and baseline models.
+## Model fitting
 
-````
+We report issues and decisions made in model fitting for version 2.
 
-### Characteristics and selection
-
-### Bias and precision
-
-*Selection bias*
-
-Participation rate: did we see a similar distribution of model structures compared to frequency in the general population (i.e. the US Hub)?
-
-Is there differential attrition between model types?
-
-*Misclassification*
-
-Did raters disagree on model structure classification more often in some groups of the exposure (i.e. model structures) than others?
-
-This suggests we should try a sensitivity analysis where we reallocate classifications by second-ranked.
-
-### Evaluating confounding
-
-We believe each of the following factors is associated in some way with the exposure and the outcome, but is not on the causal pathway from exposure (model structure) to outcome (performance).
-
-##### Level of incidence
-
-We have scored forecasts against observations on a log scale, to help downweight differences of magnitude between targets.
-Since we are using incidence as a separate covariate, we should use the same log transform to match.
-
-```{r}
-m.data <- m.data |> mutate(Incidence = log(Incidence + 1), Epi_target = as.factor(epi_target)) 
-m.family <- gaussian(link = "log")
-````
-
-````{r}
-unadjusted <- extract_ranef(m.fit)
-
-m.fit <- bam(
-  formula = wis ~ s(Method, bs = "re"),
-  data = m.data,
-  family = m.family,
-  method = "fREML",
-  control = gam.control(trace = TRUE),
-  discrete = TRUE
-)
-unadjusted <- extract_ranef(m.fit)
-
-m.fit <- bam(
-  formula = wis ~ s(Method, bs = "re"),
-  data = m.data,
-  family = m.family,
-  method = "fREML",
-  control = gam.control(trace = TRUE),
-  discrete = TRUE)
-
-#### Association with outcomes
-
-### Joint model
-
-```{r}
-m.formula_joint <- wis ~ Epi_target +
-s(Method, bs = "re") + 
-s(CountryTargets, bs = "re") + 
-s(Incidence) + 
-s(Trend, bs = "re") + 
-s(Location, bs = "re") + 
-s(VariantPhase, bs = "re") + 
-s(Horizon, by = Model, k = 3, bs = "sz") + 
-s(Model, bs = "re")
-````
++--------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------+
+| Fitting variation                                                        | Effect                                                                                                        | Decision                                                                                                                                     | Code (version 2)                                                                                                                              |
++==========================================================================+===============================================================================================================+==============================================================================================================================================+===============================================================================================================================================+
+| Gaussian family                                                          |                                                                                                               |                                                                                                                                              | [Version 2](https://github.com/epiforecasts/eval-by-method/blob/6752220d5b9c0eee1186cb96435ec35985e8d7c8/R/analysis-model.R)                  |
++--------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------+
+| Using an identity or a log link                                          | No qualitative difference in residual skew; no difference in main effect results                              | Kept the log link                                                                                                                            | [commit](https://github.com/epiforecasts/eval-by-method/blob/6752220d5b9c0eee1186cb96435ec35985e8d7c8/R/sensitivity/check-link-robustness.R)  |
++--------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------+
+| Log transform the WIS and use a Gaussian distribution with identity link | log(WIS) is near-symmetric, and residual skew/kurtosis improve markedly; no difference in main effect results | We rejected this on the basis that (1) the scores are no longer "proper"; (2) interpretability (avoiding a log transform of a log transform) | [commit](https://github.com/epiforecasts/eval-by-method/blob/6752220d5b9c0eee1186cb96435ec35985e8d7c8/R/sensitivity/model-logresp.R)          |
++--------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                          |                                                                                                               |                                                                                                                                              |                                                                                                                                               |
++--------------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------+
