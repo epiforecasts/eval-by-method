@@ -1,4 +1,5 @@
 ---
+title: "Supplementary information"
 format:
   html:
     toc: true
@@ -33,8 +34,6 @@ scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 results <- readRDS(here("output", "log", "results.rds"))
 ```
-
-\newpage
 
 ## Methods
 
@@ -123,7 +122,30 @@ table_metadata(scores) |>
   kable(caption = "Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.")
 ```
 
-Number of models participating in forecasting 1-week ahead case incidence for each country over the study period.
+### Classification of exposures
+
+#### Model structure
+
+Human raters classified models according to methodological structures.
+
+```{r}
+#| label: supplement-classification
+
+model_classifier <- classify_models(return_majority = FALSE) |> 
+  distinct(model, classification, raters, votes, agreement) |> 
+  group_by(model) |>
+  mutate(final = classification[which.max(votes)]) |> 
+  pivot_wider(names_from = classification, values_from = votes, values_fill = 0) |> 
+  filter(model %in% unique(scores$Model)) |>
+  select(Model = model, `Final classification` = final,
+         Agreement = agreement, `Total raters` = raters, everything()) |>
+  arrange(Agreement, Model)
+
+model_classifier |> 
+    kable(caption = "Classification of models by number of raters in total and agreement on model structure")
+```
+
+Number of models of each type participating, at the 1-week ahead incidence of cases, for each country over the study period.
 
 ```{r}
 #| label: supplement-participation
@@ -180,28 +202,7 @@ labs(x = "Forecast week", y = "Number of target countries") +
 theme(legend.position = "none")
 ```
 
-### Model structure classification
-
-Human raters classified models according to methodological structures.
-
-```{r}
-#| label: supplement-classification
-
-model_classifier <- classify_models(return_majority = FALSE) |> 
-  distinct(model, classification, raters, votes, agreement) |> 
-  group_by(model) |>
-  mutate(final = classification[which.max(votes)]) |> 
-  pivot_wider(names_from = classification, values_from = votes, values_fill = 0) |> 
-  filter(model %in% unique(scores$Model)) |>
-  select(Model = model, `Final classification` = final,
-         Agreement = agreement, `Total raters` = raters, everything()) |>
-  arrange(Agreement, Model)
-
-model_classifier |> 
-    kable(caption = "Classification of models by number of raters in total and agreement on model structure")
-```
-
-#### Epidemic trend identification
+#### Epidemic trend
 
 We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
 
@@ -244,9 +245,7 @@ scores |>
   ggtitle("Deaths")
 ```
 
-\newpage
-
-#### Variant phase identification
+#### Variant phase
 
 Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
 Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB.
@@ -270,8 +269,6 @@ variant_phases |>
     theme(legend.position = "bottom")
 ```
 
-\newpage
-
 ### Model building
 
 To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram.
@@ -292,35 +289,11 @@ We used the following model formula with the mgcv package in R 4.1.
 
 `r paste(deparse(results$formula), collapse = " ")`
 
-\newpage
-
 ## Results
 
-### Model diagnostics
+### Residual error correlations
 
-Diagnostic plots (QQ, residuals vs linear predictor, histogram of residuals, and observed vs fitted) for the single combined model fitted jointly across both epidemiological targets.
-
-```{r}
-#| label: supplement-gamm-diagnostics
-
-# QQ plot, residuals
-knitr::include_graphics(here("output", "log", "plots", "check_joint.pdf"))
-```
-
-The primary model uses a Gaussian family with a log link applied to the (untransformed) weighted interval score.
-This models the score multiplicatively but assumes additive, constant-variance Gaussian residuals on the raw score scale.
-Because the WIS is strongly right-skewed, the observation-level residuals retain a heavy upper tail (residual skewness ≈ 5.5, excess kurtosis well above the Gaussian reference), visible in the QQ plot above.
-The fitted relationships and partial effects are nonetheless stable: a reparameterisation that instead models the log-transformed score directly (below) substantially improves the residual distribution without materially changing the estimated effects.
-
-Observed versus fitted WIS for the primary model is shown below; points concentrate along the identity line, with the dispersion in the upper tail reflecting the residual skewness noted above.
-
-```{r}
-#| label: supplement-fit-obs
-
-plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")), scale_label = "WIS")
-```
-
-#### Temporal autocorrelation
+#### Within-model error: temporal autocorrelation
 
 The model carries no temporal correlation structure, so it treats forecast scores as conditionally independent given the random effects.
 As scores are a weekly repeated-measures series (by forecast date) at horizons 1-4, we checked for residual autocorrelation that could bias the standard errors on the focal effects.
@@ -344,9 +317,10 @@ source(here("R", "sensitivity", "check-autocorrelation.R"))
   kable_styling(full_width = FALSE)
 ```
 
-Serial autocorrelation in the scores is modest and short-lived: the median lag-1 autocorrelation is `r round(.autocorr$acf_summary$median[.autocorr$acf_summary$series == "log(WIS)" & .autocorr$acf_summary$lag == 1], 2)` for the raw `log(WIS)` series, decaying to near zero by lag 3--4.
+Serial autocorrelation in the scores is modest and short-lived: the median lag-1 autocorrelation is `r round(.autocorr$acf_summary$median[.autocorr$acf_summary$series == "log(WIS)" & .autocorr$acf_summary$lag == 1], 2)` for the `log(WIS)` series, decaying to near zero by lag 3--4.
 The random-effects adjustment removes little of this within-series structure (residual lag-1 ≈ `r round(.autocorr$acf_summary$median[.autocorr$acf_summary$series == "GAMM residual" & .autocorr$acf_summary$lag == 1], 2)`), as expected since the model contains no time-ordered terms.
-The stronger dependence is across horizons sharing a forecast origin: residuals at the four horizons are correlated `r round(min(.autocorr$cor_resid[upper.tri(.autocorr$cor_resid)]), 2)`--`r round(max(.autocorr$cor_resid[upper.tri(.autocorr$cor_resid)]), 2)` (matrix below), reflecting the 1:4-week block structure the model does not absorb.
+
+Horizons sharing a forecast origin: residuals at the four horizons are correlated `r round(min(.autocorr$cor_resid[upper.tri(.autocorr$cor_resid)]), 2)`--`r round(max(.autocorr$cor_resid[upper.tri(.autocorr$cor_resid)]), 2)` (matrix below), reflecting the 1:4-week block structure the model does not absorb.
 
 ```{r}
 #| label: supplement-autocorrelation-horizon
@@ -357,7 +331,7 @@ The stronger dependence is across horizons sharing a forecast origin: residuals 
   kable_styling(full_width = FALSE)
 ```
 
-The same within-origin dependence is visible directly in the residuals: across a sample of forecast origins (each black line is one model--location--date, traced over its four horizons), the residuals move together rather than crossing at random, so a forecast that is mis-scored at one horizon tends to be mis-scored in the same direction at the others.
+The same within-origin dependence is visible directly in the residuals: across a sample of forecast origins (each black line is one model-location-date, traced over its four horizons), the residuals move together rather than crossing at random, so a forecast that is mis-scored at one horizon tends to be mis-scored in the same direction at the others.
 
 ```{r}
 #| label: supplement-autocorrelation-spaghetti
@@ -370,9 +344,40 @@ The same within-origin dependence is visible directly in the residuals: across a
 
 Because the four horizons on a given origin date share the same observed data and target trajectory, we note this moderate-to-strong correlated dependence *within* forecast origins.
 The reported standard errors are therefore likely too narrow (a lower bound on the true uncertainty).
-An origin-level random effect would absorb this correlation, but because trend, variant, incidence and location are constant within an origin, such a term is collinear with them and cannot be estimated alongside them.
-We flag this as a limitation rather than refitting: the focal effects of model structure and geographic scope are identified across many origins rather than within them, whereas the between-origin covariates most exposed to the understated precision --- epidemic trend and variant phase --- are reported as secondary descriptive estimates and not the basis of our conclusions.
+An origin-level random effect would absorb this correlation, but this would be collinear with estimates of trend, variant, incidence and location (each constant within an origin).
+
+We flag this as a limitation rather than refitting.
+The focal effect of model structure are identified across many origins rather than within them.
+The between-origin covariates most exposed to the understated precision (epidemic trend and variant phase) are reported as secondary descriptive estimates and not the basis of our conclusions.
 The unchanged conclusions under the log-response reparameterisation (below) give no indication that this dependence alters the substantive findings.
+
+#### Between-model error correlation
+
+### Model diagnostics
+
+Observed versus fitted WIS for each epidemiological target:
+
+```{r}
+#| label: supplement-fit-obs
+
+plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")), scale_label = "WIS")
+```
+
+Diagnostic plots (QQ, residuals vs linear predictor, histogram of residuals, and observed vs fitted) for the single combined model fitted jointly across both epidemiological targets:
+
+```{r}
+#| label: supplement-gamm-diagnostics
+
+# QQ plot, residuals
+knitr::include_graphics(here("output", "log", "plots", "check_joint.pdf"))
+```
+
+The primary model uses a Gaussian family with a log link applied to the log-transformed weighted interval score.
+This models the score multiplicatively but assumes additive, constant-variance Gaussian residuals.
+The transformed WIS is still strongly right-skewed.
+This means the observation-level residuals retain a heavy upper tail (residual skewness ≈ 5.5), visible in the QQ plot above.
+
+A reparameterisation that models the log of the log-transformed WIS substantially improves the distribution of residuals, without materially changing estimated effects.
 
 ### Partial effects across covariates
 
@@ -430,9 +435,9 @@ results$effects |>
   kable_styling(full_width = FALSE)
 ```
 
-\newpage
+### Sensitivity analyses
 
-### Results on the natural scale
+#### Results on the natural scale
 
 We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.
 
@@ -447,11 +452,9 @@ scores <- scores |>
 print_table1(scores)
 ```
 
-\newpage
+#### Log-transformed response
 
-### Sensitivity: log-transformed response
-
-The primary model applies a log link to the untransformed WIS, which leaves the residuals skewed (above).
+The primary model applies a log link to the untransformed WIS, which leaves the residuals skewed.
 As a sensitivity analysis we refit the same joint specification and model the log-transformed score (`log(WIS)`, with near-zero scores floored at $10^{-4}$ before transformation), using a Gaussian family with the identity link.
 `log(WIS)` is close to symmetric, so the Gaussian error assumption is better satisfied.
 
@@ -471,7 +474,7 @@ plot_fit_obs(readRDS(here("output", "log-resp", "fit_obs.rds")),
              scale_label = "log(WIS)")
 ```
 
-The substantive conclusions are unchanged.
-The model-structure and geographic-scope effects remain centred on zero under both specifications (the headline finding of no systematic structural difference is identical), and the direction of every covariate effect is preserved (correlation of adjusted partial effects ≈ 0.96 across the focal covariates).
-The magnitudes of some target-difficulty effects are attenuated on the log-response scale, for example the stable-trend advantage is smaller. This reflects the different treatment of the skewed upper tail, but no effect changes sign.
+The model-structure effects remain centred on zero under both specifications, and the direction of every covariate effect is preserved.
+The magnitudes of some target-difficulty effects are attenuated on the log-response scale, for example the stable-trend advantage is smaller.
+This reflects the different treatment of the skewed upper tail, but no effect changes sign.
 We therefore retain the log-link specification in the main text for continuity with the scoring scale and report this transformation as a robustness check.
