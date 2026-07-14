@@ -57,7 +57,7 @@ digraph processes {
 ')
 ```
 
-To evaluate the contribution of different factors predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [@pollett2020][@holcomb2023].
+To evaluate the contribution of different factors predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [@pollett2020; @reich2022].
 This comparability is achieved in participatory forecast challenges, which collate multiple forecasters' predictions for pre-specified targets in a standardised format [@reich2022].
 This offers the opportunity for consistent evaluation between models, with the potential to explicitly compare the value of different modelling approaches @reich2022.
 However, such analysis is challenging, as it is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast targets.
