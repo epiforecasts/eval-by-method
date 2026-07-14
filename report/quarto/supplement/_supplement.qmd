@@ -304,7 +304,7 @@ Diagnostic plots (QQ, residuals vs linear predictor, histogram of residuals, and
 #| label: supplement-gamm-diagnostics
 
 # QQ plot, residuals
-knitr::include_graphics(here("output", "log", "plots", "check_joint.pdf"))
+knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
 ```
 
 The primary model uses a Gaussian family with a log link applied to the (untransformed) weighted interval score.
@@ -461,7 +461,7 @@ The diagnostic plots and observed-versus-fitted relationship for the log-respons
 ```{r}
 #| label: supplement-logresp-diagnostics
 
-knitr::include_graphics(here("output", "log-resp", "plots", "check_joint.pdf"))
+knitr::include_graphics(here("output", "log-resp", "plots", "check_joint.png"))
 ```
 
 ```{r}

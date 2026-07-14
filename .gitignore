@@ -65,8 +65,9 @@ report/manuscript_files/
 README.html
 README_files/
 
-# Rendered plots (regenerable; keep result .rds which the report reads)
-/output/**/plots/
+# Vector diagnostics are ~20MB each. analysis-model.R writes PNG instead; the
+# supplement embeds those, so they stay tracked.
+/output/**/plots/*.pdf
 
 # Tool caches
 .panache-cache/
