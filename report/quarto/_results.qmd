@@ -181,10 +181,10 @@ The WIS was highly right-skewed, and we used a log link to account for this (dia
 The log link models the score multiplicatively but leaves some skew in the residuals.
 A sensitivity analysis modelling the log-transformed score directly substantially improves the residual distribution while preserving the direction of all effects and leaving the model-structure conclusions unchanged (Supplement).
 Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
-We report the exponentiated ratio (with 95% confidence intervals) in the main text (@results-table2), with the raw partial effects on the log scale in the Supplement.
+We report the exponentiated ratio (with 95% confidence intervals) in the main text (Table 2), with the raw partial effects on the log scale in the Supplement.
 
 After adjustment forfeatures of the forecast target , no single structural approach dominated.
-Adjusted point estimates clustered around the grand mean, and confidence intervals overlapped throughout (@results-table2).
+Adjusted point estimates clustered around the grand mean, and confidence intervals overlapped throughout (Table 2).
 The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean).
 We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (@fig-plot-coeffs).
 

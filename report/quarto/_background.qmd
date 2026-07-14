@@ -7,15 +7,15 @@ This requires careful accounting among the many factors contributing to performa
 Here, we suggest one approach to this using a joint modelling framework, and apply this to illustrate varying performance of forecasts of Covid-19 in Europe.
 
 Some of the variation in performance can be attributed to differences between infectious disease target estimands.
-We see better predictive performance with stable epidemic dynamics [(9)](https://www.zotero.org/google-docs/?KaFMKc) in larger populations [(16)](https://www.zotero.org/google-docs/?7uCfbD), and when the target is observed with timely, accurate surveillance [(6)](https://www.zotero.org/google-docs/?YLVYXN) [(11)](https://www.zotero.org/google-docs/?c33gx9), or has informative leading indicators [(17)](https://www.zotero.org/google-docs/?gzkBxT).
-Meanwhile, performance is consistently better at shorter than longer horizons [(15)](https://www.zotero.org/google-docs/?2K90bo), possibly based on the disease-specific serial interval that links disease to observation (Sherratt 2021), prompting suggestions that there are inherent limits to the predictability of infectious diseases based on the complexity of the disease-surveillance-response system [(14)](https://www.zotero.org/google-docs/?CZumUU).
+We see better predictive performance with stable epidemic dynamics [@bracher2022] in larger populations [@lopez2024], and when the target is observed with timely, accurate surveillance [@reich2019] [@holcomb2023], or has informative leading indicators [@delvalle2018].
+Meanwhile, performance is consistently better at shorter than longer horizons [@cramer2022], possibly based on the disease-specific serial interval that links disease to observation [@sherratt2023], prompting suggestions that there are inherent limits to the predictability of infectious diseases based on the complexity of the disease-surveillance-response system [@scarpino2019].
 This variability makes it difficult to make fair comparisons across multiple forecast targets.
 
 At the same time, variation in performance between forecasters arises from individual differences in the forecast estimation process: the structural approach and implementation choices made in developing a forecasting model.
 Forecasters may use many methods, ranging from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
 Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
-This choice demands a trade-off among complementary strengths and weaknesses of different methods [(1–3)](https://www.zotero.org/google-docs/?XemggF), any of which may impact predictive accuracy.
-Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences [(4–6)](https://www.zotero.org/google-docs/?piAg9a).
+This choice demands a trade-off among complementary strengths and weaknesses of different methods [@woolhouse2011; @dattner2018; @funk2020], any of which may impact predictive accuracy.
+Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences [@carlson2018; @viboud2018; @reich2019].
 
 This creates two sets of contributing factors to any single instance of realised performance @fig-processes.
 Identifying these influences is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
@@ -57,9 +57,9 @@ digraph processes {
 ')
 ```
 
-To evaluate the contribution of different factors to predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [(10)](https://www.zotero.org/google-docs/?8yn1XI)[(11)](https://www.zotero.org/google-docs/?ZgO6IM).
-This comparability is achieved in participatory forecast challenges, which collate multiple forecasters' predictions for pre-specified targets in a standardised format [(13)](https://www.zotero.org/google-docs/?7pIGoa).
-This offers the opportunity for consistent evaluation between models, with the potential to explicitly compare the value of different modelling approaches @reich-hubs.
+To evaluate the contribution of different factors to predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [@pollett2020; @reich2022].
+This comparability is achieved in participatory forecast challenges, which collate multiple forecasters' predictions for pre-specified targets in a standardised format [@reich2022].
+This offers the opportunity for consistent evaluation between models, with the potential to explicitly compare the value of different modelling approaches @reich2022.
 However, such analysis is challenging, as it is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast targets.
 Aggregated comparisons may conflate differences in the predictive performance of each modelling approach, with differences in forecast target difficulty.
 
@@ -70,25 +70,14 @@ Each of these study design strategies may usefully simplify some aspect of the p
 However, evaluators facing large, open forecasting challenges must handle a high degree of variation across both many forecast targets and many forecasting models simultaneously.
 The noisiness of these mixed signals means that any of these strategies for simplification may not be sufficient to isolate a single component of forecast performance and trace its effect.
 
-```{r}
-#| label: tbl-approaches
-#| tbl-cap: >-
-#|   Existing approaches to accounting for forecast target difficulty, with their advantages and limitations.
+| Study design | Example usage | Considerations |
+|---|---|---|
+| Restriction | Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts [@sherratt2023] | Simple and easy to communicate; loses power by excluding some targets altogether, and penalises forecasters who may appropriately forecast the revised data |
+| Stratification | Present forecast scores stratified by factors of interest (e.g. model structure) or factors assumed to confound performance (e.g. forecast horizon) [@reich2019] | Classical observational study design; increasingly sparse sample with multiple interacting strata |
+| Transformation | Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair [@bosse2022] | Maintains comparability across targets of different magnitudes, and the log transform may be closer to reflecting underlying epidemic growth rate; moving away from natural error scale requires clear communication |
+| Matching | Post-process the set of forecast scores to create a pairwise comparison between forecasters. This relative score may be aggregated to include any forecaster against any other, or restricted to matching forecasters per-target [@bracher2021]. The pairwise comparison may be against a 'baseline forecaster' available for all targets [@stapper] | Able to include all forecast predictions; however the appropriate choice of comparator or baseline is unclear, and gives no interpretation of performance on an absolute scale (when all models perform well or poorly) |
 
-tibble::tribble(
-  ~"Study design", ~"Example usage", ~"Considerations",
-  #---
-  "Restriction", "Data revised retrospectively when forecasts contributed prospectively; exclude any target with e.g. >10% difference in retrospectively observed counts (Sherratt 2021)", "Simple and easy to communicate; loses power by excluding some targets altogether, and penalises forecasters who may appropriately forecast the revised data", 
-  #---
-  "Stratification", "Present forecast scores stratified by factors of interest (e.g. model structure) or factors assumed to confound performance (e.g. forecast horizon) (Reich 2019)", "Classical observational study design; increasingly sparse sample with multiple interacting strata",
-  #---
-  "Transformation", "Normalise (e.g. per 100,000 population) and/or transform (e.g. log) each forecast-observation pair (Bosse 2022)", "Maintains comparability across targets of different magnitudes, and the log transform may be closer to reflecting underlying epidemic growth rate; moving away from natural error scale requires clear communication", 
-  #---
-  "Matching", "Post-process the set of forecast scores to create a pairwise comparison between forecasters. This relative score may be aggregated to include any forecaster against any other, or restricted to matching forecasters per-target (Bracher 2021). The pairwise comparison may be against a 'baseline forecaster' available for all targets @stapper", "Able to include all forecast predictions; however the appropriate choice of comparator or baseline is unclear, and gives no interpretation of performance on an absolute scale (when all models perform well or poorly)", 
-) |>
-  knitr::kable() |>
-  kableExtra::kable_styling(full_width = TRUE)
-```
+: Existing approaches to accounting for forecast target difficulty, with their advantages and limitations. {#tbl-approaches}
 
 For example, we may wish to assess the performance of different model designs used by a set of independent forecasters participating in any number of different forecast targets.
 When assessing across multiple forecast targets, we would need to separate out the model structure from the adaptability of different model structures to produce predictions across the different forecast targets.

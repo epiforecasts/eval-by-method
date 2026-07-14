@@ -1,6 +1,8 @@
 ---
 title: "Using model-based evaluation to interpret variation in infectious disease forecast performance"
 format: html
+bibliography: references.bib
+csl: plos-computational-biology.csl
 ---
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)

@@ -56,3 +56,18 @@ rsconnect/
 .DS_Store
 /.quarto/
 .claude/settings.local.json
+
+# Rendered manuscript output
+report/manuscript.html
+report/manuscript_files/
+
+# Rendered README output
+README.html
+README_files/
+
+# Vector diagnostics are ~20MB each. analysis-model.R writes PNG instead; the
+# supplement embeds those, so they stay tracked.
+/output/**/plots/*.pdf
+
+# Tool caches
+.panache-cache/

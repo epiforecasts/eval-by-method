@@ -149,6 +149,8 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   )
   saveRDS(fit_obs, here(output_dir, "fit_obs.rds"))
 
+  # Raster, not vector: appraise() plots ~150k residuals, and a PDF of that runs
+  # to ~20MB per scale. PNG keeps it under 1MB with no loss of legibility.
   p <- appraise(m.fits_joint)
-  ggsave(here(output_dir, "plots", "check_joint.pdf"), p)
+  ggsave(here(output_dir, "plots", "check_joint.png"), p, dpi = 300)
 }
