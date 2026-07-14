@@ -118,7 +118,7 @@ source(here("R", "analysis-model.R"))
 | Change analysis, model, or figures | Relevant `R/` script; outputs flow into `report/quarto/_results.qmd` automatically |
 | Respond to a reviewer comment | Check `submission/Revision_reviews-response.md`, update `R/` script if needed, then update the relevant `report/quarto/_*.qmd`, mark as completed in `submission/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
 | Add or change a supplementary figure | Relevant `R/` script + `report/quarto/supplement/_supplement.qmd` |
-| All changes | Update `Plan.md` |
+| All changes | Update `NEWS.md` (change log; newest first) |
 
 ## Dependencies
 
