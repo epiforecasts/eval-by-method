@@ -42,7 +42,7 @@ We then included a variety of covariates to account for forecast task difficulty
 We first included forecast horizon to account for the increasing difficulty of forecasting further into the future.
 We then accounted for variation in epidemic transmission dynamics underlying each forecast target. As the transmission state is unobserved, we adjusted for observed factors associated with it.
 Factors upstream of transmission included: country location, as a proxy for dynamics e.g. national policy or population structure influencing transmission; and dominant variant phase.
-We used publicly available sequence data to classify each target location-week according to the dominant circulating SARS-CoV-2 variant, producing a discrete sequence of phases (see Supplement) [@yuGlobalLandscapeSARSCoV22021].
+We used publicly available sequence data to classify each target location-week according to the dominant circulating SARS-CoV-2 variant, producing a discrete sequence of phases (see Supplement) [@variant-data].
 Factors downstream of transmission included: count of incident outcomes in the target week; and trend of incidence: "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable"; see Supplement).
 
 *Task participation and residual confounding*
