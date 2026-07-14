@@ -41,13 +41,10 @@ table_confint <- function(scores, group_var = NULL) {
       n_forecasts = format(n(), big.mark = ","),
       p_forecasts = round(n() / total_forecasts * 100, 1),
       n_models = n_distinct(Model),
-      p_models = round(n_models / total_models * 100, 1),
-      mean = mean(wis, na.rm = TRUE),
-      sd = sd(wis, na.rm = TRUE)
+      p_models = round(n_models / total_models * 100, 1)
     ) |>
     mutate(
-      Models = paste0(n_models, " (", p_models, "%)"),
-      "Mean WIS (SD)" = paste0(round(mean, 2), " (", round(sd, 2), ")")
+      Models = paste0(n_models, " (", p_models, "%)")
     )
 
   if (!is.null(group_var)) {
@@ -56,202 +53,6 @@ table_confint <- function(scores, group_var = NULL) {
       mutate(group = group_var)
   }
   return(table)
-}
-
-create_raw_table1 <- function(scores, targets) {
-  overall <- table_confint(scores, "scale") |>
-    mutate(Variable = "Overall", group = "")
-  method <- table_confint(scores, "Method")
-  targets <- table_confint(scores, "CountryTargets")
-  bind_rows(
-    overall, method, targets
-  )
-}
-
-print_table1 <- function(scores) {
-  epi_targets <- unique(scores$epi_target)
-  tables <- epi_targets |>
-    map(\(outcome) {
-      scores <- scores |>
-        filter(epi_target == outcome)
-      table <- create_raw_table1(scores)
-
-      colnames(table)[!(colnames(table) %in% c("Variable", "group"))] <-
-        paste(
-          colnames(table)[!(colnames(table) %in% c("Variable", "group"))],
-          outcome,
-          sep = "_"
-        )
-      return(table)
-    })
-
-  ## merge all
-  table1 <- tables[[1]]
-  if (length(epi_targets) > 1) {
-    for (i in seq(2, length(epi_targets))) {
-      table1 <- inner_join(table1, tables[[i]], by = c("Variable", "group"))
-    }
-  }
-
-  ## select columns
-  table1 <- table1 |>
-    select(
-      Variable,
-      starts_with("Models_"),
-      starts_with("Mean WIS (SD)_")
-    )
-  ## reorder
-  for (outcome in rev(epi_targets)) {
-    table1 <- table1 |>
-      relocate(ends_with(outcome), .after = Variable)
-  }
-
-  ## build extra headers
-  headers_to_add <- c(" " = 1, vapply(
-    epi_targets, \(x) sum(grepl(paste0("_", x, "$"), colnames(table1))),
-    1L
-  ))
-
-  table1 |>
-    rename(" " = Variable) |>
-    kable(
-      caption = paste0(
-        "Characteristics of forecasts sampled from ",
-        "the European COVID-19 Forecast Hub, March 2021-2023. ",
-        "Forecast performance was measured using the weighted ",
-        "interval score (WIS), with a lower score indicating a more ",
-        "accurate forecast. ",
-        "Numbers in brackets denote standard deviations."
-      ),
-      col.names = str_remove(colnames(table1), "_.*$"),
-      align = c("l", rep("r", ncol(table1) - 1))
-    ) |>
-    pack_rows(index = c(
-      " " = 1,
-      "Method" = 5,
-      "Number of country targets" = 2
-    )) |>
-    add_header_above(headers_to_add)
-}
-
-# Plot over time by explanatory variable ----------------------------------
-plot_over_time <- function(scores, ensemble, add_plot, show_uncertainty = TRUE) {
-  plot_over_time_target <- scores |>
-    # Get mean & CIs
-    group_by(target_end_date, epi_target, CountryTargets) |>
-    reframe(
-      n = n(),
-      mean = mean(wis, na.rm = TRUE),
-      ci = calc_ci(wis, na.rm = TRUE, R = 1000)
-    ) |>
-    unnest(ci) |>
-    # Plot
-    ggplot(aes(
-      x = target_end_date,
-      col = CountryTargets,
-      fill = CountryTargets
-    )) +
-    geom_line(aes(y = mean), alpha = 0.5)
-  if (show_uncertainty) {
-    plot_over_time_target <- plot_over_time_target +
-      geom_ribbon(aes(ymin = lboot, ymax = uboot),
-        alpha = 0.1, col = NA
-      )
-  }
-  plot_over_time_target <- plot_over_time_target +
-    facet_wrap(~epi_target, scales = "free_y") +
-    scale_x_date(date_labels = "%b %Y") +
-    scale_fill_manual(
-      values = c(
-        "Single-country" = "#1b9e77",
-        "Multi-country" = "#d95f02"
-      ),
-      aesthetics = c("col", "fill")
-    ) +
-    labs(
-      x = NULL, y = "Mean WIS (log scale)",
-      fill = NULL, col = NULL
-    ) +
-    theme(
-      legend.position = "bottom",
-      strip.background = element_blank()
-    )
-
-  plot_over_time_method <- scores |>
-    # Get mean & CIs
-    group_by(target_end_date, epi_target, Method) |>
-    reframe(
-      n = n(),
-      mean = mean(wis, na.rm = TRUE),
-      ci = calc_ci(wis, na.rm = TRUE, R = 1000)
-    ) |>
-    unnest(ci) |>
-    # Plot
-    ggplot(aes(x = target_end_date, col = Method, fill = Method)) +
-    geom_line(aes(y = mean), alpha = 0.5)
-  if (show_uncertainty) {
-    plot_over_time_method <- plot_over_time_method +
-      geom_ribbon(aes(ymin = lboot, ymax = uboot),
-        alpha = 0.1, col = NA
-      )
-  }
-  plot_over_time_method <- plot_over_time_method +
-    facet_wrap(~epi_target, scales = "free_y") +
-    scale_x_date(date_labels = "%b %Y") +
-    scale_fill_brewer(
-      aesthetics = c("col", "fill"),
-      type = "qual", palette = "Set2"
-    ) +
-    labs(
-      x = NULL, y = "Mean WIS (log scale)",
-      fill = NULL, col = NULL
-    ) +
-    theme(
-      legend.position = "bottom",
-      strip.background = element_blank()
-    )
-
-  score_plot <- plot_over_time_method +
-    plot_over_time_target
-
-  if (!missing(add_plot)) {
-    score_plot <- score_plot + add_plot
-  }
-
-  score_plot <- score_plot +
-    plot_layout(ncol = 1) +
-    plot_annotation(tag_levels = "A")
-
-  return(score_plot)
-}
-
-# Ridge plot by model --------------------
-plot_ridges <- function(scores, target = "Deaths") {
-  scores |>
-    filter(epi_target == target) |>
-    group_by(Model) |>
-    mutate(
-      median_score = median(wis, na.rm = TRUE),
-      lq = quantile(wis, 0.25, na.rm = TRUE),
-      uq = quantile(wis, 0.75, na.rm = TRUE)
-    ) |>
-    ungroup() |>
-    mutate(Model = fct_reorder(Model, median_score)) |>
-    filter(wis >= lq & wis <= uq) |>
-    # Plot
-    ggplot(aes(x = wis, y = Model, fill = stat(x))) +
-    geom_density_ridges_gradient(
-      scale = 1.5,
-      rel_min_height = 0.01,
-      quantile_lines = TRUE, quantiles = 2
-    ) +
-    scale_fill_viridis_c(
-      name = "Interval score",
-      option = "C", direction = -1
-    ) +
-    theme_ridges() +
-    labs(x = "WIS (IQR)", y = "Model") +
-    theme(legend.position = "none")
 }
 
 # Table of targets by model -------------
@@ -264,7 +65,7 @@ table_targets <- function(scores) {
     ungroup() |>
     group_by(Model, epi_target) |>
     summarise(
-      CountryTargets = all(target_count <= 2),
+      CountryTargets = all(target_count == 1),
       min_targets = min(target_count),
       max_targets = max(target_count),
       mean = mean(target_count),
@@ -281,94 +82,201 @@ table_targets <- function(scores) {
   return(table_targets)
 }
 
-# Metadata ----------------------------------------------------------------
-table_metadata <- function(scores) {
-  classification <- classify_models() |>
-    select(Model = model, Method = classification)
-  model_scores <- scores |>
-    group_by(Model, epi_target) |>
-    table_confint() |>
-    select(Model, epi_target, Forecasts)
-  country_targets <- table_targets(scores) |>
-    select(Model, epi_target, CountryTargets)
-  metadata_table <- classification |>
-    left_join(model_scores) |>
-    mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/covid19-forecast-hub-europe/covid19-forecast-hub-europe/main/model-metadata/", Model, ".yml)")) |>
-    inner_join(country_targets) |>
-    mutate(
-      epi_target = sub("s$", " forecasts", epi_target)
-    ) |>
-    pivot_wider(
-      names_from = "epi_target",
-      values_from = "Forecasts",
-      values_fill = ""
-    ) |>
-    rename("Country Targets" = CountryTargets) |>
-    arrange(Model)
-  return(metadata_table)
-}
-
-# Data --------------------
-data_plot <- function(scores, log = FALSE, all = FALSE) {
-  data <- scores |>
-    select(Location, epi_target, target_end_date, Incidence) |>
-    distinct()
-  pop <- read_csv(here("data", "populations.csv"), show_col_types = FALSE) |>
-    rename(Location = location)
-  data <- data |>
-    left_join(pop, by = join_by(Location)) |>
-    mutate(
-      rel_inc = Incidence / population * 1e5,
-      log_inc = log(Incidence + 1)
-    )
-  total <- data |>
-    group_by(epi_target, target_end_date) |>
+# Composition of CountryTargets within each Method group
+table_composition <- function(scores) {
+  total_models <- n_distinct(scores$Model)
+  scores |>
+    select(Model, Method, CountryTargets) |>
+    distinct() |>
+    group_by(Method) |>
     summarise(
-      Incidence = sum(Incidence),
-      population = sum(population),
+      n_single = sum(CountryTargets == "Single-country"),
+      n_models = n(),
       .groups = "drop"
     ) |>
     mutate(
-      rel_inc = Incidence / population * 1e5,
-      log_inc = log(Incidence + 1),
-      Location = "Total"
-    )
-  var_name <- ifelse(log, "log_inc", "rel_inc")
-  plot <- ggplot(mapping = aes(
-    x = target_end_date, y = .data[[var_name]], group = Location
-  ))
-
-  if (all) {
-    plot <- plot + geom_line(data = data, alpha = 0.1)
-  }
-
-  plot <- plot +
-    geom_line(data = total, linewidth = ifelse(all, 2, 1)) +
-    facet_wrap(~epi_target, scales = "free") +
-    xlab("")
-
-  if (log) {
-    plot <- plot + ylab(paste0("log(Incidence + 1)"))
-  } else {
-    plot <- plot + ylab("Incidence per 100,000")
-  }
-  plot <- plot +
-    theme(strip.background = element_blank())
-
-  return(plot)
+      Variable = paste0(n_single, "/", n_models, " (", round(n_single / n_models * 100), "%)"),
+      group = "Method"
+    ) |>
+    rename("Method_var" = Method) |>
+    select(Variable, group, Method_var)
 }
 
-trends_plot <- function(scores) {
-  trends <- scores |>
-    select(Location, target_end_date, Incidence, Trend) |>
-    distinct()
-  p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
-    geom_point(mapping = aes(colour = Trend), size = 1) +
-    geom_line() +
-    scale_colour_brewer(palette = "Set2", na.value = "grey") +
-    theme(legend.position = "bottom") +
-    facet_wrap(~Location, scales = "free_y") +
-    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-    xlab("")
-  return(p)
+create_raw_table1 <- function(scores) {
+  overall <- table_confint(scores, "scale") |>
+    mutate(Variable = "Overall", group = "")
+  method <- table_confint(scores, "Method")
+  targets <- table_confint(scores, "CountryTargets")
+  bind_rows(overall, method, targets)
+}
+
+print_table1 <- function(scores) {
+  # Cohort characteristics — no outcome data
+  # Composition (single-country %) computed once across both epi targets
+  composition <- scores |>
+    select(Model, Method, CountryTargets) |>
+    distinct() |>
+    group_by(Method) |>
+    summarise(
+      n_single = sum(CountryTargets == "Single-country"),
+      n_models = n(),
+      .groups = "drop"
+    ) |>
+    mutate(
+      `Single-country` = paste0(
+        n_single, "/", n_models,
+        " (", round(n_single / n_models * 100), "%)"
+      ),
+      Variable = Method,
+      group = "Method"
+    ) |>
+    select(Variable, group, `Single-country`)
+
+  epi_targets <- unique(scores$epi_target)
+  tables <- epi_targets |>
+    map(\(outcome) {
+      scores <- scores |>
+        filter(epi_target == outcome)
+      table <- create_raw_table1(scores)
+
+      colnames(table)[!(colnames(table) %in% c("Variable", "group"))] <-
+        paste(
+          colnames(table)[!(colnames(table) %in% c("Variable", "group"))],
+          outcome,
+          sep = "_"
+        )
+      return(table)
+    })
+
+  ## merge all epi targets
+  table1 <- tables[[1]]
+  if (length(epi_targets) > 1) {
+    for (i in seq(2, length(epi_targets))) {
+      table1 <- inner_join(table1, tables[[i]], by = c("Variable", "group"))
+    }
+  }
+
+  ## select columns — no WIS
+  table1 <- table1 |>
+    select(Variable, group, starts_with("Models_"))
+
+    ## add composition column for Method rows
+    table1 <- table1 |>
+      left_join(composition, by = c("Variable", "group")) |>
+      relocate(`Single-country`, .after = last_col())
+
+    ## reorder epi target columns
+  for (outcome in rev(epi_targets)) {
+    table1 <- table1 |>
+      relocate(ends_with(outcome), .after = Variable)
+  }
+
+  ## build spanning headers
+  headers_to_add <- c(" " = 1, vapply(
+    epi_targets, \(x) sum(grepl(paste0("_", x, "$"), colnames(table1))),
+    1L
+  ), " " = 1)
+
+  table1 |>
+    select(-group) |>
+    rename(" " = Variable) |>
+    kable(
+      caption = paste0(
+        "Characteristics of models and forecasts sampled from ",
+        "the European COVID-19 Forecast Hub, March 2021-2023. ",
+        "Models (%) shows number of models and percentage of all included models. ",
+        "Single-country shows models targeting one country as a fraction and percentage ",
+        "of models in each method group."
+      ),
+      col.names = c(" ", rep(c("Models (%)"), length(epi_targets)), "Single-country (%)"),
+      align = c("l", rep("r", length(epi_targets)), "r")
+    ) |>
+    pack_rows(index = c(
+      " " = 1,
+      "Method" = 5,
+      "Geographic scope" = 2
+    )) |>
+    add_header_above(headers_to_add)
+}
+
+# Descriptive ---------
+# Figure: forecast error vs observed incidence ------------------------
+# Simple descriptive: how forecast error (WIS) scales with the magnitude of
+# the observed outcome, by model structure. Pass natural-scale scores
+# (process_data("natural")) so WIS and observed incidence share natural units.
+# Forecast-level points are shown faintly with a per-Method GAM smooth on top,
+# avoiding arbitrary binning. Both quantities are analysed on the log scale
+# throughout (log(x + 1)); the smooth is fit in log space. Axis ticks are
+# displayed at round powers of 10 for legibility (display base does not affect
+# the fit).
+plot_error_vs_obs <- function(scores_natural) {
+  plot_data <- scores_natural |>
+    filter(!is.na(wis),
+           !is.na(Incidence),
+           Incidence > 0
+    )
+
+  ggplot(plot_data, aes(x = Incidence, y = wis, colour = Method, fill = Method)) +
+    geom_point(alpha = 0.03, size = 0.4, stroke = 0) +
+    geom_smooth(method = "gam", formula = y ~ s(x), alpha = 0.15, linewidth = 0.8) +
+    facet_wrap(~epi_target, scales = "free", nrow = 1) +
+    scale_x_log10(labels = scales::label_comma()) +
+    scale_y_log10(labels = scales::label_comma()) +
+    scale_colour_brewer(type = "qual", palette = 2, aesthetics = c("colour", "fill")) +
+    labs(
+      x = "Observed incidence (log scale)",
+      y = "WIS (log scale)",
+      colour = "Model structure",
+      fill = "Model structure"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+# Table 2: unadjusted vs adjusted effects --------------------
+print_table2 <- function(effects, show_ratio = TRUE) {
+  effects |>
+    filter(group_var %in% c("Method")) |>
+    mutate(
+      # Exponentiate point estimate and both CI bounds: multiplicative ratio
+      # relative to the grand-mean WIS
+      ratio = paste0(
+        round(exp(value), 2),
+        " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"
+      )
+    ) |>
+    select(group_var, group, model, ratio) |>
+    pivot_wider(
+      names_from = model,
+      values_from = ratio
+    ) |>
+    arrange(group_var, group) |>
+    mutate(
+      group_var = factor(group_var)
+    ) |>
+    select(
+      group_var, group,
+      Unadjusted, Adjusted
+    ) |>
+    rename(
+      "Variable" = group_var,
+      "Group" = group,
+      "Unadjusted ratio (95% CI)" = Unadjusted,
+      "Adjusted ratio (95% CI)" = Adjusted
+    ) |>
+    kable(
+      caption = paste0(
+        "Partial effects of model structure on the performance of COVID-19 forecasts ",
+        "(weighted interval score), ",
+        "from univariate (unadjusted) and a joint (adjusted) generalised additive mixed model. ",
+        "Effects represent deviations from the grand mean under a sum-to-zero constraint, ",
+        "expressed as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean WIS. ",
+        "A ratio below 1 indicates better-than-average performance; 1 indicates the grand-mean WIS. ",
+        "Raw partial effects on the log scale are reported in the Supplement. ",
+        "95% CI = 95% confidence interval."
+      ),
+      align = c("l", "l", "r", "r")
+    ) |>
+    collapse_rows(columns = 1, valign = "top") |>
+      kable_styling(full_width = FALSE)
 }

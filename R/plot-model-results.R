@@ -36,20 +36,20 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
         Model = factor(model, levels = c("Adjusted", "Unadjusted"))
       ) |>
       ggplot(aes(x = .data[[group_var]], col = classification,
-                 shape = CountryTargets, lty = Model, alpha = Model)) +
-      geom_point(aes(y = value),
+                 shape = CountryTargets, lty = Model)) +
+      geom_point(aes(y = exp(value)),
                  position = position_dodge(width=1)) +
-      geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5),
+      geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5)),
                      position = position_dodge(width=1)) +
-      geom_hline(yintercept = 0, lty = 2) +
-      labs(y = "Partial effect", x = "", colour = NULL, shape = NULL) +
+      geom_hline(yintercept = 1, lty = 2) +
+      labs(y = "Performance ratio (vs average model)", x = "",
+           colour = NULL, shape = NULL) +
+      scale_y_log10() +
       scale_shape_manual(
         values = c("Single-country" = 16, "Multi-country" = 17),
         drop = FALSE
       ) +
-      scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
       scale_colour_brewer(type = "qual", palette = 2) +
-      facet_wrap(~epi_target, scales = "free_y", drop = TRUE) +
       theme(
         legend.position = "bottom",
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
@@ -66,6 +66,22 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
   return(plot)
 }
 
+plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
+  p <- ggplot(fit_obs, aes(observed, fitted)) +
+    geom_point(alpha = 0.1, size = 0.4) +
+    geom_abline(slope = 1, intercept = 0, lty = 2, colour = "red") +
+    labs(x = paste("Observed", scale_label), y = paste("Fitted", scale_label)) +
+    theme(strip.background = element_blank())
+  if ("epi_target" %in% names(fit_obs)) {
+    # free scales (case/death WIS ranges differ) are incompatible with a fixed
+    # aspect ratio, so omit coord_equal here
+    p <- p + facet_wrap(~epi_target, scales = "free")
+  } else {
+    p <- p + coord_equal()
+  }
+  return(p)
+}
+
 plot_effects <- function(random_effects,
                          variables = NULL) {
   if(is.null(variables)){variables <- unique(random_effects$group_var)}
@@ -75,15 +91,15 @@ plot_effects <- function(random_effects,
     mutate(group = factor(group, levels = unique(as.character(rev(group)))),
            Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
     ggplot(aes(x = group, col = group_var,
-               lty = Model, alpha = Model)) +
-    geom_point(aes(y = value),
+               lty = Model, shape = Model)) +
+    geom_point(aes(y = exp(value)),
                position = position_dodge(width=1)) +
-    geom_linerange(aes(ymin = lower_2.5, ymax = upper_97.5,),
+    geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5),),
                    position = position_dodge(width=1)) +
-    geom_hline(yintercept = 0, lty = 2, alpha = 0.25) +
-    scale_alpha_manual(values = c("Adjusted" = 1, "Unadjusted" = 0.3)) +
-    facet_wrap(~epi_target, scales = "free_y") +
-    labs(y = "Partial effect", x = NULL, colour = NULL, shape = NULL) +
+    geom_hline(yintercept = 1, lty = 2, alpha = 0.25) +
+    scale_y_log10() +
+    scale_shape_manual(values = c("Adjusted" = 16, "Unadjusted" = 1)) +
+    labs(y = "Performance ratio (vs average model)", x = NULL, colour = NULL) +
     scale_colour_brewer(type = "qual", palette = "Set1",
                         guide = "none") +
     theme(

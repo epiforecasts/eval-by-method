@@ -1,20 +1,15 @@
 ---
-title: "The influence of model structure on predictive accuracy among European COVID-19 forecasts"
-format:
-  html: default
+title: "Using model-based evaluation to interpret variation in infectious disease forecast performance"
+format: html
+bibliography: references.bib
+csl: plos-computational-biology.csl
 ---
 
-Katharine Sherratt1\*, Rok Grah 2,3, Bastian Prasse2, Friederike Becker4, Jamie McLean1, Sam Abbott1, Sebastian Funk1
+Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
-1 Centre for Mathematical Modelling of Infectious Disease, London School of Hygiene & Tropical Medicine, London, UK
-
-2 European Centre for Disease Prevention and Control, Stockholm, Sweden
-
-3 Safinea, Dublin, Ireland
-
-4 Institute of Statistics, Karlsruhe Institute of Technology, Karlsruhe, Germany
-
-\*Corresponding author
+(1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
+(2) European Centre for Disease Prevention and Control
+(3) Institute of Statistics, Karlsruhe Institute of Technology
 
 Email: katharine.sherratt@lshtm.ac.uk
 
@@ -25,6 +20,10 @@ Email: katharine.sherratt@lshtm.ac.uk
 ## Main text
 
 ### Background
+
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] update all references
+:::
 
 {{< include quarto/_background.qmd >}}
 
@@ -38,19 +37,17 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Discussion
 
-::: {.callout-caution collapse="true"}
 {{< include quarto/_discussion.qmd >}}
-
-:::
 
 ### References
 
-::: {.callout-caution collapse="true"}
 {{< include quarto/_references.qmd >}}
-:::
 
 ## Supplement
 
-::: {.callout-caution collapse="true"}
-
+::: {.callout-caution collapse="true" title="TODO"}
+- [ ] describe mean average WIS over time and by other confounders
+- [ ] list the many model specs we tried in the supplement
 :::
+
+{{< include quarto/supplement/_supplement.qmd >}}
