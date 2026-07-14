@@ -67,7 +67,9 @@ check_autocorrelation <- function() {
     # acf() on the ordered vector (treats rows as equally spaced weekly steps)
     o <- order(dates)
     v <- values[o]
+    d <- as.Date(dates[o])
     if (length(v) < .min_series_n || anyNA(v)) return(NULL)
+    if (any(as.integer(diff(d)) != 7L)) return(NULL)
     a <- acf(v, lag.max = max(.acf_lags), plot = FALSE, demean = TRUE)$acf[, 1, 1]
     tibble(lag = .acf_lags, acf = a[.acf_lags + 1L])
   }

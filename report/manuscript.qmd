@@ -1,11 +1,9 @@
 ---
-title: "Using a model-based approach to evaluate contributions to forecast performance: the role of model structure among European COVID-19 forecasts"
+title: "Using model-based evaluation to interpret variation in infectious disease forecast performance"
 format: html
 bibliography: references.bib
 csl: plos-computational-biology.csl
 ---
-
-Using model-based analysis to evaluate multi-dimensional forecast performance: tracing the effect of model structure in predictions of Covid-19 in Europe
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
@@ -31,39 +29,25 @@ Email: katharine.sherratt@lshtm.ac.uk
 
 ### Methods
 
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] list the many model specs we tried in the supplement
-- [ ] check mean average WIS over time and by other confounders
-:::
-
 {{< include quarto/_methods.qmd >}}
 
 ### Results
 
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] table 2 include adjustment set in caption
-:::
-
 {{< include quarto/_results.qmd >}}
 
 ### Discussion
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] note should/could use proportional methods from survival analysis
-:::
 
 {{< include quarto/_discussion.qmd >}}
 
 ### References
-
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] sync with google doc zotero to bib file
-:::
 
 {{< include quarto/_references.qmd >}}
 
 ## Supplement
 
 ::: {.callout-caution collapse="true" title="TODO"}
+- [ ] describe mean average WIS over time and by other confounders
+- [ ] list the many model specs we tried in the supplement
 :::
 
 {{< include quarto/supplement/_supplement.qmd >}}

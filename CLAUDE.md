@@ -6,7 +6,7 @@ This is an R-based research project analyzing COVID-19 forecast accuracy across 
 
 How do model structure (mechanistic vs statistical) and geographic specificity (single-location vs multi-location models) affect forecast accuracy after adjusting for predictive difficulty?
 
-See `report/Research-narrative.md` for additional project context.
+See the manuscript section files in `report/quarto/` (`_background.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`) for additional project context.
 
 ## Project Structure
 
@@ -25,7 +25,8 @@ See `report/Research-narrative.md` for additional project context.
   - Models WIS adjusting for: trend, location, time, horizon, model-specific effects
   - Isolates impact of Method (model structure) and CountryTargets (geographic specificity)
   - Uses `mgcv`, `gammit`, and `gratia` packages
-  - Outputs: `output/results.rds`
+  - Outputs (per scale, under scale-named subdirs of `output/` — `log/`, `log-resp/`, `natural/`): `results.rds`, `fit_obs.rds`, and diagnostic plots
+  - Must be run separately before rendering the manuscript (it is **not** sourced by `report/quarto/_results.qmd`)
 
 - **analysis-descriptive.R**: Descriptive statistics and summary tables
   - Bootstrap confidence intervals
@@ -35,11 +36,20 @@ See `report/Research-narrative.md` for additional project context.
   - Adjusted vs unadjusted effects by model
   - Supports anonymized output for peer review
 
-- **plot-model-flow.R**: Workflow and flowchart visualizations
+- **plot-model-flow.R**: STROBE-style model-inclusion flowchart (`create_model_flow()` → `output/plots/flowchart.png`)
+
+- **dag-check.R**: Defines and visualises the DAG used to reason about confounding (`ggdag`)
+
+### Sensitivity Scripts (R/sensitivity/)
+
+- **check-autocorrelation.R**: Temporal autocorrelation diagnostic
+- **check-link-robustness.R**: Robustness of results to the model link function
+- **model-logresp.R**: Log-response sensitivity arm of the GAMM
+- **model-building.qmd**: Notebook documenting model specifications tried
 
 ### Utility Scripts (R/)
 
-- **utils-data.R**: Functions for accessing forecasts, observations, and population data
+- **utils-data.R**: Access forecasts, observations, and population data; `download_obs()` / `download_pop()` also write CSVs to `data/`
 - **utils-metadata.R**: Model names, submissions, and metadata classification helpers
 - **utils-variants.R**: COVID-19 variant phase classification
 
@@ -53,18 +63,24 @@ See `report/Research-narrative.md` for additional project context.
 
 ### Manuscript text (prose and writing)
 
-- `report/Revision_manuscript.md` — full manuscript text (title, abstract, background, methods, results, discussion). **Edit this file for any writing changes.**
-- `report/Research-narrative.md` — Overall narrative of the research, and paragraph-by-paragraph one-line summary of the manuscript text
-- `submission/reviewer-response-analysis.md` — tracks reviewer suggestions and planned response; X marks completion. Consult when making revision-related changes.
+The manuscript prose lives in per-section Quarto files under `report/quarto/`, assembled by `report/manuscript.qmd`. **Edit the relevant section file for any writing change:**
+
+- `report/quarto/_abstract.qmd` — abstract
+- `report/quarto/_background.qmd` — background
+- `report/quarto/_methods.qmd` — methods
+- `report/quarto/_results.qmd` — results (also holds the analysis code chunks)
+- `report/quarto/_discussion.qmd` — discussion
+- `report/quarto/_references.qmd` — references
+- `submission/Revision_reviews-response.md` — tracks reviewer suggestions and planned response; X marks completion. Consult when making revision-related changes.
 
 ### Rendered analysis (code and outputs)
 
-- `report/results.qmd` — active Quarto document; sources R scripts and renders figures/tables for the results section
-- `report/supplement/Supplement.Rmd` — supplementary materials; sources the same R scripts
-- `report/results.Rmd` — legacy RMarkdown copy of results (inactive; use `.qmd`)
+- `report/manuscript.qmd` — top-level Quarto document; includes the `report/quarto/_*.qmd` sections and the supplement. This is the render target.
+- `report/quarto/_results.qmd` — results section; sources R scripts and renders figures/tables.
+- `report/quarto/supplement/_supplement.qmd` — supplementary materials.
 - Pre-print: [medRxiv 10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
 
-**Note**: manuscript prose and rendered analysis are separate. `Revision_manuscript.md` is not auto-generated — changes to analysis code and changes to Manuscript text must be coordinated manually.
+**Note**: manuscript prose and rendered analysis are separate. The section `.qmd` files are not auto-generated — changes to analysis code and changes to manuscript text must be coordinated manually.
 
 ## Reproducing the Analysis
 
@@ -87,22 +103,21 @@ source(here("R", "process-score.R"))
 # 2. Prepare and integrate data
 source(here("R", "process-data.R"))
 
-# 3. Fit GAMM to weighted interval scores
+# 3. Fit GAMM to weighted interval scores (writes output/; run before rendering)
 source(here("R", "analysis-model.R"))
 
-# 4. Generate reports
-# Render report/results.qmd
-# Knit report/supplement/Supplement.Rmd
+# 4. Render the manuscript (includes the results section and supplement)
+# quarto::quarto_render("report/manuscript.qmd")
 ```
 
 ## Making Changes
 
 | Task | Where to edit |
 |---|---|
-| Change manuscript prose (wording, framing, conclusions) | `report/Revision_manuscript.md` + update in `Research-narrative.md` |
-| Change analysis, model, or figures | Relevant `R/` script; outputs flow into `results.qmd` automatically |
-| Respond to a reviewer comment | Check `report/Revision_reviews-response.md`, update `R/` script if needed, then update `report/Revision_manuscript.md`, mark as completed in `report/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
-| Add or change a supplementary figure | Relevant `R/` script + `report/supplement/Supplement.Rmd` |
+| Change manuscript prose (wording, framing, conclusions) | Relevant `report/quarto/_*.qmd` section file |
+| Change analysis, model, or figures | Relevant `R/` script; outputs flow into `report/quarto/_results.qmd` automatically |
+| Respond to a reviewer comment | Check `submission/Revision_reviews-response.md`, update `R/` script if needed, then update the relevant `report/quarto/_*.qmd`, mark as completed in `submission/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
+| Add or change a supplementary figure | Relevant `R/` script + `report/quarto/supplement/_supplement.qmd` |
 | All changes | Update `Plan.md` |
 
 ## Dependencies
@@ -116,12 +131,6 @@ Major R packages:
 - `tidyverse` ecosystem (dplyr, tidyr, ggplot2, readr, purrr)
 - `here` - Path management
 - `lubridate` - Date handling
-
-## Publications
-
-- **DOI**: [10.5281/zenodo.14903161](https://doi.org/10.5281/zenodo.14903161)
-- **Pre-print**: [10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
-- **Slides**: [Google Slides](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p)
 
 ## Revision task list
 

@@ -57,10 +57,13 @@ rsconnect/
 /.quarto/
 .claude/settings.local.json
 
-
 # Rendered manuscript output
 report/manuscript.html
 report/manuscript_files/
+
+# Rendered README output
+README.html
+README_files/
 
 # Rendered plots (regenerable; keep result .rds which the report reads)
 /output/**/plots/

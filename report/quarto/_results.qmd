@@ -146,23 +146,6 @@ plot_error_vs_obs(scores_natural)
 ```
 
 ```{r}
-#| label: fig-scores-over-time
-#| fig-cap: >-
-#|   Predictive accuracy of forecasting models for COVID-19 cases and deaths across 32 European countries over time.
-#|   Forecast performance is shown as the mean weighted interval score (WIS) on the log scale; lower scores indicate better performance.
-#|   WIS was computed on log-transformed incidence per 100,000 population, summarised across 32 countries and 1–4 week horizons.
-#|   Rows: single- vs multi-country models.
-#|   Columns: cases vs deaths.
-#|   Colour: model structure.
-#|   Uncertainty intervals omitted for clarity (see Supplementary Figure S4).
-#| fig-height: 8
-#| fig-width: 6
-
-# plot: mean performance as line, model performance as dots coloured by structure; mark trends and variant phase; at 1wk horizon; cases over deaths
-# or tile plot mean performance over time across locations at 1wk horizon 
-```
-
-```{r}
 #| label: results-scores-results
 
 results <- readRDS(here("output", "log", "results.rds"))
@@ -213,9 +196,9 @@ print_table2(results$effects)
 ```{r}
 #| label: fig-plot-coeffs
 #| fig-cap: >-
-#|   Performance ratio (95% CI) on the weighted interval score from model structure and geographic scope, before and after adjustment for confounding.
+#|   Performance ratio (95% CI) on the weighted interval score from model structure, before and after adjustment for confounding.
 #|   The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance.
-#|   Adjusted effects account for forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation.
+#|   Adjusted effects account for epidemiological target (cases or deaths), forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation.
 #|   Filled symbols: adjusted; open symbols: unadjusted.
 #|   Ratios and 95% confidence intervals estimated from a generalised additive mixed model.
 #|   WIS = weighted interval score.

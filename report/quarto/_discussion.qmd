@@ -40,7 +40,7 @@ In this study, we noted that the more mechanistic models produced a wide range o
 This may reflect a greater range of flexibility to incorporate forecaster experience [@mcgowan2019], and understanding of the data generating processes that lead the forecast target [@wolffram2023]: for example, country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes.
 While not considered here, we note the widely replicated finding that ensemble combinations across multiple models often produces the most reliable predictive performance (e.g. [@sherratt2023; @cramer2022; @reich2019accuracy]).
 
-Greater investment [@rivers] and standardisation [@epiforge2021] [#TODO_CITE-hubverse] in infectious disease forecasting has created a much broader comparable sample of forecast performance.
+Greater investment [@rivers2019] and standardisation [@epiforge2021; @kerr2025] in infectious disease forecasting has created a much broader comparable sample of forecast performance.
 While this may reduce the likelihood of random error, it cannot alone account for bias in comparisons of performance.
 Our analysis represents a middle ground in formally considering bias when designing evaluation studies.
 On one hand, this degree of formality may not be necessary when there are minimal sources of confounding (e.g. a single forecast target), or if the effective sample size is large enough to support a simpler stratification.

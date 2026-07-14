@@ -15,10 +15,7 @@ Study design: cohort Unit of analysis: individual models Outcome: weighted inter
 
 Load the data and remove the Hub ensemble and baseline models.
 
-```{r}
-m.data <- process_data(scoring_scale = "log") 
-m.data <- m.data |> filter(!grepl("EuroCOVIDhub-", Model))
-```
+````
 
 ### Characteristics and selection
 
@@ -48,7 +45,7 @@ Since we are using incidence as a separate covariate, we should use the same log
 ```{r}
 m.data <- m.data |> mutate(Incidence = log(Incidence + 1), Epi_target = as.factor(epi_target)) 
 m.family <- gaussian(link = "log")
-```
+````
 
 ````{r}
 unadjusted <- extract_ranef(m.fit)
@@ -76,7 +73,8 @@ m.fit <- bam(
 ### Joint model
 
 ```{r}
-m.formula_joint <- wis ~ s(Method, bs = "re") + 
+m.formula_joint <- wis ~ Epi_target +
+s(Method, bs = "re") + 
 s(CountryTargets, bs = "re") + 
 s(Incidence) + 
 s(Trend, bs = "re") + 
@@ -84,10 +82,4 @@ s(Location, bs = "re") +
 s(VariantPhase, bs = "re") + 
 s(Horizon, by = Model, k = 3, bs = "sz") + 
 s(Model, bs = "re")
-
-random_effects_uni <- m.fits_uni[!grepl("horizon|incidence", names(m.fits_uni))] |> 
-map_depth(.depth = 2, ~ extract_ranef(.x)) |> 
-map(~ list_rbind(.x, names_to = "epi_target")) |> 
-list_rbind() |> 
-mutate(model = "Unadjusted")
 ````
