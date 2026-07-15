@@ -47,16 +47,7 @@ jobs:
         uses: r-lib/actions/setup-renv@v2
 
       - name: Compile the report
-        run: quarto render report/manuscript.qmd
-
-      - name: Assemble Pages site
-        run: |
-          rm -rf _site
-          mkdir -p _site
-          cp report/manuscript.html _site/index.html
-          if [ -d report/manuscript_files ]; then
-            cp -R report/manuscript_files _site/manuscript_files
-          fi
+        run: quarto render
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

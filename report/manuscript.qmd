@@ -1,9 +1,8 @@
 ---
-title: "Using model-based evaluation to interpret variation in infectious disease forecast performance"
 format: html
-bibliography: references.bib
-csl: plos-computational-biology.csl
 ---
+
+Using model-based evaluation to interpret variation in infectious disease forecast performance
 
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
@@ -19,30 +18,26 @@ Email: katharine.sherratt\@\lshtm.ac.uk
 
 ### Abstract
 
-{{< include quarto/_abstract.qmd >}}
+{{< include /report/quarto/_abstract.qmd >}}
 
 ## Main text
 
 ### Background
 
-{{< include quarto/_background.qmd >}}
+{{< include /report/quarto/_background.qmd >}}
 
 ### Methods
 
-{{< include quarto/_methods.qmd >}}
+{{< include /report/quarto/_methods.qmd >}}
 
 ### Results
 
-{{< include quarto/_results.qmd >}}
+{{< include /report/quarto/_results.qmd >}}
 
 ### Discussion
 
-{{< include quarto/_discussion.qmd >}}
+{{< include /report/quarto/_discussion.qmd >}}
 
 ### References
 
-{{< include quarto/_references.qmd >}}
-
-## Supplement
-
-{{< include quarto/supplement/_supplement.qmd >}}
+{{< include /report/quarto/_references.qmd >}}

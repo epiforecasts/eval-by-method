@@ -11,6 +11,10 @@ Reworked the render workflow to publish the rendered HTML manuscript to a GitHub
 Previously the workflow rendered `report/manuscript.qmd` (which is `format: html`) but tried to commit `report/manuscript.pdf` — a file that is never produced — and had no Pages deploy step.
 The render now uses the Quarto CLI (via `quarto-dev/quarto-actions/setup`) rather than `quarto::render()` (the R `quarto` package is not in `renv.lock`), assembles a `_site/` with `index.html`, and deploys via `actions/upload-pages-artifact` + `actions/deploy-pages`.
 
+Split the output into a two-page Quarto website (`_quarto.yml` at the repo root): the manuscript is the landing page (`index.qmd`) and the supplement is a separate page (`supplement.qmd`) reached via a navbar, replacing the single long page that inlined the supplement.
+Both are thin wrappers that `{{< include >}}` the existing `report/` content (`report/manuscript.qmd` and the self-contained `report/quarto/supplement/_supplement.qmd`).
+The project sits at the repo root so `here()` continues to anchor there; the workflow now runs `quarto render` for the whole project and uploads the generated `_site/`.
+
 *Requires one-time manual setup:* GitHub → Settings → Pages → Source = "GitHub Actions".
 
 ## Unreleased — Joint-target refactor (PR #153)
