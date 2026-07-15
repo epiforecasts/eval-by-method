@@ -3,6 +3,16 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Publish manuscript to GitHub Pages
+
+`.github/workflows/render-report.yaml`
+
+Reworked the render workflow to publish the rendered HTML manuscript to a GitHub Pages site instead of opening a no-op pull request.
+Previously the workflow rendered `report/manuscript.qmd` (which is `format: html`) but tried to commit `report/manuscript.pdf` — a file that is never produced — and had no Pages deploy step.
+The render now uses the Quarto CLI (via `quarto-dev/quarto-actions/setup`) rather than `quarto::render()` (the R `quarto` package is not in `renv.lock`), assembles a `_site/` with `index.html`, and deploys via `actions/upload-pages-artifact` + `actions/deploy-pages`.
+
+*Requires one-time manual setup:* GitHub → Settings → Pages → Source = "GitHub Actions".
+
 ## Unreleased — Joint-target refactor (PR #153)
 
 The analysis previously fit two separate models, one for cases and one for deaths.
