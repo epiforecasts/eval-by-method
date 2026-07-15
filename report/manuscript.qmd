@@ -11,7 +11,11 @@ Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3),
 (2) European Centre for Disease Prevention and Control
 (3) Institute of Statistics, Karlsruhe Institute of Technology
 
-Email: katharine.sherratt@lshtm.ac.uk
+Email: katharine.sherratt\@\lshtm.ac.uk
+
+::: {.callout-caution}
+**Under development**
+:::
 
 ### Abstract
 
@@ -20,10 +24,6 @@ Email: katharine.sherratt@lshtm.ac.uk
 ## Main text
 
 ### Background
-
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] update all references
-:::
 
 {{< include quarto/_background.qmd >}}
 
@@ -44,10 +44,5 @@ Email: katharine.sherratt@lshtm.ac.uk
 {{< include quarto/_references.qmd >}}
 
 ## Supplement
-
-::: {.callout-caution collapse="true" title="TODO"}
-- [ ] describe mean average WIS over time and by other confounders
-- [ ] list the many model specs we tried in the supplement
-:::
 
 {{< include quarto/supplement/_supplement.qmd >}}
