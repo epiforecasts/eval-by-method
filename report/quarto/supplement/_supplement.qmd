@@ -347,10 +347,6 @@ source(here("R", "sensitivity", "check-autocorrelation.R"))
   kable_styling(full_width = FALSE)
 ```
 
-Serial autocorrelation in the scores is modest and short-lived: the median lag-1 autocorrelation is `r round(.autocorr$acf_summary$median[.autocorr$acf_summary$series == "log(WIS)" & .autocorr$acf_summary$lag == 1], 2)` for the raw `log(WIS)` series, decaying to near zero by lag 3--4.
-The random-effects adjustment removes little of this within-series structure (residual lag-1 ≈ `r round(.autocorr$acf_summary$median[.autocorr$acf_summary$series == "GAMM residual" & .autocorr$acf_summary$lag == 1], 2)`), as expected since the model contains no time-ordered terms.
-The stronger dependence is across horizons sharing a forecast origin: residuals at the four horizons are correlated `r round(min(.autocorr$cor_resid[upper.tri(.autocorr$cor_resid)]), 2)`--`r round(max(.autocorr$cor_resid[upper.tri(.autocorr$cor_resid)]), 2)` (matrix below), reflecting the 1:4-week block structure the model does not absorb.
-
 ```{r}
 #| eval: false
 #| label: supplement-autocorrelation-horizon
