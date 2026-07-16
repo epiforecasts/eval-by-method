@@ -106,8 +106,11 @@ source(here("R", "process-data.R"))
 # 3. Fit GAMM to weighted interval scores (writes output/; run before rendering)
 source(here("R", "analysis-model.R"))
 
-# 4. Render the manuscript (includes the results section and supplement)
+# 4. Render the manuscript alone (results section only; supplement is a separate page)
 # quarto::quarto_render("report/manuscript.qmd")
+
+# Or build the full two-page website (manuscript + supplement, with navbar):
+# quarto render   # uses root _quarto.yml; index.qmd + supplement.qmd wrap the report/ content
 ```
 
 ## Making Changes

@@ -55,6 +55,7 @@ rsconnect/
 
 .DS_Store
 /.quarto/
+/_site/
 .claude/settings.local.json
 
 # Rendered manuscript output
@@ -64,6 +65,12 @@ report/manuscript_files/
 # Rendered README output
 README.html
 README_files/
+
+# Quarto website render artifacts (index.qmd / supplement.qmd wrappers)
+/index.html
+/index_files/
+/supplement.html
+/supplement_files/
 
 # Vector diagnostics are ~20MB each. analysis-model.R writes PNG instead; the
 # supplement embeds those, so they stay tracked.

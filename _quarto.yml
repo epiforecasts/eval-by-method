@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: _site
+  render:
+    - index.qmd
+    - supplement.qmd
+
+bibliography: report/references.bib
+csl: report/plos-computational-biology.csl
+
+website:
+  title: "Model-based evaluation of forecast performance"
+  navbar:
+    left:
+      - text: "Manuscript"
+        href: index.html
+      - text: "Supplement"
+        href: supplement.html
+
+format:
+  html:
+    theme: cosmo
+    toc: true
