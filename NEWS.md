@@ -3,6 +3,15 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Restructure analysis-model.R into composable functions
+
+`R/analysis-model.R`
+
+`model_wis()` split into small single-purpose functions (`prepare_model_data()`, `wis_family()`, `fit_wis()`, `fit_univariate()`, `extract_target_effect()`, `extract_all_effects()`, `save_model_outputs()`) so alternative model specifications can be fitted by swapping arguments rather than copying the script.
+The formula is now an explicit argument (default `m.formula_joint`), the univariate fits are an optional separate path (`univariate = FALSE` skips them), and a `response = "log_wis"` option folds in the log-response reparameterisation, paving the way to retire `R/sensitivity/model-logresp.R`.
+`model_wis()` now returns the joint fit invisibly.
+Outputs and effect estimates verified identical to the pre-refactor version.
+
 ## Unreleased — Publish manuscript to GitHub Pages
 
 `.github/workflows/render-report.yaml`
