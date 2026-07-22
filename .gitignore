@@ -66,6 +66,10 @@ report/manuscript_files/
 README.html
 README_files/
 
+# Rendered model-building vignette
+R/model-building.html
+R/model-building_files/
+
 # Quarto website render artifacts (index.qmd / supplement.qmd wrappers)
 /index.html
 /index_files/
