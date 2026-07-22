@@ -38,14 +38,14 @@ See the manuscript section files in `report/quarto/` (`_background.qmd`, `_metho
 
 - **plot-model-flow.R**: STROBE-style model-inclusion flowchart (`create_model_flow()` → `output/plots/flowchart.png`)
 
+- **model-building.qmd**: Vignette narrating the GAMM building process via the `analysis-model.R` functions (fitting chunks shown, not evaluated)
+
 - **dag-check.R**: Defines and visualises the DAG used to reason about confounding (`ggdag`)
 
 ### Sensitivity Scripts (R/sensitivity/)
 
 - **check-autocorrelation.R**: Temporal autocorrelation diagnostic
 - **check-link-robustness.R**: Robustness of results to the model link function
-- **model-logresp.R**: Log-response sensitivity arm of the GAMM
-- **model-building.qmd**: Notebook documenting model specifications tried
 
 ### Utility Scripts (R/)
 

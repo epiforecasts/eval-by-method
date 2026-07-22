@@ -1,0 +1,185 @@
+---
+title: "Model building"
+format: html
+---
+
+## Background
+
+Aim: assess predictive accuracy between categories of model structures, accounting for confounding among high-dimensional forecasts
+
+- Outcome: Weighted interval score (WIS; log-transformed accuracy score)
+- Exposure of interest: Model method (mechanistic, statistical, etc.)
+- Additional exposures:
+  - CountryTargets: model predicts for single- vs multi-country
+  - Trend: epidemic trend (stable, increasing, decreasing)
+  - Incidence: log of current incidence level (smooth)
+  - Location: location (random effect)
+  - VariantPhase: dominant variant phase (random effect)
+  - Horizon: forecast horizon (smooth, by model)
+  - Model: individual model (random effect)
+
+## Quick start
+
+Source `analysis-model.R` to load the data, model formulas, and fitting functions.
+
+```{r}
+#| label: setup
+#| message: false
+
+library(here)
+source(here("R", "analysis-model.R"))
+```
+
+`model_wis()` runs all of the model build in one call: data preparation, univariate and joint fits, effect extraction, and saving outputs.
+
+```{r}
+#| label: pipeline
+#| eval: false
+
+model_wis(scoring_scale = "log", output_dir = "output/log")
+model_wis(scoring_scale = "natural", output_dir = "output/natural")
+```
+
+## Full build
+
+This document demonstrates the process of building the GAMM reported in the main analysis.
+All functions shown here are defined in `R/analysis-model.R`.
+Chunks that fit models are shown but not evaluated.
+
+### Data preparation
+
+`prepare_model_data()` takes the scored forecasts from `process_data()` and prepares them for modelling.
+It removes the Hub ensemble and baseline models, drops forecasts without a score, and (when scoring on the log scale) log-transforms incidence to match the scale of the outcome.
+
+```{r}
+#| label: data-prep
+#| message: false
+
+data <- prepare_model_data(process_data(scoring_scale = "log"),
+                           scoring_scale = "log")
+count(data, Method)
+```
+
+### Outcome distribution and family
+
+We scored forecasts against observations on a log scale.
+`wis_family()` matches the model family to the scoring scale, using a Gaussian with log link for log-scale WIS.
+Alternatively, we use a Gamma for natural-scale WIS.
+
+```{r}
+#| label: family
+
+wis_family(scoring_scale = "log")
+```
+
+The choice of log link is examined in a sensitivity analysis (`R/sensitivity/check-link-robustness.R`).
+
+### Unadjusted models
+
+We first fit each covariate on its own to get unadjusted estimates.
+Comparing these against the adjusted estimates shows how much each association is explained by the other covariates.
+The univariate formulas are held in `m.formulas_uni`, one term each, and fitted with `fit_univariate()`.
+
+```{r}
+#| label: uni-formulas
+
+m.formulas_uni
+```
+
+```{r}
+#| label: fit-uni
+#| eval: false
+
+fits_uni <- fit_univariate(data, wis_family("log"))
+```
+
+### Joint model
+
+The joint model includes all covariates together, with the formula held in `m.formula_joint`.
+
+```{r}
+#| label: joint-formula
+
+m.formula_joint
+```
+
+Epidemiological target (cases vs deaths) enters as a fixed parametric term.
+Method, CountryTargets, Trend, Location, VariantPhase, and Model are random effects (`bs = "re"`).
+Incidence enters as a smooth.
+Horizon as a per-model smooth with sum-to-zero constraint (`bs = "sz"`).
+`fit_wis()` fits with `mgcv::bam()` using fast REML and discretised covariates for speed.
+
+```{r}
+#| label: fit-joint
+#| eval: false
+
+fit_joint <- fit_wis(m.formula_joint, data, wis_family("log"))
+```
+
+### Extracting effects and diagnostics
+
+`extract_all_effects()` combines the unadjusted (univariate) and adjusted (joint) estimates into one table, including both random and fixed effects.
+
+```{r}
+#| label: extract
+#| eval: false
+
+effects <- extract_all_effects(fits_uni, fit_joint)
+```
+
+`save_model_outputs()` writes the effects and basis-dimension checks (`results.rds`), observed-vs-fitted values (`fit_obs.rds`), and `gratia::appraise()` diagnostic plots to the output directory.
+
+```{r}
+#| label: save
+#| eval: false
+
+save_model_outputs(fit_joint, data, effects, output_dir = "output/log")
+```
+
+And check the results visually.
+
+```{r}
+#| label: check-joint
+
+knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
+```
+
+--------------------------------------------------------------------------------
+
+## Results
+
+```{r}
+source(here("R", "plot-model-results.R"))
+```
+
+Plot absolute WIS.
+
+```{r}
+#| label: fig-error-vs-obs
+#| fig-cap: >-
+#|   Forecast error scales with the magnitude of the observed outcome.
+#|   Weighted interval score (WIS) is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
+#|   Faint points show individual forecasts; lines show a generalised additive model smooth fit per model-structure group, with shaded 95% confidence intervals.
+#|   Both axes are shown on the log scale; lower WIS indicates better performance.
+#|   Colour: model structure.
+#| fig-height: 4
+#| fig-width: 8
+
+# natural-scale scores for descriptive error-vs-observation figure
+scores_natural <- process_data(scoring_scale = "log") |>
+  filter(!grepl("EuroCOVIDhub-", Model))
+plot_error_vs_obs(scores_natural)
+```
+
+And show main results.
+
+```{r}
+#| label: results-scores-results
+#| 
+results <- readRDS(here("output", "log", "results.rds"))
+print_table2(results$effects)
+```
+
+```{r}
+plot_effects(results$effects, variables = c("Method"))
+```
