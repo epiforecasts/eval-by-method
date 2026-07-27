@@ -130,6 +130,7 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   checks <- k.check(m.fits_joint)
   formula <- m.fits_joint$formula
   results <- list(
+    data = m.data,
     effects = random_effects,
     checks = checks,
     formula = formula
