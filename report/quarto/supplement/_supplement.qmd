@@ -267,6 +267,17 @@ variant_phases |>
 
 ## Model specification
 
+We developed this work in two major versions.
+The first aimed to evaluate both model structure and geographic target specificity (one or multiple countries) and their effect on model performance.
+The second substantially revised the aim and scope:
+
+- Limited aim to developing the use of a modelling approach to evaluate forecast performance
+- Specified a single response (model structure) and treating other covariates as confounding factors
+- Improved range of confounding factors (epidemiological outcomes covering both cases and deaths; adding a covariate for dominant variant phase)
+- More extensive model checking and diagnostics to address highly skewed residuals
+
+See the (Sensitivity analysis){#sensitivity-analysis} below for alternative model specifications.
+
 ### Covariate selection
 
 We aimed to assess the direct relationship betwen Method (i.e. model structure), and LWIS.
@@ -321,8 +332,6 @@ knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
 plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")),
              scale_label = "l_WIS")
 ```
-
-See the (Sensitivity analysis){#sensitivity-analysis} below for alternative model specifications.
 
 ## Results
 
