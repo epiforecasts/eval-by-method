@@ -27,11 +27,13 @@ walk(c("case", "death"), \(target) {
     )
 
   # Score forecasts on natural and log scales -----
+  # +1 offset maps zeros to log(1) = 0. Values are non-negative: observed <0
+  # is set to NA upstream (utils-data.R), and predictions have no negatives.
   log_forecasts <- forecasts |>
     mutate(
       scale = "log",
       observed = log(observed + 1),
-      prediction = log(pmax(prediction, 0) + 1)
+      prediction = log(prediction + 1)
     )
 
   scores <- forecasts |>
