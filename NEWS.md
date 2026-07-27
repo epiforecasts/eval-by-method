@@ -3,13 +3,6 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
-## Unreleased — State forecast distribution assumption (R1, #108)
-
-`report/quarto/_methods.qmd`
-
-Added a sentence to Methods clarifying that Hub teams submitted forecasts as predictive quantiles of incident counts, not parametric distributions, so no distributional assumption (e.g. negative binomial) is imposed on the count outcomes and the WIS evaluation is distribution-free.
-Addresses reviewer 1's request to state the interval distribution assumption explicitly.
-
 ## Unreleased — Fix population normalisation in scoring and regenerate scores
 
 `R/process-score.R`, `data/scores-raw-case.csv`, `data/scores-raw-death.csv`

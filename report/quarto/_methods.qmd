@@ -6,7 +6,6 @@ We consider forecasts of incident COVID-19 cases and deaths between 8 March 2021
 
 We used forecast data collected via the public European COVID-19 Forecast Hub, described in [@euroHub2021].
 The platform solicited real-time forecasts for between one and four weeks ahead for 32 European countries.
-Teams submitted forecasts as a set of predictive quantiles of incident counts rather than as parametric distributions; the Hub imposed no distributional assumption (such as a negative binomial) on the count outcomes, and our evaluation is likewise distribution-free.
 Any forecaster was eligible to participate in the Hub, and there were no selection criteria.
 
 We excluded forecasts that did not report the full set of 23 quantiles, to ensure fair comparison among probabilistic results, and excluded baseline and ensemble models created by the Hub team.
