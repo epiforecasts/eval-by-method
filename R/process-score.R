@@ -11,7 +11,8 @@ walk(c("case", "death"), \(target) {
 
   # Observed data
   obs <- read_csv(here("data", paste0("observed-", target, ".csv")))
-  pop <- read_csv(here("data", "populations.csv"))
+  pop <- read_csv(here("data", "populations.csv")) |>
+    rename(pop = population)
   obs <- left_join(obs, pop, by = "location")
   forecasts <- left_join(
     forecasts_raw, obs,

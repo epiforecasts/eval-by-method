@@ -3,6 +3,16 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Fix population normalisation in scoring and regenerate scores
+
+`R/process-score.R`, `data/scores-raw-case.csv`, `data/scores-raw-death.csv`
+
+Fixed a column-name bug in `process-score.R`: the per-100k normalisation referenced a `pop` column, but `populations.csv` supplies `population` (renamed by `download_pop()`), so the script errored and had not run since the normalisation was added (commit `aca4fa7`, April 2026).
+As a result the committed `scores-raw-*.csv` were stale — last generated December 2025, before normalisation — holding WIS computed on raw counts rather than incidence per 100,000.
+Every downstream consumer (`process-data.R` reads these CSVs directly; then the GAMM in `analysis-model.R`, descriptive tables, and all manuscript figures) had therefore been fitting on un-normalised scores, which carry the population-size signal the normalisation exists to remove.
+Renamed `population` to `pop` on read and regenerated both score files; they now hold per-100k-normalised WIS matching the current code.
+Verified the manual log path (`log(pmax(prediction, 0) + 1)`) is numerically identical to the native `scoringutils::transform_forecasts(log_shift, offset = 1)` on these data (no negative predictions, so the `pmax` clamp never fires).
+
 ## Unreleased — Publish manuscript to GitHub Pages
 
 `.github/workflows/render-report.yaml`
