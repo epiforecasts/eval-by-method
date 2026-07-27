@@ -447,34 +447,3 @@ scores <- scores |>
   filter(!grepl("EuroCOVIDhub-", Model))
 print_table1(scores)
 ```
-
-\newpage
-
-### Sensitivity: log-transformed response
-
-*#TODO: This section is under substantial review*
-
-The primary model applies a log *link* to the untransformed WIS, which leaves the residuals skewed (above).
-As a sensitivity analysis we refit the same joint specification but instead model the *log-transformed* score directly (`log(WIS)`, with near-zero scores floored at $10^{-4}$ before transformation), using a Gaussian family with the identity link.
-This is the conventional treatment for skewed forecast scores: `log(WIS)` is close to symmetric, so the Gaussian error assumption is far better satisfied.
-
-The residual distribution improves markedly under this reparameterisation: residual skewness falls from approximately 5.5 (primary, raw score with log link) to approximately −0.8 (log-transformed response), with a correspondingly lighter tail.
-The diagnostic plots and observed-versus-fitted relationship for the log-response model are shown below.
-
-```{r}
-#| label: supplement-logresp-diagnostics
-
-knitr::include_graphics(here("output", "log-resp", "plots", "check_joint.png"))
-```
-
-```{r}
-#| label: supplement-logresp-fit-obs
-
-plot_fit_obs(readRDS(here("output", "log-resp", "fit_obs.rds")),
-             scale_label = "log(WIS)")
-```
-
-Despite the improved residual behaviour, the substantive conclusions are unchanged.
-The model-structure and geographic-scope effects remain centred on zero under both specifications (the headline finding of no systematic structural difference is identical), and the direction of every covariate effect is preserved (correlation of adjusted partial effects ≈ 0.96 across the focal covariates).
-The magnitudes of some target-difficulty effects are attenuated on the log-response scale --- for example the stable-trend advantage is smaller --- reflecting the different treatment of the skewed upper tail, but no effect changes sign.
-We therefore retain the log-link specification in the main text for continuity with the scoring scale and report this transformation as a robustness check.
