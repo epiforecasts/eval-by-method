@@ -27,14 +27,10 @@ knitr::opts_chunk$set(
 )
 # Load data
 scores <- process_data(scoring_scale = "log")
-ensemble <- scores |>
-  filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 results <- readRDS(here("output", "log", "results.rds"))
 ```
-
-\newpage
 
 ## Methods
 
@@ -83,8 +79,7 @@ We also excluded baseline and ensemble models created by the Hub team.
 #| TODO: output as csv, or similar so that participation can be described throughout from a single source
 
 # source(here("R", "plot-model-flow.R"))
-# flow_chart <- create_model_flow()
-knitr::include_graphics(here("output", "log", "plots", "flowchart.png"))
+knitr::include_graphics(here("output", "flowchart.png"))
 ```
 
 Characteristics of contributing models:
@@ -180,6 +175,8 @@ labs(x = "Forecast week", y = "Number of target countries") +
 theme(legend.position = "none")
 ```
 
+## Data processing
+
 ### Model structure classification
 
 Human raters classified models according to methodological structures.
@@ -244,8 +241,6 @@ scores |>
   ggtitle("Deaths")
 ```
 
-\newpage
-
 #### Variant phase identification
 
 Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
@@ -270,12 +265,24 @@ variant_phases |>
     theme(legend.position = "bottom")
 ```
 
-\newpage
+## Model specification
 
-### Model building
+We developed this work in two major versions.
+The first aimed to evaluate both model structure and geographic target specificity (one or multiple countries) and their effect on model performance.
+The second substantially revised the aim and scope:
 
-To illustrate our approach to forecast evaluation, we show the assumptions underlying our adjustment strategy in a causal diagram.
-We emphasise that this work is exploratory rather than inferential, and we suggest substantial further work is needed to support inferential approaches to forecast evaluation.
+- Limited aim to developing the use of a modelling approach to evaluate forecast performance
+- Specified a single response (model structure) and treating other covariates as confounding factors
+- Improved range of confounding factors (epidemiological outcomes covering both cases and deaths; adding a covariate for dominant variant phase)
+- More extensive model checking and diagnostics to address highly skewed residuals
+
+See the (Sensitivity analysis){#sensitivity-analysis} below for alternative model specifications.
+
+### Covariate selection
+
+We aimed to assess the direct relationship betwen Method (i.e. model structure), and LWIS.
+We show the assumptions underlying our strategy in a causal diagram.
+We emphasise that model specification is extremely flexible, and we approach this work is exploratory rather than fully inferential.
 
 ```{r}
 #| label: supplement-dag
@@ -285,109 +292,67 @@ source(here::here("R", "dag-check.R"))
 p
 ```
 
-The joint model fitted in the main analysis adjusts for target-difficulty variables (Trend, Horizon, Incidence, Location, VariantPhase), which block backdoor paths from epidemic dynamics into the score, and additionally conditions on target strategy (CountryTargets) and individual model identity (Model).
-Adjustment gives the partial association between Method and log-WIS with these covariates held fixed at their observed values.
+The joint model therefore adjusts for:
 
-We used the following model formula with the mgcv package in R 4.1.
+- Forecast target difficulty (which block backdoor paths from epidemic dynamics into the score), as:
+  - `EpiTarget`, `Trend`, `Horizon`, `Incidence`, `Location`, `VariantPhase`
+- Forecaster strategy, as:
+  - `CountryTargets`, `Model`
+
+Adjustment gives the partial association between model structure and LWIS with these covariates held fixed at their observed values.
+
+### Model fitting
+
+We noted our outcome of LWIS had a strongly skewed PDF.
+
+```{r}
+#| label: supplement-fitting-density
+
+m.data <- results$data
+m.data |>
+  ggplot(aes(x = wis)) +
+  geom_density()
+```
+
+We used a \[\] distribution [skew, kurtosis].
+
+We used the `mgcv` package v1.9-4 using R 4.5, with the formula:
 
 `r paste(deparse(results$formula), collapse = " ")`
 
-\newpage
-
-## Results
-
-### Model diagnostics
-
-Diagnostic plots (QQ, residuals vs linear predictor, histogram of residuals, and observed vs fitted) for the single combined model fitted jointly across both epidemiological targets.
+We assessed model fit visually plotting observed-versus-fitted values and inspecting residuals in Q-Q and histogram plots.
 
 ```{r}
-#| label: supplement-gamm-diagnostics
+#| label: supplement-diagnostics
 
-# QQ plot, residuals
 knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
 ```
-
-The primary model uses a Gaussian family with a log link applied to the (untransformed) weighted interval score.
-This models the score multiplicatively but assumes additive, constant-variance Gaussian residuals on the raw score scale.
-Because the WIS is strongly right-skewed, the observation-level residuals retain a heavy upper tail (residual skewness ≈ 5.5, excess kurtosis well above the Gaussian reference), visible in the QQ plot above.
-The fitted relationships and partial effects are nonetheless stable: a reparameterisation that instead models the log-transformed score directly (below) substantially improves the residual distribution without materially changing the estimated effects.
-
-Observed versus fitted WIS for the primary model is shown below; points concentrate along the identity line, with the dispersion in the upper tail reflecting the residual skewness noted above.
 
 ```{r}
 #| label: supplement-fit-obs
 
-plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")), scale_label = "WIS")
+plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")),
+             scale_label = "l_WIS")
 ```
 
-#### Temporal autocorrelation
+## Results
 
-*#TODO: This section is under substantial review*
-
-The model carries no temporal correlation structure, so it treats forecast scores as conditionally independent given the random effects.
-Scores are, however, a weekly repeated-measures series (by forecast date) at horizons 1--4, so we checked for residual autocorrelation that could bias the standard errors on the focal effects.
-We quantify autocorrelation on the log-response residuals (the near-symmetric `gaussian(identity)` reparameterisation; the primary log-link residuals are too skewed for a meaningful autocorrelation function), and compare against the raw `log(WIS)` series on the same scale.
-Each series is one weekly sequence at a fixed model--location--horizon--target combination (3,353 series with ≥ 10 weekly points).
-
-```{r}
-#| eval: false
-#| label: supplement-autocorrelation
-
-Sys.setenv(CHECK_AUTOCORR_NORUN = "1")
-source(here("R", "sensitivity", "check-autocorrelation.R"))
-.autocorr <- check_autocorrelation()
-
-.autocorr$acf_summary |>
-  transmute(
-    Series = series, Lag = lag,
-    `Median ACF` = round(median, 2),
-    IQR = paste0("[", round(q25, 2), ", ", round(q75, 2), "]")
-  ) |>
-  kable(caption = "Within-series temporal autocorrelation of forecast scores, by lag (weeks). Median and interquartile range across 3,353 model-location-horizon-target series, for the raw log(WIS) series and the GAMM residuals.") |>
-  kable_styling(full_width = FALSE)
-```
-
-```{r}
-#| eval: false
-#| label: supplement-autocorrelation-horizon
-
-.autocorr$cor_resid |>
-  round(2) |>
-  kable(caption = "Cross-horizon correlation of GAMM residuals at a fixed forecast origin (h1–h4 = 1–4 weeks ahead).") |>
-  kable_styling(full_width = FALSE)
-```
-
-The same within-origin dependence is visible directly in the residuals: across a sample of forecast origins (each black line is one model--location--date, traced over its four horizons), the residuals move together rather than crossing at random, so a forecast that is mis-scored at one horizon tends to be mis-scored in the same direction at the others.
-
-```{r}
-#| eval: false
-#| label: supplement-autocorrelation-spaghetti
-#| fig-cap: >-
-#|   Model residuals across forecast horizons 1–4 for a random sample of 300 forecast origins (black lines, one per model–location–date; red line = mean).
-#|   Lines moving together rather than crossing indicate positive within-origin correlation across horizons.
-
-.autocorr$spaghetti_plot
-```
-
-Because the four horizons on a given origin date share the same observed data and target trajectory, we note this moderate-to-strong correlated dependence *within* forecast origins.
-The reported standard errors are therefore likely too narrow (a lower bound on the true uncertainty).
-An origin-level random effect would absorb this correlation, but because trend, variant, incidence and location are constant within an origin, such a term is collinear with them and cannot be estimated alongside them.
-We flag this as a limitation rather than refitting: the focal effects of model structure and geographic scope are identified across many origins rather than within them, whereas the between-origin covariates most exposed to the understated precision --- epidemic trend and variant phase --- are reported as secondary descriptive estimates and not the basis of our conclusions.
-The unchanged conclusions under the log-response reparameterisation (below) give no indication that this dependence alters the substantive findings.
+Effects are deviations from the grand mean for each covariate under a sum-to-zero constraint.
+Negative values indicate better-than-average performance.
 
 ### Partial effects across covariates
 
-Partial effect on forecast performance of key covariates included in the fully adjusted model for (A) spatial and (B) temporal covariates.
-Partial effects of individual model structure and individual model are presented in main text.
-The full model included covariates for: model structure, individual model, number of countries targeted by a given model, the specific country target, the epidemic trend in the 3 weeks around the target, and the dominant variant at the time of the target.
+Partial effect on forecast performance of key covariates included in the fully adjusted model for additional covariates.
+Partial effects of individual model structure and individual model are presented in the main text.
+
+<!--- TODO use a facet to panel these side by side and fix caption to standard terminology ---> 
 
 (A) Spatial covariates
 
 ```{r}
 #| label: supplement-plot-spatial-effects
 
-plot_effects(results$effects, 
-                     variables = c("CountryTargets", "Location"))
+plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 ```
 
 (B) Temporal covariates
@@ -395,15 +360,13 @@ plot_effects(results$effects,
 ```{r}
 #| label: supplement-plot-temporal-effects
 
-plot_effects(results$effects,
-                     variables = c("Trend", "VariantPhase"))
+plot_effects(results$effects, variables = c("Trend", "VariantPhase"))
 ```
 
-(C) Raw partial effects on the log scale
+### Partial effects on the raw scale
 
 The main-text figures and tables report exponentiated effects (multiplicative ratios relative to the grand-mean WIS).
-For reference and reproducibility, the table below gives the underlying raw partial effects on the log-WIS scale, with 95% confidence intervals, from the fully adjusted joint model.
-Negative values indicate better-than-average performance; effects are deviations from the grand mean under a sum-to-zero constraint.
+The table below gives the underlying raw partial effects from the fully adjusted model.
 
 ```{r}
 #| label: supplement-raw-coefficients
@@ -421,7 +384,7 @@ results$effects |>
   arrange(Variable, Group) |>
   kable(
     caption = paste0(
-      "Raw partial effects on the log-WIS scale from the fully adjusted joint ",
+      "Raw partial effects on the log-WIS scale from the fully adjusted ",
       "generalised additive mixed model. Negative values indicate ",
       "better-than-average performance. 95% CI = 95% confidence interval."
     ),
@@ -431,9 +394,27 @@ results$effects |>
   kable_styling(full_width = FALSE)
 ```
 
-\newpage
+--------------------------------------------------------------------------------
 
-### Results on the natural scale
+## Sensitivity analyses
+
+### Data processing
+
+#### Population normalisation
+
+We scored forecasts and observations normalised by country population per 100,000.
+We also scored against the raw total incident weekly count per target.
+This had near-zero impact on model fitting or results on the log-transformed scores.
+Difference in median WIS (across all targets):
+
+  | Target | Scale   | Raw count | Per 100k |
+  | ------ | ------- | --------- | -------- |
+  | Cases  | log     | 0.292     | 0.278    |
+  | Cases  | natural | 2426      | 34.4     |
+  | Deaths | log     | 0.239     | 0.093    |
+  | Deaths | natural | 14.7      | 0.199    |
+
+#### Natural scale WIS
 
 We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.
 
@@ -448,33 +429,32 @@ scores <- scores |>
 print_table1(scores)
 ```
 
-\newpage
+### Model specification
 
-### Sensitivity: log-transformed response
+We tried several alternative model specifications.
 
-*#TODO: This section is under substantial review*
+#### Covariate selection
 
-The primary model applies a log *link* to the untransformed WIS, which leaves the residuals skewed (above).
-As a sensitivity analysis we refit the same joint specification but instead model the *log-transformed* score directly (`log(WIS)`, with near-zero scores floored at $10^{-4}$ before transformation), using a Gaussian family with the identity link.
-This is the conventional treatment for skewed forecast scores: `log(WIS)` is close to symmetric, so the Gaussian error assumption is far better satisfied.
+  | Domain              | Variable         | Model version | Impact   |
+  | ------------------- | ---------------- | ------------- | -------- |
+  | Forecast target     |                  |               |          |
+  |                     | `EpiTarget`      | V2*           | None     |
+  |                     | `VariantPhase`   | V2*           | Some     |
+  |                     | `Trend`          | All           | Untested |
+  |                     | `Horizon`        | All           | Untested |
+  |                     | `Incidence`      | All           | Untested |
+  |                     | `Location`       | All           | Untested |
+  | Forecaster strategy |                  |               |          |
+  |                     | `CountryTargets` | All           | Untested |
+  |                     | `Model`          | All           | Untested |
+  | Outcome             | `Method`         | All           |          |
 
-The residual distribution improves markedly under this reparameterisation: residual skewness falls from approximately 5.5 (primary, raw score with log link) to approximately −0.8 (log-transformed response), with a correspondingly lighter tail.
-The diagnostic plots and observed-versus-fitted relationship for the log-response model are shown below.
+\* Covariates included in V2 were added based on reviewer feedback.
 
-```{r}
-#| label: supplement-logresp-diagnostics
+#### Fitting
 
-knitr::include_graphics(here("output", "log-resp", "plots", "check_joint.png"))
-```
+We tried a Gaussian distribution with a log link.
+Because LWIS is strongly right-skewed, this resulted in high residual skewness (5.5).
+We avoid using additional data transformations (e.g. an additional log transform) on the outcome (LWIS) as this would violate propriety of the score.
 
-```{r}
-#| label: supplement-logresp-fit-obs
-
-plot_fit_obs(readRDS(here("output", "log-resp", "fit_obs.rds")),
-             scale_label = "log(WIS)")
-```
-
-Despite the improved residual behaviour, the substantive conclusions are unchanged.
-The model-structure and geographic-scope effects remain centred on zero under both specifications (the headline finding of no systematic structural difference is identical), and the direction of every covariate effect is preserved (correlation of adjusted partial effects ≈ 0.96 across the focal covariates).
-The magnitudes of some target-difficulty effects are attenuated on the log-response scale --- for example the stable-trend advantage is smaller --- reflecting the different treatment of the skewed upper tail, but no effect changes sign.
-We therefore retain the log-link specification in the main text for continuity with the scoring scale and report this transformation as a robustness check.
+The fitted relationships and partial effects remained stable across parameterisations.

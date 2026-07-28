@@ -1,9 +1,0 @@
----
-title: "Supplementary material"
-format:
-  html:
-    toc: true
-    code-fold: true
----
-
-{{< include report/quarto/supplement/_supplement.qmd >}}

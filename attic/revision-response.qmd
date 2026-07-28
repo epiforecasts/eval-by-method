@@ -1,0 +1,33 @@
+Updates since previous version in response to reviewer comments:
+
+### Prose --- `report/quarto/_results.qmd`
+
+- [x] Restructure subheadings (Model characteristics / Unadjusted performance / Adjusted estimates / Sensitivity analyses)
+- [x] Add figure/table interpretation sentences
+- [x] Fix sensitivity analyses incomplete sentence
+- [x] Standardise terminology to "adjusted estimates" / GAMM
+- [x] Fix Figure 3 caption (colour = Method, shape = geographic scope)
+- [x] Reference STROBE flow diagram for exclusion counts
+- [x] State sum-to-zero constraint and log-scale interpretation
+- [x] Add diagnostics sentence (Supp Fig S3)
+- [x] Back-transform key effects with inline `exp()` ratios
+- [x] Quantify confounding attenuation in prose
+- [x] Note uncertainty omitted from Figure 1 caption
+- [x] Fix "no clear difference" → "no clear evidence of systematic difference"
+
+### R scripts --- figures and tables
+
+- [x] **Table 1** (`R/analysis-descriptive.R`): replace SD with IQR for WIS column (skewed outcome)
+- [x] **Table 1** caption: add "WIS on log-transformed incidence per 100,000" to caption text
+- [x] **Figure 1** (`R/analysis-descriptive.R:351`): fix y-axis label `"log(Incidence + 1)"` → `"Observed incidence (log scale)"`
+- [x] **Figure 1**: redesigned as stratified grid (CountryTargets × epi_target, colour = Method) replacing separate A/B panels; panel C (incidence) dropped
+- [x] **Figure 2** (`R/plot-model-results.R:86`): add scale to axis label → `"Partial effect (log WIS scale)"`
+- [x] **Figure 2**: replaced alpha=0.3 for unadjusted with hollow (shape=1) vs filled (shape=16) points
+- [x] **Figure 3**: y-axis label updated; unadjusted kept with lty distinction (alpha removed); shape encodes CountryTargets
+
+### Supplement
+
+- [x] Confirm STROBE flow diagram exists as Supp Fig S1 --- confirmed at `model-flow-supplement`
+- [x] Confirm diagnostic plots exist as Supp Fig S3 --- confirmed at `gamm-diagnostics-cases/deaths-supplement`
+- [x] Confirm Fig 1 with uncertainty exists as Supp Fig S4 --- added `scores-over-time-uncertainty-supplement` chunk
+- [x] Add natural-scale results (reviewer 3.4) --- section exists at `scores-natural-supplement`; verify renders

@@ -1,12 +1,25 @@
 # Project Overview
 
-This is an R-based research project analyzing COVID-19 forecast accuracy across European models. The study examines how model structure and geographic specificity influence forecast performance using data from the European COVID-19 Forecast Hub.
+This is an R-based research project analysing COVID-19 forecast accuracy across European models.
 
-## Research Question
+## Abstract
 
-How do model structure (mechanistic vs statistical) and geographic specificity (single-location vs multi-location models) affect forecast accuracy after adjusting for predictive difficulty?
+Forecasters predicting infectious disease outbreaks have met with varying success.
+Some of this variation in performance comes from the method used to make a forecast, when different models are better or worse at prediction.
+The rest comes from the target being forecast, when some outbreaks are easier or harder to predict than others.
+However, when many forecasters each predict many different targets, it becomes difficult to trace the impact of these factors shaping performance.
+Here we use a regression model to separate the effect of the forecasting method, from the difficulty of the target, in forecast performance.
 
-See the manuscript section files in `report/quarto/` (`_background.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`) for additional project context.
+We evaluated forecasts of weekly COVID-19 cases and deaths over two years across 32 European countries, scoring them against observed data with the Weighted Interval Score (WIS).
+We expected a model's structure to shape how well it predicted, so we classified 47 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
+A generalised additive mixed model let us adjust for everything that makes a target easier or harder to predict: the outcome being forecast, its level and trend, the dominant variant, the country, the forecast horizon, and differences between individual models.
+
+Once we accounted for the difficulty of the target, no single type of model performed best.
+Differences in European COVID-19 forecast performance were driven more by which targets were hard to predict than by which modelling approach a forecaster used.
+
+This approach sits between informal and fully formal ways of handling bias in evaluation studies.
+As infectious disease forecasting grows, we encourage evaluators to choose from a wider range of study designs, matching the formality of the method to the question, so they can isolate the part of performance they actually want to measure.
+
 
 ## Project Structure
 
@@ -25,8 +38,8 @@ See the manuscript section files in `report/quarto/` (`_background.qmd`, `_metho
   - Models WIS adjusting for: trend, location, time, horizon, model-specific effects
   - Isolates impact of Method (model structure) and CountryTargets (geographic specificity)
   - Uses `mgcv`, `gammit`, and `gratia` packages
-  - Outputs (per scale, under scale-named subdirs of `output/` — `log/`, `log-resp/`, `natural/`): `results.rds`, `fit_obs.rds`, and diagnostic plots
-  - Must be run separately before rendering the manuscript (it is **not** sourced by `report/quarto/_results.qmd`)
+  - Outputs (per scale, under scale-named subdirs of `output/` — `log/`, `natural/`): `results.rds` (includes fitted `data`), `fit_obs.rds`, and diagnostic plots (`plots/check_joint.png`)
+  - Defines `model_wis(scoring_scale, family_link = "log", output_dir)`; sourcing alone fits nothing. Call it once per scale (`log`, `natural`) to write outputs. Must be run separately before rendering — it is **not** sourced by `report/quarto/_results.qmd`, which only reads `output/log/results.rds`
 
 - **analysis-descriptive.R**: Descriptive statistics and summary tables
   - Bootstrap confidence intervals
@@ -36,7 +49,7 @@ See the manuscript section files in `report/quarto/` (`_background.qmd`, `_metho
   - Adjusted vs unadjusted effects by model
   - Supports anonymized output for peer review
 
-- **plot-model-flow.R**: STROBE-style model-inclusion flowchart (`create_model_flow()` → `output/plots/flowchart.png`)
+- **plot-model-flow.R**: STROBE-style model-inclusion flowchart (`create_model_flow()` → `output/flowchart.png`)
 
 - **dag-check.R**: Defines and visualises the DAG used to reason about confounding (`ggdag`)
 
@@ -44,7 +57,6 @@ See the manuscript section files in `report/quarto/` (`_background.qmd`, `_metho
 
 - **check-autocorrelation.R**: Temporal autocorrelation diagnostic
 - **check-link-robustness.R**: Robustness of results to the model link function
-- **model-logresp.R**: Log-response sensitivity arm of the GAMM
 - **model-building.qmd**: Notebook documenting model specifications tried
 
 ### Utility Scripts (R/)
@@ -60,6 +72,7 @@ See the manuscript section files in `report/quarto/` (`_background.qmd`, `_metho
 - `model-classification.csv`: Model categorization by structure and specificity
 - `populations.csv`: Population data by location
 - `scores-raw-{case|death}.csv`: Computed forecast scores (generated)
+- `variants/`: Raw variant-surveillance inputs (`ch-hosp.csv`, `ch-wgs.csv`, `eu-ecdc.csv`, `uk-ukhsa.csv`) used by `utils-variants.R`
 
 ### Manuscript text (prose and writing)
 
@@ -72,12 +85,14 @@ The manuscript prose lives in per-section Quarto files under `report/quarto/`, a
 - `report/quarto/_discussion.qmd` — discussion
 - `report/quarto/_references.qmd` — references
 - `submission/Revision_reviews-response.md` — tracks reviewer suggestions and planned response; X marks completion. Consult when making revision-related changes.
+- `submission/first/` — archived original submission (manuscript PDF/DOCX, cover letter, supplement, `reviews.md`, and the `results.rds` from that round).
 
 ### Rendered analysis (code and outputs)
 
 - `report/manuscript.qmd` — top-level Quarto document; includes the `report/quarto/_*.qmd` sections and the supplement. This is the render target.
 - `report/quarto/_results.qmd` — results section; sources R scripts and renders figures/tables.
-- `report/quarto/supplement/_supplement.qmd` — supplementary materials.
+- `report/quarto/supplement/_supplement.qmd` — supplementary materials (with `future-work.qmd` and figure assets alongside it).
+- Root render wrappers (`quarto render` uses `_quarto.yml` → `_site/`): `index.qmd` wraps the manuscript, `supplement.qmd` wraps the supplement; two-page site with navbar. Bibliography `report/references.bib`, style `report/plos-computational-biology.csl`.
 - Pre-print: [medRxiv 10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
 
 **Note**: manuscript prose and rendered analysis are separate. The section `.qmd` files are not auto-generated — changes to analysis code and changes to manuscript text must be coordinated manually.
@@ -103,8 +118,11 @@ source(here("R", "process-score.R"))
 # 2. Prepare and integrate data
 source(here("R", "process-data.R"))
 
-# 3. Fit GAMM to weighted interval scores (writes output/; run before rendering)
+# 3. Fit GAMM to weighted interval scores (run before rendering).
+#    Sourcing only DEFINES model_wis(); call it per scale to write output/<scale>/.
 source(here("R", "analysis-model.R"))
+model_wis(scoring_scale = "log",     output_dir = here("output", "log"))
+model_wis(scoring_scale = "natural", output_dir = here("output", "natural"))
 
 # 4. Render the manuscript alone (results section only; supplement is a separate page)
 # quarto::quarto_render("report/manuscript.qmd")
@@ -118,7 +136,7 @@ source(here("R", "analysis-model.R"))
 | Task | Where to edit |
 |---|---|
 | Change manuscript prose (wording, framing, conclusions) | Relevant `report/quarto/_*.qmd` section file |
-| Change analysis, model, or figures | Relevant `R/` script; outputs flow into `report/quarto/_results.qmd` automatically |
+| Change analysis, model, or figures | Relevant `R/` script. `_results.qmd` sources `process-data.R`, `analysis-descriptive.R`, `plot-model-results.R` at render. But `analysis-model.R` and `plot-model-flow.R` are **not** sourced — re-run `model_wis()` per scale (and regenerate the flowchart) to refresh `output/` before rendering |
 | Respond to a reviewer comment | Check `submission/Revision_reviews-response.md`, update `R/` script if needed, then update the relevant `report/quarto/_*.qmd`, mark as completed in `submission/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
 | Add or change a supplementary figure | Relevant `R/` script + `report/quarto/supplement/_supplement.qmd` |
 | All changes | Update `NEWS.md` (change log; newest first) |
@@ -135,39 +153,10 @@ Major R packages:
 - `here` - Path management
 - `lubridate` - Date handling
 
-## Revision task list
+## Task list
 
-Outstanding issues from critique of results section against STROBE / epi reporting standards.
-Status: [ ] not started, [x] done. Full detail in `.claude/plans/i-m-editing-these-paper-lovely-quill.md`.
-
-### Prose — `report/quarto/_results.qmd`
-- [x] Restructure subheadings (Model characteristics / Unadjusted performance / Adjusted estimates / Sensitivity analyses)
-- [x] Add figure/table interpretation sentences
-- [x] Fix sensitivity analyses incomplete sentence
-- [x] Standardise terminology to "adjusted estimates" / GAMM
-- [x] Fix Figure 3 caption (colour = Method, shape = geographic scope)
-- [x] Reference STROBE flow diagram for exclusion counts
-- [x] State sum-to-zero constraint and log-scale interpretation
-- [x] Add diagnostics sentence (Supp Fig S3)
-- [x] Back-transform key effects with inline `exp()` ratios
-- [x] Quantify confounding attenuation in prose
-- [x] Note uncertainty omitted from Figure 1 caption
-- [x] Fix "no clear difference" → "no clear evidence of systematic difference"
-
-### R scripts — figures and tables
-- [x] **Table 1** (`R/analysis-descriptive.R`): replace SD with IQR for WIS column (skewed outcome)
-- [x] **Table 1** caption: add "WIS on log-transformed incidence per 100,000" to caption text
-- [x] **Figure 1** (`R/analysis-descriptive.R:351`): fix y-axis label `"log(Incidence + 1)"` → `"Observed incidence (log scale)"`
-- [x] **Figure 1**: redesigned as stratified grid (CountryTargets × epi_target, colour = Method) replacing separate A/B panels; panel C (incidence) dropped
-- [x] **Figure 2** (`R/plot-model-results.R:86`): add scale to axis label → `"Partial effect (log WIS scale)"`
-- [x] **Figure 2**: replaced alpha=0.3 for unadjusted with hollow (shape=1) vs filled (shape=16) points
-- [x] **Figure 3**: y-axis label updated; unadjusted kept with lty distinction (alpha removed); shape encodes CountryTargets
-
-### Supplement
-- [x] Confirm STROBE flow diagram exists as Supp Fig S1 — confirmed at `model-flow-supplement`
-- [x] Confirm diagnostic plots exist as Supp Fig S3 — confirmed at `gamm-diagnostics-cases/deaths-supplement`
-- [x] Confirm Fig 1 with uncertainty exists as Supp Fig S4 — added `scores-over-time-uncertainty-supplement` chunk
-- [x] Add natural-scale results (reviewer 3.4) — section exists at `scores-natural-supplement`; verify renders
+Outstanding issues.
+Status: [ ] not started, [x] done.
 
 ### Verification
-After R script changes: render `report/manuscript.qmd` and check figures render correctly.
+After changing `analysis-model.R` (or upstream scoring/data), regenerate the saved model outputs first — the manuscript reads `output/log/results.rds` and `fit_obs.rds`, it does not re-fit. Stale outputs render silently wrong, or break (e.g. the supplement density chunk needs `results$data`). Then render `report/manuscript.qmd` (or `quarto render` for the full site) and check figures render correctly.
