@@ -5,11 +5,13 @@ Adjusted estimates for each model structure were no different from the overall a
 We suggest that when evaluating across multiple forecast targets, it is necessary to account for the factors contributing to variation between targets, before considering factors within the forecasting process.
 
 In this work we had limited ability to demonstrate the model-based approach used here, with a small and biased sample reducing any power to detect true differences in performance between model structures.
-While we used a large dataset of predictions over time, we had a much smaller effective sample size of 47 independent models.
+While we used a large dataset of predictions over time, we had a much smaller effective sample size of 48 independent models.
 We relied on an opportunistic cohort of models from voluntary contributions to the European Hub.
 For example, we only observed 3 agent-based models, where all three represented here targeted a single country.
 This meant our results may be biased by unobserved characteristics that differentially affected participation, such as the resource intensity of model development, or the capacity to incorporate domain expertise.
 These factors may drive both the choice of model structure and be more useful as targets for identifying potential for modifying forecaster performance.
+We included the Hub baseline model, which is a deliberately naive statistical model submitting for every country in almost every week.
+It therefore contributes a large share of the statistical group's forecasts, and anchors that group's estimate towards the performance achievable without any epidemiological structure.
 In addition, we may have misclassified the exposure, with very little metadata to classify model structures.
 Independent raters disagreed on the classification of most semi-mechanistic models, and we did not track changes to each model's individual methods over time.
 A more systematic sample of models would support a deeper investigation of factors driving model performance.

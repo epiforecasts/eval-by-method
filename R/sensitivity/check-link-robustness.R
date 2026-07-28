@@ -19,7 +19,7 @@ source(here("R", "process-data.R"))
 check_link_robustness <- function() {
   # --- Data: mirror model_wis(scoring_scale = "log") ---
   m.data <- process_data(scoring_scale = "log") |>
-    filter(!grepl("EuroCOVIDhub-", Model)) |>
+    filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     mutate(Incidence = log(Incidence + 1))
 
   m.formula_joint <- wis ~

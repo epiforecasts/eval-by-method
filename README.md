@@ -1,4 +1,5 @@
 
+
 [![Zenodo](https://img.shields.io/badge/Code%20DOI-10.5281/zenodo.14903161-blue)](https://doi.org/10.5281/zenodo.14903161)
 [![medRxiv](https://img.shields.io/badge/medRxiv-10.1101/2025.04.10.25325611-blue)](https://doi.org/10.1101/2025.04.10.25325611)
 
@@ -32,7 +33,7 @@ method, from the difficulty of the target, in forecast performance.
 We evaluated forecasts of weekly COVID-19 cases and deaths over two
 years across 32 European countries, scoring them against observed data
 with the Weighted Interval Score (WIS). We expected a model’s structure
-to shape how well it predicted, so we classified 47 models by structure
+to shape how well it predicted, so we classified 48 models by structure
 (agent-based, mechanistic, semi-mechanistic, statistical, or human
 judgement) and estimated how much structure alone affected performance.
 A generalised additive mixed model let us adjust for everything that
@@ -66,8 +67,9 @@ Read the work as it stands:
   section files in [report/quarto/](./report/quarto/).
 - The supplement is in
   [report/quarto/supplement/\_supplement.qmd](./report/quarto/supplement/_supplement.qmd).
-- The pre-print is on
-  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611).
+- The former pre-print is on
+  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611); note, this is
+  out of date.
 
 #### Reproduce
 
@@ -135,10 +137,6 @@ A guide to the codebase:
 
 ### Project docs
 
-- Current [working
-  draft](https://docs.google.com/document/d/1OOVUHR_BGWcviSNxvaHvbXD16Bb3Y_zhw--7gAGBqMk/edit#)
-- Submitted
-  [manuscript](https://docs.google.com/document/d/1B_HviobjSIak4c1FKoSOqgFwRF_DxMrJM6zsdbdth4E/edit?tab=t.0)
 - [Authorship](https://docs.google.com/spreadsheets/d/18mt6c47MCzLdMAKth6Bv2PC7b10KYgWieExHHWLnP3Q/edit?gid=0#gid=0)
 - [Slide
   deck](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p#slide=id.p)

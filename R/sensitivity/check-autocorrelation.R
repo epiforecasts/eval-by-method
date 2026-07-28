@@ -46,7 +46,7 @@ check_autocorrelation <- function() {
   # Reconstruct m.data with the SAME filters/mutate as model-logresp.R:29-37 so
   # rows align 1:1 with fit$y (verified by stopifnot below).
   m.data <- process_data(scoring_scale = "log") |>
-    filter(!grepl("EuroCOVIDhub-", Model)) |>
+    filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |>
     mutate(
       Epi_target = as.factor(epi_target),

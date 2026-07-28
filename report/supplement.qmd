@@ -71,7 +71,8 @@ Forecasts were validated against minimal formatting requirements for quantile in
 For this study, we collected all forecasts from between 8 March 2021 to 10 March 2023.
 We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period.
 We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results.
-We also excluded baseline and ensemble models created by the Hub team.
+We also excluded the ensemble model created by the Hub team, because it is constructed from the contributed forecasts and so would double-count them.
+We retained the Hub baseline model: it is an independently specified statistical model, and including it gives a naive reference point against which participant forecasts can be read.
 
 ```{r}
 #| label: supplement-model-flow

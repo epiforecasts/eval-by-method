@@ -79,7 +79,7 @@ create_model_flow <- function() {
                            label = "Provided 1:4 week predictions",
                            show_exc = TRUE) |>
                  fc_filter(inc_xhub,
-                           label = "Not created by Hub",
+                           label = "Not the Hub ensemble",
                            show_exc = TRUE) |>
                  fc_draw()
   )
