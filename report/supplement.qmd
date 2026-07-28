@@ -293,6 +293,10 @@ source(here::here("R", "dag-check.R"))
 p
 ```
 
+The epidemiological outcome enters the diagram as a confounder rather than simply a covariate.
+Forecasters chose which outcomes to submit predictions for, and that choice is associated with model structure, opening a backdoor path from structure to the score through modeller strategy.
+The outcome also changes the scale and reporting characteristics of the series being scored.
+
 The joint model therefore adjusts for:
 
 - Forecast target difficulty (which block backdoor paths from epidemic dynamics into the score), as:
@@ -300,7 +304,15 @@ The joint model therefore adjusts for:
 - Forecaster strategy, as:
   - `CountryTargets`, `Model`
 
+Querying the diagram for a minimal sufficient adjustment set returns this exact set of covariates, for the direct effect of model structure on the score.
+It returns no valid adjustment set for the total effect: modeller strategy is unobserved and confounds model structure with the choice of geographic scope, so no set of measured covariates blocks that path.
+This is why we report a partial, direct association throughout rather than a total effect, and why residual confounding by unmeasured forecaster characteristics remains a limitation.
+
 Adjustment gives the partial association between model structure and LWIS with these covariates held fixed at their observed values.
+
+The joint model also fits an interaction between model structure and the epidemiological outcome, allowing a structure to predict one outcome relatively better than the other.
+This is effect modification rather than confounding.
+A causal diagram encodes conditional independence and not effect modification, so the interaction does not appear in the diagram and does not change the adjustment set.
 
 ### Model fitting
 

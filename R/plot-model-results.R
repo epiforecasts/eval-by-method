@@ -66,6 +66,31 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
   return(plot)
 }
 
+# Partial effect of each model structure, shown separately for case and death
+# forecasts. These come from the s(Method, Epi_target) cells, so the two points
+# for a structure are the quantity the interaction is there to expose: whether a
+# structure predicts one outcome relatively better than the other.
+plot_method_target <- function(method_by_target) {
+  method_by_target |>
+    mutate(
+      Method = factor(Method, levels = rev(sort(unique(Method)))),
+      `Epidemiological target` = factor(Epi_target,
+                                        levels = c("Cases", "Deaths"))
+    ) |>
+    ggplot(aes(x = Method, col = `Epidemiological target`,
+               shape = `Epidemiological target`)) +
+    geom_point(aes(y = exp(value)), position = position_dodge(width = 0.6)) +
+    geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5)),
+                   position = position_dodge(width = 0.6)) +
+    geom_hline(yintercept = 1, lty = 2, alpha = 0.4) +
+    scale_y_log10() +
+    scale_colour_brewer(type = "qual", palette = "Set1") +
+    labs(y = "Performance ratio (vs average model)", x = NULL,
+         colour = NULL, shape = NULL) +
+    theme(legend.position = "bottom", strip.background = element_blank()) +
+    coord_flip()
+}
+
 plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
   p <- ggplot(fit_obs, aes(observed, fitted)) +
     geom_point(alpha = 0.1, size = 0.4) +

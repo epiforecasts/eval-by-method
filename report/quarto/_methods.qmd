@@ -80,8 +80,15 @@ Here $j_g(i)$ denotes the level of grouping factor $g$ observed for forecast $i$
 We assume random effects are drawn independently from a zero-mean Gaussian with its own variance:
 
 $$
-u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
+u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Target},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
 $$
+
+Model structure enters as a single grouping factor crossing structure with epidemiological target, giving one effect per structure-by-target cell.
+This allows a structure to predict cases relatively better than deaths, or the reverse, rather than assuming one effect shared across both outcomes.
+We did not additionally include a separate main effect for structure.
+Because the crossed term is an unconstrained zero-mean effect over all cells, its average across targets is exactly what a structure main effect would represent; with both terms penalised, the division between them is determined by the relative variance estimates rather than by the data.
+Fitted together, the main effect was shrunk to 0.001 effective degrees of freedom against 4.9 for the crossed term.
+We therefore report the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
 
 The two smooths captured continuous covariates.
 $f_{\text{Inc}}$ was a penalised thin-plate regression spline over (log-transformed) incidence, and $\{f^{\text{Horizon}}_k\}$ was a factor-smooth interaction (sum-to-zero constrained, with $k=3$ basis functions per forecasting model), allowing the horizon effect to vary by model.
