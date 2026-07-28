@@ -65,7 +65,7 @@ Read the work as it stands:
   [report/manuscript.qmd](./report/manuscript.qmd), which assembles the
   section files in [report/quarto/](./report/quarto/).
 - The supplement is in
-  [report/quarto/supplement/\_supplement.qmd](./report/quarto/supplement/_supplement.qmd).
+  [report/supplement.qmd](./report/supplement.qmd).
 - The pre-print is on
   [medRxiv](https://doi.org/10.1101/2025.04.10.25325611).
 
@@ -101,11 +101,17 @@ To re-run the analysis end to end, without editing anything:
        source(here("R", "analysis-model.R"))
     ```
 
-6.  Render the manuscript (includes the results section and supplement):
+6.  Render the manuscript, or the full two-page site (manuscript plus
+    supplement):
 
-    ``` r
-       quarto::quarto_render("report/manuscript.qmd")
+    ``` sh
+       quarto render index.qmd   # manuscript only
+       quarto render             # manuscript + supplement
     ```
+
+    Render `index.qmd`, not `report/manuscript.qmd`: the latter’s
+    includes are project-root-relative and only resolve when a file at
+    the repo root is the top-level document.
 
     `analysis-model.R` must be run before rendering — it is not sourced
     by the results section.

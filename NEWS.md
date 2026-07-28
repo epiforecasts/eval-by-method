@@ -3,6 +3,20 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Correct the documented manuscript render command
+
+`CLAUDE.md`, `README.qmd`, `README.md`
+
+`CLAUDE.md` and `README` both documented `quarto::quarto_render("report/manuscript.qmd")` as the way to render the manuscript alone.
+That command has never worked.
+`report/manuscript.qmd` includes its sections with project-root-relative paths (`/report/quarto/_abstract.qmd`), and rendering a single file directly makes Quarto treat that file's own directory as the root, so the path resolves to `report/report/quarto/_abstract.qmd` and the include fails.
+
+The correct target is `quarto render index.qmd`, which renders the manuscript alone with `index.qmd` (at the repo root) as the top-level document.
+`quarto render` still builds the full two-page site.
+No source file changes: switching the includes to paths relative to `manuscript.qmd` does not help, because Quarto resolves relative includes against the top-level document rather than the file containing the directive, which then breaks the site build.
+
+Also corrected stale paths in the same docs: `report/quarto/supplement/_supplement.qmd` no longer exists (the supplement is `report/supplement.qmd`, self-contained), and `manuscript.qmd` no longer includes the supplement.
+
 ## Unreleased — Reorganise supplement; drop double-log and log-response sensitivity arms
 
 `report/quarto/supplement/_supplement.qmd`, `R/analysis-model.R`, `R/sensitivity/model-logresp.R`, `R/plot-model-flow.R`, `CLAUDE.md`

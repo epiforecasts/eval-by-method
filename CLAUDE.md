@@ -89,10 +89,10 @@ The manuscript prose lives in per-section Quarto files under `report/quarto/`, a
 
 ### Rendered analysis (code and outputs)
 
-- `report/manuscript.qmd` — top-level Quarto document; includes the `report/quarto/_*.qmd` sections and the supplement. This is the render target.
+- `report/manuscript.qmd` — assembles the `report/quarto/_*.qmd` sections. Not itself a render target: its includes are project-root-relative (`/report/quarto/…`), which only resolve when a file at the repo root is the top-level document. Render `index.qmd` instead (see below).
 - `report/quarto/_results.qmd` — results section; sources R scripts and renders figures/tables.
-- `report/quarto/supplement/_supplement.qmd` — supplementary materials (with `future-work.qmd` and figure assets alongside it).
-- Root render wrappers (`quarto render` uses `_quarto.yml` → `_site/`): `index.qmd` wraps the manuscript, `supplement.qmd` wraps the supplement; two-page site with navbar. Bibliography `report/references.bib`, style `report/plos-computational-biology.csl`.
+- `report/supplement.qmd` — supplementary materials; self-contained, with its own setup chunk. Rendered as its own page, not included in the manuscript.
+- Site build (`quarto render` uses `_quarto.yml` → `_site/`): renders `index.qmd` (a thin wrapper including `report/manuscript.qmd`) and `report/supplement.qmd` directly; two-page site with navbar. Bibliography `report/references.bib`, style `report/plos-computational-biology.csl`.
 - Pre-print: [medRxiv 10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
 
 **Note**: manuscript prose and rendered analysis are separate. The section `.qmd` files are not auto-generated — changes to analysis code and changes to manuscript text must be coordinated manually.
@@ -124,11 +124,13 @@ source(here("R", "analysis-model.R"))
 model_wis(scoring_scale = "log",     output_dir = here("output", "log"))
 model_wis(scoring_scale = "natural", output_dir = here("output", "natural"))
 
-# 4. Render the manuscript alone (results section only; supplement is a separate page)
-# quarto::quarto_render("report/manuscript.qmd")
+# 4. Render the manuscript alone (supplement is a separate page)
+#    Render index.qmd, NOT report/manuscript.qmd — the latter's includes are
+#    project-root-relative and fail when it is the top-level document.
+# quarto render index.qmd
 
 # Or build the full two-page website (manuscript + supplement, with navbar):
-# quarto render   # uses root _quarto.yml; index.qmd + supplement.qmd wrap the report/ content
+# quarto render   # uses root _quarto.yml; renders index.qmd and report/supplement.qmd
 ```
 
 ## Making Changes
@@ -138,7 +140,7 @@ model_wis(scoring_scale = "natural", output_dir = here("output", "natural"))
 | Change manuscript prose (wording, framing, conclusions) | Relevant `report/quarto/_*.qmd` section file |
 | Change analysis, model, or figures | Relevant `R/` script. `_results.qmd` sources `process-data.R`, `analysis-descriptive.R`, `plot-model-results.R` at render. But `analysis-model.R` and `plot-model-flow.R` are **not** sourced — re-run `model_wis()` per scale (and regenerate the flowchart) to refresh `output/` before rendering |
 | Respond to a reviewer comment | Check `submission/Revision_reviews-response.md`, update `R/` script if needed, then update the relevant `report/quarto/_*.qmd`, mark as completed in `submission/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
-| Add or change a supplementary figure | Relevant `R/` script + `report/quarto/supplement/_supplement.qmd` |
+| Add or change a supplementary figure | Relevant `R/` script + `report/supplement.qmd` |
 | All changes | Update `NEWS.md` (change log; newest first) |
 
 ## Dependencies
@@ -159,4 +161,4 @@ Outstanding issues.
 Status: [ ] not started, [x] done.
 
 ### Verification
-After changing `analysis-model.R` (or upstream scoring/data), regenerate the saved model outputs first — the manuscript reads `output/log/results.rds` and `fit_obs.rds`, it does not re-fit. Stale outputs render silently wrong, or break (e.g. the supplement density chunk needs `results$data`). Then render `report/manuscript.qmd` (or `quarto render` for the full site) and check figures render correctly.
+After changing `analysis-model.R` (or upstream scoring/data), regenerate the saved model outputs first — the manuscript reads `output/log/results.rds` and `fit_obs.rds`, it does not re-fit. Stale outputs render silently wrong, or break (e.g. the supplement density chunk needs `results$data`). Then run `quarto render index.qmd` for the manuscript alone, or `quarto render` for the full site, and check figures render correctly.
