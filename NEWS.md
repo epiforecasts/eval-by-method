@@ -29,6 +29,10 @@ It reads only the last variable name of an interaction and looks up that factor'
 The replacement rebuilds each smooth's design matrix from the formula mgcv stores on the smooth object, mapping labels to coefficients exactly without assuming an ordering.
 Validated against gammit on a no-interaction fit: identical on every column to the last decimal.
 
+Discussion: corrected the claim that adjusted estimates "were no different from the overall average", which described a term since shown to be shrunk to nothing; they are imprecise rather than identical to the mean.
+Added a paragraph identifying the structure-by-outcome interaction as the one specification choice that materially changed the results, against a model-based approach that is otherwise highly flexible and whose substantive conclusion proved robust to covariate selection, link function and error family.
+Added a main-text pointer to the Gaussian sensitivity, with the detail kept in the supplement.
+
 DAG (#162): the epidemiological outcome is added as a confounder rather than merely a covariate, since forecasters chose which outcomes to submit for and that choice is associated with structure.
 Querying the updated diagram returns our exact covariate set as a minimal sufficient adjustment set for the direct effect, and returns no valid set for the total effect, because latent modeller strategy cannot be blocked.
 This formally supports reporting a partial, direct association rather than a total effect.

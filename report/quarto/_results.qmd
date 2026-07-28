@@ -311,3 +311,9 @@ We selected an initial set of variables a priori, and changed this selection aft
 We indicate these choices in the Supplement.
 Regardless of a priori variable selection, we did not find any meaningful change in partial effect sizes among alternate model specifications.
 Refitting with an identity link in place of the log link also left all partial effects unchanged to two decimal places.
+
+The structure-by-outcome estimates were the exception, being the one set of estimates sensitive to the choice of error family.
+Refitting with a Gaussian family in place of the Tweedie preserved the direction of every contrast, but changed their magnitudes: the separation between cases and deaths widened for human judgement models and disappeared for agent-based models (Supplement).
+A Gaussian family is dominated by the largest scores, which fall disproportionately among case forecasts.
+Including or excluding the Hub baseline model made no material difference to these estimates.
+We therefore treat the ordering of structures within an outcome as indicative rather than established.

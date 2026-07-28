@@ -1,7 +1,8 @@
 In this work, we aimed to assess the partial effect of model structure on the accuracy of forecasts of Covid-19 across European countries.
 We developed a model-based approach to adjust for the key sources of variation between different forecast targets.
 After adjustment, no single structural approach dominated.
-Adjusted estimates for each model structure were no different from the overall average, though substantial variation in individual model performance remained unexplained.
+Adjusted estimates for each model structure were imprecise and none was distinguishable from the overall average, whether pooled across epidemiological outcomes or estimated separately for cases and deaths.
+Substantial variation in individual model performance remained unexplained.
 We suggest that when evaluating across multiple forecast targets, it is necessary to account for the factors contributing to variation between targets, before considering factors within the forecasting process.
 
 In this work we had limited ability to demonstrate the model-based approach used here, with a small and biased sample reducing any power to detect true differences in performance between model structures.
@@ -32,6 +33,15 @@ In particular, we saw reduced variability among the scores of semi-mechanistic m
 Modelling the interval score with a Gaussian error model and log-link also made effects multiplicative, rendering estimates unsuitable for directly ranking individual models.
 Different assumptions within each evaluation method may be useful for different purposes, which suggests developing a more diverse portfolio approach to evaluation methods.
 -->
+
+A model-based evaluation of this kind is extremely flexible, and we found the substantive result to be robust to that flexibility with one exception.
+Varying the choice of covariates, the link function, and the error family left the partial effects of model structure essentially unchanged, and none of these choices altered the conclusion that no structure was distinguishable from the average.
+The exception was whether model structure was allowed to interact with the epidemiological outcome.
+Assuming a single effect shared across cases and deaths conceals the possibility that a structure predicts one outcome relatively well and the other relatively poorly, and this was the only specification choice that changed which structures appeared to differ from each other.
+Even here, the direction of the differences was stable while their magnitude depended on the error family, and no individual estimate was distinguishable from the average.
+We draw two lessons.
+The first is that a structure-by-target interaction is worth specifying explicitly in evaluations that pool across distinct forecast targets, because assuming it away is not a neutral choice.
+The second is that where a single specification choice carries this much weight, it should be reported as a sensitivity rather than presented as a single fitted model.
 
 Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies.
 Previous work has also failed to differentiate performance among model structures, across a variety of outbreaks and epidemic dynamics [@carlson2018; @viboud2018; @reich2019].
