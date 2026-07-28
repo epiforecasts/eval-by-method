@@ -9,7 +9,13 @@
 # Horizon: forecast horizon (smooth, by model)
 # Model: individual model (random effect)
 #
-# Response: WIS (log-transformed, Gaussian family with log link)
+# Response: WIS, modelled with a Tweedie family and log link on both scales.
+# See R/sensitivity/check-family.R: WIS is strongly right-skewed, and a Gaussian
+# family leaves deviance residuals with skew ~5.8 / kurtosis ~77. Tweedie brings
+# these to ~0.6 / ~9 and raises deviance explained from 0.29 to 0.38. Gamma fits
+# the data equally well (p is estimated at ~1.99, i.e. essentially Gamma) but
+# fails to converge on both scales, so Tweedie is preferred on numerical
+# grounds.
 
 library(here)
 library(dplyr)
@@ -71,14 +77,17 @@ archive_diagnostics <- function(fit, spec_label, scoring_scale, plot,
   )
 
   path <- file.path(dir, "fit-summary.csv")
+  summary_table <- mutate(row, across(everything(), as.character))
   if (file.exists(path)) {
-    row <- read_csv(path, show_col_types = FALSE) |>
+    summary_table <- read_csv(path, show_col_types = FALSE) |>
       # coerce so a previously-written column type can't block the bind
       mutate(across(everything(), as.character)) |>
       filter(!(spec_label == row$spec_label & scale == row$scale)) |>
-      bind_rows(mutate(row, across(everything(), as.character)))
+      bind_rows(summary_table)
   }
-  write_csv(row, path)
+  write_csv(summary_table, path)
+  # Return only this fit's row: callers report on the fit they just ran, not on
+  # the accumulated table.
   invisible(row)
 }
 
@@ -91,17 +100,18 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly (bam would drop these silently)
     mutate(Epi_target = as.factor(epi_target))
 
-  # Settings for log or natural scale
+  # Settings for log or natural scale. Both scales use the same Tweedie family;
+  # only the incidence transform differs.
   if (scoring_scale == "log") {
     # log-transform incidence to match scoring on log scale
     m.data <- m.data |>
       mutate(Incidence = log(Incidence + 1))
-    m.family <- gaussian(link = family_link)
-  } else if (scoring_scale == "natural") {
-    m.family <- Gamma(link = family_link)
-  } else {
+  } else if (scoring_scale != "natural") {
     stop("scoring_scale must be either 'log' or 'natural'")
   }
+  # tw() deparses its `link` argument, so passing the variable directly would
+  # send the literal string "family_link". do.call forces the value through.
+  m.family <- do.call(tw, list(link = family_link))
 
   # --- Model formula ---
   # Univariate for each

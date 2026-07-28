@@ -315,7 +315,51 @@ m.data |>
   geom_density()
 ```
 
-We used a \[\] distribution [skew, kurtosis].
+We therefore compared three error families on this specification, holding the formula and data fixed and varying only the family.
+The Gaussian family leaves the skew in the residuals rather than modelling it.
+The Gamma and Tweedie families both accommodate a right-skewed positive outcome, and fit this data almost identically.
+This is not a coincidence: `mgcv` restricts the Tweedie power parameter to $1 < p < 2$, and the estimate reaches 1.99, the top of that range.
+The data are therefore asking for a variance function at least as steep as the Gamma ($p = 2$), and the fitted Tweedie is a Gamma in all but name.
+The two differ only in numerical behaviour, and the Gamma fit did not converge on either scale, so we report the Tweedie fit.
+
+The choice of family matters a great deal on the log scale and very little on the natural scale.
+On the log scale, moving from Gaussian to Tweedie reduces residual skew from 5.8 to 0.6 and kurtosis from 77 to 9.
+On the natural scale, WIS is skewed beyond what any Tweedie can absorb, and the residual skew is essentially unchanged (4.59 against 4.59 under a Gamma); there the change resolves the convergence failure rather than improving the distributional fit.
+
+```{r}
+#| label: supplement-family-comparison
+
+read_csv(here("output", "diagnostics", "fit-summary.csv"),
+         show_col_types = FALSE) |>
+  filter(grepl("^family-", spec_label), scale == "log") |>
+  # the no-offset arm has a different response vector, so its likelihood is not
+  # comparable with the others; it is reported separately below
+  filter(spec_label != "family-tweedie-nooffset") |>
+  transmute(
+    Family = family,
+    `Deviance explained` = round(as.numeric(dev_expl), 3),
+    AIC = round(as.numeric(aic)),
+    `Residual skew` = round(as.numeric(resid_skew), 2),
+    `Residual kurtosis` = round(as.numeric(resid_kurtosis), 1)
+  ) |>
+  kable(
+    caption = paste0(
+      "Comparison of error families for the joint model on the log scale. ",
+      "Skew and kurtosis are of the deviance residuals, which place each family ",
+      "on a comparable footing. Lower absolute skew and kurtosis indicate a ",
+      "distributional assumption better matched to the outcome. ",
+      "The Gamma fit did not converge, and is shown for comparison only; ",
+      "the Tweedie fit is the one reported throughout."
+    ),
+    align = c("l", "r", "r", "r", "r")
+  ) |>
+  kable_styling(full_width = FALSE)
+```
+
+A small share of forecasts (553, or 0.27%) score exactly zero: perfect predictions of zero-incidence targets, almost all deaths in the smallest countries.
+`process-data.R` adds a constant of 1e-7 to every score so these remain representable on a log link.
+Because that constant is arbitrary, we refitted the Tweedie model with the constant removed and the exact zeros retained, which a Tweedie family with power parameter between 1 and 2 admits directly.
+This made almost no difference (residual skew 0.57 against 0.58, deviance explained 0.382 against 0.380), so we retained the constant.
 
 We used the `mgcv` package v1.9-4 using R 4.5, with the formula:
 
@@ -454,8 +498,9 @@ We tried several alternative model specifications.
 
 #### Fitting
 
-We tried a Gaussian distribution with a log link.
-Because LWIS is strongly right-skewed, this resulted in high residual skewness (5.5).
+We first used a Gaussian distribution with a log link.
+Because LWIS is strongly right-skewed, this left high residual skewness (5.8) and kurtosis (77).
 We avoid using additional data transformations (e.g. an additional log transform) on the outcome (LWIS) as this would violate propriety of the score.
+We instead addressed the skew through the error family, comparing Gaussian, Gamma and Tweedie families as reported under [Model fitting](#model-fitting) above, and adopting the Tweedie family for the reported analysis.
 
 The fitted relationships and partial effects remained stable across parameterisations.

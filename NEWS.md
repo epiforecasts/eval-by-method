@@ -3,6 +3,35 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Model WIS with a Tweedie family (#159)
+
+`R/analysis-model.R`, `R/sensitivity/check-family.R`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/supplement.qmd`
+
+The primary model used `gaussian(link = "log")`, which left deviance residuals with skew 5.8 and kurtosis 77.
+Modelling `log(WIS)` directly would fix the residuals but loses propriety of the score, so the fix had to come from the error family instead.
+
+Compared Gaussian, Gamma and Tweedie families on the joint specification, holding formula and data fixed.
+Both scales now use `tw(link = "log")`, replacing `gaussian(log)` on the log scale and `Gamma(log)` on the natural scale.
+
+On the log scale this is a large improvement: residual skew falls from 5.84 to 0.58, kurtosis from 77.5 to 9.2, and deviance explained rises from 0.286 to 0.380.
+Gamma fits the same data almost identically (skew 0.52, deviance explained 0.378) but does not converge on either scale, which is the reason for preferring Tweedie.
+The Tweedie power parameter is estimated at 1.99, the upper limit `mgcv` permits, so the fitted family is a Gamma in all but numerical behaviour.
+
+This also resolves the natural-scale non-convergence recorded in the previous entry: that was a Gamma problem, not a scale problem.
+On the natural scale the change fixes convergence but not the fit — residual skew is unchanged at 4.59, because natural-scale WIS is skewed beyond what any Tweedie can absorb.
+Nothing in the rendered manuscript or supplement reads `output/natural/`, so this affects no reported result.
+
+Several adjusted estimates moved materially under the new family, most notably the deaths-versus-cases contrast (ratio 0.17 to 0.38).
+All substantive conclusions hold: no model structure differs from the grand mean, stable trends remain the most predictable, increasing trends the least, and Omicron BA.1 the hardest variant phase.
+Delta's interval now excludes 1, where previously it did not.
+
+Investigated whether the `1e-7` constant that `process-data.R` adds to every score was driving the skew, since 553 forecasts (0.27%) score exactly zero and the constant parks them 11 log-units below the next smallest value.
+It was not: refitting with the constant removed and the exact zeros retained changes residual skew by 0.01.
+`process-data.R` is therefore unchanged, and the result is recorded in the supplement as a negative finding.
+
+Fixed `archive_diagnostics()`, which reassigned its accumulator and so returned the whole `fit-summary.csv` rather than the row just written.
+Fixed a non-standard-evaluation trap: `tw()` deparses its `link` argument, so passing a variable sent the literal string `"family_link"`.
+
 ## Unreleased — Include the Hub baseline model; archive fit diagnostics per specification
 
 `R/analysis-model.R`, `R/plot-model-flow.R`, `R/sensitivity/check-autocorrelation.R`, `R/sensitivity/check-link-robustness.R`, `report/quarto/_abstract.qmd`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/quarto/_discussion.qmd`, `report/supplement.qmd`, `CLAUDE.md`
