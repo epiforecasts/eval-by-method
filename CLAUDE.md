@@ -123,9 +123,9 @@ source(here("R", "process-data.R"))
 #    Sourcing only DEFINES model_wis(); call it per scale to write output/<scale>/.
 source(here("R", "analysis-model.R"))
 model_wis(scoring_scale = "log",     output_dir = here("output", "log"),
-          spec_label = "baseline-included-gaussian-log")
+          spec_label = "tweedie-log")
 model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
-          spec_label = "baseline-included-gaussian-log")
+          spec_label = "tweedie-log")
 
 # 4. Render the manuscript alone (results section only; supplement is a separate page)
 # quarto::quarto_render("report/manuscript.qmd")

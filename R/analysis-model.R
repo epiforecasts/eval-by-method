@@ -10,12 +10,7 @@
 # Model: individual model (random effect)
 #
 # Response: WIS, modelled with a Tweedie family and log link on both scales.
-# See R/sensitivity/check-family.R: WIS is strongly right-skewed, and a Gaussian
-# family leaves deviance residuals with skew ~5.8 / kurtosis ~77. Tweedie brings
-# these to ~0.6 / ~9 and raises deviance explained from 0.29 to 0.38. Gamma fits
-# the data equally well (p is estimated at ~1.99, i.e. essentially Gamma) but
-# fails to converge on both scales, so Tweedie is preferred on numerical
-# grounds.
+# See R/sensitivity/check-family.R
 
 library(here)
 library(dplyr)
@@ -86,13 +81,15 @@ archive_diagnostics <- function(fit, spec_label, scoring_scale, plot,
       bind_rows(summary_table)
   }
   write_csv(summary_table, path)
-  # Return only this fit's row: callers report on the fit they just ran, not on
-  # the accumulated table.
   invisible(row)
 }
 
-model_wis <- function(scoring_scale = "log", family_link = "log",
- output_dir = "output", spec_label = NULL) {
+model_wis <- function(
+  scoring_scale = "log",
+  family_link = "log",
+  output_dir = "output",
+  spec_label = NULL
+) {
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
@@ -100,8 +97,7 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly (bam would drop these silently)
     mutate(Epi_target = as.factor(epi_target))
 
-  # Settings for log or natural scale. Both scales use the same Tweedie family;
-  # only the incidence transform differs.
+  # Settings for log or natural scale. Both scales use the same family
   if (scoring_scale == "log") {
     # log-transform incidence to match scoring on log scale
     m.data <- m.data |>
@@ -161,7 +157,8 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
       transmute(
         group_var = "Epi_target",
         group = "Deaths",
-        value, se,
+        value,
+        se,
         lower_2.5 = .data[[ci_cols[grepl("^lower", ci_cols)]]],
         upper_97.5 = .data[[ci_cols[grepl("^upper", ci_cols)]]],
         model = model_label
@@ -169,7 +166,9 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   }
 
   # Univariate random effects (exclude smooth-only and the fixed target fit)
-  random_effects_uni <- m.fits_uni[!grepl("horizon|incidence|epi_target", names(m.fits_uni))] |>
+  random_effects_uni <- m.fits_uni[
+    !grepl("horizon|incidence|epi_target", names(m.fits_uni))
+  ] |>
     map(extract_ranef) |>
     list_rbind() |>
     mutate(model = "Unadjusted") |>
@@ -206,14 +205,11 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   )
   saveRDS(fit_obs, here(output_dir, "fit_obs.rds"))
 
-  # Raster, not vector: appraise() plots ~150k residuals, and a PDF of that runs
-  # to ~20MB per scale. PNG keeps it under 1MB with no loss of legibility.
+  # appraise() plots
   p <- appraise(m.fits_joint)
   ggsave(here(output_dir, "plots", "check_joint.png"), p, dpi = 300)
 
   # Keep a labelled copy plus summary statistics, so this fit stays comparable
-  # against the specifications tried in later work. The path above is the one
-  # the supplement reads, so it deliberately stays stable.
   if (!is.null(spec_label)) {
     archive_diagnostics(m.fits_joint, spec_label, scoring_scale, p)
   }

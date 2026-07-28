@@ -1,12 +1,7 @@
 # Sensitivity: choice of error family for the log-scale (primary) GAMM.
 #
-# The primary model used gaussian(link = "log"). That leaves strongly skewed
-# deviance residuals (skew ~5.8, kurtosis ~77), which is a poor description of
-# the outcome rather than a cosmetic problem. Modelling log(WIS) directly would
-# fix the residuals but loses propriety of the score, so the fix has to come
-# from the error family instead (issue #159).
 #
-# Two things shape the choice:
+# Two considerations:
 #
 #   1. WIS on the log scale is continuous, positive, and strongly right-skewed.
 #      Gamma and Tweedie are the natural candidates. Symmetric heavy-tailed
@@ -14,17 +9,19 @@
 #      downweight the tail, not represent the skew, and they put support on
 #      negative values, which is wrong for a strictly positive score.
 #
-#   2. 553 forecasts (0.27%) have WIS exactly 0 -- perfect predictions of
+#   2. 553 forecasts (0.27%) have WIS exactly 0, as perfect predictions of
 #      zero-incidence targets, almost all deaths in small countries (Iceland,
 #      Liechtenstein, Malta). process-data.R adds 1e-7 to every score so these
 #      are representable on a log link, which parks them at log(1e-7) = -16.1,
-#      roughly 11 log-units below the next smallest score. That is a spike of
-#      extreme leverage created by an arbitrary constant.
+#      roughly 11 log-units below the next smallest score.
 #
 #      Tweedie with 1 < p < 2 has a genuine point mass at zero, so it can model
 #      those forecasts as what they are instead of displacing them. The
 #      "tweedie-nooffset" arm therefore removes the 1e-7 and keeps the exact
 #      zeros.
+# Using gaussian(link = "log") leaves strongly skewed
+# deviance residuals (skew ~5.8, kurtosis ~77), which is a poor description of
+# the outcome.
 #
 # Run: source(here::here("R", "sensitivity", "check-family.R")); check_family()
 
@@ -65,8 +62,7 @@ check_family <- function(candidates = .family_candidates,
       dat <- mutate(dat, wis = pmax(wis - 1e-7, 0))
     }
 
-    # bam() signals non-convergence through a warning, not an error, so capture
-    # it rather than let it scroll past in the fitting trace.
+    # bam() signals non-convergence through a warning
     warnings_seen <- character()
     fit <- withCallingHandlers(
       bam(
@@ -92,9 +88,12 @@ check_family <- function(candidates = .family_candidates,
 
     converged <- !any(grepl("did not converge", warnings_seen))
     message(
-      "   skew ", signif(as.numeric(row$resid_skew), 3),
-      "  kurtosis ", signif(as.numeric(row$resid_kurtosis), 3),
-      "  converged: ", converged
+      "   skew ",
+      signif(as.numeric(row$resid_skew), 3),
+      "  kurtosis ",
+      signif(as.numeric(row$resid_kurtosis), 3),
+      "  converged: ",
+      converged
     )
     if (length(warnings_seen)) {
       message("   warnings: ", paste(unique(warnings_seen), collapse = "; "))
