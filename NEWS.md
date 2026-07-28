@@ -3,6 +3,20 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Reorganise supplement; drop double-log and log-response sensitivity arms
+
+`report/quarto/supplement/_supplement.qmd`, `R/analysis-model.R`, `R/sensitivity/model-logresp.R`, `R/plot-model-flow.R`, `CLAUDE.md`
+
+Presentation and repository cleanup; the primary model and its conclusions are unchanged.
+
+Reorganised the supplement so each alternative model specification is reported in a consistent, comparable structure (covariate selection, fitting, diagnostics).
+Dropped the double-log-transformed fit and its supplementary section: an additional log transform on the outcome (LWIS) violates propriety of the score, so it is no longer presented.
+Removed the log-response reparameterisation arm — deleted `R/sensitivity/model-logresp.R` and its generated artifacts under `output/log-resp/` — as it is no longer referenced by the rendered manuscript.
+
+`analysis-model.R` now stores the fitted `data` in `results`, so the supplement can plot the outcome (LWIS) distribution directly from the saved fit.
+Corrected the flowchart export path in `plot-model-flow.R` to `output/flowchart.png`, the location the supplement reads via `include_graphics()`.
+Moved stale planning docs and notebooks into `attic/`, removed `report/notebook.qmd`, and updated `CLAUDE.md` Project Structure to match the current tree.
+
 ## Unreleased — Fix population normalisation in scoring and regenerate scores
 
 `R/process-score.R`, `data/scores-raw-case.csv`, `data/scores-raw-death.csv`
