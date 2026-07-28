@@ -1,0 +1,653 @@
+---
+title: "Descriptive scores and data checks"
+subtitle: "Weighted Interval Score, its components, and the observed values underlying it"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    fig-width: 10
+    fig-height: 8
+execute:
+  echo: false
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+
+library(here)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(forcats)
+library(stringr)
+library(ggplot2)
+library(plotly)
+library(viridisLite)
+library(scales)
+
+source(here("R", "process-data.R"))
+
+# Joined scores + model metadata (Method, CountryTargets) for both scales.
+# Every model is kept, including the EuroCOVIDhub-* baseline, persistence and
+# ensemble reference models that the analysis drops.
+# process_data() is the expensive call, so both the scoring views and the
+# observed-data checks at the foot of this page read from this one object.
+scores_all <- bind_rows(
+  log     = process_data("log"),
+  natural = process_data("natural"),
+  .id = "scale_id"
+) |>
+  filter(!is.na(wis))
+
+# --- Broken-forecast flag (honest, not dropped) ------------------------------
+# ILM-EKF submitted death predictions ~= population (e.g. Greece 2022-08-06,
+# 10.76M vs 378 observed). Observed deaths per 100k peak ~32, so death WIS is
+# tiny (99.9th percentile ~19); a death WIS > 100 can only come from a wildly
+# implausible prediction. Cases legitimately reach WIS in the thousands
+# (observed cases per 100k reach ~6,200), so magnitude cannot flag cases — the
+# flag is deaths-only.
+broken_keys <- scores_all |>
+  filter(scale_id == "natural", epi_target == "Deaths", wis > 100) |>
+  distinct(Model, Location, target_end_date, epi_target)
+
+scores_all <- scores_all |>
+  left_join(mutate(broken_keys, broken = TRUE),
+            by = c("Model", "Location", "target_end_date", "epi_target")) |>
+  mutate(broken = coalesce(broken, FALSE))
+
+# as.character: Model is a factor; keeping it as one corrupts later c() concats
+# (c(factor, "x") coerces the factor to integer codes).
+# Flag computed across all horizons so model identity is stable; plots below are
+# restricted to the 1-week horizon.
+broken_models <- scores_all |> filter(broken) |> distinct(Model) |> pull(Model) |>
+  as.character()
+
+# Ensemble marked distinctly from broken models in every model-level label.
+ensemble_model <- "EuroCOVIDhub-ensemble"
+mark <- function(m) dplyr::case_when(
+  m %in% broken_models ~ " ⚠",
+  m == ensemble_model  ~ " ★",
+  TRUE                 ~ ""
+)
+
+# Every scoring plot in this document is restricted to the 1-week-ahead horizon.
+# The observed-data checks below use `scores_all` (all horizons) instead.
+scores <- scores_all |> filter(Horizon == 1)
+
+# --- Shared aesthetics -------------------------------------------------------
+# Fixed, colourblind-safe mapping for the three WIS components, used in EVERY
+# stacked view so a colour always means the same component.
+comp_levels <- c("dispersion", "overprediction", "underprediction")
+comp_cols <- c(
+  dispersion      = "#4d4d4d",  # grey  — spread/sharpness penalty
+  overprediction  = "#c0392b",  # red   — forecast too high
+  underprediction = "#2166ac"   # blue  — forecast too low
+)
+comp_labs <- c(dispersion = "Dispersion",
+               overprediction = "Over-prediction",
+               underprediction = "Under-prediction")
+
+# --- WIS accuracy bands ------------------------------------------------------
+# Log-scale WIS is in log(inc + 1) units, so a WIS of x is roughly a
+# multiplicative error of exp(x); cuts are set at interpretable factors.
+log_breaks <- c(-Inf, 0.10, 0.22, 0.41, 0.69, 1.10, Inf)
+log_labs   <- c("within ~10%", "~10-25%", "~25-50%", "~50%-2x", "2-3x", ">3x off")
+# Natural scale spans five orders of magnitude: decade cuts, shared across
+# targets so one colour = one absolute magnitude in every panel.
+nat_breaks <- c(-Inf, 0.1, 1, 10, 100, 1000, Inf)
+nat_labs   <- c("<0.1", "0.1-1", "1-10", "10-100", "100-1,000", ">1,000")
+# Unnamed length-6 palette: scale_fill_manual maps by level order, so the same
+# vector serves either label set. Darker = worse.
+band_pal <- viridisLite::viridis(6, option = "magma", direction = -1)
+
+# Call after filtering to one scale; `scale_name` is scalar. Not named `scale`:
+# the scores data carry a column of that name, which would shadow the argument
+# inside a mutate() data mask.
+wis_band <- function(wis, scale_name) {
+  brk <- if (scale_name == "log") log_breaks else nat_breaks
+  lab <- if (scale_name == "log") log_labs   else nat_labs
+  cut(wis, brk, lab, right = FALSE)
+}
+
+theme_desc <- theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom",
+        panel.grid.minor = element_blank())
+
+# tag broken models in labels
+tag_broken <- function(x) ifelse(x %in% broken_models, paste0(x, " ⚠"), x)
+
+# Stable model numbering for axis labels: rank by overall mean log-scale WIS
+# (No. 1 = best overall). Same number used across every view; decode via the
+# Model lookup table below.
+model_meta <- scores |>
+  filter(scale_id == "log") |>
+  group_by(Model) |>
+  summarise(mean_log_wis = mean(wis), Method = dplyr::first(Method),
+            .groups = "drop") |>
+  arrange(mean_log_wis) |>
+  mutate(No = row_number())
+
+id_num <- setNames(model_meta$No, model_meta$Model)
+# axis label = number + marker (⚠ broken, ★ ensemble); full name kept in hover
+id_lab <- function(m) paste0(id_num[m], mark(m))
+
+# Long form for stacked component bars
+components_long <- function(df) {
+  df |>
+    pivot_longer(all_of(comp_levels), names_to = "component", values_to = "value") |>
+    mutate(component = factor(component, levels = comp_levels))
+}
+```
+
+Descriptive views of the raw forecast scores: the Weighted Interval Score (WIS) and its additive decomposition into `dispersion + over-prediction + under-prediction`, for 40+ models across two targets and 32 countries.
+The final section checks the observed values underlying these scores.
+
+All WIS are computed on incidence per 100,000 population for both natural and log scales.
+
+Note:
+
+- All scoring plots are restricted to the 1-week-ahead horizon.
+- Model identifiers use numbers instead of names; these are stable across all views and ranked by overall mean log-scale WIS (1 = best overall).
+- The triangle ⚠ marks `r length(broken_models)` models carrying anomalous forecasts, the star ★ marks the ensemble reference model
+- The heatmaps are static; the bar charts are interactive, so hover for full model names
+
+```{r}
+#| label: helpers
+
+# Mean components per grouping var, ranked by mean WIS. Returns long form.
+rank_decomp <- function(df, group) {
+  agg <- df |>
+    group_by(epi_target, {{ group }}) |>
+    summarise(across(all_of(comp_levels), mean),
+              wis = mean(wis), n = n(), .groups = "drop")
+  agg
+}
+
+# Share of forecasts in each accuracy band, per grouping var. Banding is applied
+# to raw forecast scores (not to a mean), so extremes affect only their own band.
+band_share <- function(df, group, scale_name) {
+  df |>
+    mutate(band = wis_band(wis, .env$scale_name)) |>
+    count(epi_target, {{ group }}, band, .drop = FALSE) |>
+    group_by(epi_target, {{ group }}) |>
+    mutate(share = n / sum(n)) |>
+    ungroup() |>
+    filter(!is.na(share))
+}
+
+# Stacked 100% bars of band share. `yvar` already ordered by the caller.
+band_plot <- function(d, yvar, name_col, ylab) {
+  ggplot(d, aes(x = n, y = {{ yvar }}, fill = band,
+                text = paste0({{ name_col }}, "<br>", band, "<br>",
+                              scales::percent(share, accuracy = 0.1),
+                              " (", n, " forecasts)"))) +
+    geom_col(position = "fill") +
+    facet_wrap(~epi_target) +
+    scale_fill_manual(values = band_pal, drop = FALSE, name = NULL) +
+    scale_x_continuous(labels = scales::percent) +
+    labs(x = ylab, y = NULL) +
+    theme_desc
+}
+
+stacked_plot <- function(agg, yvar, ylab, name_col) {
+  d <- components_long(agg)
+  p <- ggplot(d, aes(x = value, y = {{ yvar }}, fill = component,
+                     text = paste0({{ name_col }}, "<br>",
+                                   comp_labs[as.character(component)],
+                                   ": ", round(value, 2)))) +
+    geom_col() +
+    facet_wrap(~epi_target, scales = "free_x") +
+    scale_fill_manual(values = comp_cols, labels = comp_labs, name = NULL) +
+    labs(x = ylab, y = NULL) +
+    theme_desc
+  p
+}
+```
+
+::: {.callout-note collapse="true"}
+## Model lookup {#lookup}
+
+```{r}
+#| label: lookup
+
+model_meta |>
+  transmute(No,
+            Model,
+            Structure = as.character(Method),
+            Flag = trimws(mark(Model))) |>
+  knitr::kable()
+```
+:::
+
+## Ranked model decomposition {#view1}
+
+Mean WIS per model split into components.
+
+::: {.panel-tabset}
+### Log scale
+
+```{r}
+#| label: v1-log
+
+agg <- scores |>
+  filter(scale_id == "log") |>
+  rank_decomp(Model) |>
+  mutate(lab = fct_reorder(id_lab(Model), wis, .desc = TRUE))
+p <- stacked_plot(agg, lab, "Mean WIS (log scale)", name_col = Model)
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+
+### Natural scale
+
+Note: the ⚠ models' over-prediction bars run off the useful range so the natural scale is dominated by one extreme (ILM-EKF, 2022-08).
+
+```{r}
+#| label: v1-nat
+
+agg <- scores |>
+  filter(scale_id == "natural") |>
+  rank_decomp(Model) |>
+  mutate(lab = fct_reorder(id_lab(Model), wis, .desc = TRUE))
+p <- stacked_plot(agg, lab, "Mean WIS (natural scale)", name_col = Model)
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+:::
+
+## By model structure {#view2}
+
+::: {.panel-tabset}
+### Log scale
+
+```{r}
+#| label: v2-log
+
+agg <- scores |>
+  filter(scale_id == "log", !is.na(Method)) |>
+  rank_decomp(Method) |>
+  mutate(Method = fct_reorder(Method, wis, .desc = TRUE))
+p <- stacked_plot(agg, Method, "Mean WIS (log scale)", name_col = Method)
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+
+### Natural scale
+
+```{r}
+#| label: v2-nat
+
+agg <- scores |>
+  filter(scale_id == "natural", !is.na(Method)) |>
+  rank_decomp(Method) |>
+  mutate(Method = fct_reorder(Method, wis, .desc = TRUE))
+p <- stacked_plot(agg, Method, "Mean WIS (natural scale)", name_col = Method)
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+:::
+
+## Accuracy bands {#bands}
+
+Each forecast is binned into an accuracy band, and the bars show the share of a model's forecasts in each band.
+
+- On the log scale, bands are labelled by relative error: within \~10%, \~10-25%, \~25-50%, \~50%-2x, 2-3x, and >3x off
+- On the natural scale bands are decades of WIS per 100,000, shared by both targets, so one colour means one absolute magnitude everywhere
+
+Band shares are more robust to the extreme forecasts, so a model can rank poorly on mean WIS while remaining in a band close to its peers.
+
+::: {.panel-tabset}
+### Log scale
+
+```{r}
+#| label: bands-log-model
+
+d <- scores |>
+  filter(scale_id == "log") |>
+  band_share(Model, "log") |>
+  mutate(lab = factor(id_lab(Model), levels = rev(id_lab(model_meta$Model))))
+p <- band_plot(d, lab, Model, "Share of forecasts (log-scale WIS band)")
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+
+```{r}
+#| label: bands-log-method
+#| fig-height: 4
+
+d <- scores |>
+  filter(scale_id == "log", !is.na(Method)) |>
+  band_share(Method, "log")
+p <- band_plot(d, Method, Method, "Share of forecasts (log-scale WIS band)")
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+
+### Natural scale
+
+```{r}
+#| label: bands-nat-model
+
+d <- scores |>
+  filter(scale_id == "natural") |>
+  band_share(Model, "natural") |>
+  mutate(lab = factor(id_lab(Model), levels = rev(id_lab(model_meta$Model))))
+p <- band_plot(d, lab, Model, "Share of forecasts (WIS per 100k band)")
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+
+```{r}
+#| label: bands-nat-method
+#| fig-height: 4
+
+d <- scores |>
+  filter(scale_id == "natural", !is.na(Method)) |>
+  band_share(Method, "natural")
+p <- band_plot(d, Method, Method, "Share of forecasts (WIS per 100k band)")
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+:::
+
+Model order follows the lookup table (1 = best overall mean log-scale WIS, listed top).
+
+## WIS over time {#view3}
+
+Mean WIS per model structure across the two-year period.
+
+::: {.panel-tabset}
+### Log scale
+
+```{r}
+#| label: v3-log
+
+d <- scores |>
+  filter(scale_id == "log", !is.na(Method)) |>
+  group_by(epi_target, Method, target_end_date) |>
+  summarise(wis = mean(wis), .groups = "drop")
+p <- ggplot(d, aes(target_end_date, wis, colour = Method,
+                   text = paste0(Method, "<br>", target_end_date,
+                                 "<br>WIS ", round(wis, 2)))) +
+  geom_line(aes(group = Method), linewidth = 0.5) +
+  facet_wrap(~epi_target, scales = "free_y", ncol = 1) +
+  scale_colour_brewer(type = "qual", palette = 2, name = NULL) +
+  labs(x = NULL, y = "Mean WIS (log scale)") +
+  theme_desc
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+
+### Natural scale
+
+```{r}
+#| label: v3-nat
+
+d <- scores |>
+  filter(scale_id == "natural", !is.na(Method)) |>
+  group_by(epi_target, Method, target_end_date) |>
+  summarise(wis = mean(wis), .groups = "drop")
+p <- ggplot(d, aes(target_end_date, wis, colour = Method,
+                   text = paste0(Method, "<br>", target_end_date,
+                                 "<br>WIS ", round(wis, 2)))) +
+  geom_line(aes(group = Method), linewidth = 0.5) +
+  facet_wrap(~epi_target, scales = "free_y", ncol = 1) +
+  scale_colour_brewer(type = "qual", palette = 2, name = NULL) +
+  labs(x = NULL, y = "Mean WIS (natural scale)") +
+  theme_desc
+ggplotly(p, tooltip = "text") |> layout(legend = list(orientation = "h"))
+```
+:::
+
+## Heatmap over time {#view4}
+
+Colour shows the accuracy band that the model's mean WIS for that week falls in.
+Bands here are applied to a mean across countries, not to individual forecasts, so a single extreme forecast can pull a cell into a worse band.
+
+::: {.panel-tabset}
+### Log scale
+
+```{r}
+#| label: v4-log
+#| fig-height: 10
+
+d <- scores |>
+  filter(scale_id == "log") |>
+  group_by(epi_target, Method, Model, target_end_date) |>
+  summarise(wis = mean(wis), .groups = "drop")
+ord <- d |> group_by(Method, Model) |>
+  summarise(m = mean(wis)) |>
+  arrange(desc(m)) |>
+  pull(Model)
+d <- d |> mutate(lab = factor(id_lab(Model), levels = id_lab(ord)),
+                 band = wis_band(wis, "log"))
+ggplot(d, aes(target_end_date, lab, fill = band)) +
+  geom_tile() +
+  facet_wrap(~epi_target) +
+  scale_fill_manual(values = band_pal, drop = FALSE,
+                    name = "Mean WIS (approx. relative error)") +
+  labs(x = NULL, y = "Model") +
+  theme_desc +
+  theme(axis.text.y = element_text(size = 7))
+```
+
+### Natural scale
+
+```{r}
+#| label: v4-nat
+#| fig-height: 10
+
+d <- scores |>
+  filter(scale_id == "natural") |>
+  group_by(epi_target, Model, target_end_date) |>
+  summarise(wis = mean(wis), .groups = "drop")
+ord <- d |> group_by(Model) |> summarise(m = mean(wis)) |> arrange(desc(m)) |> pull(Model)
+d <- d |> mutate(lab = factor(id_lab(Model), levels = id_lab(ord)),
+                 band = wis_band(wis, "natural"))
+ggplot(d, aes(target_end_date, lab, fill = band)) +
+  geom_tile() +
+  facet_wrap(~epi_target) +
+  scale_fill_manual(values = band_pal, drop = FALSE,
+                    name = "Mean WIS per 100k") +
+  labs(x = NULL, y = "Model No.") +
+  theme_desc +
+  theme(axis.text.y = element_text(size = 7))
+```
+:::
+
+## Flagged forecasts
+
+The following death forecasts had natural-scale WIS > 100 per 100k.
+Observed deaths per 100k peak around 32.
+These flagged forecasts could arise from implementation error, e.g. forecasting cumulative rather than incident weekly values.
+
+```{r}
+#| label: broken-table
+
+scores |>
+  filter(broken, scale_id == "natural") |>
+  count(Model, epi_target, name = "n_forecasts") |>
+  arrange(desc(n_forecasts)) |>
+  knitr::kable()
+```
+
+Forecast scores for deaths at the 1 week horizon per country and week for each flagged model and the ★ ensemble reference, on the natural scale.
+
+```{r}
+#| label: drill-setup
+
+drill_models <- unique(c(broken_models, ensemble_model))
+
+# WIS per model x country x week, deaths, natural scale, 1-week horizon (already
+# enforced globally on `scores`). Country ordered by that model's own worst week.
+drill_dat <- scores |>
+  filter(scale_id == "natural", epi_target == "Deaths",
+         Model %in% drill_models)
+
+# Static, like the heatmaps above: one plotly trace per tile is not worth the
+# render cost when the band already carries the reading.
+make_heat <- function(m) {
+  d <- drill_dat |> filter(Model == m)
+  d <- d |> mutate(Location = factor(as.character(Location)),
+                   band = wis_band(wis, "natural"))
+  ggplot(d, aes(target_end_date, Location, fill = band)) +
+    geom_tile() +
+    scale_fill_manual(values = band_pal, drop = FALSE,
+                      name = "WIS per 100k") +
+    labs(x = NULL, y = NULL) +
+    theme_desc +
+    theme(axis.text = element_text(size = 7))
+}
+```
+
+::: {.panel-tabset}
+### ILM-EKF ⚠
+
+```{r}
+#| label: drill-ilm
+#| fig-height: 7
+
+make_heat("ILM-EKF")
+```
+
+### epiforecasts-EpiNow2 ⚠
+
+```{r}
+#| label: drill-epinow
+#| fig-height: 7
+
+make_heat("epiforecasts-EpiNow2")
+```
+
+### USC-SIkJalpha ⚠
+
+```{r}
+#| label: drill-usc
+#| fig-height: 7
+
+make_heat("USC-SIkJalpha")
+```
+
+### IEM_Health-CovidProject ⚠
+
+```{r}
+#| label: drill-iem
+#| fig-height: 7
+
+make_heat("IEM_Health-CovidProject")
+```
+
+### EuroCOVIDhub-ensemble ★
+
+```{r}
+#| label: drill-ens
+#| fig-height: 7
+
+make_heat("EuroCOVIDhub-ensemble")
+```
+:::
+
+# Observed values: absolute vs per 100k
+
+Underlying observed counts, and the `Incidence` column carried into `m.data`, should be identical for every country-week that survives into the model.
+Overlaid lines that coincide confirm no distortion in the pipeline.
+Per-100k is `count / population * 100000`.
+
+```{r}
+#| label: obs-setup
+
+pop <- read_csv(here("data", "populations.csv")) |> rename(pop = population)
+
+# --- Underlying data: observed-{case,death}.csv ------------------------------
+underlying <- c(Cases = "case", Deaths = "death") |>
+  purrr::imap(~ read_csv(here("data", paste0("observed-", .x, ".csv"))) |>
+                mutate(epi_target = .y)) |>
+  bind_rows() |>
+  left_join(pop, by = "location") |>
+  transmute(
+    source = "underlying (observed-*.csv)",
+    epi_target, location, target_end_date,
+    absolute = observed,
+    per100k = observed / pop * 1e5
+  )
+
+# --- m.data: the values actually fed to the model ----------------------------
+# Incidence = observed count; m.data carries pop, so per-100k is reconstructable.
+# Dedupe: Incidence is one value per Location/date/target (repeated across models
+# and horizons), so this reads off `scores_all` rather than re-running
+# process_data().
+mdat <- scores_all |>
+  filter(scale_id == "natural") |>
+  distinct(epi_target, Location, target_end_date, Incidence, pop) |>
+  transmute(
+    source = "m.data (Incidence)",
+    epi_target, location = as.character(Location), target_end_date,
+    absolute = Incidence,
+    per100k = Incidence / pop * 1e5
+  )
+
+both <- bind_rows(underlying, mdat) |>
+  pivot_longer(c(absolute, per100k), names_to = "metric", values_to = "value")
+```
+
+## Time series by country
+
+```{r}
+#| label: obs-plots
+#| results: "asis"
+#| fig-width: 11
+#| fig-height: 9
+
+plot_one <- function(tgt, met) {
+  d <- both |> filter(epi_target == tgt, metric == met)
+  ggplot(d, aes(target_end_date, value, colour = source)) +
+    geom_line(alpha = 0.8, linewidth = 0.3) +
+    facet_wrap(~location, scales = "free_y", ncol = 4) +
+    scale_colour_manual(values = c("underlying (observed-*.csv)" = "black",
+                                   "m.data (Incidence)" = "red")) +
+    labs(title = paste(tgt, "—", met), x = NULL, y = met, colour = NULL) +
+    theme_minimal(base_size = 8) +
+    theme(legend.position = "top",
+          axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+for (tgt in c("Cases", "Deaths")) {
+  for (met in c("absolute", "per100k")) {
+    cat("\n\n### ", tgt, " — ", met, "\n\n", sep = "")
+    print(plot_one(tgt, met))
+  }
+}
+```
+
+## Peak per-100k by country
+
+Highest observed value per country.
+Deaths per 100k in the low tens, cases in the low thousands --- both far below the WIS extremes seen on the natural scale.
+
+```{r}
+#| label: obs-table
+
+underlying |>
+  group_by(epi_target, location) |>
+  summarise(max_absolute = max(absolute, na.rm = TRUE),
+            max_per100k = round(max(per100k, na.rm = TRUE), 2),
+            .groups = "drop") |>
+  arrange(epi_target, desc(max_per100k)) |>
+  knitr::kable()
+```
+
+## Why the natural-scale plots reach values near 100,000
+
+Those are WIS values, not observed deaths.
+WIS is computed on the per-100k scale (`R/process-score.R` scales `observed`/`prediction` by `/pop * 1e5`).
+A WIS near 100,000 means a model's predicted interval was \~100,000 per-100k away from the observed value --- an implausible forecast, since observed deaths per 100k peak around 30.
+The extreme is a broken forecast submission, not a data-scaling error.
+
+```{r}
+#| label: wis-vs-obs
+
+scores_all |>
+  filter(scale_id == "natural", !grepl("EuroCOVIDhub-", Model)) |>
+  group_by(epi_target) |>
+  summarise(
+    max_observed_per100k = round(max(Incidence / pop * 1e5, na.rm = TRUE), 1),
+    max_wis = round(max(wis), 1),
+    .groups = "drop"
+  ) |>
+  knitr::kable()
+```

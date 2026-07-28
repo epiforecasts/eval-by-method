@@ -4,6 +4,7 @@ project:
   render:
     - index.qmd
     - report/supplement.qmd
+    - report/quarto/_supplementary-descriptive.qmd
 
 bibliography: report/references.bib
 csl: report/plos-computational-biology.csl
@@ -15,7 +16,11 @@ website:
       - text: "Manuscript"
         href: index.html
       - text: "Supplement"
-        href: report/supplement.html
+        menu:
+          - text: "Supplementary material"
+            href: report/supplement.html
+          - text: "Descriptive data checks"
+            href: report/quarto/_supplementary-descriptive.html
 
 format:
   html:
