@@ -198,9 +198,10 @@ We compared this against a Gaussian and a Gamma family: the Gaussian left strong
 Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
 We report the exponentiated ratio (with 95% confidence intervals) in the main text (Table 2), with the raw partial effects on the log scale in the Supplement.
 
-After adjustment for features of the forecast target, no single structural approach dominated.
-Adjusted point estimates clustered around the grand mean, and confidence intervals overlapped throughout (Table 2).
-The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean).
+We allowed each model structure to differ in how well it predicted cases and deaths, rather than assuming a single effect shared across both outcomes.
+Pooling across outcomes, no single structural approach dominated.
+Adjusted point estimates clustered around the grand mean and confidence intervals overlapped throughout (Table 2).
+The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but were close to the grand mean after adjustment.
 We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (@fig-plot-coeffs).
 
 ```{r}
@@ -221,6 +222,53 @@ print_table2(results$effects)
 #| fig-width: 5
 
 plot_effects(results$effects, variables = c("Method"))
+```
+
+```{r}
+#| label: results-method-target
+
+mbt <- results$method_by_target
+mbt_ratio <- setNames(
+  sprintf(
+    "%.2f (%.2f-%.2f)",
+    exp(mbt$value), exp(mbt$lower_2.5), exp(mbt$upper_97.5)
+  ),
+  paste(mbt$Method, mbt$Epi_target, sep = "_")
+)
+# case minus death effect on the log scale; negative indicates a structure
+# performed relatively better on cases than on deaths
+mbt_diff <- vapply(
+  split(mbt, mbt$Method),
+  \(x) x$value[x$Epi_target == "Cases"] - x$value[x$Epi_target == "Deaths"],
+  numeric(1)
+)
+mbt_widest <- names(which.max(abs(mbt_diff)))
+```
+
+Pooled estimates can conceal a structure that predicts one outcome well and the other poorly.
+Separating the two, differences between structures were larger within an outcome than the pooled estimates suggested, but no structure-by-outcome estimate was distinguishable from the grand mean (Table 3, @fig-method-target).
+Human judgement models performed relatively better on cases than on deaths (cases ratio `r mbt_ratio[["Judgement_Cases"]]`; deaths ratio `r mbt_ratio[["Judgement_Deaths"]]`), in the same direction as a previous comparison of human and model-based forecasts in this setting [@bosse2022].
+The widest separation between outcomes was among `r tolower(mbt_widest)` models (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), which were the best-performing structure for deaths and the worst for cases.
+We interpret this cautiously: only three agent-based models contributed, and every interval spans the grand mean.
+
+```{r}
+#| label: results-table3
+
+print_table_method_target(results$method_by_target)
+```
+
+```{r}
+#| label: fig-method-target
+#| fig-cap: >-
+#|   Performance ratio (95% CI) by model structure, estimated separately for case and death forecasts.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance.
+#|   Estimates come from a single joint model in which model structure is crossed with the epidemiological outcome.
+#|   Colour and shape: epidemiological outcome.
+#|   WIS = weighted interval score.
+#| fig-height: 3
+#| fig-width: 6
+
+plot_method_target(results$method_by_target)
 ```
 
 **Other drivers of forecast performance**

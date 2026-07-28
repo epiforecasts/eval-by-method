@@ -451,6 +451,35 @@ results$effects |>
   kable_styling(full_width = FALSE)
 ```
 
+The model structure term is fitted as a single grouping factor crossing structure with epidemiological outcome, so its raw partial effects are one per structure-by-outcome cell.
+The main text reports these exponentiated, and reports a pooled effect per structure derived as a contrast averaging a structure's two cells.
+
+```{r}
+#| label: supplement-method-target-raw
+
+results$method_by_target |>
+  transmute(
+    `Model structure` = Method,
+    Outcome = Epi_target,
+    `Partial effect (95% CI), log scale` = paste0(
+      round(value, 3),
+      " (", round(lower_2.5, 3), ", ", round(upper_97.5, 3), ")"
+    )
+  ) |>
+  arrange(`Model structure`, Outcome) |>
+  kable(
+    caption = paste0(
+      "Raw partial effects of model structure by epidemiological outcome, ",
+      "on the log scale, from the fully adjusted generalised additive mixed ",
+      "model. Negative values indicate better-than-average performance. ",
+      "95% CI = 95% confidence interval."
+    ),
+    align = c("l", "l", "r")
+  ) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  kable_styling(full_width = FALSE)
+```
+
 --------------------------------------------------------------------------------
 
 ## Sensitivity analyses
@@ -516,3 +545,11 @@ We avoid using additional data transformations (e.g. an additional log transform
 We instead addressed the skew through the error family, comparing Gaussian, Gamma and Tweedie families as reported under [Model fitting](#model-fitting) above, and adopting the Tweedie family for the reported analysis.
 
 The fitted relationships and partial effects remained stable across parameterisations.
+
+#### Structure by outcome under a Gaussian family
+
+The direction of the structure-by-outcome effects is stable across error families, but the magnitude is not.
+Refitting the same specification with a Gaussian family and log link, human judgement models show a larger separation between outcomes (cases ratio 0.97, deaths ratio 1.03, against 0.96 and 0.99 under the Tweedie), and the agent-based separation disappears entirely.
+The Gaussian fit is dominated by the largest scores, which fall disproportionately among case forecasts, so it weights precisely the observations the Tweedie family is chosen to accommodate.
+Including or excluding the Hub baseline model makes no material difference to these estimates.
+We report the Tweedie fit throughout, and note that the size of any single structure-by-outcome contrast should be read with this sensitivity in mind.

@@ -3,6 +3,37 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Model structure crossed with epidemiological outcome (#158); DAG update (#162)
+
+`R/analysis-model.R`, `R/utils-effects.R`, `R/plot-model-results.R`, `R/analysis-descriptive.R`, `R/dag-check.R`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/supplement.qmd`
+
+The model assumed each structure predicted cases and deaths equally well.
+Replaced `s(Method, bs = "re")` with `s(Method, Epi_target, bs = "re")`, so a structure may predict one outcome relatively better than the other.
+
+There is deliberately no separate structure main effect alongside it.
+mgcv's `bs = "re"` interaction is an unconstrained zero-mean prior over all cells, so its average across outcomes is exactly what a main effect represents; with both penalised, the split between them follows the relative variance estimates rather than the data.
+Fitted together, mgcv gave the main effect 0.001 effective degrees of freedom against 4.9 for the crossed term, and dropping it changed AIC, deviance explained and residuals by nothing on either scale.
+The pooled per-structure effect is instead recovered as a contrast averaging a structure's two cells, which accounts for the covariance between them.
+
+This materially improves what can be reported.
+The old main effect was shrunk flat to 1.000 (0.994-1.007) for every structure; the pooled contrast gives real estimates with honest intervals, from 0.977 (0.878-1.088) for judgement models to 1.046 (0.946-1.155) for semi-mechanistic.
+Adding the crossed term improves AIC by 93 on the log scale and by 16,724 on the natural scale, where it also reduces residual skew from 4.60 to 4.38.
+
+Human judgement models perform relatively better on cases than deaths (0.96 against 0.99), the same direction as Bosse et al. (2022).
+The widest separation is among agent-based models (cases 1.09, deaths 0.88), from only three models, and every interval spans the grand mean.
+The direction of these contrasts is stable across error families but the magnitude is not: under a Gaussian family the judgement separation is larger and the agent-based separation vanishes.
+Recorded as a supplementary sensitivity; including or excluding the Hub baseline makes no material difference.
+
+New `R/utils-effects.R` replaces `gammit::extract_ranef()`, which cannot handle a factor-by-factor random effect.
+It reads only the last variable name of an interaction and looks up that factor's levels, so it collects 5 labels for a 10-coefficient term and fails, taking down extraction for every term in the fit.
+The replacement rebuilds each smooth's design matrix from the formula mgcv stores on the smooth object, mapping labels to coefficients exactly without assuming an ordering.
+Validated against gammit on a no-interaction fit: identical on every column to the last decimal.
+
+DAG (#162): the epidemiological outcome is added as a confounder rather than merely a covariate, since forecasters chose which outcomes to submit for and that choice is associated with structure.
+Querying the updated diagram returns our exact covariate set as a minimal sufficient adjustment set for the direct effect, and returns no valid set for the total effect, because latent modeller strategy cannot be blocked.
+This formally supports reporting a partial, direct association rather than a total effect.
+The crossed term is effect modification, which a causal diagram does not encode, so it does not alter the adjustment set.
+
 ## Unreleased — Model WIS with a Tweedie family (#159)
 
 `R/analysis-model.R`, `R/sensitivity/check-family.R`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/supplement.qmd`
