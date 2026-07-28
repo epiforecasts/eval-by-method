@@ -38,13 +38,20 @@ A model-based evaluation of this kind is extremely flexible, and we found the su
 Varying the choice of covariates, the link function, and the error family left the partial effects of model structure essentially unchanged, and none of these choices altered the conclusion that no structure was distinguishable from the average.
 The exception was whether model structure was allowed to interact with the epidemiological outcome.
 Assuming a single effect shared across cases and deaths conceals the possibility that a structure predicts one outcome relatively well and the other relatively poorly, and this was the only specification choice that changed which structures appeared to differ from each other.
-Even here, the direction of the differences was stable while their magnitude depended on the error family, and no individual estimate was distinguishable from the average.
+The reason is arithmetic rather than statistical: an effect shared across outcomes is the average of the outcome-specific effects, and because those pointed in opposite directions they averaged to close to zero.
+A shared term was therefore near zero by construction, and being penalised, was then shrunk to zero exactly.
+Even with the interaction, the direction of the differences was stable while their magnitude depended on the error family, and no individual estimate was distinguishable from the average.
 We draw two lessons.
 The first is that a structure-by-target interaction is worth specifying explicitly in evaluations that pool across distinct forecast targets, because assuming it away is not a neutral choice.
 The second is that where a single specification choice carries this much weight, it should be reported as a sensitivity rather than presented as a single fitted model.
 
 Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies.
 Previous work has also failed to differentiate performance among model structures, across a variety of outbreaks and epidemic dynamics [@carlson2018; @viboud2018; @reich2019].
+Our results suggest one reason such comparisons may return null findings.
+Structural differences here pointed in opposite directions for the two epidemiological outcomes, so an estimate averaging over outcomes recovered close to zero.
+Agent-based models were the best-performing structure for deaths and the worst for cases, while mechanistic and statistical models reversed less sharply in the other direction.
+A null result from a pooled comparison is therefore consistent with either an absence of structural differences or with differences that offset across targets, and these cannot be distinguished without allowing the effect to vary by target.
+We stress that our own per-outcome estimates were not individually distinguishable from the average, so we demonstrate the mechanism rather than establish any particular contrast.
 Some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches [@delvalle2018; @mcgowan2019; @johansson2019].
 On the other hand, bespoke mechanistic models are more easily tailored to a single target which may give a specific performance advantage for such targets [@becker2021; @clapham2021].
 A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those agent-based models specifically tuned to the national context [@bracher2022].

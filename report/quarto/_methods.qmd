@@ -88,6 +88,7 @@ This allows a structure to predict cases relatively better than deaths, or the r
 We did not additionally include a separate main effect for structure.
 Because the crossed term is an unconstrained zero-mean effect over all cells, its average across targets is exactly what a structure main effect would represent; with both terms penalised, the division between them is determined by the relative variance estimates rather than by the data.
 Fitted together, the main effect was shrunk to 0.001 effective degrees of freedom against 4.9 for the crossed term.
+This has a substantive cause as well as a technical one: a shared effect is the average of a structure's outcome-specific effects, and because those pointed in opposite directions they averaged to near zero, so a shared term was close to zero before any penalty was applied.
 We therefore report the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
 
 The two smooths captured continuous covariates.

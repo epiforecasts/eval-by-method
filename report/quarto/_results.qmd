@@ -201,6 +201,8 @@ We report the exponentiated ratio (with 95% confidence intervals) in the main te
 We allowed each model structure to differ in how well it predicted cases and deaths, rather than assuming a single effect shared across both outcomes.
 Pooling across outcomes, no single structural approach dominated.
 Adjusted point estimates clustered around the grand mean and confidence intervals overlapped throughout (Table 2).
+This pooled estimate is the average of a structure's effects on case and death forecasts, so a value near the grand mean can arise either because a structure performed averagely on both outcomes or because it performed relatively well on one and relatively poorly on the other.
+We therefore also estimated the effect of structure separately for each outcome.
 The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but were close to the grand mean after adjustment.
 We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (@fig-plot-coeffs).
 
@@ -245,11 +247,14 @@ mbt_diff <- vapply(
 mbt_widest <- names(which.max(abs(mbt_diff)))
 ```
 
-Pooled estimates can conceal a structure that predicts one outcome well and the other poorly.
 Separating the two, differences between structures were larger within an outcome than the pooled estimates suggested, but no structure-by-outcome estimate was distinguishable from the grand mean (Table 3, @fig-method-target).
+Structures differed in the direction of their outcome-specific effects, and these largely offset when averaged.
+The widest separation was among `r tolower(mbt_widest)` models, the worst-performing structure for case forecasts and the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), yet whose pooled estimate sits within 2% of the grand mean.
+Mechanistic and statistical models reversed less sharply in the other direction, performing marginally better on cases than on deaths.
+An estimate that averages over outcomes therefore recovers close to zero for most structures, whether or not outcome-specific differences exist.
 Human judgement models performed relatively better on cases than on deaths (cases ratio `r mbt_ratio[["Judgement_Cases"]]`; deaths ratio `r mbt_ratio[["Judgement_Deaths"]]`), in the same direction as a previous comparison of human and model-based forecasts in this setting [@bosse2022].
-The widest separation between outcomes was among `r tolower(mbt_widest)` models (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), which were the best-performing structure for deaths and the worst for cases.
-We interpret this cautiously: only three agent-based models contributed, and every interval spans the grand mean.
+We interpret these contrasts cautiously.
+Every interval spans the grand mean, the widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement).
 
 ```{r}
 #| label: results-table3

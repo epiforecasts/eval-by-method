@@ -42,9 +42,12 @@ its level and trend, the dominant variant, the country, the forecast
 horizon, and differences between individual models.
 
 Once we accounted for the difficulty of the target, no single type of
-model performed best. Differences in European COVID-19 forecast
-performance were driven more by which targets were hard to predict than
-by which modelling approach a forecaster used.
+model performed best. That overall result concealed structures that
+predicted one outcome relatively well and the other relatively poorly,
+differences that cancelled out when we averaged across case and death
+forecasts. Differences in European COVID-19 forecast performance were
+driven more by which targets were hard to predict than by which
+modelling approach a forecaster used.
 
 This approach sits between informal and fully formal ways of handling
 bias in evaluation studies. As infectious disease forecasting grows, we
