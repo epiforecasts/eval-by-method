@@ -27,11 +27,11 @@ scores <- process_data(scoring_scale = "log")
 ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
-  filter(!grepl("EuroCOVIDhub-", Model))
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
 
 # natural-scale scores for descriptive error-vs-observation figure
 scores_natural <- process_data(scoring_scale = "natural") |>
-  filter(!grepl("EuroCOVIDhub-", Model))
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
 ```
 
 <!---Summary--->

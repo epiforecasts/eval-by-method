@@ -41,7 +41,7 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
-    filter(!grepl("EuroCOVIDhub-", Model)) |>
+    filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly (bam would drop these silently)
     mutate(Epi_target = as.factor(epi_target))
 

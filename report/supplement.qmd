@@ -425,7 +425,7 @@ scores <- process_data(scoring_scale = "natural")
 ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
-  filter(!grepl("EuroCOVIDhub-", Model))
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
 print_table1(scores)
 ```
 
