@@ -39,6 +39,17 @@ source(here("R", "utils-effects.R"))
 # estimates rather than the data. Fitted together, mgcv gave s(Method) 0.001 edf
 # against 4.9 for the interaction. The pooled per-structure effect is recovered
 # afterwards as a contrast across cells (method_pooled_effects()).
+#
+# Epi_target stays as a fixed effect for the mirror-image reason. The same
+# aliasing applies -- the within-target average of the cells is what a target
+# main effect represents -- but only one of the two terms is penalised, so the
+# unpenalised fixed effect takes the component common to all structures and the
+# cells keep only departures from it. That separation holds in the fitted model:
+# the cells average to zero within each target to ~1e-13, so the entire
+# deaths-versus-cases difference sits in the fixed coefficient (-1.03) and none
+# leaks into the structure estimates (largest cell 0.12). Dropping it would force
+# a large effect through a penalised term; making it random would try to estimate
+# a variance from two levels.
 m.formula_joint <- wis ~
   Epi_target +
   s(Method, Epi_target, bs = "re") +
