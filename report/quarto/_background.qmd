@@ -70,7 +70,8 @@ In forecast evaluation this distinction largely collapses, because the evaluator
 
 One source of bias is the exception: differential participation could be removed at the point of collection, by a protocol requiring every model to forecast every target, but this is available to hub organisers rather than to anyone evaluating afterwards.
 We therefore restrict @tbl-approaches to tools available retrospectively, and order them by the stage of the analysis at which each acts: what enters the sample, how the exposure and the outcome are measured, how units are compared, and how the estimate is computed.
-We take this sequence as one of increasing formality, in the sense that each uses clearer and stronger assumptions with which to account for variation.
+Within the elements governing how units are compared, from matching through to regression adjustment, the sequence is also one of increasing formality, in the sense that each uses clearer and stronger assumptions to account for variation.
+This ordering does not extend to the whole table: complete ascertainment and unbiased classification of the exposure are prerequisites to any comparison rather than weaker forms of it.
 Each of these tools may usefully simplify some aspect of the problem.
 However, evaluators facing large, open forecasting challenges must handle a high degree of variation across both many forecast targets and many forecasting models simultaneously.
 The noisiness of these mixed signals means that the simpler strategies may not be sufficient to isolate a single component of forecast performance and trace its effect.
