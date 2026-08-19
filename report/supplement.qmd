@@ -392,7 +392,8 @@ offset_arms <- setNames(
   sub("^family-", "", family_fits$spec_label)
 )
 fmt_arm <- function(arm, col, digits) {
-  round(as.numeric(offset_arms[[arm]][[col]]), digits)
+  sprintf(paste0("%.", digits, "f"),
+          as.numeric(offset_arms[[arm]][[col]]))
 }
 ```
 
