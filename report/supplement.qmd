@@ -330,13 +330,23 @@ m.data |>
 We therefore compared three error families on this specification, holding the formula and data fixed and varying only the family.
 The Gaussian family leaves the skew in the residuals rather than modelling it.
 The Gamma and Tweedie families both accommodate a right-skewed positive outcome, and fit this data almost identically.
-This is not a coincidence: `mgcv` restricts the Tweedie power parameter to $1 < p < 2$, and the estimate reaches 1.99, the top of that range.
-The data are therefore asking for a variance function at least as steep as the Gamma ($p = 2$), and the fitted Tweedie is a Gamma in all but name.
-The two differ only in numerical behaviour, and the Gamma fit did not converge on either scale, so we report the Tweedie fit.
+`mgcv` restricts the Tweedie power parameter to $1 < p < 2$, and the estimate sits near the top of that range, so the data are asking for a variance function close to the Gamma ($p = 2$).
+The two differ mainly in numerical behaviour, and the Gamma fit did not converge on either scale, so we report the Tweedie fit.
+
+```{r}
+#| label: supplement-fit-stats
+
+fit_stats <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
+                      show_col_types = FALSE)
+stat_of <- function(label, scale, col, digits = 1) {
+  round(as.numeric(fit_stats[[col]][fit_stats$spec_label == label &
+                                      fit_stats$scale == scale]), digits)
+}
+```
 
 The choice of family matters a great deal on the log scale and very little on the natural scale.
-On the log scale, moving from Gaussian to Tweedie reduces residual skew from 5.8 to 0.6 and kurtosis from 77 to 9.
-On the natural scale, the WIS is skewed beyond what any Tweedie can absorb, and the residual skew is essentially unchanged (4.59 against 4.59 under a Gamma); there the change resolves the convergence failure rather than improving the distributional fit.
+On the log scale, moving from Gaussian to Tweedie reduces residual skew from `r stat_of("family-gaussian-log", "log", "resid_skew")` to `r stat_of("family-tweedie-log", "log", "resid_skew")` and kurtosis from `r stat_of("family-gaussian-log", "log", "resid_kurtosis")` to `r stat_of("family-tweedie-log", "log", "resid_kurtosis")`.
+On the natural scale, the WIS is skewed beyond what any Tweedie can absorb, and the residual skew is essentially unchanged (`r stat_of("primary-interaction", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
 
 ```{r}
 #| label: supplement-family-comparison
@@ -589,7 +599,7 @@ We tried several alternative model specifications.
 #### Fitting
 
 We first used a Gaussian distribution with a log link.
-Because LWIS is strongly right-skewed, this left high residual skewness (5.8) and kurtosis (77).
+Because LWIS is strongly right-skewed, this left high residual skewness (`r stat_of("family-gaussian-log", "log", "resid_skew")`) and kurtosis (`r stat_of("family-gaussian-log", "log", "resid_kurtosis")`).
 We avoid using additional data transformations (e.g. an additional log transform) on the outcome (LWIS) as this would violate propriety of the score.
 We instead addressed the skew through the error family, comparing Gaussian, Gamma and Tweedie families as reported under [Model fitting](#model-fitting) above, and adopting the Tweedie family for the reported analysis.
 
@@ -598,7 +608,36 @@ The fitted relationships and partial effects remained stable across parameterisa
 #### Structure by outcome under a Gaussian family
 
 The direction of the structure-by-outcome effects is stable across error families, but the magnitude is not.
-Refitting the same specification with a Gaussian family and log link, human judgement models show a larger separation between outcomes (cases ratio 0.97, deaths ratio 1.03, against 0.96 and 0.99 under the Tweedie), and the agent-based separation disappears entirely.
+The table below refits the same specification with a Gaussian family and log link, alongside the primary Tweedie fit.
 The Gaussian fit is dominated by the largest scores, which fall disproportionately among case forecasts, so it weights precisely the observations the Tweedie family is chosen to accommodate.
 Including or excluding the Hub baseline model makes no material difference to these estimates.
-We report the Tweedie fit throughout, and note that the size of any single structure-by-outcome contrast should be read with this sensitivity in mind.
+We report the Tweedie fit throughout; the size of any single structure-by-outcome contrast should be read with this sensitivity in mind.
+
+```{r}
+#| label: supplement-family-interaction
+
+gaussian_cells <- read_csv(
+  here("output", "diagnostics", "method-by-target-gaussian.csv"),
+  show_col_types = FALSE
+)
+
+results$method_by_target |>
+  transmute(Method, Epi_target, Tweedie = round(exp(value), 2)) |>
+  left_join(
+    gaussian_cells |>
+      transmute(Method, Epi_target, Gaussian = round(exp(value), 2)),
+    by = c("Method", "Epi_target")
+  ) |>
+  arrange(Method, Epi_target) |>
+  rename(`Model structure` = Method, Outcome = Epi_target) |>
+  kable(
+    caption = paste0(
+      "Performance ratio by model structure and epidemiological outcome, ",
+      "under the primary Tweedie family and under a Gaussian family with a ",
+      "log link. A ratio below 1 indicates better-than-average performance."
+    ),
+    align = c("l", "l", "r", "r")
+  ) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  kable_styling(full_width = FALSE)
+```
