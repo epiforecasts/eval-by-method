@@ -16,6 +16,11 @@ Covariate effects are unchanged in direction and size: stable trends most predic
 
 The agent-based estimate for death forecasts now sits with its upper bound at the grand mean, which the Results text notes.
 
+Re-running the family comparison against the offset-free response corrects two claims made in earlier entries.
+All four families now converge on the log scale, including the Gamma, so non-convergence is no longer the reason for preferring the Tweedie; the reason is that a Tweedie admits the exact zeros while a Gamma requires displacing them by a constant.
+The structure-by-outcome contrasts are also less stable across families than previously stated: the case-versus-death contrast keeps its sign under a Gaussian family for judgement, mechanistic and statistical models, but vanishes for agent-based models and reverses for semi-mechanistic ones.
+Methods, Results, Discussion and the Supplement now say so.
+
 ## Unreleased — Compare model rankings before and after adjustment (#168)
 
 `R/plot-model-results.R`, `report/supplement.qmd`
