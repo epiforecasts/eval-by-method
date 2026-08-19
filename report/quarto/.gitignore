@@ -1,1 +1,4 @@
 /.quarto/
+
+# Quarto knitr intermediates left by interrupted renders
+*.rmarkdown
