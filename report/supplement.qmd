@@ -332,9 +332,11 @@ On the natural scale, WIS is skewed beyond what any Tweedie can absorb, and the 
 read_csv(here("output", "diagnostics", "fit-summary.csv"),
          show_col_types = FALSE) |>
   filter(grepl("^family-", spec_label), scale == "log") |>
-  # the no-offset arm has a different response vector, so its likelihood is not
-  # comparable with the others; it is reported separately below
-  filter(spec_label != "family-tweedie-nooffset") |>
+  # Gamma has no support at zero, so every arm in this table adds the 1e-7
+  # constant and all four are fitted to the same response vector. The primary
+  # fit drops the constant, giving a different response vector and a likelihood
+  # that is not comparable here; it is reported separately below.
+  filter(spec_label != "family-tweedie-log") |>
   transmute(
     Family = family,
     `Deviance explained` = round(as.numeric(dev_expl), 3),
@@ -348,18 +350,34 @@ read_csv(here("output", "diagnostics", "fit-summary.csv"),
       "Skew and kurtosis are of the deviance residuals, which place each family ",
       "on a comparable footing. Lower absolute skew and kurtosis indicate a ",
       "distributional assumption better matched to the outcome. ",
-      "The Gamma fit did not converge, and is shown for comparison only; ",
-      "the Tweedie fit is the one reported throughout."
+      "The Gamma fit did not converge, and is shown for comparison only. ",
+      "Tweedie is the family used in the primary model, which is fitted ",
+      "without the 1e-7 constant used here (see below)."
     ),
     align = c("l", "r", "r", "r", "r")
   ) |>
   kable_styling(full_width = FALSE)
 ```
 
+```{r}
+#| label: supplement-offset-comparison
+
+family_fits <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
+                        show_col_types = FALSE) |>
+  filter(grepl("^family-", spec_label), scale == "log")
+offset_arms <- setNames(
+  split(family_fits, sub("^family-", "", family_fits$spec_label)),
+  sub("^family-", "", family_fits$spec_label)
+)
+fmt_arm <- function(arm, col, digits) {
+  round(as.numeric(offset_arms[[arm]][[col]]), digits)
+}
+```
+
 A small share of forecasts (553, or 0.27%) score exactly zero: perfect predictions of zero-incidence targets, almost all deaths in the smallest countries.
-`process-data.R` adds a constant of 1e-7 to every score so these remain representable on a log link.
-Because that constant is arbitrary, we refitted the Tweedie model with the constant removed and the exact zeros retained, which a Tweedie family with power parameter between 1 and 2 admits directly.
-This made almost no difference (residual skew 0.57 against 0.58, deviance explained 0.382 against 0.380), so we retained the constant.
+Gamma has no support at zero, so fitting it requires displacing these scores by a small constant.
+A Tweedie family with power parameter between 1 and 2 has a point mass at zero and admits them directly, so the primary model retains the exact zeros and adds no constant.
+Adding a constant of 1e-7 back to every score changes the fit very little (residual skew `r fmt_arm("tweedie-offset", "resid_skew", 2)` against `r fmt_arm("tweedie-log", "resid_skew", 2)`, deviance explained `r fmt_arm("tweedie-offset", "dev_expl", 3)` against `r fmt_arm("tweedie-log", "dev_expl", 3)`), so the choice is not consequential; we prefer the specification that represents the scores as they are.
 
 We used the `mgcv` package v1.9-4 using R 4.5, with the formula:
 

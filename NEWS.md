@@ -3,6 +3,21 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Drop the 1e-7 constant added to every score (#166 review)
+
+`R/process-data.R`, `R/sensitivity/check-family.R`, `report/quarto/_methods.qmd`, `report/supplement.qmd`
+
+`process-data.R` added 1e-7 to every score so that the 553 forecasts (0.27%) scoring exactly zero were representable on a log link.
+The constant was needed for a Gamma family, which has no support at zero.
+The primary model now uses a Tweedie family with power parameter between 1 and 2, which has a genuine point mass at zero, so the constant is no longer required and the exact zeros are retained.
+
+The constant parked those forecasts at log(1e-7) = -16.1, around 11 log-units below the next smallest score, which is a statement about an arbitrary constant rather than about the forecasts.
+
+`check-family.R` still fits the comparison arms with the constant added, because Gamma cannot be fitted without it, and the four arms in the supplementary family-comparison table are therefore fitted to a common response vector.
+The `offset` flag in that script now records whether an arm adds the constant, the reverse of its earlier meaning; a `tweedie-offset` arm replaces `tweedie-nooffset` and gives the comparison against the primary specification.
+
+All model outputs were refitted on the new response.
+
 ## Unreleased — Model WIS with a Tweedie family (#159)
 
 `R/analysis-model.R`, `R/sensitivity/check-family.R`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/supplement.qmd`

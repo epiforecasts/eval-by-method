@@ -81,3 +81,6 @@ README_files/
 
 # Tool caches
 .panache-cache/
+
+# Detached job logs
+/outputs/
