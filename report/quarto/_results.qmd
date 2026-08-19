@@ -292,6 +292,18 @@ This can be interpreted as variation in model-specific performance after account
 This indicated that the variables we selected to account for variation between forecasters (i.e. model structure; one or multiple geographic targets) were not sufficient to fully explain differences in performance.
 
 ```{r}
+#| label: results-ranks
+#| include: false
+
+ranks <- rank_models(results$effects)
+rank_summary <- summarise_ranks(ranks)
+```
+
+Adjustment nonetheless changed which models appeared to perform best.
+Ranking models by their partial effect before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`, with `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places (Supplement).
+Observed performance therefore reflects the difficulty of the targets a model chose to forecast as much as the model itself.
+
+```{r}
 #| label: fig-plot-models
 #| fig-cap: >-
 #|   Estimated performance ratio (95% CI) by individual model.
