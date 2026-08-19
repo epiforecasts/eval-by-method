@@ -17,6 +17,13 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
     filter(group_var == "Model") |>
     left_join(classification) |>
     left_join(targets)
+  # Order models by their adjusted effect, so the figure reads as a ranking.
+  # Anonymised labels are still numbered within a structure, so a label
+  # identifies a model without revealing which team it belongs to.
+  effect_order <- effects |>
+    filter(model == "Adjusted") |>
+    arrange(value) |>
+    pull(group)
   models <- effects |>
     select(classification, CountryTargets, group) |>
     distinct() |>
@@ -26,8 +33,12 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
       anon_group = paste(classification, CountryTargets, id),
       ) |>
     ungroup() |>
-    arrange(classification, CountryTargets, id) |>
-    mutate(anon_group = factor(anon_group, levels = rev(unique(anon_group)))) |>
+    mutate(group = factor(group, levels = effect_order)) |>
+    arrange(group) |>
+    mutate(
+      anon_group = factor(anon_group, levels = rev(unique(anon_group))),
+      group = as.character(group)
+    ) |>
     select(group, anon_group)
   group_var <- ifelse(anonymise, "anon_group", "group")
   plot <- effects |>
@@ -43,16 +54,21 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
                      position = position_dodge(width=1)) +
       geom_hline(yintercept = 1, lty = 2) +
       labs(y = "Performance ratio (vs average model)", x = "",
-           colour = NULL, shape = NULL) +
+           colour = NULL, shape = NULL, lty = NULL) +
       scale_y_log10() +
       scale_shape_manual(
         values = c("Single-country" = 16, "Multi-country" = 17),
         drop = FALSE
       ) +
       scale_colour_brewer(type = "qual", palette = 2) +
+      # Three keys do not fit on one row at this width, so stack them
+      guides(colour = guide_legend(nrow = 1, order = 1),
+             shape = guide_legend(nrow = 1, order = 2),
+             lty = guide_legend(nrow = 1, order = 3)) +
       theme(
         legend.position = "bottom",
-        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.box = "vertical",
+        legend.margin = margin(t = 0, b = 0),
         strip.background = element_blank()
       ) +
       coord_flip()
@@ -70,10 +86,13 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
 # forecasts. These come from the s(Method, Epi_target) cells, so the two points
 # for a structure are the quantity the interaction is there to expose: whether a
 # structure predicts one outcome relatively better than the other.
-plot_method_target <- function(method_by_target) {
+plot_method_target <- function(method_by_target, method_levels = NULL) {
+  if (is.null(method_levels)) {
+    method_levels <- rev(sort(unique(method_by_target$Method)))
+  }
   method_by_target |>
     mutate(
-      Method = factor(Method, levels = rev(sort(unique(Method)))),
+      Method = factor(Method, levels = method_levels),
       `Epidemiological target` = factor(Epi_target,
                                         levels = c("Cases", "Deaths"))
     ) |>
@@ -91,10 +110,37 @@ plot_method_target <- function(method_by_target) {
     coord_flip()
 }
 
+# Structure effects as one figure: pooled across outcomes (A) and separately by
+# outcome (B). The two panels answer the same question at different resolution,
+# so they share a y axis ordering and only panel A carries the labels.
+plot_structure_effects <- function(effects, method_by_target) {
+  method_levels <- effects |>
+    filter(group_var == "Method") |>
+    pull(group) |>
+    unique() |>
+    as.character() |>
+    sort() |>
+    rev()
+
+  pooled <- plot_effects(effects, variables = "Method") +
+    scale_x_discrete(limits = method_levels) +
+    labs(y = "Performance ratio (vs average model)")
+
+  by_target <- plot_method_target(method_by_target, method_levels = method_levels) +
+    labs(y = "Performance ratio (vs average model)") +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  (pooled | by_target) +
+    patchwork::plot_annotation(tag_levels = "A")
+}
+
 plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
   p <- ggplot(fit_obs, aes(observed, fitted)) +
     geom_point(alpha = 0.1, size = 0.4) +
-    geom_abline(slope = 1, intercept = 0, lty = 2, colour = "red") +
+    geom_abline(slope = 1, intercept = 0, lty = 2, colour = "grey40") +
     labs(x = paste("Observed", scale_label), y = paste("Fitted", scale_label)) +
     theme(strip.background = element_blank())
   if ("epi_target" %in% names(fit_obs)) {
@@ -111,12 +157,19 @@ plot_effects <- function(random_effects,
                          variables = NULL) {
   if(is.null(variables)){variables <- unique(random_effects$group_var)}
 
+  # Colour separates the variables when several are shown together. With a
+  # single variable it would encode nothing, so it becomes one fixed grey.
+  colour_scale <- if (length(variables) > 1) {
+    scale_colour_brewer(type = "qual", palette = "Dark2", guide = "none")
+  } else {
+    scale_colour_manual(values = "grey30", guide = "none")
+  }
+
   random_effects |>
     filter(group_var %in% variables) |>
     mutate(group = factor(group, levels = unique(as.character(rev(group)))),
            Model = factor(model, levels = c("Adjusted", "Unadjusted"))) |>
-    ggplot(aes(x = group, col = group_var,
-               lty = Model, shape = Model)) +
+    ggplot(aes(x = group, shape = Model, col = group_var)) +
     geom_point(aes(y = exp(value)),
                position = position_dodge(width=1)) +
     geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5),),
@@ -124,14 +177,10 @@ plot_effects <- function(random_effects,
     geom_hline(yintercept = 1, lty = 2, alpha = 0.25) +
     scale_y_log10() +
     scale_shape_manual(values = c("Adjusted" = 16, "Unadjusted" = 1)) +
-    labs(y = "Performance ratio (vs average model)", x = NULL, colour = NULL) +
-    scale_colour_brewer(type = "qual", palette = "Set1",
-                        guide = "none") +
-    theme(
-      legend.position = "bottom",
-      strip.background = element_blank(),
-      axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
-    ) +
+    labs(y = "Performance ratio (vs average model)", x = NULL,
+         colour = NULL, shape = NULL) +
+    colour_scale +
+    theme(legend.position = "bottom", strip.background = element_blank()) +
     coord_flip()
 }
 

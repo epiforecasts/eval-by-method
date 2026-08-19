@@ -496,6 +496,13 @@ The model structure term is fitted as a single grouping factor crossing structur
 The main text reports these exponentiated, and reports a pooled effect per structure derived as a contrast averaging a structure's two cells.
 
 ```{r}
+#| label: supplement-table-method-target
+
+print_table_method_target(results$method_by_target)
+```
+
+
+```{r}
 #| label: supplement-method-target-raw
 
 results$method_by_target |>

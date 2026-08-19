@@ -226,10 +226,9 @@ plot_error_vs_obs <- function(scores_natural) {
     labs(
       x = "Observed incidence (log scale)",
       y = "WIS (log scale)",
-      colour = "Model structure",
-      fill = "Model structure"
+      colour = NULL,
+      fill = NULL
     ) +
-    theme_minimal() +
     theme(legend.position = "bottom")
 }
 
