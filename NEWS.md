@@ -3,6 +3,28 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Results figures reworked; discussion and supplement pass
+
+`R/plot-model-results.R`, `report/quarto/_results.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_references.qmd`, `report/supplement.qmd`
+
+Main text figures reduced from four to three, and reorganised around the two claims they support.
+
+`plot_structure_effects()` combines the pooled structure effects and the structure-by-outcome effects into one figure, sharing an ordering of structures, replacing separate figures that carried the same axis and units.
+Table 3 moves to the Supplement, since the figure carries the same estimates.
+
+`plot_model_variation()` combines the per-model effects with the rank comparison: panel A gives adjusted effects ordered by effect, panel B plots unadjusted against adjusted rank against a diagonal marking no change.
+The rank comparison was a slope chart in the Supplement, unreadable at 48 models, and is now the clearest statement of the paper's methodological claim.
+The Supplement keeps a table of the ten models that move furthest.
+
+`plot_effects()` coloured by `group_var` with the guide suppressed, so a single-variable call rendered every point in Set1 red; it now takes a fixed grey unless several variables are shown.
+`plot_models()` orders models by adjusted effect and no longer clips its third legend.
+`plot_error_vs_obs()` no longer overrides the document theme.
+
+Discussion reordered so that limitations follow the interpretation rather than interrupting it.
+
+Supplement: an orientation paragraph, corrected heading levels, captions for six figures that had none, and clearer names for the two fitting sections.
+The Supporting Information list named five figures and one table that no longer exist in that form, and is now a single S1 Text entry.
+
 ## Unreleased — Reduce the Background table to one axis; state the study aim in Methods
 
 `report/quarto/_background.qmd`, `report/quarto/_methods.qmd`, `report/quarto/_discussion.qmd`, `report/references.bib`

@@ -213,7 +213,10 @@ We categorised each week as "Stable", "Decreasing", or "Increasing", based on th
 
 ```{r}
 #| label: supplement-trends
-#| fig-cap: "Trends (cases)"
+#| fig-cap: >-
+#|   Weekly incidence of reported cases in each country, coloured by the epidemic
+#|   trend assigned to that week ("Stable", "Increasing" or "Decreasing"), from the
+#|   change in a three-week moving average.
 #| fig-height: 8
 #| fig-width: 10
 
@@ -240,7 +243,9 @@ scores |>
 
 ```{r}
 #| label: supplement-death-trends
-#| fig-cap: "Trends (deaths)"
+#| fig-cap: >-
+#|   Weekly incidence of reported deaths in each country, coloured by the epidemic
+#|   trend assigned to that week, derived as for cases.
 #| fig-height: 8
 #| fig-width: 10
 
@@ -461,7 +466,6 @@ Negative values indicate better-than-average performance.
 Partial effect on forecast performance of key covariates included in the fully adjusted model for additional covariates.
 Partial effects of individual model structure and individual model are presented in the main text.
 
-<!--- TODO use a facet to panel these side by side and fix caption to standard terminology ---> 
 
 (A) Spatial covariates
 
@@ -559,7 +563,7 @@ results$method_by_target |>
 Individual models can be ranked by their partial effect on the score, either from a univariate model containing only individual model identity, or from the fully adjusted model.
 The first ranks models by observed performance, and so by a combination of the method used and the difficulty of the targets each model chose to forecast.
 The second ranks them by performance after the target-related covariates are held fixed.
-The comparison is reported in the main text (Figure 3B); the table below gives the models that move furthest between the two.
+The comparison is reported in the main text; the table below gives the models that move furthest between the two.
 
 ```{r}
 #| label: supplement-ranks

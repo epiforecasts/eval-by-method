@@ -50,3 +50,15 @@ If the journal wants each float listed separately, this needs an audit pass: eve
 ## Captions added to six supplement figures
 
 Participation, LWIS density, residual diagnostics, observed against fitted, spatial effects, and temporal effects had no captions. Each now leads with what the figure shows, in the style used in the main text. The claims in them are descriptive and follow from the figure, but they are mine, so worth a read.
+
+## Trend figures not merged
+
+The supplement carried a TODO to panel the case and death trend figures side by side. Each is a 32-country facet grid, so merging them would give 64 panels in one figure and neither would be legible. They stay as two figures, with captions rewritten to name the trend classification rather than reading "Trends (cases)". The TODO is removed; say if you want them merged anyway.
+
+## Participation TODO left in place
+
+`report/supplement.qmd` still carries the TODO about writing participation counts to a CSV so they can be described from a single source. That is a code-organisation change rather than a writing one, so I have not touched it.
+
+## Rank annotation placement
+
+The Spearman annotation in the rank panel sits top-left and slightly overlaps one point. Moving it would need either a wider panel or a corner that is also occupied. Low stakes, but visible.
