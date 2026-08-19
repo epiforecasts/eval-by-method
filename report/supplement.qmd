@@ -336,7 +336,7 @@ The two differ only in numerical behaviour, and the Gamma fit did not converge o
 
 The choice of family matters a great deal on the log scale and very little on the natural scale.
 On the log scale, moving from Gaussian to Tweedie reduces residual skew from 5.8 to 0.6 and kurtosis from 77 to 9.
-On the natural scale, WIS is skewed beyond what any Tweedie can absorb, and the residual skew is essentially unchanged (4.59 against 4.59 under a Gamma); there the change resolves the convergence failure rather than improving the distributional fit.
+On the natural scale, the WIS is skewed beyond what any Tweedie can absorb, and the residual skew is essentially unchanged (4.59 against 4.59 under a Gamma); there the change resolves the convergence failure rather than improving the distributional fit.
 
 ```{r}
 #| label: supplement-family-comparison
@@ -407,7 +407,7 @@ knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
 #| label: supplement-fit-obs
 
 plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")),
-             scale_label = "l_WIS")
+             scale_label = "LWIS")
 ```
 
 ## Results
@@ -440,7 +440,7 @@ plot_effects(results$effects, variables = c("Trend", "VariantPhase"))
 
 ### Partial effects on the raw scale
 
-The main-text figures and tables report exponentiated effects (multiplicative ratios relative to the grand-mean WIS).
+The main-text figures and tables report exponentiated effects (multiplicative ratios relative to the grand-mean LWIS).
 The table below gives the underlying raw partial effects from the fully adjusted model.
 
 ```{r}
@@ -459,8 +459,8 @@ results$effects |>
   arrange(Variable, Group) |>
   kable(
     caption = paste0(
-      "Raw partial effects on the log-WIS scale from the fully adjusted ",
-      "generalised additive mixed model. Negative values indicate ",
+      "Raw partial effects on the log scale of the linear predictor, from ",
+      "the fully adjusted generalised additive mixed model. Negative values indicate ",
       "better-than-average performance. 95% CI = 95% confidence interval."
     ),
     align = c("l", "l", "r")
