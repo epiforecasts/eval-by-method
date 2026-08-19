@@ -31,7 +31,7 @@ The reason is arithmetic: an effect shared across outcomes is the average of the
 Even with the interaction no individual estimate was distinguishable from the average, and the estimates were themselves sensitive to the error family, in size throughout and in direction for two of the five structures.
 A structure-by-target interaction is therefore worth specifying explicitly wherever an evaluation pools across distinct targets, and where one specification choice carries this much weight it is better reported as a sensitivity than presented as a single fitted model.
 
-Variation in performance therefore appears driven more by features of the forecast target than by forecasting strategy.
+Variation in performance therefore appears driven more by features of the forecast target than by forecasting strategy, consistent with evidence that some seasons and pathogens are intrinsically harder to forecast than others [@white2025].
 Previous work has also failed to differentiate structures across a variety of outbreaks and epidemic dynamics [@carlson2018; @viboud2018; @reich2019], and our results suggest one reason such comparisons return null findings.
 Structural differences here pointed in opposite directions for the two outcomes, so an estimate averaging over them recovered close to zero: agent-based models were the best-performing structure for deaths and the worst for cases, while mechanistic and statistical models reversed less sharply in the other direction.
 A pooled null is therefore consistent with either an absence of structural differences or with differences that offset across targets, and the two cannot be distinguished without letting the effect vary by target.
