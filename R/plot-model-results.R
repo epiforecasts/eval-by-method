@@ -134,3 +134,72 @@ plot_effects <- function(random_effects,
     ) +
     coord_flip()
 }
+
+# Model ranking before and after adjustment (#168) ---------------------------
+#
+# Individual-model effects come in two versions: "Unadjusted" from a univariate
+# model with s(Model) alone, and "Adjusted" from the joint model. Ranking
+# models under each gives the difference an increasingly controlled evaluation
+# design makes to which models look best, holding the score itself fixed.
+#
+# Rank 1 is the best-performing model (lowest partial effect on the score).
+rank_models <- function(random_effects, anonymise = TRUE) {
+  classification <- classify_models() |>
+    select(group = model, classification)
+  ranks <- random_effects |>
+    filter(group_var == "Model") |>
+    select(model, group, value) |>
+    tidyr::pivot_wider(names_from = model, values_from = value) |>
+    mutate(
+      rank_unadjusted = rank(Unadjusted, ties.method = "first"),
+      rank_adjusted = rank(Adjusted, ties.method = "first"),
+      rank_change = rank_unadjusted - rank_adjusted
+    ) |>
+    left_join(classification, by = "group")
+  if (anonymise) {
+    ranks <- ranks |>
+      arrange(classification, rank_unadjusted) |>
+      group_by(classification) |>
+      mutate(label = paste(classification, row_number())) |>
+      ungroup()
+  } else {
+    ranks <- mutate(ranks, label = group)
+  }
+  return(ranks)
+}
+
+# Summary statistics for the ranking comparison, so the text tracks the fit.
+summarise_ranks <- function(ranks, threshold = 5) {
+  list(
+    n = nrow(ranks),
+    spearman = cor(ranks$rank_unadjusted, ranks$rank_adjusted,
+                   method = "spearman"),
+    n_moved = sum(abs(ranks$rank_change) >= threshold),
+    threshold = threshold,
+    max_change = max(abs(ranks$rank_change)),
+    max_model = ranks$label[which.max(abs(ranks$rank_change))]
+  )
+}
+
+plot_model_ranks <- function(ranks) {
+  ranks |>
+    tidyr::pivot_longer(
+      cols = c(rank_unadjusted, rank_adjusted),
+      names_to = "Evaluation", values_to = "Rank"
+    ) |>
+    mutate(
+      Evaluation = factor(
+        Evaluation,
+        levels = c("rank_unadjusted", "rank_adjusted"),
+        labels = c("Unadjusted", "Adjusted")
+      )
+    ) |>
+    ggplot(aes(x = Evaluation, y = Rank, group = label,
+               colour = classification)) +
+    geom_line(alpha = 0.6) +
+    geom_point(size = 1.2) +
+    scale_y_reverse(breaks = scales::breaks_pretty()) +
+    scale_colour_brewer(type = "qual", palette = 2) +
+    labs(x = NULL, y = "Rank (1 = best)", colour = NULL) +
+    theme(legend.position = "bottom", strip.background = element_blank())
+}

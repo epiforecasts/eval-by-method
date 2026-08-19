@@ -3,6 +3,16 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Compare model rankings before and after adjustment (#168)
+
+`R/plot-model-results.R`, `report/supplement.qmd`
+
+Ranks each individual model twice: by its partial effect from a univariate model containing only model identity, and by its partial effect from the fully adjusted model.
+The first ranks models by observed performance, which mixes the method used with the difficulty of the targets each model chose to forecast; the second ranks them with the target covariates held fixed.
+
+`rank_models()`, `summarise_ranks()` and `plot_model_ranks()` compute the two rankings, the Spearman correlation between them, and a paired rank plot.
+Reported as a supplementary figure with the summary statistics inline, so they track the fit.
+
 ## Unreleased — Drop the 1e-7 constant added to every score (#166 review)
 
 `R/process-data.R`, `R/sensitivity/check-family.R`, `report/quarto/_methods.qmd`, `report/supplement.qmd`
