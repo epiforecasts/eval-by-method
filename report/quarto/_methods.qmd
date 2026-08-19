@@ -20,7 +20,7 @@ We calculated incident weekly counts, and used the dataset available as of 10 Ma
 Prior to evaluation, we normalised both forecasts and observations to incidence per 100,000 population.
 We then log-transformed both forecasts and observations.
 This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate [@bosse2022; @bosse2023].
-To avoid zeros, we added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values.
+A small share of forecasts score exactly zero, as perfect predictions of zero-incidence targets; we retained these as zeros, which the error family described below admits directly.
 
 We evaluated forecasts against observed data using the Weighted Interval Score (WIS) [@bracher2021].
 The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS).
