@@ -331,7 +331,8 @@ We therefore compared three error families on this specification, holding the fo
 The Gaussian family leaves the skew in the residuals rather than modelling it.
 The Gamma and Tweedie families both accommodate a right-skewed positive outcome, and fit this data almost identically.
 `mgcv` restricts the Tweedie power parameter to $1 < p < 2$, and the estimate sits near the top of that range, so the data are asking for a variance function close to the Gamma ($p = 2$).
-The two differ mainly in numerical behaviour, and the Gamma fit did not converge on either scale, so we report the Tweedie fit.
+The two fit this data almost identically, and both converge.
+We report the Tweedie fit because a Gamma has no support at zero: fitting it requires adding a constant to every score, which displaces the 553 forecasts that score exactly zero to a value set by the size of that constant.
 
 ```{r}
 #| label: supplement-fit-stats
@@ -372,9 +373,8 @@ read_csv(here("output", "diagnostics", "fit-summary.csv"),
       "Skew and kurtosis are of the deviance residuals, which place each family ",
       "on a comparable footing. Lower absolute skew and kurtosis indicate a ",
       "distributional assumption better matched to the outcome. ",
-      "The Gamma fit did not converge, and is shown for comparison only. ",
-      "Tweedie is the family used in the primary model, which is fitted ",
-      "without the 1e-7 constant used here (see below)."
+      "All arms converge. Tweedie is the family used in the primary model, ",
+      "which is fitted without the 1e-7 constant used here (see below)."
     ),
     align = c("l", "r", "r", "r", "r")
   ) |>
@@ -607,8 +607,10 @@ The fitted relationships and partial effects remained stable across parameterisa
 
 #### Structure by outcome under a Gaussian family
 
-The direction of the structure-by-outcome effects is stable across error families, but the magnitude is not.
+The structure-by-outcome effects are sensitive to the error family, in magnitude throughout and in direction for two of the five structures.
 The table below refits the same specification with a Gaussian family and log link, alongside the primary Tweedie fit.
+The case-versus-death contrast keeps its sign under the Gaussian family for judgement, mechanistic and statistical models.
+It does not for agent-based models, where the separation vanishes, or for semi-mechanistic models, where it reverses; in both the Gaussian contrast is close to zero.
 The Gaussian fit is dominated by the largest scores, which fall disproportionately among case forecasts, so it weights precisely the observations the Tweedie family is chosen to accommodate.
 Including or excluding the Hub baseline model makes no material difference to these estimates.
 We report the Tweedie fit throughout; the size of any single structure-by-outcome contrast should be read with this sensitivity in mind.

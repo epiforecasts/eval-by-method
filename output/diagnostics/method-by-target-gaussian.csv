@@ -1,0 +1,11 @@
+family,Method,Epi_target,value,se,lower_2.5,upper_97.5,group_var,group
+gaussian-log,Semi-mechanistic,Cases,0.06,0.036,-0.012,0.131,Method_by_target,Semi-mechanistic:Cases
+gaussian-log,Statistical,Cases,-0,0.036,-0.071,0.07,Method_by_target,Statistical:Cases
+gaussian-log,Mechanistic,Cases,-0.022,0.036,-0.091,0.048,Method_by_target,Mechanistic:Cases
+gaussian-log,Agent-based,Cases,-0.007,0.044,-0.093,0.08,Method_by_target,Agent-based:Cases
+gaussian-log,Judgement,Cases,-0.032,0.043,-0.115,0.052,Method_by_target,Judgement:Cases
+gaussian-log,Semi-mechanistic,Deaths,-0.028,0.037,-0.101,0.045,Method_by_target,Semi-mechanistic:Deaths
+gaussian-log,Statistical,Deaths,0.006,0.037,-0.066,0.078,Method_by_target,Statistical:Deaths
+gaussian-log,Mechanistic,Deaths,-0,0.037,-0.072,0.072,Method_by_target,Mechanistic:Deaths
+gaussian-log,Agent-based,Deaths,-0.003,0.046,-0.094,0.087,Method_by_target,Agent-based:Deaths
+gaussian-log,Judgement,Deaths,0.025,0.044,-0.062,0.112,Method_by_target,Judgement:Deaths

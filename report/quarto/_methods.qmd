@@ -81,7 +81,8 @@ $$
 where $\phi$ is the dispersion and the power parameter $p \in (1, 2)$ is estimated alongside the smoothing parameters, giving a variance function $\mathrm{Var}(\mathrm{LWIS}_i) = \phi\,\mu_i^{p}$.
 A Tweedie with $p$ in this range has a point mass at zero, so the forecasts scoring exactly zero are modelled as such.
 We selected this family by comparing it against a Gaussian and a Gamma family on the same specification, reported in the Supplement.
-The estimated $p$ was `r round(tweedie_p, 2)`, so the fitted family is close to a Gamma; we report the Tweedie fit because the Gamma parameterisation did not converge on these data.
+The estimated $p$ was `r round(tweedie_p, 2)`, so the fitted family is close to a Gamma.
+We report the Tweedie fit because a Gamma has no support at zero, and so would require displacing the forecasts that score exactly zero by an arbitrary constant.
 
 The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological target, a sum of random-effect contributions from categorical covariates, and two smooth terms for continuous covariates:
 

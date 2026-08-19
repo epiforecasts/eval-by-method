@@ -40,7 +40,7 @@ The exception was whether model structure was allowed to interact with the epide
 Assuming a single effect shared across cases and deaths conceals the possibility that a structure predicts one outcome relatively well and the other relatively poorly, and this was the only specification choice that changed which structures appeared to differ from each other.
 The reason is arithmetic: an effect shared across outcomes is the average of the outcome-specific effects, and because those pointed in opposite directions they averaged close to zero.
 A shared term was therefore near zero by construction, and being penalised, was shrunk to zero exactly.
-Even with the interaction, the direction of the differences was stable while their magnitude depended on the error family, and no individual estimate was distinguishable from the average.
+Even with the interaction, no individual estimate was distinguishable from the average, and the estimates were themselves sensitive to the error family in size throughout and in direction for two of the five structures.
 A structure-by-target interaction is therefore worth specifying explicitly in evaluations that pool across distinct forecast targets, since assuming it away is not a neutral choice, and where a single specification choice carries this much weight it is better reported as a sensitivity than presented as one fitted model.
 
 Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies.
