@@ -251,11 +251,12 @@ print_table_method_target <- function(method_by_target) {
     kable(
       caption = paste0(
         "Partial effects of model structure on forecast performance ",
-        "(weighted interval score), estimated separately for case and death ",
+        "(LWIS, the weighted interval score of log-transformed forecasts and ",
+        "observations), estimated separately for case and death ",
         "forecasts within a single joint model. ",
         "Effects are deviations from the grand mean under a sum-to-zero ",
         "constraint, expressed as the exponentiated partial effect: a ",
-        "multiplicative ratio relative to the grand-mean WIS. ",
+        "multiplicative ratio relative to the grand-mean LWIS. ",
         "A ratio below 1 indicates better-than-average performance. ",
         "95% CI = 95% confidence interval."
       ),
@@ -270,7 +271,7 @@ print_table2 <- function(effects, show_ratio = TRUE) {
     filter(group_var %in% c("Method")) |>
     mutate(
       # Exponentiate point estimate and both CI bounds: multiplicative ratio
-      # relative to the grand-mean WIS
+      # relative to the grand-mean LWIS
       ratio = paste0(
         round(exp(value), 2),
         " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"
@@ -298,11 +299,11 @@ print_table2 <- function(effects, show_ratio = TRUE) {
     kable(
       caption = paste0(
         "Partial effects of model structure on the performance of COVID-19 forecasts ",
-        "(weighted interval score), ",
+        "(LWIS, the weighted interval score of log-transformed forecasts and observations), ",
         "from univariate (unadjusted) and a joint (adjusted) generalised additive mixed model. ",
         "Effects represent deviations from the grand mean under a sum-to-zero constraint, ",
-        "expressed as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean WIS. ",
-        "A ratio below 1 indicates better-than-average performance; 1 indicates the grand-mean WIS. ",
+        "expressed as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean LWIS. ",
+        "A ratio below 1 indicates better-than-average performance; 1 indicates the grand-mean LWIS. ",
         "Raw partial effects on the log scale are reported in the Supplement. ",
         "95% CI = 95% confidence interval."
       ),
