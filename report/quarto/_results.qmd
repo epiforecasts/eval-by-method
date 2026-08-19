@@ -138,6 +138,24 @@ Agent-based and judgement models appeared to outperform mechanistic and statisti
 Model structure was itself distributed unevenly across geographic and epidemiological targets, so these crude comparisons are unreliable.
 
 ```{r}
+#| label: results-sparsity
+
+# How thin the sample becomes once cross-classified by the categorical
+# covariates, i.e. what a stratified analysis would have to work with
+strata_vars <- c("epi_target", "Horizon", "Location", "Trend",
+                 "VariantPhase", "CountryTargets", "Method")
+strata_possible <- prod(sapply(scores[strata_vars], n_distinct))
+strata_obs <- count(scores, across(all_of(strata_vars)))
+strata_filled <- nrow(strata_obs)
+strata_median <- median(strata_obs$n)
+strata_thin <- round(mean(strata_obs$n < 5) * 100)
+```
+
+Adjusting for these differences by stratification would leave little to work with.
+Cross-classifying forecasts by the categorical covariates alone gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r format(strata_filled, big.mark = ",")` contain any forecast.
+The median non-empty stratum holds `r strata_median` forecasts and `r strata_thin`% hold fewer than five, and incidence, a continuous covariate, cannot be stratified without arbitrary binning.
+
+```{r}
 #| label: fig-error-vs-obs
 #| fig-cap: >-
 #|   Forecast error scales with the magnitude of the observed outcome.
