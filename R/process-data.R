@@ -97,8 +97,10 @@ process_data <- function(scoring_scale = "log") {
       Horizon = ifelse(!Horizon %in% 1:4, NA_integer_, Horizon),
       Model = as.factor(Model),
       Location = as.factor(Location),
-      epi_target = paste0(str_to_title(epi_target), "s"),
-      wis = wis + 1e-7) |>
+      epi_target = paste0(str_to_title(epi_target), "s")) |>
+    # Scores of exactly 0 are kept as they are: the Tweedie family used in
+    # analysis-model.R has a point mass at zero, so no constant is needed to
+    # make them representable on a log link.
     filter(!is.na(Horizon)) ## horizon not in 1:4
   return(data)
 }

@@ -9,7 +9,8 @@
 # Horizon: forecast horizon (smooth, by model)
 # Model: individual model (random effect)
 #
-# Response: WIS (log-transformed, Gaussian family with log link)
+# Response: WIS, modelled with a Tweedie family and log link on both scales.
+# See R/sensitivity/check-family.R
 
 library(here)
 library(dplyr)
@@ -71,19 +72,24 @@ archive_diagnostics <- function(fit, spec_label, scoring_scale, plot,
   )
 
   path <- file.path(dir, "fit-summary.csv")
+  summary_table <- mutate(row, across(everything(), as.character))
   if (file.exists(path)) {
-    row <- read_csv(path, show_col_types = FALSE) |>
+    summary_table <- read_csv(path, show_col_types = FALSE) |>
       # coerce so a previously-written column type can't block the bind
       mutate(across(everything(), as.character)) |>
       filter(!(spec_label == row$spec_label & scale == row$scale)) |>
-      bind_rows(mutate(row, across(everything(), as.character)))
+      bind_rows(summary_table)
   }
-  write_csv(row, path)
+  write_csv(summary_table, path)
   invisible(row)
 }
 
-model_wis <- function(scoring_scale = "log", family_link = "log",
- output_dir = "output", spec_label = NULL) {
+model_wis <- function(
+  scoring_scale = "log",
+  family_link = "log",
+  output_dir = "output",
+  spec_label = NULL
+) {
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
@@ -91,17 +97,17 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly (bam would drop these silently)
     mutate(Epi_target = as.factor(epi_target))
 
-  # Settings for log or natural scale
+  # Settings for log or natural scale. Both scales use the same family
   if (scoring_scale == "log") {
     # log-transform incidence to match scoring on log scale
     m.data <- m.data |>
       mutate(Incidence = log(Incidence + 1))
-    m.family <- gaussian(link = family_link)
-  } else if (scoring_scale == "natural") {
-    m.family <- Gamma(link = family_link)
-  } else {
+  } else if (scoring_scale != "natural") {
     stop("scoring_scale must be either 'log' or 'natural'")
   }
+  # tw() deparses its `link` argument, so passing the variable directly would
+  # send the literal string "family_link". do.call forces the value through.
+  m.family <- do.call(tw, list(link = family_link))
 
   # --- Model formula ---
   # Univariate for each
@@ -151,7 +157,8 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
       transmute(
         group_var = "Epi_target",
         group = "Deaths",
-        value, se,
+        value,
+        se,
         lower_2.5 = .data[[ci_cols[grepl("^lower", ci_cols)]]],
         upper_97.5 = .data[[ci_cols[grepl("^upper", ci_cols)]]],
         model = model_label
@@ -159,7 +166,9 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   }
 
   # Univariate random effects (exclude smooth-only and the fixed target fit)
-  random_effects_uni <- m.fits_uni[!grepl("horizon|incidence|epi_target", names(m.fits_uni))] |>
+  random_effects_uni <- m.fits_uni[
+    !grepl("horizon|incidence|epi_target", names(m.fits_uni))
+  ] |>
     map(extract_ranef) |>
     list_rbind() |>
     mutate(model = "Unadjusted") |>
@@ -196,14 +205,11 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   )
   saveRDS(fit_obs, here(output_dir, "fit_obs.rds"))
 
-  # Raster, not vector: appraise() plots ~150k residuals, and a PDF of that runs
-  # to ~20MB per scale. PNG keeps it under 1MB with no loss of legibility.
+  # appraise() plots
   p <- appraise(m.fits_joint)
   ggsave(here(output_dir, "plots", "check_joint.png"), p, dpi = 300)
 
   # Keep a labelled copy plus summary statistics, so this fit stays comparable
-  # against the specifications tried in later work. The path above is the one
-  # the supplement reads, so it deliberately stays stable.
   if (!is.null(spec_label)) {
     archive_diagnostics(m.fits_joint, spec_label, scoring_scale, p)
   }

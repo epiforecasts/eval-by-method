@@ -20,7 +20,7 @@ We calculated incident weekly counts, and used the dataset available as of 10 Ma
 Prior to evaluation, we normalised both forecasts and observations to incidence per 100,000 population.
 We then log-transformed both forecasts and observations.
 This transform leads to more comparable scores across locations and times, and can be interpreted as evaluating the ability of models to predict the growth rate [@bosse2022; @bosse2023].
-To avoid zeros, we added a small amount (1e-7, or less than 1/1000th of the smallest positive value in the data) to all values.
+A small share of forecasts score exactly zero, as perfect predictions of zero-incidence targets; we retained these as zeros, which the error family described below admits directly.
 
 We evaluated forecasts against observed data using the Weighted Interval Score (WIS) [@bracher2021].
 The WIS is a proper scoring rule and a generalisation of the continuous ranked probability score (CRPS).
@@ -58,11 +58,15 @@ We did not attempt to adjust for unobserved characteristics of the forecasting t
 **Analysis**
 
 We used a single hierarchical model structure fit across both epidemiological targets, with target included as a fixed factor.
-We treated the WIS of each forecast $i$ as Gaussian with a log link, so that the linear predictor $\eta_i$ acts multiplicatively on expected score:
+The WIS is continuous, non-negative, and strongly right-skewed, so we treated the WIS of each forecast $i$ as Tweedie-distributed with a log link, letting the linear predictor $\eta_i$ act multiplicatively on the expected score:
 
 $$
-\mathrm{WIS}_i \sim \mathcal{N}(\mu_i,\, \sigma^2), \qquad \log \mu_i = \eta_i.
+\mathrm{WIS}_i \sim \mathrm{Tw}_p(\mu_i,\, \phi), \qquad \log \mu_i = \eta_i,
 $$
+
+where $\phi$ is the dispersion and the power parameter $p \in (1, 2)$ is estimated alongside the smoothing parameters, giving a variance function $\mathrm{Var}(\mathrm{WIS}_i) = \phi\,\mu_i^{p}$.
+We selected this family by comparing it against a Gaussian and a Gamma family on the same specification, reported in the Supplement.
+The estimated $p$ reached 1.99, the upper limit of the permitted range, so the fitted family is effectively a Gamma; we report the Tweedie fit because the Gamma parameterisation did not converge on these data.
 
 The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological target, a sum of random-effect contributions from categorical covariates, and two smooth terms for continuous covariates:
 

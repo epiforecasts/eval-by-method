@@ -192,13 +192,13 @@ effects_comp <- results$effects |>
 
 We fitted a generalised additive mixed model to give adjusted estimates of the partial effect of model structure, while controlling for varying forecaster target selection and epidemic dynamics between targets.
 In this structure, partial effects are deviations from the grand mean WIS under a sum-to-zero constraint, so a negative value indicates better-than-average performance.
-The WIS was highly right-skewed, and we used a log link to account for this (diagnostics in Supplementary Figures S2-S3).
-The log link models the score multiplicatively but leaves some skew in the residuals.
-A sensitivity analysis modelling the log-transformed score directly substantially improves the residual distribution while preserving the direction of all effects and leaving the model-structure conclusions unchanged (Supplement).
+The WIS was highly right-skewed, and we modelled it with a Tweedie family and a log link to account for this (diagnostics in Supplementary Figures S2-S3).
+The log link models the score multiplicatively, and the Tweedie family accommodates the skew directly rather than leaving it in the residuals.
+We compared this against a Gaussian and a Gamma family: the Gaussian left strongly skewed residuals, and the Gamma fitted comparably to the Tweedie but did not converge (Supplement).
 Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
 We report the exponentiated ratio (with 95% confidence intervals) in the main text (Table 2), with the raw partial effects on the log scale in the Supplement.
 
-After adjustment forfeatures of the forecast target , no single structural approach dominated.
+After adjustment for features of the forecast target, no single structural approach dominated.
 Adjusted point estimates clustered around the grand mean, and confidence intervals overlapped throughout (Table 2).
 The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but showed no difference from other model structures after adjustment (adjusted ratios within 1% of the grand mean).
 We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (@fig-plot-coeffs).
