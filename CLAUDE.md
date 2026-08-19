@@ -162,7 +162,8 @@ Major R packages:
 
 Outstanding issues.
 Status: [ ] not started, [x] done.
-- [ ] Update manuscript text to clarify: the random-effect variance penalised any effect from model structure to zero, i.e. the joint model is reporting no information about structure - use this phrasing instead of "overlapping uncertainty"
+- [x] Update manuscript text to clarify what the structure term reports. Superseded by the structure-by-outcome interaction (#158): the pooled effect is now a contrast across a structure's two cells and carries real estimates, so the text reports imprecision rather than a term shrunk to nothing.
+- [ ] Model fitting outputs are labelled `primary-interaction` in `output/diagnostics/fit-summary.csv`. Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row.
 - [ ] Untrack the Quarto freeze cache on branch `supplementary-descriptive`. Commit 8b7ede2 is the first to track `_freeze/` (10.1 MB: binaries, minified JS, vendored `site_libs` like `jquery-3.5.1/`), and it contains a stale duplicate of the same 12 figures under `_freeze/report/descriptive-scores/` alongside the current `_freeze/report/quarto/_supplementary-descriptive/`. CI (`.github/workflows/render-report.yaml`) installs R via renv and runs `quarto render` from source, so the cache is not load-bearing — `main` tracks none of it. Fix: `git rm -r --cached _freeze`, add `/_freeze/` to `.gitignore` next to the other Quarto render artefacts, note in `NEWS.md`.
 
 ### Verification
