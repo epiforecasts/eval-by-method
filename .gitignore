@@ -66,6 +66,10 @@ report/manuscript_files/
 README.html
 README_files/
 
+# Rendered exploratory reports in attic/
+attic/*.html
+attic/*_files/
+
 # Quarto website render artifacts (index.qmd / supplement.qmd wrappers)
 /index.html
 /index_files/
@@ -78,3 +82,7 @@ README_files/
 
 # Tool caches
 .panache-cache/
+
+# Large derived caches from exploratory attic/ analyses
+data/stability.csv
+data/scores-lagged-ensemble-*.csv

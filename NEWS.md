@@ -3,6 +3,36 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Exploratory analysis of forecast stability
+
+`attic/stability.R`, `attic/stability.qmd`, `.gitignore`
+
+Exploratory side-analysis, outside the manuscript pipeline.
+Measures how much each model changes its forecast of a fixed target week between successive submissions, following the temporal coherence framing of Brockhaus et al. (2023, PLoS Comput Biol 19:e1011653).
+Their anchor is a consolidated estimate published 70 days later; forecasts have no consolidated version, so each forecast is compared with the next forecast of the same target week by the same model.
+
+`attic/stability.R` computes one row per revision step: Cramér distance between the two predictive distributions (primary, being the divergence underlying the WIS), signed and absolute revision of the median, whether the later median falls inside the earlier 95% interval, the interval width ratio, and whether the implied direction of change reverses.
+All on log population-normalised incidence, matching the primary scoring scale. Cached to `data/stability.csv`.
+
+`attic/stability.qmd` reports stability across the sample, over time, and by model structure.
+Case forecasts are revised around five times more than death forecasts.
+Around 18% of case revisions and 11% of death revisions fall outside the 95% interval of the forecast they replace, against the 5% those intervals imply.
+Instability peaks in January 2022 with Omicron BA.1, where case coherence falls to 51% — the same hard period the accuracy analysis identifies, found without using the observations.
+Raw differences by model structure are large (mechanistic models revise 2.3 times as much as semi-mechanistic ones for deaths), but nearly vanish once revisions are ranked against other models on the same country, week and step, mirroring the main analysis's finding for accuracy.
+Coherence is the exception: mechanistic revisions stay 10.7 percentage points (cases) and 5.4 points (deaths) less likely than their peers' to fall inside the previous 95% interval after matching, so those models are about as changeable as anyone else's and more confident than the changes warrant.
+
+## Unreleased — Exploratory lagged ensemble of the Hub ensemble
+
+`attic/ensemble-lag.R`
+
+Exploratory side-analysis, outside the manuscript pipeline.
+Builds a "lagged ensemble": for each target week, the quantile-wise median across the Hub ensemble's own repeated predictions of that week made at successively longer horizons.
+Because `get_forecasts()` derives `forecast_date` from `target_end_date` and horizon, the components of the nominal-horizon-`h` lagged ensemble are just the same target's forecasts at horizons `h` to `h + max_lag`, capped at 4.
+Scores both the lagged and real-time ensembles through the same path as `R/process-score.R`, writing `data/scores-lagged-ensemble-{case,death}.csv`, and plots mean WIS by horizon to `attic/ensemble-lag-wis.png`.
+
+The lagged ensemble is worse than the real-time ensemble at every horizon on both outcomes and both scales, converging to identical scores at horizon 4 where the two are the same object by construction.
+Averaging in older, less informed forecasts costs more than the variance reduction gains.
+
 ## Unreleased — Correct the documented manuscript render command
 
 `CLAUDE.md`, `README.qmd`, `README.md`

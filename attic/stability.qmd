@@ -1,0 +1,492 @@
+---
+title: "Forecast stability"
+subtitle: "Exploratory analysis: how much do models change their minds?"
+format:
+  html:
+    toc: true
+    df-print: kable
+    fig-width: 7
+    fig-height: 4
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+library(here)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(ggplot2)
+library(kableExtra)
+theme_set(theme_classic())
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+source(here("R", "process-data.R"))
+source(here("attic", "stability.R"))
+
+label_target <- function(x) factor(x, levels = c("case", "death"),
+                                   labels = c("Cases", "Deaths"))
+
+methods <- classify_models() |> select(model, Method = classification)
+
+stability <- get_stability() |>
+  left_join(methods, by = "model") |>
+  mutate(Target = label_target(epi_target),
+         # a handful of forecasts state a zero-width 95% interval, which makes
+         # the width ratio undefined
+         width_ratio = if_else(is.finite(width_ratio), width_ratio, NA_real_))
+
+hub <- filter(stability, grepl("^EuroCOVIDhub-", model))
+part <- filter(stability, !grepl("^EuroCOVIDhub-", model), !is.na(Method))
+
+# Target-matched comparison: rank each model's revision against every other
+# model revising the same country-week-step, then average the ranks. This holds
+# the target fixed, so it separates a model's own volatility from the volatility
+# of the situations it chose to forecast.
+matched <- part |>
+  group_by(epi_target, Target, location, target_end_date, horizon_to) |>
+  filter(n() >= 5) |>
+  mutate(pct_rank = (rank(cd, ties.method = "average") - 0.5) / n(),
+         coherence_gap = coherent - mean(coherent)) |>
+  ungroup()
+
+pct <- function(x, digits = 1) paste0(round(100 * x, digits), "%")
+```
+
+## Context
+
+A forecaster predicts the same target week up to four times: at a four-week horizon, then again at three, two and one.
+Accuracy asks how close each of those forecasts landed to the observation.
+Stability asks something different --- how much the forecast moved between them.
+
+The two are separable.
+A model can be accurate and volatile, jumping between very different predictions and happening to be near the truth at the end.
+It can be stable and wrong, holding a confident position all the way to a target it never saw coming.
+Only the first is measured by the weighted interval score.
+
+Stability matters for use rather than for scoring.
+A forecast that is revised sharply each week is harder to plan against, and a public health team that acted on last week's version has been misled even if this week's version is excellent.
+It also carries information about the model: a forecast that swings by more than its own stated uncertainty interval allowed for is, on its own terms, describing its uncertainty wrongly.
+
+This report measures stability for every model in the European COVID-19 Forecast Hub over the study period, and asks three questions: how stable are these forecasts as a whole, how does stability vary over the two years, and does it vary by model structure.
+
+### Relation to temporal coherence
+
+Brockhaus et al.
+([2023](https://doi.org/10.1371/journal.pcbi.1011653)) set out the same idea for real-time estimates of the effective reproduction number, under the name temporal coherence: estimates issued at various times should not differ more than implied by the respective uncertainty intervals.
+They compare each real-time estimate against a consolidated estimate published 70 days later, and report six measures: coverage of the consolidated estimate by the real-time interval, interval width, mean absolute and mean signed difference, the rate of qualitative flips across the R = 1 threshold, and a major-revision rate.
+
+Forecasts have no consolidated version --- a forecast of a future week is never re-issued after the fact --- so the anchor has to change.
+Here each forecast is compared with the next forecast of the same target week, one week later, by the same model.
+The measures below are the forecast analogues of theirs, with one addition: a distance between the full predictive distributions rather than between point estimates alone.
+
+## Metrics
+
+A revision step is a pair of forecasts of the same target week, by the same model, for the same country, issued one week apart.
+Steps are labelled by the horizon they revise to, so step 1 is the last revision a model makes before the target week arrives, and step 3 is the first (from a four-week to a three-week horizon).
+
+Everything is computed on log population-normalised incidence, matching the scale of the main weighted interval score analysis, so revisions are comparable across countries and between cases and deaths.
+
+  | Metric            | Definition                                                      | Brockhaus analogue       |
+  | ----------------- | --------------------------------------------------------------- | ------------------------ |
+  | Cramér distance   | Distance between the two predictive distributions               | (new)                    |
+  | Revision          | Signed change in the median                                     | Mean signed difference   |
+  | Absolute revision | Size of the change in the median                                | Mean absolute difference |
+  | Coherence         | Is the later median inside the earlier forecast's 95% interval? | Coverage                 |
+  | Width ratio       | 95% interval width, later over earlier                          | Interval width           |
+  | Flip              | Does the implied direction of change reverse?                   | Crossing R = 1           |
+
+The Cramér distance is the headline measure.
+It is the divergence underlying the CRPS, and therefore the weighted interval score, which puts stability on the same footing as the accuracy outcome used in the main analysis.
+It uses the whole forecast rather than the median alone, so a model that keeps its central estimate but doubles its uncertainty registers as having revised --- which it has.
+
+Coherence is the measure that judges a model against its own claims rather than against other models.
+A revision that lands outside the previous forecast's 95% interval is one that forecast said would happen at most 5% of the time.
+
+The direction underlying a flip is the forecast median for the target week against the same forecast's view of the preceding week: its own prediction one horizon shorter, or, at step 1, the last observation.
+So a flip means the two forecasts disagree about whether the epidemic is growing or shrinking into that week.
+
+Computation is in [attic/stability.R](stability.R).
+Hub baseline and ensemble models are held out of the summaries below and shown separately as reference points.
+
+## Stability across the sample
+
+```{r}
+#| label: tbl-overall
+
+part |>
+  group_by(Target, Step = horizon_to) |>
+  summarise(
+    Steps = n(),
+    `Median CD` = round(median(cd), 4),
+    `Median absolute revision` = round(median(abs_revision), 3),
+    `Mean signed revision` = round(mean(revision), 3),
+    Coherent = pct(mean(coherent)),
+    Narrowing = pct(mean(width_ratio < 1, na.rm = TRUE)),
+    Flips = pct(mean(flip, na.rm = TRUE)),
+    .groups = "drop"
+  ) |>
+  kable(caption = paste(
+    "Stability by outcome and revision step.",
+    "Step 1 is the last revision before the target week."
+  )) |>
+  kable_styling(full_width = FALSE)
+```
+
+Case forecasts are revised several times more than death forecasts: the median Cramér distance is around five times larger, and the median revision of the point forecast is around three times larger in log incidence units.
+This is the expected direction --- cases respond faster, are more sensitive to testing behaviour, and were reported with more volatility --- but the size of the gap is worth noting, because the main analysis pools both outcomes.
+
+Revisions shrink as the target approaches, but only modestly: from step 3 to step 1 the median Cramér distance falls by around 13% for cases and 25% for deaths.
+Models are not converging sharply on a final answer in the last weeks; they keep moving nearly as much at one week out as at four.
+
+The signed revisions separate the two outcomes.
+Case forecasts are revised upwards on average at every step, by around 0.04 to 0.06 log units, so models systematically underpredicted cases and corrected upwards as the target approached.
+Death forecasts show no such drift.
+
+```{r}
+#| label: fig-distribution
+#| fig-cap: >-
+#|   Distribution of revision sizes.
+#|   Vertical lines mark the median.
+#|   The x axis is log-scaled: revisions span several orders of magnitude, and the small number of exactly zero revisions are dropped.
+
+part |>
+  filter(cd > 0) |>
+  ggplot(aes(x = cd, colour = factor(horizon_to))) +
+  geom_density() +
+  geom_vline(
+    data = part |> filter(cd > 0) |> group_by(Target) |>
+      summarise(cd = median(cd), .groups = "drop"),
+    aes(xintercept = cd), linetype = "dashed", linewidth = 0.3
+  ) +
+  scale_x_log10() +
+  facet_wrap(~Target) +
+  labs(x = "Cramér distance between successive forecasts (log incidence)",
+       y = "Density", colour = "Revision step")
+```
+
+Coherence is the more uncomfortable number.
+Around 18% of case revisions and 11% of death revisions land outside the 95% interval of the forecast they replace.
+If the earlier forecasts described their own uncertainty correctly, that figure should be near 5% at most, and it is not near 5% at any step or for either outcome.
+Models change their minds more than they said they might.
+
+Interval widths mostly behave: around 77% of revisions narrow the 95% interval, as a forecast made closer to the target should.
+The remaining quarter widen it, which is not necessarily wrong --- new information can reveal that a situation is less predictable than it looked --- but it is common enough not to be exceptional.
+
+## Stability over time
+
+```{r}
+#| label: fig-time
+#| fig-cap: >-
+#|   Weekly stability across all participating models.
+#|   Top: median Cramér distance between successive forecasts.
+#|   Bottom: share of revisions falling inside the previous forecast's 95% interval, with the 95% reference line.
+
+weekly <- part |>
+  group_by(Target, target_end_date) |>
+  summarise(cd = median(cd), coherent = mean(coherent),
+            n = n(), .groups = "drop")
+
+p_cd <- weekly |>
+  ggplot(aes(x = target_end_date, y = cd)) +
+  geom_line() +
+  facet_wrap(~Target, scales = "free_y") +
+  labs(x = NULL, y = "Median CD")
+
+p_coh <- weekly |>
+  ggplot(aes(x = target_end_date, y = coherent)) +
+  geom_hline(yintercept = 0.95, linetype = "dashed", linewidth = 0.3) +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent) +
+  facet_wrap(~Target) +
+  labs(x = "Target week", y = "Coherent")
+
+patchwork::wrap_plots(p_cd, p_coh, ncol = 1)
+```
+
+```{r}
+#| label: tbl-worst-weeks
+
+weekly |>
+  group_by(Target) |>
+  slice_max(cd, n = 3) |>
+  ungroup() |>
+  transmute(Target, `Target week` = target_end_date,
+            `Median CD` = round(cd, 3), Coherent = pct(coherent),
+            Steps = n) |>
+  kable(caption = "The three least stable weeks for each outcome.") |>
+  kable_styling(full_width = FALSE)
+```
+
+Instability is concentrated in time.
+The least stable weeks for both outcomes are January 2022, the arrival of Omicron BA.1, when the median case revision was four to five times the study average and coherence collapsed to around 51%: at the peak of that transition, half of all case revisions fell outside the 95% interval of the forecast they replaced.
+The most stable period is the summer of 2021, before Delta took hold in most countries.
+
+This is the same pattern the main analysis finds for accuracy, arrived at without using the observations at all.
+Stability is measured entirely from the forecasts, yet it identifies the same hard weeks.
+The models knew, collectively and in real time, that they were struggling --- the disagreement between a model and its own previous self was already visible before the target week was observed.
+
+```{r}
+#| label: tbl-trend
+
+obs <- map(c("case", "death"), \(t) {
+  read_csv(here("data", paste0("observed-", t, ".csv")), show_col_types = FALSE) |>
+    mutate(epi_target = t)
+}) |>
+  bind_rows() |>
+  select(epi_target, location, target_end_date, trend)
+
+part |>
+  inner_join(obs, by = c("epi_target", "location", "target_end_date")) |>
+  filter(!is.na(trend)) |>
+  group_by(Target, Trend = trend) |>
+  summarise(Steps = n(), `Median CD` = round(median(cd), 4),
+            Coherent = pct(mean(coherent)), .groups = "drop") |>
+  kable(caption = paste(
+    "Stability by the observed trend in the target week.",
+    "Trend is the change in a three-week moving average, as used in the main analysis."
+  )) |>
+  kable_styling(full_width = FALSE)
+```
+
+Revisions are largest when incidence is rising, and coherence is worst there too --- for cases, 78% during increasing weeks against 85% during decreasing ones.
+Growth is where models disagree with themselves.
+
+## Stability by model structure
+
+```{r}
+#| label: fig-structure
+#| fig-cap: >-
+#|   Stability by model structure.
+#|   Left: median Cramér distance, computed across whatever targets each group forecast.
+#|   Right: the same models ranked against every other model forecasting the same country, week and revision step, then averaged.
+#|   A rank of 0.5 is the median model; below 0.5 is more stable than its peers on the same targets.
+#|   Only steps with at least five models are ranked.
+
+raw <- part |>
+  group_by(Target, Method) |>
+  summarise(value = median(cd), .groups = "drop") |>
+  mutate(panel = "Median CD (unmatched)")
+
+rank <- matched |>
+  group_by(Target, Method) |>
+  summarise(value = mean(pct_rank), .groups = "drop") |>
+  mutate(panel = "Mean rank within target (matched)")
+
+bind_rows(raw, rank) |>
+  mutate(panel = factor(panel, levels = c("Median CD (unmatched)",
+                                          "Mean rank within target (matched)"))) |>
+  ggplot(aes(x = value, y = Method, colour = Target)) +
+  geom_point(size = 2) +
+  geom_vline(
+    data = tibble(panel = factor("Mean rank within target (matched)",
+                                 levels = levels(factor(c("Median CD (unmatched)",
+                                 "Mean rank within target (matched)"))))),
+    aes(xintercept = 0.5), linetype = "dashed", linewidth = 0.3
+  ) +
+  facet_wrap(~panel, scales = "free_x") +
+  labs(x = NULL, y = NULL)
+```
+
+```{r}
+#| label: tbl-structure
+
+part |>
+  group_by(Target, Method) |>
+  summarise(Models = n_distinct(model), Steps = n(),
+            `Median CD` = round(median(cd), 4),
+            Coherent = pct(mean(coherent)),
+            Narrowing = pct(mean(width_ratio < 1, na.rm = TRUE)),
+            Flips = pct(mean(flip, na.rm = TRUE)), .groups = "drop") |>
+  left_join(
+    matched |> group_by(Target, Method) |>
+      summarise(`Mean rank` = round(mean(pct_rank), 3),
+                `Coherence gap` = round(mean(coherence_gap), 3), .groups = "drop"),
+    by = c("Target", "Method")
+  ) |>
+  arrange(Target, Method) |>
+  kable(caption = paste(
+    "Stability by model structure.",
+    "Median CD and coherence pool whatever targets each group forecast.",
+    "Mean rank and coherence gap compare models on identical targets:",
+    "the gap is the group's coherence minus the mean coherence of all models",
+    "revising the same country, week and step."
+  )) |>
+  kable_styling(full_width = FALSE)
+```
+
+Taken at face value, structure looks like it matters a great deal.
+Mechanistic models are the least stable group on both outcomes, with a median Cramér distance roughly 2.3 times that of semi-mechanistic models for deaths and 1.5 times for cases.
+Agent-based models look like the most stable group.
+
+Almost all of that gap is target composition.
+Once each revision is ranked against the other models revising the same country, week and step, the five structures fall between mean ranks of 0.43 and 0.58, where 0.5 is the median model.
+Mechanistic models stay slightly above the median on both outcomes (0.54), judgement models sit highest for deaths (0.58), and agent-based models lowest on both.
+The ordering is compressed to the point of being a weak tendency rather than a difference in kind, and it shifts between outcomes: statistical models sit second most stable for cases and mid-table for deaths, semi-mechanistic models the reverse.
+Groups with few models --- agent-based has three for cases and two for deaths, judgement has three --- carry very little weight regardless.
+
+This mirrors the finding of the main analysis for accuracy, which is worth stating plainly: the apparent effect of model structure on stability is mostly an artefact of which targets each kind of model chose to forecast, and it largely disappears when the targets are held fixed.
+
+Coherence is the one place a structural difference survives matching.
+Mechanistic models are the least coherent group on both outcomes (69% for cases, 82% for deaths, against 87% and 95% for semi-mechanistic models), and unlike the Cramér distance this gap does not close when the targets are held fixed: mechanistic revisions are 10.7 percentage points less likely than their peers' to stay inside the previous 95% interval for cases, and 5.4 points less likely for deaths.
+Judgement models show the same pattern for deaths.
+
+That is a statement about uncertainty quantification rather than volatility.
+Mechanistic models are not revising much more than their peers on the same targets --- their mean rank is 0.54, barely above the median --- but their stated intervals accommodate less of the revising they do.
+Their forecasts are about as changeable as anyone's and more confident than the changes warrant.
+Agent-based models narrow their intervals least often, though on very few models.
+
+```{r}
+#| label: tbl-hub
+
+hub |>
+  group_by(Target, Model = model) |>
+  summarise(Steps = n(), `Median CD` = round(median(cd), 4),
+            Coherent = pct(mean(coherent)),
+            Flips = pct(mean(flip, na.rm = TRUE)), .groups = "drop") |>
+  kable(caption = "Hub reference models, excluded from the summaries above.") |>
+  kable_styling(full_width = FALSE)
+```
+
+The Hub reference models behave as expected, which is a useful check on the measures.
+The baseline model never flips direction, because it always predicts no change; its revisions track the last observation.
+Both reference models are more coherent than any participant group, the ensemble most of all (93% for cases, 98% for deaths), which is the usual consequence of averaging: an ensemble moves less than its components and carries wider intervals.
+
+## Stability and accuracy
+
+```{r}
+#| label: fig-accuracy
+#| fig-cap: >-
+#|   Model-level stability against accuracy.
+#|   Stability is the model's mean rank against other models on the same targets; accuracy is its mean weighted interval score on the log scale.
+#|   Models with fewer than 100 ranked revision steps are dropped.
+
+scores <- process_data(scoring_scale = "log") |>
+  filter(!grepl("^EuroCOVIDhub-", Model)) |>
+  group_by(epi_target, Model) |>
+  summarise(wis = mean(wis, na.rm = TRUE), .groups = "drop") |>
+  mutate(epi_target = tolower(sub("s$", "", epi_target)))
+
+model_level <- matched |>
+  group_by(epi_target, Target, model, Method) |>
+  summarise(rank = mean(pct_rank), steps = n(), .groups = "drop") |>
+  filter(steps >= 100) |>
+  inner_join(scores, by = c("epi_target", "model" = "Model"))
+
+model_level |>
+  ggplot(aes(x = rank, y = wis, colour = Method)) +
+  geom_point() +
+  facet_wrap(~Target, scales = "free_y") +
+  labs(x = "Mean stability rank (higher = less stable than peers)",
+       y = "Mean WIS (log scale)")
+```
+
+```{r}
+#| label: tbl-accuracy
+
+model_level |>
+  group_by(Target) |>
+  summarise(
+    Models = n(),
+    `Spearman (rank vs WIS)` = round(cor(rank, wis, method = "spearman"), 3),
+    .groups = "drop"
+  ) |>
+  kable(caption = paste(
+    "Association between a model's stability and its accuracy,",
+    "both measured across the targets it forecast."
+  )) |>
+  kable_styling(full_width = FALSE)
+```
+
+Less stable models tend to score slightly worse, with a Spearman correlation of 0.25 for cases and 0.29 for deaths across roughly 30 models per outcome.
+The association is weak and the sample of models is small, so this is a tendency rather than a finding.
+It is enough to say that stability is not simply a restatement of accuracy: a model's volatility relative to its peers explains very little of where it lands on the score.
+
+## Limitations
+
+The anchor is different from the one Brockhaus et al.
+use.
+They compare a real-time estimate with a later, better estimate of the same quantity, so their measures speak to whether a real-time estimate was right.
+Here there is no later version of a forecast, so successive forecasts are compared with each other.
+That measures self-consistency, not correctness: a model that is consistently and confidently wrong scores as perfectly stable.
+The Hub baseline is close to that case.
+
+Finally, coherence at 95% is a demanding standard applied to intervals that were not designed to be tested this way.
+A forecaster's 95% interval describes uncertainty about the outcome, not about their own future forecast.
+The two coincide only if the model updates as a Bayesian would on the same information; the gap between 5% and the 11 to 18% observed here mixes genuine overconfidence with that conceptual difference.
+
+--------------------------------------------------------------------------------
+
+Draft: scoringutils issue on forecast-to-forecast distance
+
+## Context
+
+I was interested in stability between successive forecasts of the same target week by the same model.
+If I understand correctly, this can be measured as the Cramér distance between two forecast distributions.
+As the CRPS is the special case where G is a point mass at the observation, the package already computes this.
+
+While I was poking around some old Hub data, I wondered if a more general tool in scoringutils would be useful.
+
+Feature request: distance between two predictive distributions (Cramér distance)
+
+### motivating use case: forecast stability
+
+A model forecasts the same target week up to four times, at horizons 4, 3, 2, 1.
+
+- Accuracy looks at how close each forecast was to the observation
+- Stability looks at how much the forecast changed between successive submissions
+
+For example, a model could be
+
+- Accurate and volatile (jumping between very different predictions but ending up near the truth).
+- Wrong and stable (holding a confident position up until an unexpected target)
+
+I don't think we have anything on stability currently in scoringutils, although see note on multivariate scoring below.
+But I think stability is an important complement to scoring accuracy for getting at whether a forecasting system is reliable.
+(The equivalent in observational study design might be something like "internal validity of a repeated measure".)
+I could also see this being of interest to ongoing discussions arounnd forecast similarity/redundancy, and related ensemble diversity.
+
+Brockhaus et al. (2023) looked at this for real-time Rt estimates ('temporal coherence'), comparing each real-time estimate against a consolidated one published 70 days later.
+
+Applying this to the European COVID-19 Forecast Hub (47 models, 32 countries, two years), the Cramér distance between successive forecasts of the same target separates models that revise a lot from models that do not, and identifies the hardest periods of the pandemic --- the January 2022 Omicron BA.1 transition stands out sharply --- without using the observed data at all.
+
+#### scoringutils implementation
+
+I think implementation could reuse existing `crps_sample()` tooling - giving the Cramér distance for a shared set of quantile levels (or the energy distance for pairs of sample forecasts?).
+
+For example, implementation could look like:
+
+- distance between two forecast objects sharing a forecast unit
+
+`distance(forecast_a, forecast_b, metric = "cramer")`
+
+- or as a rule, for the successive-forecasts case
+
+`forecast \|> add_distance(compare_to = "previous", by = "forecast_date")`
+
+#### link to multivariate scoring
+
+Noting also that this is related to the discussion on multivariate scoring discussed and implemented (#1181, #1119, #1120, #1064).
+Both can look at correlated structure across time (from opposite directions as I see it).
+Multivariate scores evaluate one forecast object with multi-dimesional structure against a multi-dimensional observation.
+This stability/coherence angle just takes two forecast objects and no observation.
+
+### Discussion points
+
+- Does this fit in scoringutils as it's not scoring against an observation.
+- as_forecast\_\*() requires an observed value.
+  Does the second forecast enter as another forecast object, as extra columns on one object, or does this need a different class.
+- What happens when the two forecasts do not share quantile levels (possible approaches: interpolate, intersect, or just don't accept)
+- Is the Cramér distance the right primitive alone.
+  Other distance metrics could be the Wasserstein-1 distance (which I am not familiar with) or the energy distance.
+- Should it live with the multivariate work or separately.
+
+Brockhaus et al 2023, PLoS Comput Biol 19:e1011653 - looks at six measures for temporal coherence for quantile forecasts of real-time Rt estimates
+
+Gneiting and Raftery 2007 giving CRPS as the Cramér distance to a point mass.
+
+Example application
+
+Me and Claudia put together a scrappy implementation for the quantile case
