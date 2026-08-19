@@ -116,15 +116,15 @@ model_targets <- table_targets(scores)
 multi_targets <- filter(model_targets, CountryTargets == "Multi-country")|>
 mutate(diff = max_targets - min_targets)
 
-# Table 1
+# Table 2 (the Background study-design table is Table 1)
 print_table1(scores)
 ```
 
-Table 1 summarises model characteristics by structure and geographic target selection.
+Table 2 summarises model characteristics by structure and geographic target selection.
 Forecasters could participate in any of 26,624 available targets (104 weeks, 32 countries, 4 horizons, 2 epidemiological outcomes).
 Median participation was `r model_forecasts[["Median"]]`% of available targets (IQR `r model_forecasts[["1st Qu."]]`-`r model_forecasts[["3rd Qu."]]`%, range `r model_forecasts[["Min."]]` to `r model_forecasts[["Max."]]`).
 
-We classified `r n_by_method[["Mechanistic"]]` models as mechanistic, `r n_by_method[["Statistical"]]` as statistical, `r n_by_method[["Semi-mechanistic"]]` as semi-mechanistic, `r n_by_method[["Agent-based"]]` as agent-based and `r n_by_method[["Judgement"]]` as human judgement (Table 1; Supplement).
+We classified `r n_by_method[["Mechanistic"]]` models as mechanistic, `r n_by_method[["Statistical"]]` as statistical, `r n_by_method[["Semi-mechanistic"]]` as semi-mechanistic, `r n_by_method[["Agent-based"]]` as agent-based and `r n_by_method[["Judgement"]]` as human judgement (Table 2; Supplement).
 Raters disagreed on `r n_disagree` (`r p_disagree`%) classifications, most often for semi-mechanistic models, `r n_semi_mech_split` of `r n_by_method[["Semi-mechanistic"]]` of which drew at least one vote for a statistical structure.
 Statistical models contributed the largest share of forecasts (`r p_by_method[["Statistical"]]`%), partly because the Hub baseline model submitted for every country in almost every week; mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic"]]`% and `r p_by_method[["Semi-mechanistic"]]`%, and agent-based and judgement models under 2% each.
 
@@ -220,7 +220,7 @@ effects_comp <- results$effects |>
 
 We report effects as a ratio against the grand-mean LWIS, where 1 is average performance and 0.9 an LWIS 10% lower than average, with raw partial effects in the Supplement.
 
-No structural approach dominated (Table 2, @fig-structure-effects A).
+No structural approach dominated (Table 3, @fig-structure-effects A).
 The largest shifts under adjustment were among agent-based and human judgement models, which had appeared to perform better than average unadjusted, and adjustment shrank the standard errors throughout.
 A pooled estimate averages a structure's effects on cases and deaths, so a value near the grand mean can arise either from average performance on both, or from relatively good performance on one and poor on the other.
 
