@@ -498,6 +498,37 @@ results$method_by_target |>
   kable_styling(full_width = FALSE)
 ```
 
+### Model ranking before and after adjustment
+
+Individual models can be ranked by their partial effect on the score, either from a univariate model containing only individual model identity, or from the fully adjusted model.
+The first ranks models by observed performance, and so by a combination of the method used and the difficulty of the targets each model chose to forecast.
+The second ranks them by performance after the target-related covariates are held fixed.
+Comparing the two shows what adjustment for target difficulty does to a league table of models, holding the score itself fixed.
+
+```{r}
+#| label: supplement-ranks
+
+ranks <- rank_models(results$effects)
+rank_summary <- summarise_ranks(ranks)
+```
+
+Across the `r rank_summary$n` models, the two rankings correlate at a Spearman coefficient of `r round(rank_summary$spearman, 2)`.
+`r rank_summary$n_moved` models move by at least `r rank_summary$threshold` places, and the largest single movement is `r rank_summary$max_change` places.
+
+```{r}
+#| label: fig-model-ranks
+#| fig-cap: >-
+#|   Rank of each individual model by partial effect on the LWIS, before and after
+#|   adjustment for forecast target difficulty. Rank 1 is the best-performing model.
+#|   Unadjusted ranks come from a univariate model containing only individual model
+#|   identity; adjusted ranks come from the fully adjusted model. Colour indicates
+#|   model structure.
+#| fig-height: 5
+#| fig-width: 5
+
+plot_model_ranks(ranks)
+```
+
 --------------------------------------------------------------------------------
 
 ## Sensitivity analyses
