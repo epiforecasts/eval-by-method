@@ -1,24 +1,16 @@
-Forecasters attempting to predict infectious disease outbreaks have met with varying success.
-This variation might come from many contributing factors.
-One such set of varying factors is the predictive ability of different forecasting methods.
-Another set of varying factors is the predictive difficulty of different forecast targets.
-With increasing numbers of both forecasters and forecast targets, we have more potential to learn about which factors can be modified to improve forecast performance, and to set appropriate expectations for performance between different forecast settings.
-This requires careful accounting among the many factors contributing to performance.
-Here, we suggest one approach to this using a joint modelling framework, and apply this to illustrate varying performance of forecasts of Covid-19 in Europe.
+Forecasters predicting infectious disease outbreaks have met with varying success.
+Some of that variation comes from the forecasting method used, and some from the difficulty of the target being forecast.
+Separating the two is what identifies which factors can be modified to improve performance, and what performance to expect in a given setting.
+Here we set out one approach to doing so, applied to forecasts of Covid-19 in Europe.
 
-Some of the variation in performance can be attributed to differences between infectious disease target estimands.
-We see better predictive performance with stable epidemic dynamics [@bracher2022] in larger populations [@lopez2024], and when the target is observed with timely, accurate surveillance [@reich2019] [@holcomb2023], or has informative leading indicators [@delvalle2018].
-Meanwhile, performance is consistently better at shorter than longer horizons [@cramer2022], possibly based on the disease-specific serial interval that links disease to observation [@sherratt2023], prompting suggestions that there are inherent limits to the predictability of infectious diseases based on the complexity of the disease-surveillance-response system [@scarpino2019].
-This variability makes it difficult to make fair comparisons across multiple forecast targets.
+Performance is better under stable epidemic dynamics [@bracher2022], in larger populations [@lopez2024], where surveillance is timely and accurate [@reich2019; @holcomb2023], and where informative leading indicators exist [@delvalle2018].
+It is consistently better at shorter horizons [@cramer2022], plausibly bounded by the serial interval linking disease to observation [@sherratt2023], prompting the suggestion that predictability is inherently limited by the complexity of the disease-surveillance-response system [@scarpino2019].
 
-At the same time, variation in performance between forecasters arises from individual differences in the forecast estimation process: the structural approach and implementation choices made in developing a forecasting model.
-Forecasters may use many methods, ranging from purely data-driven statistical methods, to mechanistic models that embed explicit hypotheses about biological or epidemiological drivers of transmission.
-Different structural approaches may be better suited to different purposes, for example scenario projection, policy analysis, or real-time nowcasting.
-This choice demands a trade-off among complementary strengths and weaknesses of different methods [@woolhouse2011; @dattner2018; @funk2020], any of which may impact predictive accuracy.
-Previous work has compared predictive performance between these approaches, and shown little evidence for substantial differences [@carlson2018; @viboud2018; @reich2019].
+Performance also varies with the forecast estimation process: the structural approach and implementation choices behind each model.
+Methods range from purely data-driven statistical models to mechanistic models embedding explicit hypotheses about transmission, and different structures suit different purposes, such as scenario projection, policy analysis, or nowcasting [@woolhouse2011; @dattner2018; @funk2020].
+Comparisons between structures have found little evidence of differences in predictive performance [@carlson2018; @viboud2018; @reich2019].
 
-This creates two sets of contributing factors to any single instance of realised performance @fig-processes.
-Identifying these influences is important in order to fairly evaluate between different forecasters, and to set appropriate expectations for performance between different forecast settings.
+Realised performance therefore combines two processes (@fig-processes), which must be separated to compare forecasters fairly.
 
 ```{r}
 #| label: fig-processes
@@ -57,24 +49,17 @@ digraph processes {
 ')
 ```
 
-To evaluate the contribution of different factors to predictive performance, we need a comparable sample of many independent forecasting models across many forecast targets [@pollett2020; @reich2022].
-This comparability is achieved in participatory forecast challenges, which collate multiple forecasters' predictions for pre-specified targets in a standardised format [@reich2022].
-This offers the opportunity for consistent evaluation between models, with the potential to explicitly compare the value of different modelling approaches @reich2022.
+Comparable samples of many independent models across many targets come from participatory forecast challenges, which collate predictions for pre-specified targets in a standardised format [@pollett2020; @reich2022].
+Such comparisons are prone to selection bias and confounding, because forecasters participate differentially across targets: aggregated comparisons conflate the performance of a modelling approach with the difficulty of the targets it was applied to.
 
-However, such analysis is challenging, as it is prone to selection bias and confounding when evaluating among forecasters with differential participation across forecast targets.
-Aggregated comparisons may conflate differences in the predictive performance of each modelling approach, with differences in forecast target difficulty.
-
-Evaluators facing this challenge have borrowed, mostly implicitly, from the tools offered by traditional observational research to control bias (@tbl-approaches).
-Epidemiology distinguishes those applied when a study is designed, such as restriction and matching, from those applied to data already collected, such as stratification, standardisation and regression adjustment [@mcnamee2005; @kahlert2017].
-In forecast evaluation this distinction largely collapses, because the evaluator is almost always working with forecasts already submitted, and applies such tools retrospectively.
-
-One source of bias is the exception: differential participation could be removed at the point of collection, by a protocol requiring every model to forecast every target, but this is available to hub organisers rather than to anyone evaluating afterwards.
-We therefore restrict @tbl-approaches to tools available retrospectively, and order them by the stage of the analysis at which each acts: what enters the sample, how the exposure and the outcome are measured, how units are compared, and how the estimate is computed.
-Within the elements governing how units are compared, from matching through to regression adjustment, the sequence is also one of increasing formality, in the sense that each uses clearer and stronger assumptions to account for variation.
-This ordering does not extend to the whole table: complete ascertainment and unbiased classification of the exposure are prerequisites to any comparison rather than weaker forms of it.
-Each of these tools may usefully simplify some aspect of the problem.
-However, evaluators facing large, open forecasting challenges must handle a high degree of variation across both many forecast targets and many forecasting models simultaneously.
-The noisiness of these mixed signals means that the simpler strategies may not be sufficient to isolate a single component of forecast performance and trace its effect.
+Evaluators have borrowed, mostly implicitly, from observational research to control this bias (@tbl-approaches).
+Epidemiology separates tools applied when a study is designed, such as restriction and matching, from those applied to data already collected, such as stratification, standardisation and regression adjustment [@mcnamee2005; @kahlert2017].
+In forecast evaluation that distinction largely collapses, since the evaluator almost always works with forecasts already submitted.
+The exception is differential participation, which a protocol requiring every model to forecast every target would remove at the point of collection, but that is available to hub organisers rather than to anyone evaluating afterwards.
+@tbl-approaches is therefore restricted to retrospective tools, ordered by the stage of the analysis at which each acts.
+Among the elements governing how units are compared, from matching through to regression adjustment, that order is also one of increasing formality.
+It does not extend to the whole table: complete ascertainment and unbiased classification of the exposure are prerequisites to any comparison rather than weaker forms of it.
+The simpler tools may not isolate a single component of performance when variation is large across both many targets and many models.
 
 | Study design element | In observational research | In forecast evaluation | Threat addressed | Limitation |
 |---------------|---------------|---------------|---------------|---------------|
@@ -90,16 +75,12 @@ The noisiness of these mixed signals means that the simpler strategies may not b
 
 : Approaches to controlling bias in comparative forecast evaluation, with analogous tools from observational study design. Rows follow the sequence of analysis: what enters the sample, measurement of exposure and outcome, comparison across units of observation, and estimation. {#tbl-approaches}
 
-For example, we may wish to assess the performance of different model designs used by a set of independent forecasters participating in any number of different forecast targets.
-When assessing across multiple forecast targets, we would need to separate out the model structure from the adaptability of different model structures to produce predictions across the different forecast targets.
-Faced with multiple forecasting targets, a forecaster might produce forecasts for any given target given only updated data, as is typical of statistical time-series and many semi-mechanistic models.
-An alternative strategy is to structure a model to mechanistically capture the data-generating processes of a specific forecast target, for example emphasising particular epidemic dynamics or exploiting local data sources.
-This suggests the hypothesis that design strategy has a separate influence on predictive performance, confounding an estimate of the effect of model structure alone on predictive performance.
+Model structure is further entangled with strategy.
+A forecaster may produce forecasts for any target from updated data alone, as statistical time-series and many semi-mechanistic models do, or tailor a model to the data-generating process of a specific target.
+Strategy may therefore influence performance separately, confounding the effect of structure.
 
-Here, we develop a framework to identify the partial effect of model structure on predictive performance, while jointly adjusting for factors contributing to forecast target difficulty.
-We use proper scoring rules to evaluate short-term forecasts of COVID-19 across Europe.
-We analyse performance by model structure, using a generalised additive mixed model to also account for variation in the target epidemiological outcome, trend and level of incident outcomes, dominant variant phase, country, forecast horizon, and random error of each individual model.
-Rather than stratifying scores across these sparse, interacting subgroups, our hierarchical approach pools information across sparsely populated groups through partial shrinkage of the random effects, and represents continuous sources of difficulty such as incidence as smooth functions.
-We include a directed acyclic graph in the Supplement to represent the structure of our assumptions, but note that our work is exploratory rather than formally causal.
-We find that, despite superficial differences between model structures, most of the variation in observed performance can be explained by factors associated with the forecast target rather than the forecasting method.
-We conclude by noting the increasing breadth and application of infectious disease forecasting efforts, and call for a wider range of evaluative study designs able to accurately and robustly capture their value.
+Here we estimate the partial effect of model structure on predictive performance, while jointly adjusting for factors contributing to target difficulty.
+We score short-term Covid-19 forecasts across Europe with proper scoring rules, and model them with a generalised additive mixed model accounting for the epidemiological outcome, trend and level of incidence, dominant variant phase, country, forecast horizon, and individual model.
+Pooling across sparse, interacting subgroups by partial shrinkage avoids stratifying them, and continuous sources of difficulty enter as smooth functions.
+A directed acyclic graph in the Supplement sets out our assumptions; this work is exploratory rather than formally causal.
+We find most variation in observed performance is associated with the forecast target rather than the forecasting method, and argue for a wider range of evaluative study designs.

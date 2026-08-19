@@ -314,6 +314,18 @@ The joint model also fits an interaction between model structure and the epidemi
 This is effect modification rather than confounding.
 A causal diagram encodes conditional independence and not effect modification, so the interaction does not appear in the diagram and does not change the adjustment set.
 
+#### Why no separate structure main effect
+
+The crossed term `s(Method, Epi_target, bs = "re")` is an unconstrained zero-mean effect over all structure-by-outcome cells, so its average across outcomes is what a structure main effect would represent.
+With both terms in the model and both penalised, the division between them follows the relative variance estimates rather than the data: fitted together, `mgcv` gave the main effect 0.001 effective degrees of freedom against 4.9 for the crossed term, and dropping it left AIC, deviance explained and residuals unchanged.
+We therefore fit the crossed term alone and recover the pooled per-structure effect as a contrast averaging a structure's two cells.
+
+The same aliasing applies to the epidemiological outcome, whose main effect is the average of the crossed effects within an outcome.
+Here only one of the two terms is penalised, so the unpenalised fixed effect takes the component common to all structures and the crossed term keeps only departures from it.
+In the fitted model the crossed effects average to zero within each outcome to numerical precision, so the whole deaths-versus-cases difference sits in the fixed coefficient.
+This is emergent rather than imposed: the smooth retains all ten coefficients, so no centring constraint was applied.
+We did not treat the outcome as a random effect, which with two levels gives no basis for estimating a variance and would shrink a large, well-identified contrast toward zero.
+
 ### Model fitting
 
 We noted our outcome of LWIS had a strongly skewed PDF.

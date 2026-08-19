@@ -1,22 +1,12 @@
-In this work, we aimed to assess the partial effect of model structure on the accuracy of forecasts of Covid-19 across European countries.
-We developed a model-based approach to adjust for the key sources of variation between different forecast targets.
-After adjustment, no single structural approach dominated.
-Adjusted estimates for each model structure were imprecise and none was distinguishable from the overall average, whether pooled across epidemiological outcomes or estimated separately for cases and deaths.
-Substantial variation in individual model performance remained unexplained.
-We suggest that when evaluating across multiple forecast targets, it is necessary to account for the factors contributing to variation between targets, before considering factors within the forecasting process.
+We assessed the partial effect of model structure on the accuracy of Covid-19 forecasts across European countries, using a model-based approach to adjust for the main sources of variation between forecast targets.
+After adjustment no structural approach dominated: estimates were imprecise and none distinguishable from the overall average, whether pooled across epidemiological outcomes or estimated separately for cases and deaths, and substantial variation between individual models remained unexplained.
+Evaluating across multiple forecast targets therefore requires accounting for what varies between targets before considering what varies within the forecasting process.
 
-In this work we had limited ability to demonstrate the model-based approach used here, with a small and biased sample reducing any power to detect true differences in performance between model structures.
-While we used a large dataset of predictions over time, we had a much smaller effective sample size of 48 independent models.
-We relied on an opportunistic cohort of models from voluntary contributions to the European Hub.
-For example, we only observed 3 agent-based models, where all three represented here targeted a single country.
-This meant our results may be biased by unobserved characteristics that differentially affected participation, such as the resource intensity of model development, or the capacity to incorporate domain expertise.
-These factors may drive both the choice of model structure and be more useful as targets for identifying potential for modifying forecaster performance.
-We included the Hub baseline model, which is a deliberately naive statistical model submitting for every country in almost every week.
-It therefore contributes a large share of the statistical group's forecasts, and anchors that group's estimate towards the performance achievable without any epidemiological structure.
-In addition, we may have misclassified the exposure, with very little metadata to classify model structures.
-Independent raters disagreed on the classification of most semi-mechanistic models, and we did not track changes to each model's individual methods over time.
-A more systematic sample of models would support a deeper investigation of factors driving model performance.
-Future work could approach this by combining data from across multiple similar Hub projects and a more detailed assessment of the characteristics of the model cohort.
+Our power to detect true differences between structures was limited by a small and biased sample: a large dataset of predictions, but an effective sample of 48 independent models contributed voluntarily, including only 3 agent-based models, all targeting a single country.
+Results may therefore be biased by unobserved characteristics that affected participation differentially, such as the resource intensity of model development or the capacity to incorporate domain expertise, which plausibly drive the choice of structure and may be more useful targets for improving performance.
+The Hub baseline model, a deliberately naive statistical model submitting for almost every country and week, contributes a large share of the statistical group's forecasts and anchors that group towards the performance achievable without epidemiological structure.
+We may also have misclassified the exposure: metadata were thin, raters disagreed on most semi-mechanistic models, and we did not track changes to each model's methods over time.
+Combining data across multiple Hub projects, with a more detailed assessment of the model cohort, would support a deeper investigation.
 
 <!--- sensitivity
 There are likely many additional interactions between the effects explored here.
@@ -34,43 +24,31 @@ Modelling the interval score with a Gaussian error model and log-link also made 
 Different assumptions within each evaluation method may be useful for different purposes, which suggests developing a more diverse portfolio approach to evaluation methods.
 -->
 
-A model-based evaluation of this kind is extremely flexible, and the substantive result was robust to that flexibility with one exception.
-Varying the choice of covariates, the link function, and the error family left the pooled partial effects of model structure essentially unchanged, and none altered the conclusion that no structure was distinguishable from the average.
-The exception was whether model structure was allowed to interact with the epidemiological outcome.
-Assuming a single effect shared across cases and deaths conceals the possibility that a structure predicts one outcome relatively well and the other relatively poorly, and this was the only specification choice that changed which structures appeared to differ from each other.
-The reason is arithmetic: an effect shared across outcomes is the average of the outcome-specific effects, and because those pointed in opposite directions they averaged close to zero.
-A shared term was therefore near zero by construction, and being penalised, was shrunk to zero exactly.
-Even with the interaction, no individual estimate was distinguishable from the average, and the estimates were themselves sensitive to the error family in size throughout and in direction for two of the five structures.
-A structure-by-target interaction is therefore worth specifying explicitly in evaluations that pool across distinct forecast targets, since assuming it away is not a neutral choice, and where a single specification choice carries this much weight it is better reported as a sensitivity than presented as one fitted model.
+A model-based evaluation of this kind is extremely flexible, and the substantive result held under that flexibility with one exception.
+Varying the covariates, the link function and the error family left the pooled partial effects of structure essentially unchanged.
+The exception was whether structure was allowed to interact with the epidemiological outcome, the only specification choice that changed which structures appeared to differ.
+The reason is arithmetic: an effect shared across outcomes is the average of the outcome-specific effects, and because those pointed in opposite directions they averaged close to zero, so a shared term was near zero by construction and, being penalised, shrunk to zero exactly.
+Even with the interaction no individual estimate was distinguishable from the average, and the estimates were themselves sensitive to the error family, in size throughout and in direction for two of the five structures.
+A structure-by-target interaction is therefore worth specifying explicitly wherever an evaluation pools across distinct targets, and where one specification choice carries this much weight it is better reported as a sensitivity than presented as a single fitted model.
 
-Our findings are consistent with the hypothesis that variation in forecast performance is driven more by differences among features of the forecast target, than by differences among forecasting strategies.
-Previous work has also failed to differentiate performance among model structures, across a variety of outbreaks and epidemic dynamics [@carlson2018; @viboud2018; @reich2019].
-Our results suggest one reason such comparisons may return null findings.
-Structural differences here pointed in opposite directions for the two epidemiological outcomes, so an estimate averaging over outcomes recovered close to zero.
-Agent-based models were the best-performing structure for deaths and the worst for cases, while mechanistic and statistical models reversed less sharply in the other direction.
-A null result from a pooled comparison is therefore consistent with either an absence of structural differences or with differences that offset across targets, and these cannot be distinguished without allowing the effect to vary by target.
+Variation in performance therefore appears driven more by features of the forecast target than by forecasting strategy.
+Previous work has also failed to differentiate structures across a variety of outbreaks and epidemic dynamics [@carlson2018; @viboud2018; @reich2019], and our results suggest one reason such comparisons return null findings.
+Structural differences here pointed in opposite directions for the two outcomes, so an estimate averaging over them recovered close to zero: agent-based models were the best-performing structure for deaths and the worst for cases, while mechanistic and statistical models reversed less sharply in the other direction.
+A pooled null is therefore consistent with either an absence of structural differences or with differences that offset across targets, and the two cannot be distinguished without letting the effect vary by target.
 Our own per-outcome estimates were not individually distinguishable from the average, so this demonstrates the mechanism rather than establishing any particular contrast.
-Some prior moderate evidence suggests that statistical methods gave better performance than more mechanistic approaches [@delvalle2018; @mcgowan2019; @johansson2019].
-On the other hand, bespoke mechanistic models are more easily tailored to a single target which may give a specific performance advantage for such targets [@becker2021; @clapham2021].
-A study of COVID-19 forecasts in Germany and Poland found the two best-performing models were those agent-based models specifically tuned to the national context [@bracher2022].
-In this study, we noted that the more mechanistic models produced a wide range of predictive performance.
-This may reflect a greater range of flexibility to incorporate forecaster experience [@mcgowan2019], and understanding of the data generating processes that lead the forecast target [@wolffram2023]: for example, country-specific policies influencing local epidemic dynamics, or the specific way in which the public data reflected underlying transmission processes.
-While not considered here, we note the widely replicated finding that ensemble combinations across multiple models often produces the most reliable predictive performance (e.g. [@sherratt2023; @cramer2022; @reich2019accuracy]).
+Moderate prior evidence favours statistical over more mechanistic methods [@delvalle2018; @mcgowan2019; @johansson2019], while bespoke mechanistic models are more easily tailored to a single target, which may confer an advantage there [@becker2021; @clapham2021]; in Germany and Poland the two best-performing models were agent-based models tuned to the national context [@bracher2022].
+Here the more mechanistic models spanned a wide range of performance, which may reflect their flexibility to incorporate forecaster experience [@mcgowan2019] and understanding of the processes generating the target [@wolffram2023], such as country-specific policy or the way public data reflected transmission.
+Ensemble combinations across multiple models, not considered here, are widely replicated as giving the most reliable predictive performance [@sherratt2023; @cramer2022; @reich2019accuracy].
 
-Greater investment [@rivers2019] and standardisation [@epiforge2021; @kerr2025] in infectious disease forecasting has created a much broader comparable sample of forecast performance.
-While this may reduce the likelihood of random error, it cannot alone account for bias in comparisons of performance.
-Our analysis represents a middle ground in formally considering bias when designing evaluation studies.
-On one hand, this degree of formality may not be necessary when there are minimal sources of confounding (e.g. a single forecast target), or if the effective sample size is large enough to support a simpler stratification.
-In our setting, however, cross-classifying forecasts by the categorical covariates alone (epidemiological target, horizon, location, trend, variant phase, geographic scope, and model structure) yields over 46,000 strata; the resulting cells are sparse and highly uneven, and incidence, a continuous covariate, cannot be stratified without arbitrary binning.
-On the other hand, a more formal analysis could fully specify the causal estimand with a directed acyclic graph; use this to derive a minimal sufficient adjustment set of covariates, and report a quantitative bias analysis (such as an E-value) for unmeasured confounding.
-A further option we did not pursue is to model participation itself, weighting each forecast by the probability that its model submitted for that target, as propensity score methods do in observational studies [@kahlert2017].
-This would address differential participation directly rather than through the covariates we adjusted for, though it requires the determinants of participation to be measured, which is the metadata gap noted above.
-Further model comparison projects could enable this by encouraging methodological diversity among participants, and ensuring that detailed structured information on model metadata (such as methodology and model revisions) is collated alongside numerical predictions [@pollett2020].
-We would particularly encourage studies that combine information from multiple collaborative efforts to increase sample size of independent models.
-This could enable assessing more detailed components of the forecasting process, such as the amount of local context that modellers use in creating or adapting their forecast model, and similarly whether performance scales with efforts to revise, incorporate domain knowledge, or evaluate model performance.
+Investment [@rivers2019] and standardisation [@epiforge2021; @kerr2025] have created a much broader comparable sample of forecast performance, which reduces random error but cannot by itself account for bias.
+Our analysis is a middle ground in handling that bias formally.
+Less formality may suffice with minimal confounding, such as a single forecast target, or a sample large enough for simple stratification; here, cross-classifying by the categorical covariates alone yields over 46,000 sparse and uneven strata, and incidence cannot be stratified without arbitrary binning.
+More formality would specify the causal estimand with a directed acyclic graph, derive a minimal sufficient adjustment set, and bound unmeasured confounding with a quantitative bias analysis such as an E-value.
+A further option we did not pursue is to weight each forecast by the probability that its model submitted for that target, as propensity score methods do [@kahlert2017], which addresses differential participation directly but requires its determinants to be measured.
+Future comparison projects could enable this by encouraging methodological diversity and collating structured metadata, such as methodology and model revisions, alongside predictions [@pollett2020].
+Combining several collaborative efforts would also increase the sample of independent models, enough to assess finer components of the forecasting process: the local context modellers use, or whether performance scales with effort spent revising and evaluating a model.
 
-Comparisons like the one we have conducted here support a more informed view of the role of modelling in pandemic preparedness and response.
-By accounting for forecast target difficulty, we adjusted for a lower bound of error set by the forecast target itself, and estimated the realistic room for improvement from improving forecasting methods.
-Ranking individual models before and after this adjustment reordered them substantially (Supplement), so the choice of evaluation design is not neutral for how forecasters are compared, even when the score itself is held fixed.
-Our specific results suggest that focusing on improving understanding of the forecast target may yield more gains in forecast performance than advancing specific modelling techniques.
-As the field of infectious disease forecasting develops, we encourage evaluators to consider a wider range of study designs, adopting informal to formal methods where appropriate in order to isolate specific components of forecast performance.
+Accounting for target difficulty adjusts for a lower bound of error set by the target itself, leaving the realistic room for improvement from forecasting methods.
+Ranking individual models before and after that adjustment reordered them substantially (Supplement), so the choice of evaluation design is not neutral for how forecasters are compared, even with the score held fixed.
+Our results suggest that better understanding of the forecast target may yield more than advances in modelling technique.
+As the field develops, we encourage evaluators to draw on a wider range of study designs, matching the formality of the method to the component of performance they want to isolate.

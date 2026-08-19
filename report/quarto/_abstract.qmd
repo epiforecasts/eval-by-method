@@ -1,16 +1,15 @@
 Forecasters predicting infectious disease outbreaks have met with varying success.
-Some of this variation in performance comes from the method used to make a forecast, when different models are better or worse at prediction.
-The rest comes from the target being forecast, when some outbreaks are easier or harder to predict than others.
-However, when many forecasters each predict many different targets, it becomes difficult to trace the impact of these factors shaping performance.
-Here we use a regression model to separate the effect of the forecasting method, from the difficulty of the target, in forecast performance.
+Some of that variation comes from the method used to make a forecast, and some from the difficulty of the target being forecast.
+When many forecasters each predict many different targets, the two are hard to tell apart.
+Here we use a regression model to separate them.
 
-We evaluated forecasts of weekly COVID-19 cases and deaths over two years across 32 European countries, scoring them against observed data with the weighted interval score (WIS).
-We expected a model's structure to shape how well it predicted, so we classified 48 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
-A generalised additive mixed model let us adjust for everything that makes a target easier or harder to predict: the outcome being forecast, its level and trend, the dominant variant, the country, the forecast horizon, and differences between individual models.
+We evaluated forecasts of weekly COVID-19 cases and deaths over two years across 32 European countries, scored against observed data with the weighted interval score (WIS).
+We classified 48 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
+A generalised additive mixed model adjusted for what makes a target easier or harder to predict: the outcome being forecast, its level and trend, the dominant variant, the country, the forecast horizon, and differences between individual models.
 
 Once we accounted for the difficulty of the target, no single type of model performed best.
 That average concealed structures which predicted one outcome relatively well and the other relatively poorly, differences that cancelled when averaged across case and death forecasts.
-Differences in European COVID-19 forecast performance were driven more by which targets were hard to predict than by which modelling approach a forecaster used.
+Performance was driven more by which targets were hard to predict than by which modelling approach a forecaster used.
 
 This approach sits between informal and fully formal ways of handling bias in evaluation studies.
-As infectious disease forecasting grows, we encourage evaluators to choose from a wider range of study designs, matching the formality of the method to the question, so they can isolate the part of performance they actually want to measure.
+As infectious disease forecasting grows, we encourage evaluators to choose from a wider range of study designs, matching the formality of the method to the question, so they can isolate the part of performance they want to measure.
