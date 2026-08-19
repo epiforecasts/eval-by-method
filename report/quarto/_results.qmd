@@ -251,7 +251,8 @@ The widest separation was among `r tolower(mbt_widest)` models, the worst-perfor
 Mechanistic and statistical models reversed less sharply in the other direction, performing marginally better on cases than on deaths.
 An estimate that averages over outcomes therefore recovers close to zero for most structures, whether or not outcome-specific differences exist.
 Human judgement models performed relatively better on cases than on deaths (cases ratio `r mbt_ratio[["Judgement_Cases"]]`; deaths ratio `r mbt_ratio[["Judgement_Deaths"]]`), in the same direction as a previous comparison of human and model-based forecasts in this setting [@bosse2022].
-Every interval spans the grand mean, the widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement), so we treat the direction of these contrasts as the interpretable result rather than their size.
+Every interval spans the grand mean, though the agent-based estimate for death forecasts only marginally so.
+The widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement), so we treat the direction of these contrasts as the interpretable result rather than their size.
 
 ```{r}
 #| label: results-table3
