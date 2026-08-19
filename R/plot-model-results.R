@@ -64,7 +64,12 @@ plot_models <- function(random_effects, scores, x_labels = TRUE,
       # Three keys do not fit on one row at this width, so stack them
       guides(colour = guide_legend(nrow = 1, order = 1),
              shape = guide_legend(nrow = 1, order = 2),
-             lty = guide_legend(nrow = 1, order = 3)) +
+             # a single series needs no adjusted/unadjusted key
+             lty = if (n_distinct(effects$model) > 1) {
+               guide_legend(nrow = 1, order = 3)
+             } else {
+               "none"
+             }) +
       theme(
         legend.position = "bottom",
         legend.box = "vertical",
@@ -230,25 +235,48 @@ summarise_ranks <- function(ranks, threshold = 5) {
   )
 }
 
-plot_model_ranks <- function(ranks) {
-  ranks |>
-    tidyr::pivot_longer(
-      cols = c(rank_unadjusted, rank_adjusted),
-      names_to = "Evaluation", values_to = "Rank"
-    ) |>
-    mutate(
-      Evaluation = factor(
-        Evaluation,
-        levels = c("rank_unadjusted", "rank_adjusted"),
-        labels = c("Unadjusted", "Adjusted")
-      )
-    ) |>
-    ggplot(aes(x = Evaluation, y = Rank, group = label,
-               colour = classification)) +
-    geom_line(alpha = 0.6) +
-    geom_point(size = 1.2) +
-    scale_y_reverse(breaks = scales::breaks_pretty()) +
+plot_model_ranks <- function(ranks, annotate = TRUE) {
+  # Unadjusted against adjusted rank. Distance from the diagonal is how far a
+  # model moved once the difficulty of its targets was accounted for; a
+  # scatter avoids the crossing lines of a slope chart at this many models.
+  rank_summary <- summarise_ranks(ranks)
+  n_models <- rank_summary$n
+
+  p <- ggplot(ranks, aes(x = rank_unadjusted, y = rank_adjusted,
+                         colour = classification)) +
+    geom_abline(slope = 1, intercept = 0, lty = 2, colour = "grey50") +
+    geom_point(size = 1.6, alpha = 0.9) +
+    scale_x_continuous(limits = c(1, n_models),
+                       breaks = c(1, seq(10, n_models, by = 10))) +
+    scale_y_continuous(limits = c(1, n_models),
+                       breaks = c(1, seq(10, n_models, by = 10))) +
     scale_colour_brewer(type = "qual", palette = 2) +
-    labs(x = NULL, y = "Rank (1 = best)", colour = NULL) +
+    coord_equal() +
+    labs(x = "Unadjusted rank (1 = best)", y = "Adjusted rank (1 = best)",
+         colour = NULL) +
     theme(legend.position = "bottom", strip.background = element_blank())
+
+  if (annotate) {
+    p <- p + annotate(
+      "text", x = 1, y = n_models, hjust = 0, vjust = 1, size = 3,
+      colour = "grey30",
+      label = paste0("Spearman ", round(rank_summary$spearman, 2), "\n",
+                     rank_summary$n_moved, " of ", n_models,
+                     " move \u2265 ", rank_summary$threshold, " places")
+    )
+  }
+  return(p)
+}
+
+# Individual-model variation as one figure: adjusted effect per model (A), and
+# what adjustment does to their ranking (B).
+plot_model_variation <- function(effects, scores, ranks = NULL) {
+  if (is.null(ranks)) ranks <- rank_models(effects)
+  effects_adjusted <- filter(effects, model == "Adjusted" | group_var != "Model")
+  # Panel A's legend covers both panels: same structures, same palette
+  (plot_models(effects_adjusted, scores) |
+     (plot_model_ranks(ranks) + guides(colour = "none"))) +
+    patchwork::plot_layout(widths = c(1.6, 1)) +
+    patchwork::plot_annotation(tag_levels = "A") &
+    theme(legend.position = "bottom")
 }

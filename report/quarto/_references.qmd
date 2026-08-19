@@ -3,17 +3,8 @@
 
 ### Supporting Information
 
-**Supplementary Figure 1\.** Eligibility criteria for models contributing case and death forecasts to the European COVID-19 Forecast Hub, March 2021 \- March 2023
-
-**Supplementary Table 1\.** Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed
-
-**Supplementary Figure 2\.** Epidemic trends (cases)
-
-**Supplementary Figure 3\.** Epidemic trends (deaths)
-
-**Supplementary Figure 4\.** Model diagnostics (cases)
-
-**Supplementary Figure 5\.** Model diagnostics (deaths)
+**S1 Text.** Supplementary methods, results and sensitivity analyses.
+Contains: sources of forecast and observed data, and study participation, with the eligibility flow diagram and the characteristics of contributing models; derivation of the epidemic trend and variant phase covariates; the causal diagram and covariate selection, the specification of the structure-by-outcome term, and model fitting with the comparison of error families; partial effects for every covariate, the raw partial effects on the log scale, structure-by-outcome estimates, and the models whose rank changes most under adjustment; and sensitivity analyses covering population normalisation, the natural-scale score, covariate selection, the error family, and structure-by-outcome estimates under a Gaussian family.
 
 ### Data availability
 

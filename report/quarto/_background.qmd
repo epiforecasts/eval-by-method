@@ -43,9 +43,8 @@ digraph processes {
 ')
 ```
 
-Separating the two processes requires a sample in which both vary: many independent models, and many targets of differing difficulty, scored the same way.
-Participatory forecast challenges aim to provide this by collating predictions for pre-specified targets in a standardised format [@pollett2020; @reich2022].
-In practice, though, forecasters choose which targets to enter and when, so the two sources of variation arrive correlated rather than separable.
+Separating the two processes requires variation in both within a single sample, with many independent models predicting many targets of differing difficulty, all scored using the same method.
+Participatory forecast challenges aim to provide this by collating predictions for pre-specified targets in a standardised format [@pollett2020; @reich2022], although forecasters are free to selectively participate across targets and/or over time, so model structure is not independent of target difficulty.
 Aggregated comparisons then conflate the performance of a modelling approach with the difficulty of the targets it was applied to.
 To address this bias, evaluators have borrowed traditional methods from observational research, which can be applied throughout the research workflow and with varying degrees of formality [@mcnamee2005; @kahlert2017].
 These act at three points: how the exposure is measured, how the outcome is defined, and how units are compared.

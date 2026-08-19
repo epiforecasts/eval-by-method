@@ -32,6 +32,10 @@ scores <- scores |>
 results <- readRDS(here("output", "log", "results.rds"))
 ```
 
+This supplement supports "Using model-based evaluation to interpret variation in infectious disease forecast performance".
+It is organised as the analysis runs: how forecasts and observations were sourced and who took part; how the covariates were derived; how the model was specified and fitted; the full set of estimates behind the main-text figures; and the sensitivity analyses.
+Every number and figure here is generated from the same fitted model as the main text, `output/log/results.rds`.
+
 ## Methods
 
 ### Source data and code
@@ -123,6 +127,10 @@ Number of models participating in forecasting 1-week ahead case incidence for ea
 
 ```{r}
 #| label: supplement-participation
+#| fig-cap: >-
+#|   Participation varied by country and over time, and by model structure.
+#|   Number of models forecasting one week ahead for each country and week, by
+#|   model structure and epidemiological outcome.
 
 target_matrix <- scores |>
 distinct(epi_target, Location, forecast_date, Horizon) |>
@@ -199,7 +207,7 @@ model_classifier |>
     kable(caption = "Classification of models by number of raters in total and agreement on model structure")
 ```
 
-#### Epidemic trend identification
+### Epidemic trend identification
 
 We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
 
@@ -242,7 +250,7 @@ scores |>
   ggtitle("Deaths")
 ```
 
-#### Variant phase identification
+### Variant phase identification
 
 Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
 Variant lineages were mapped to six named phases in expected chronological order: Alpha, Delta, Omicron-BA.1, Omicron-BA.2, Omicron-BA.4/5, and Omicron-BQ/XBB.
@@ -314,7 +322,7 @@ The joint model also fits an interaction between model structure and the epidemi
 This is effect modification rather than confounding.
 A causal diagram encodes conditional independence and not effect modification, so the interaction does not appear in the diagram and does not change the adjustment set.
 
-#### Why no separate structure main effect
+### Why no separate structure main effect
 
 The crossed term `s(Method, Epi_target, bs = "re")` is an unconstrained zero-mean effect over all structure-by-outcome cells, so its average across outcomes is what a structure main effect would represent.
 With both terms in the model and both penalised, the division between them follows the relative variance estimates rather than the data: fitted together, `mgcv` gave the main effect 0.001 effective degrees of freedom against 4.9 for the crossed term, and dropping it left AIC, deviance explained and residuals unchanged.
@@ -332,6 +340,9 @@ We noted our outcome of LWIS had a strongly skewed PDF.
 
 ```{r}
 #| label: supplement-fitting-density
+#| fig-cap: >-
+#|   The LWIS is strongly right-skewed, which is what the choice of error family
+#|   has to accommodate. Density of the LWIS across all scored forecasts.
 
 m.data <- results$data
 m.data |>
@@ -422,12 +433,19 @@ We assessed model fit visually plotting observed-versus-fitted values and inspec
 
 ```{r}
 #| label: supplement-diagnostics
+#| fig-cap: >-
+#|   Residual diagnostics for the fitted model: quantile-quantile plot of deviance
+#|   residuals, residuals against the linear predictor, histogram of residuals, and
+#|   observed against fitted values.
 
 knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
 ```
 
 ```{r}
 #| label: supplement-fit-obs
+#| fig-cap: >-
+#|   Fitted values track observed scores across the range, with the spread widening
+#|   at higher scores. Observed against fitted LWIS, by epidemiological outcome.
 
 plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")),
              scale_label = "LWIS")
@@ -449,6 +467,10 @@ Partial effects of individual model structure and individual model are presented
 
 ```{r}
 #| label: supplement-plot-spatial-effects
+#| fig-cap: >-
+#|   Performance varied more between countries than between single- and
+#|   multi-country models. Partial effects (95% CI) for geographic scope and
+#|   country, as a ratio against the grand-mean LWIS.
 
 plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 ```
@@ -457,6 +479,10 @@ plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 
 ```{r}
 #| label: supplement-plot-temporal-effects
+#| fig-cap: >-
+#|   Epidemic trend and variant phase both shifted performance, with increasing
+#|   trends and the Omicron BA.1 phase hardest to predict. Partial effects
+#|   (95% CI) as a ratio against the grand-mean LWIS.
 
 plot_effects(results$effects, variables = c("Trend", "VariantPhase"))
 ```
@@ -533,29 +559,34 @@ results$method_by_target |>
 Individual models can be ranked by their partial effect on the score, either from a univariate model containing only individual model identity, or from the fully adjusted model.
 The first ranks models by observed performance, and so by a combination of the method used and the difficulty of the targets each model chose to forecast.
 The second ranks them by performance after the target-related covariates are held fixed.
+The comparison is reported in the main text (Figure 3B); the table below gives the models that move furthest between the two.
 
 ```{r}
 #| label: supplement-ranks
 
 ranks <- rank_models(results$effects)
 rank_summary <- summarise_ranks(ranks)
-```
 
-Across the `r rank_summary$n` models, the two rankings correlate at a Spearman coefficient of `r round(rank_summary$spearman, 2)`.
-`r rank_summary$n_moved` models move by at least `r rank_summary$threshold` places, and the largest single movement is `r rank_summary$max_change` places.
-
-```{r}
-#| label: fig-model-ranks
-#| fig-cap: >-
-#|   Rank of each individual model by partial effect on the LWIS, before and after
-#|   adjustment for forecast target difficulty. Rank 1 is the best-performing model.
-#|   Unadjusted ranks come from a univariate model containing only individual model
-#|   identity; adjusted ranks come from the fully adjusted model. Colour indicates
-#|   model structure.
-#| fig-height: 5
-#| fig-width: 5
-
-plot_model_ranks(ranks)
+ranks |>
+  mutate(`Rank change` = rank_change) |>
+  arrange(desc(abs(`Rank change`))) |>
+  head(10) |>
+  transmute(
+    Model = label,
+    `Unadjusted rank` = rank_unadjusted,
+    `Adjusted rank` = rank_adjusted,
+    `Rank change` = `Rank change`
+  ) |>
+  kable(
+    caption = paste0(
+      "The ten models whose rank changes most under adjustment, of ",
+      rank_summary$n, " models. A positive change means a model ranks better ",
+      "once the difficulty of its targets is accounted for. Models are ",
+      "anonymised and numbered within model structure."
+    ),
+    align = c("l", "r", "r", "r")
+  ) |>
+  kable_styling(full_width = FALSE)
 ```
 
 --------------------------------------------------------------------------------
@@ -615,7 +646,7 @@ We tried several alternative model specifications.
 
 \* Covariates included in V2 were added based on reviewer feedback.
 
-#### Fitting
+#### Error family and link
 
 We first used a Gaussian distribution with a log link.
 Because LWIS is strongly right-skewed, this left high residual skewness (`r stat_of("family-gaussian-log", "log", "resid_skew")`) and kurtosis (`r stat_of("family-gaussian-log", "log", "resid_kurtosis")`).
