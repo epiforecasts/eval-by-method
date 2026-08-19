@@ -514,7 +514,6 @@ results$method_by_target |>
 Individual models can be ranked by their partial effect on the score, either from a univariate model containing only individual model identity, or from the fully adjusted model.
 The first ranks models by observed performance, and so by a combination of the method used and the difficulty of the targets each model chose to forecast.
 The second ranks them by performance after the target-related covariates are held fixed.
-Comparing the two shows what adjustment for target difficulty does to a league table of models, holding the score itself fixed.
 
 ```{r}
 #| label: supplement-ranks

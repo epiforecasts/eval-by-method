@@ -35,7 +35,7 @@ Different assumptions within each evaluation method may be useful for different 
 -->
 
 A model-based evaluation of this kind is extremely flexible, and the substantive result was robust to that flexibility with one exception.
-Varying the choice of covariates, the link function, and the error family left the partial effects of model structure essentially unchanged, and none altered the conclusion that no structure was distinguishable from the average.
+Varying the choice of covariates, the link function, and the error family left the pooled partial effects of model structure essentially unchanged, and none altered the conclusion that no structure was distinguishable from the average.
 The exception was whether model structure was allowed to interact with the epidemiological outcome.
 Assuming a single effect shared across cases and deaths conceals the possibility that a structure predicts one outcome relatively well and the other relatively poorly, and this was the only specification choice that changed which structures appeared to differ from each other.
 The reason is arithmetic: an effect shared across outcomes is the average of the outcome-specific effects, and because those pointed in opposite directions they averaged close to zero.
