@@ -3,6 +3,45 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Rebuild the Background study-design table from epidemiological principles
+
+`report/quarto/_background.qmd`, `report/quarto/_discussion.qmd`, `report/references.bib`
+
+The Background table listed four study designs for handling forecast target difficulty (restriction, stratification, transformation, matching), but never said it was drawing on observational epidemiology, and used several of the borrowed terms loosely.
+Rebuilt it as a single table of study design elements, with columns for the epidemiological counterpart, its forecast-evaluation form, the threat it addresses, and its limitation.
+The label `tbl-approaches` is unchanged.
+
+Rows follow the sequence of a study rather than a single formality ranking: what enters the sample, how exposure and outcome are measured, how units are compared, how the estimate is computed, and what remains.
+An informal-to-formal ordering does not hold across all nine rows, because complete ascertainment and exposure classification are prerequisites to the comparison rather than weaker forms of it.
+The formality argument now applies only to the elements governing how units are compared — matching, stratification, standardisation, regression adjustment — which is where the Discussion's argument actually sits.
+
+The design-versus-analysis division and the membership of each group are standard, and are now cited [@mcnamee2005; @kahlert2017] rather than asserted.
+Ranking the analysis-phase methods by increasing assumptions is our framing, not a received ordering, and the prose says so.
+Kahlert et al. also name propensity score methods.
+Rather than add a tenth row, these are noted in the Discussion as an option not pursued: weighting each forecast by the probability that its model submitted for that target would address differential participation directly, but requires the determinants of participation to be measured.
+
+The table is restricted to tools available retrospectively, to an evaluator working with forecasts already submitted.
+The protocol-level option — requiring every model to forecast every target, which would remove differential participation by design — moves into the prose, because it is available to hub organisers rather than to anyone evaluating afterwards.
+The prose also states that in this field the design-versus-analysis distinction largely collapses, since even restriction and matching are applied retrospectively here.
+
+Added an unadjusted comparison row at the head of the comparison block, so the sequence runs from no control at all through to full adjustment.
+It carries no threat addressed; its limitation is that it conflates the method used with the difficulty of the targets each model chose to forecast, which is the comparison the rest of the table exists to improve on.
+
+Two row labels changed in `report/quarto/_background.qmd`.
+"Classification of exposure" became "Measurement of exposure", and "Classification of outcome" became "Scale of outcome".
+The second row covers per-100,000 normalisation and the log transform, which rescale the outcome rather than categorise it, so "classification" described the wrong operation.
+
+Corrections to the epidemiological terms.
+Baseline-relative skill was called an active-comparator design; it is indirect standardisation, the same construction as a standardised mortality ratio, which also explains why the choice of baseline determines the result [@stapper].
+"Transformation" welded two operations together: per-100,000 normalisation and the log transform are now one row on the shared principle that both express the outcome so it does not depend on a nuisance quantity, rates rather than counts and ratios rather than differences.
+That row states plainly that this removes the dependence by redefining what is measured, not by adjusting for it.
+
+Three strategies added that the old table omitted: complete ascertainment at the protocol stage, classification of the exposure blind to the outcome, and quantitative bias analysis.
+The first two address selection and information bias, which the old table did not cover at all despite the Background naming both as problems.
+The table now ends with the approach used here and with what a fully formal analysis would add, matching the informal-to-formal argument the Discussion makes.
+
+New bibliography entries `vanderweele2017` (E-value) and `hernan2020` (causal inference) for the bias-analysis row.
+Added `bosse2023` to the outcome-measure row, the substantive reference for the log transform and already cited for it in the Methods, and `cramer2022` to the stratification row.
 ## Unreleased — Drop the 1e-7 constant added to every score (#166 review)
 
 `R/process-data.R`, `R/sensitivity/check-family.R`, `report/quarto/_methods.qmd`, `report/supplement.qmd`
