@@ -3,6 +3,19 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Cut the manuscript prose by around a quarter (#100)
+
+`report/quarto/_abstract.qmd`, `_background.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`
+
+Rewrote the prose across all five sections, keeping every claim, number, citation and inline computation.
+Prose word counts: background 1126 to 631, results 1527 to 1064, discussion 1676 to 1256, methods 1426 to 1054, abstract 316 to 254, 29% overall.
+
+Cuts fall on sentences the tables and figures already carry, restatements of the preceding sentence, and signposting.
+The bold pseudo-headers in Methods and Results become real headers, which also serves reviewer comment 1.1 asking for subheadings to guide readers.
+The aliasing argument for fitting no structure main effect moves from Methods to the Supplement, which now states the effective degrees of freedom and the centring result in full.
+
+Also corrects the Results sensitivity paragraph, which still said a Gaussian family preserved the direction of every structure-by-outcome contrast.
+
 ## Unreleased — Refit on the response without the constant
 
 `output/log/`, `output/natural/`, `output/diagnostics/`
