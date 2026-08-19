@@ -16,6 +16,26 @@ The correct target is `quarto render index.qmd`, which renders the manuscript al
 No source file changes: switching the includes to paths relative to `manuscript.qmd` does not help, because Quarto resolves relative includes against the top-level document rather than the file containing the directive, which then breaks the site build.
 
 Also corrected stale paths in the same docs: `report/quarto/supplement/_supplement.qmd` no longer exists (the supplement is `report/supplement.qmd`, self-contained), and `manuscript.qmd` no longer includes the supplement.
+## Unreleased — Include the Hub baseline model; archive fit diagnostics per specification
+
+`R/analysis-model.R`, `R/plot-model-flow.R`, `R/sensitivity/check-autocorrelation.R`, `R/sensitivity/check-link-robustness.R`, `report/quarto/_abstract.qmd`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/quarto/_discussion.qmd`, `report/supplement.qmd`, `CLAUDE.md`
+
+`EuroCOVIDhub-baseline` is now included in the analysis; only `EuroCOVIDhub-ensemble` remains excluded.
+The two had been dropped together by a single `grepl("EuroCOVIDhub-")` filter, but they are not equivalent: the ensemble is a function of the contributed forecasts and would double-count them, whereas the baseline is an independently specified statistical model and belongs in the sample on the same terms as any other participant.
+Narrowed the filter at every remaining site, and relabelled the flow-diagram exclusion step from "Not created by Hub" to "Not the Hub ensemble".
+
+The sample grows from 47 to 48 models across 38 teams, with the statistical structure group going from 12 to 13 models.
+Because the baseline submitted for every country in almost every week, the statistical group's share of forecasts rises to roughly 40%, so the previous claim that mechanistic, semi-mechanistic and statistical models each contributed about a third no longer holds and has been replaced.
+Model counts, rater-disagreement counts, and per-structure forecast shares in the results text are now computed inline from the data rather than hardcoded, so they track future changes to the sample.
+Added a sentence to the Discussion noting that the baseline anchors the statistical group towards the performance achievable without epidemiological structure.
+
+`model_wis()` gains a `spec_label` argument. When supplied it writes an archived copy of the `appraise()` panel plus a row of fit statistics (family, link, formula, n, AIC, deviance explained, deviance-residual skew and kurtosis) to `output/diagnostics/`, upserted on (`spec_label`, `scale`).
+The supplement still reads the stable `output/<scale>/plots/check_joint.png` path.
+This exists so the model specifications planned next — a skew-tolerant error family, and a method-by-target interaction — can be compared against this fit rather than silently overwriting it.
+
+Corrected `CLAUDE.md`, which pointed at `report/quarto/supplement/_supplement.qmd` and described root render wrappers that do not exist; the supplement is at `report/supplement.qmd` and `_quarto.yml` renders it directly.
+
+Note: `R/sensitivity/check-autocorrelation.R` sources `R/sensitivity/model-logresp.R`, deleted in the change below, so it does not currently run. Its filter was narrowed for consistency but the script needs rebasing onto another residual source before it is usable again.
 
 ## Unreleased — Reorganise supplement; drop double-log and log-response sensitivity arms
 

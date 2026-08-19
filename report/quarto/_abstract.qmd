@@ -5,7 +5,7 @@ However, when many forecasters each predict many different targets, it becomes d
 Here we use a regression model to separate the effect of the forecasting method, from the difficulty of the target, in forecast performance.
 
 We evaluated forecasts of weekly COVID-19 cases and deaths over two years across 32 European countries, scoring them against observed data with the Weighted Interval Score (WIS).
-We expected a model's structure to shape how well it predicted, so we classified 47 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
+We expected a model's structure to shape how well it predicted, so we classified 48 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
 A generalised additive mixed model let us adjust for everything that makes a target easier or harder to predict: the outcome being forecast, its level and trend, the dominant variant, the country, the forecast horizon, and differences between individual models.
 
 Once we accounted for the difficulty of the target, no single type of model performed best.

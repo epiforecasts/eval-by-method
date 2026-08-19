@@ -76,5 +76,8 @@ README_files/
 # supplement embeds those, so they stay tracked.
 /output/**/plots/*.pdf
 
+# Stray default device output from non-interactive Rscript runs
+/Rplots.pdf
+
 # Tool caches
 .panache-cache/

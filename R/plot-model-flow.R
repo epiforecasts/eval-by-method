@@ -53,8 +53,8 @@ create_model_flow <- function() {
   models3 <- distinct(fc_clean, target_variable, model) |>
     mutate(inc_target = TRUE)
 
-  # (4) Exclude Hub-created models
-  fc_clean <- filter(fc_clean, !grepl("EuroCOVIDhub-", model))
+  # (4) Exclude Hub-created ensemble
+  fc_clean <- filter(fc_clean, !grepl("EuroCOVIDhub-ensemble", model))
   models4 <- distinct(fc_clean, target_variable, model) |>
     mutate(inc_xhub = TRUE)
 
@@ -79,7 +79,7 @@ create_model_flow <- function() {
                            label = "Provided 1:4 week predictions",
                            show_exc = TRUE) |>
                  fc_filter(inc_xhub,
-                           label = "Not created by Hub",
+                           label = "Not the Hub ensemble",
                            show_exc = TRUE) |>
                  fc_draw()
   )

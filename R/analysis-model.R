@@ -36,12 +36,58 @@ m.formula_joint <- wis ~
   s(Horizon, by = Model, k = 3, bs = "sz") +
   s(Model, bs = "re")
 
+# Archive a fit's diagnostics under a stable label so successive model
+# specifications can be compared rather than overwriting each other.
+# Appends to output/diagnostics/fit-summary.csv, upserting on
+# (spec_label, scale) so re-running a spec replaces its own row.
+archive_diagnostics <- function(fit, spec_label, scoring_scale, plot,
+                                dir = here("output", "diagnostics")) {
+  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+  ggsave(file.path(dir, paste0(spec_label, "_", scoring_scale, "_check.png")),
+         plot, dpi = 300)
+
+  # Deviance residuals put every family on a comparable footing; the raw
+  # response residuals of a log-link Gaussian would confound family choice
+  # with the skew of WIS itself.
+  r <- residuals(fit, type = "deviance")
+  r <- r[is.finite(r)]
+  centred <- r - mean(r)
+  # Population (biased) moment estimates: with n ~ 5e5 the small-sample
+  # correction is negligible and this keeps the values comparable to the
+  # skewness already quoted in the supplement.
+  m2 <- mean(centred^2)
+  row <- tibble::tibble(
+    spec_label = spec_label,
+    scale = scoring_scale,
+    family = fit$family$family,
+    link = fit$family$link,
+    formula = paste(deparse(formula(fit)), collapse = " "),
+    n = length(fit$y),
+    aic = AIC(fit),
+    dev_expl = summary(fit)$dev.expl,
+    resid_skew = mean(centred^3) / m2^(3 / 2),
+    resid_kurtosis = mean(centred^4) / m2^2,
+    fitted_on = as.character(Sys.Date())
+  )
+
+  path <- file.path(dir, "fit-summary.csv")
+  if (file.exists(path)) {
+    row <- read_csv(path, show_col_types = FALSE) |>
+      # coerce so a previously-written column type can't block the bind
+      mutate(across(everything(), as.character)) |>
+      filter(!(spec_label == row$spec_label & scale == row$scale)) |>
+      bind_rows(mutate(row, across(everything(), as.character)))
+  }
+  write_csv(row, path)
+  invisible(row)
+}
+
 model_wis <- function(scoring_scale = "log", family_link = "log",
- output_dir = "output") {
+ output_dir = "output", spec_label = NULL) {
   # --- Data handling ---
   m.data <- process_data(scoring_scale = scoring_scale)
   m.data <- m.data |>
-    filter(!grepl("EuroCOVIDhub-", Model)) |>
+    filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly (bam would drop these silently)
     mutate(Epi_target = as.factor(epi_target))
 
@@ -154,4 +200,11 @@ model_wis <- function(scoring_scale = "log", family_link = "log",
   # to ~20MB per scale. PNG keeps it under 1MB with no loss of legibility.
   p <- appraise(m.fits_joint)
   ggsave(here(output_dir, "plots", "check_joint.png"), p, dpi = 300)
+
+  # Keep a labelled copy plus summary statistics, so this fit stays comparable
+  # against the specifications tried in later work. The path above is the one
+  # the supplement reads, so it deliberately stays stable.
+  if (!is.null(spec_label)) {
+    archive_diagnostics(m.fits_joint, spec_label, scoring_scale, p)
+  }
 }
