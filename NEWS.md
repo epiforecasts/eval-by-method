@@ -3,6 +3,19 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Refit on the response without the constant
+
+`output/log/`, `output/natural/`, `output/diagnostics/`
+
+Both scales refitted under `spec_label = "primary-interaction"` after the 1e-7 constant was dropped.
+
+The Tweedie power parameter falls from 1.99, the upper limit `mgcv` permits, to 1.93, so the fitted family is no longer pinned at the boundary.
+Estimates are otherwise stable.
+Structure-by-outcome ratios move by at most 0.01: agent-based 1.10 on cases and 0.87 on deaths, judgement 0.96 and 0.99, and the pooled per-structure estimates span 0.98 to 1.05.
+Covariate effects are unchanged in direction and size: stable trends most predictable, increasing trends least, Alpha and Delta phases better and Omicron BA.1 worst, deaths scoring lower than cases.
+
+The agent-based estimate for death forecasts now sits with its upper bound at the grand mean, which the Results text notes.
+
 ## Unreleased — Compare model rankings before and after adjustment (#168)
 
 `R/plot-model-results.R`, `report/supplement.qmd`
