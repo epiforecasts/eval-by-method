@@ -233,6 +233,37 @@ plot_error_vs_obs <- function(scores_natural) {
     theme(legend.position = "bottom")
 }
 
+# Table: structure effects by epidemiological target ---------
+# One row per model structure, one column per target, from the
+# s(Method, Epi_target) cells.
+print_table_method_target <- function(method_by_target) {
+  method_by_target |>
+    mutate(
+      ratio = paste0(
+        round(exp(value), 2),
+        " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"
+      )
+    ) |>
+    select(Method, Epi_target, ratio) |>
+    pivot_wider(names_from = Epi_target, values_from = ratio) |>
+    arrange(Method) |>
+    rename("Model structure" = Method) |>
+    kable(
+      caption = paste0(
+        "Partial effects of model structure on forecast performance ",
+        "(weighted interval score), estimated separately for case and death ",
+        "forecasts within a single joint model. ",
+        "Effects are deviations from the grand mean under a sum-to-zero ",
+        "constraint, expressed as the exponentiated partial effect: a ",
+        "multiplicative ratio relative to the grand-mean WIS. ",
+        "A ratio below 1 indicates better-than-average performance. ",
+        "95% CI = 95% confidence interval."
+      ),
+      align = c("l", "r", "r")
+    ) |>
+    kable_styling(full_width = FALSE)
+}
+
 # Table 2: unadjusted vs adjusted effects --------------------
 print_table2 <- function(effects, show_ratio = TRUE) {
   effects |>

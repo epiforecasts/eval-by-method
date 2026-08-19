@@ -22,13 +22,37 @@ library(gammit)
 library(gratia)
 library(ggplot2)
 source(here("R", "process-data.R"))
+source(here("R", "utils-effects.R"))
 
-# Shared joint-model RHS, reused by model_wis() and the log-response
-# sensitivity arm (model_wis_logresp() in R/sensitivity/model-logresp.R) so
-# both fit an identical specification.
+# Shared joint-model RHS, reused by the sensitivity scripts so they fit an
+# identical specification.
+#
+# s(Method, Epi_target) lets each model structure differ in how well it predicts
+# cases versus deaths, rather than assuming one shared effect across both. Bosse
+# et al. (2022) found human-judgement models did better on cases and worse on
+# deaths, which a pooled structure effect cannot represent.
+#
+# There is deliberately no separate s(Method) term. mgcv's bs = "re" interaction
+# is an unconstrained zero-mean prior over all Method x Epi_target cells, so its
+# target-average is exactly what a Method main effect would capture; with both
+# terms penalised, the split between them is decided by the relative variance
+# estimates rather than the data. Fitted together, mgcv gave s(Method) 0.001 edf
+# against 4.9 for the interaction. The pooled per-structure effect is recovered
+# afterwards as a contrast across cells (method_pooled_effects()).
+#
+# Epi_target stays as a fixed effect for the mirror-image reason. The same
+# aliasing applies -- the within-target average of the cells is what a target
+# main effect represents -- but only one of the two terms is penalised, so the
+# unpenalised fixed effect takes the component common to all structures and the
+# cells keep only departures from it. That separation holds in the fitted model:
+# the cells average to zero within each target to ~1e-13, so the entire
+# deaths-versus-cases difference sits in the fixed coefficient (-1.03) and none
+# leaks into the structure estimates (largest cell 0.12). Dropping it would force
+# a large effect through a penalised term; making it random would try to estimate
+# a variance from two levels.
 m.formula_joint <- wis ~
   Epi_target +
-  s(Method, bs = "re") +
+  s(Method, Epi_target, bs = "re") +
   s(CountryTargets, bs = "re") +
   s(Incidence) +
   s(Trend, bs = "re") +
@@ -169,17 +193,28 @@ model_wis <- function(
   random_effects_uni <- m.fits_uni[
     !grepl("horizon|incidence|epi_target", names(m.fits_uni))
   ] |>
-    map(extract_ranef) |>
+    map(extract_ranef_terms) |>
     list_rbind() |>
     mutate(model = "Unadjusted") |>
     bind_rows(extract_target_effect(m.fits_uni$epi_target, "Unadjusted"))
 
-  random_effects_joint <- extract_ranef(m.fits_joint) |>
+  # Drop the raw interaction cells from `effects`: they are reported per target
+  # via `method_by_target`, and the pooled structure effect below replaces what
+  # a s(Method) main effect used to contribute here.
+  random_effects_joint <- extract_ranef_terms(m.fits_joint) |>
+    filter(group_var != "Method:Epi_target") |>
+    bind_rows(method_pooled_effects(m.fits_joint)) |>
     mutate(model = "Adjusted") |>
     bind_rows(extract_target_effect(m.fits_joint, "Adjusted"))
 
   random_effects <- random_effects_joint |>
     bind_rows(random_effects_uni)
+
+  # Per-target structure effects, one row per Method x Epi_target cell. Kept out
+  # of `effects` so tables that print every group_var do not double-count them
+  # against the pooled effect derived from the same cells.
+  method_by_target <- method_target_effects(m.fits_joint) |>
+    mutate(model = "Adjusted")
 
   # Extract model checks
   checks <- k.check(m.fits_joint)
@@ -187,6 +222,7 @@ model_wis <- function(
   results <- list(
     data = m.data,
     effects = random_effects,
+    method_by_target = method_by_target,
     checks = checks,
     formula = formula
   )

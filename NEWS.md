@@ -17,6 +17,52 @@ The constant parked those forecasts at log(1e-7) = -16.1, around 11 log-units be
 The `offset` flag in that script now records whether an arm adds the constant, the reverse of its earlier meaning; a `tweedie-offset` arm replaces `tweedie-nooffset` and gives the comparison against the primary specification.
 
 All model outputs were refitted on the new response.
+## Unreleased — Model structure crossed with epidemiological outcome (#158); DAG update (#162)
+
+`R/analysis-model.R`, `R/utils-effects.R`, `R/plot-model-results.R`, `R/analysis-descriptive.R`, `R/dag-check.R`, `report/quarto/_methods.qmd`, `report/quarto/_results.qmd`, `report/supplement.qmd`
+
+The model assumed each structure predicted cases and deaths equally well.
+Replaced `s(Method, bs = "re")` with `s(Method, Epi_target, bs = "re")`, so a structure may predict one outcome relatively better than the other.
+
+There is deliberately no separate structure main effect alongside it.
+mgcv's `bs = "re"` interaction is an unconstrained zero-mean prior over all cells, so its average across outcomes is exactly what a main effect represents; with both penalised, the split between them follows the relative variance estimates rather than the data.
+Fitted together, mgcv gave the main effect 0.001 effective degrees of freedom against 4.9 for the crossed term, and dropping it changed AIC, deviance explained and residuals by nothing on either scale.
+The pooled per-structure effect is instead recovered as a contrast averaging a structure's two cells, which accounts for the covariance between them.
+
+This materially improves what can be reported.
+The old main effect was shrunk flat to 1.000 (0.994-1.007) for every structure; the pooled contrast gives real estimates with honest intervals, from 0.977 (0.878-1.088) for judgement models to 1.046 (0.946-1.155) for semi-mechanistic.
+Adding the crossed term improves AIC by 93 on the log scale and by 16,724 on the natural scale, where it also reduces residual skew from 4.60 to 4.38.
+
+Human judgement models perform relatively better on cases than deaths (0.96 against 0.99), the same direction as Bosse et al. (2022).
+The widest separation is among agent-based models (cases 1.09, deaths 0.88), from only three models, and every interval spans the grand mean.
+The direction of these contrasts is stable across error families but the magnitude is not: under a Gaussian family the judgement separation is larger and the agent-based separation vanishes.
+Recorded as a supplementary sensitivity; including or excluding the Hub baseline makes no material difference.
+
+New `R/utils-effects.R` replaces `gammit::extract_ranef()`, which cannot handle a factor-by-factor random effect.
+It reads only the last variable name of an interaction and looks up that factor's levels, so it collects 5 labels for a 10-coefficient term and fails, taking down extraction for every term in the fit.
+The replacement rebuilds each smooth's design matrix from the formula mgcv stores on the smooth object, mapping labels to coefficients exactly without assuming an ordering.
+Validated against gammit on a no-interaction fit: identical on every column to the last decimal.
+
+Brought the central interpretive point out through the text, in the abstract, results, methods and discussion.
+Structural differences pointed in opposite directions for cases and deaths, so any term averaging over outcomes recovers close to zero: cell effects of ±0.04-0.12 average to ±0.001-0.045.
+This explains both why a shared structure effect was always flat, in every specification tried, and why the crossed term carries signal.
+In the discussion it is offered as a mechanism for null findings in earlier structure comparisons: a pooled null is consistent with either an absence of differences or with differences that offset across targets, and the two cannot be separated without letting the effect vary by target.
+The text is explicit that this demonstrates the mechanism rather than establishing any particular contrast, since no per-outcome interval excludes the grand mean.
+Confirmed the signal was not previously absorbed by `s(Model)`: individual-model effects are essentially unchanged by adding the interaction (correlation 0.995, largest change 0.049), and a per-model effect is constant across outcomes so cannot represent a within-model case/death difference for the 34 of 48 models forecasting both.
+
+Documented why the epidemiological target stays a fixed effect.
+The same aliasing applies as for the structure main effect, but only one of the two terms is penalised, so the unpenalised fixed effect takes the component common to all structures and the crossed term keeps only departures from it.
+In the fitted model the crossed effects average to zero within each target to ~1e-13, so the whole deaths-versus-cases difference sits in the fixed coefficient (-1.03) and none leaks into the structure estimates (largest cell 0.12).
+This is emergent rather than imposed: the smooth retains all ten coefficients, so no centring constraint was applied.
+
+Discussion: corrected the claim that adjusted estimates "were no different from the overall average", which described a term since shown to be shrunk to nothing; they are imprecise rather than identical to the mean.
+Added a paragraph identifying the structure-by-outcome interaction as the one specification choice that materially changed the results, against a model-based approach that is otherwise highly flexible and whose substantive conclusion proved robust to covariate selection, link function and error family.
+Added a main-text pointer to the Gaussian sensitivity, with the detail kept in the supplement.
+
+DAG (#162): the epidemiological outcome is added as a confounder rather than merely a covariate, since forecasters chose which outcomes to submit for and that choice is associated with structure.
+Querying the updated diagram returns our exact covariate set as a minimal sufficient adjustment set for the direct effect, and returns no valid set for the total effect, because latent modeller strategy cannot be blocked.
+This formally supports reporting a partial, direct association rather than a total effect.
+The crossed term is effect modification, which a causal diagram does not encode, so it does not alter the adjustment set.
 
 ## Unreleased — Correct the documented manuscript render command
 
