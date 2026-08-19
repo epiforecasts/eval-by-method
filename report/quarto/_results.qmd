@@ -150,7 +150,7 @@ However, model structure differed substantially between geographic targets and a
 #| label: fig-error-vs-obs
 #| fig-cap: >-
 #|   Forecast error scales with the magnitude of the observed outcome.
-#|   Weighted interval score (WIS) is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
+#|   Weighted interval score (WIS) on the natural scale is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
 #|   Faint points show individual forecasts; lines show a generalised additive model smooth fit per model-structure group, with shaded 95% confidence intervals.
 #|   Both axes are shown on the log scale; lower WIS indicates better performance.
 #|   Colour: model structure.
@@ -173,7 +173,7 @@ table_effects <- results$effects |>
   mutate(value_ci = paste0(round(value, 2),
                            " (", round(lower_2.5, 2), "-",
                            upper_97.5_text, ")"),
-         # exponentiated: multiplicative ratio vs grand-mean WIS (1 = average)
+         # exponentiated: multiplicative ratio vs grand-mean LWIS (1 = average)
          ratio_ci = paste0(round(exp(value), 2),
                            " (", round(exp(lower_2.5), 2), "-",
                            round(exp(upper_97.5), 2), ")"),
@@ -191,20 +191,18 @@ effects_comp <- results$effects |>
 **Effect of model structure**
 
 We fitted a generalised additive mixed model to give adjusted estimates of the partial effect of model structure, while controlling for varying forecaster target selection and epidemic dynamics between targets.
-In this structure, partial effects are deviations from the grand mean WIS under a sum-to-zero constraint, so a negative value indicates better-than-average performance.
-The WIS was highly right-skewed, and we modelled it with a Tweedie family and a log link to account for this (diagnostics in Supplementary Figures S2-S3).
-The log link models the score multiplicatively, and the Tweedie family accommodates the skew directly rather than leaving it in the residuals.
+Partial effects are deviations from the grand mean LWIS under a sum-to-zero constraint, so a negative value indicates better-than-average performance.
+The LWIS was highly right-skewed, and we modelled it with a Tweedie family and a log link: the log link models the score multiplicatively, and the Tweedie family accommodates the skew rather than leaving it in the residuals (diagnostics in Supplementary Figures S2-S3).
 We compared this against a Gaussian and a Gamma family: the Gaussian left strongly skewed residuals, and the Gamma fitted comparably to the Tweedie but did not converge (Supplement).
-Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean WIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, a WIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
+Exponentiating a partial effect gives a multiplicative ratio relative to the grand-mean LWIS, where 1 indicates average performance (e.g. a partial effect of −0.1 corresponds to a ratio of `r round(exp(-0.1), 2)`, an LWIS approximately `r round((1 - exp(-0.1)) * 100, digits=0)`% lower than average).
 We report the exponentiated ratio (with 95% confidence intervals) in the main text (Table 2), with the raw partial effects on the log scale in the Supplement.
 
 We allowed each model structure to differ in how well it predicted cases and deaths, rather than assuming a single effect shared across both outcomes.
-Pooling across outcomes, no single structural approach dominated.
-Adjusted point estimates clustered around the grand mean and confidence intervals overlapped throughout (Table 2).
-This pooled estimate is the average of a structure's effects on case and death forecasts, so a value near the grand mean can arise either because a structure performed averagely on both outcomes or because it performed relatively well on one and relatively poorly on the other.
+Pooling across outcomes, no single structural approach dominated (Table 2).
+A pooled estimate is the average of a structure's effects on case and death forecasts, so a value near the grand mean can arise either because a structure performed averagely on both outcomes or because it performed relatively well on one and relatively poorly on the other.
 We therefore also estimated the effect of structure separately for each outcome.
-The largest shifts were among agent-based and human judgement models, which appeared better than average in unadjusted estimates but were close to the grand mean after adjustment.
-We noted that adjustment consistently shrank the standard error compared to univariate estimates, narrowing the intervals around these overlapping estimates (@fig-plot-coeffs).
+The largest shifts under adjustment were among agent-based and human judgement models, which appeared better than average in unadjusted estimates.
+Adjustment also shrank the standard error compared to univariate estimates (@fig-plot-coeffs).
 
 ```{r}
 #| label: results-table2
@@ -215,11 +213,11 @@ print_table2(results$effects)
 #| label: fig-plot-coeffs
 #| fig-cap: >-
 #|   Performance ratio (95% CI) on the weighted interval score from model structure, before and after adjustment for confounding.
-#|   The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS; a ratio below 1 indicates better-than-average performance.
 #|   Adjusted effects account for epidemiological target (cases or deaths), forecast horizon, epidemic trend, dominant variant phase, geographic location, and individual model variation.
 #|   Filled symbols: adjusted; open symbols: unadjusted.
 #|   Ratios and 95% confidence intervals estimated from a generalised additive mixed model.
-#|   WIS = weighted interval score.
+#|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 3
 #| fig-width: 5
 
@@ -247,14 +245,13 @@ mbt_diff <- vapply(
 mbt_widest <- names(which.max(abs(mbt_diff)))
 ```
 
-Separating the two, differences between structures were larger within an outcome than the pooled estimates suggested, but no structure-by-outcome estimate was distinguishable from the grand mean (Table 3, @fig-method-target).
+Separated by outcome, differences between structures were larger than the pooled estimates suggested, though no structure-by-outcome estimate was distinguishable from the grand mean (Table 3, @fig-method-target).
 Structures differed in the direction of their outcome-specific effects, and these largely offset when averaged.
-The widest separation was among `r tolower(mbt_widest)` models, the worst-performing structure for case forecasts and the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), yet whose pooled estimate sits within 2% of the grand mean.
+The widest separation was among `r tolower(mbt_widest)` models, the worst-performing structure for case forecasts and the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
 Mechanistic and statistical models reversed less sharply in the other direction, performing marginally better on cases than on deaths.
 An estimate that averages over outcomes therefore recovers close to zero for most structures, whether or not outcome-specific differences exist.
 Human judgement models performed relatively better on cases than on deaths (cases ratio `r mbt_ratio[["Judgement_Cases"]]`; deaths ratio `r mbt_ratio[["Judgement_Deaths"]]`), in the same direction as a previous comparison of human and model-based forecasts in this setting [@bosse2022].
-We interpret these contrasts cautiously.
-Every interval spans the grand mean, the widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement).
+Every interval spans the grand mean, the widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement), so we treat the direction of these contrasts as the interpretable result rather than their size.
 
 ```{r}
 #| label: results-table3
@@ -266,10 +263,10 @@ print_table_method_target(results$method_by_target)
 #| label: fig-method-target
 #| fig-cap: >-
 #|   Performance ratio (95% CI) by model structure, estimated separately for case and death forecasts.
-#|   The ratio is the exponentiated partial effect relative to the grand-mean WIS; a ratio below 1 indicates better-than-average performance.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS; a ratio below 1 indicates better-than-average performance.
 #|   Estimates come from a single joint model in which model structure is crossed with the epidemiological outcome.
 #|   Colour and shape: epidemiological outcome.
-#|   WIS = weighted interval score.
+#|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 3
 #| fig-width: 6
 
@@ -286,7 +283,7 @@ Forecasting was more difficult during increasing trends (ratio `r table_effects[
 Predictability also varied between phases of variant dominance.
 We estimated better predictive performance during the earlier phases dominated by the Alpha and Delta variants (Alpha ratio: `r table_effects["Adjusted_Alpha","ratio_ci"]`; Delta ratio: `r table_effects["Adjusted_Delta","ratio_ci"]`).
 We estimated worse performance after Omicron variants became dominant (with worse performance in the first Omicron BA.1 variant, ratio: `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`).
-Death forecasts achieved a lower WIS on the log-incidence scale than case forecasts, as a fixed contrast holding all other features constant (ratio: `r table_effects["Adjusted_Deaths","ratio_ci"]`).
+Death forecasts achieved a lower LWIS than case forecasts, as a fixed contrast holding all other features constant (ratio: `r table_effects["Adjusted_Deaths","ratio_ci"]`).
 
 We identified residual confounding, with substantial unexplained variation between individual model performance.
 @fig-plot-models shows the adjusted partial effect for each individual model.
@@ -297,7 +294,7 @@ This indicated that the variables we selected to account for variation between f
 #| label: fig-plot-models
 #| fig-cap: >-
 #|   Estimated performance ratio (95% CI) by individual model.
-#|   The ratio is the exponentiated partial effect relative to the grand-mean WIS, where a ratio below 1 indicates better-than-average performance.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS, where a ratio below 1 indicates better-than-average performance.
 #|   Adjusted performance after accounting for model structure, geographic scope, forecast horizon, epidemic trend, variant phase, and location.
 #|   Colour: model structure.
 #|   Shape: geographic scope (circle = single-country, triangle = multi-country).
