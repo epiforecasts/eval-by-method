@@ -251,7 +251,8 @@ The widest separation was among `r tolower(mbt_widest)` models, the worst-perfor
 Mechanistic and statistical models reversed less sharply in the other direction, performing marginally better on cases than on deaths.
 An estimate that averages over outcomes therefore recovers close to zero for most structures, whether or not outcome-specific differences exist.
 Human judgement models performed relatively better on cases than on deaths (cases ratio `r mbt_ratio[["Judgement_Cases"]]`; deaths ratio `r mbt_ratio[["Judgement_Deaths"]]`), in the same direction as a previous comparison of human and model-based forecasts in this setting [@bosse2022].
-Every interval spans the grand mean, the widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement), so we treat the direction of these contrasts as the interpretable result rather than their size.
+Every interval spans the grand mean, though the agent-based estimate for death forecasts only marginally so.
+The widest separation rests on only three contributing models, and the magnitude of these differences depends on the choice of error family (Supplement), so we treat the direction of these contrasts as the interpretable result rather than their size.
 
 ```{r}
 #| label: results-table3
@@ -289,6 +290,18 @@ We identified residual confounding, with substantial unexplained variation betwe
 @fig-plot-models shows the adjusted partial effect for each individual model.
 This can be interpreted as variation in model-specific performance after accounting for all other factors considered here.
 This indicated that the variables we selected to account for variation between forecasters (i.e. model structure; one or multiple geographic targets) were not sufficient to fully explain differences in performance.
+
+```{r}
+#| label: results-ranks
+#| include: false
+
+ranks <- rank_models(results$effects)
+rank_summary <- summarise_ranks(ranks)
+```
+
+Adjustment nonetheless changed which models appeared to perform best.
+Ranking models by their partial effect before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`, with `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places (Supplement).
+Observed performance therefore reflects the difficulty of the targets a model chose to forecast as much as the model itself.
 
 ```{r}
 #| label: fig-plot-models

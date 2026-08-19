@@ -71,5 +71,6 @@ This could enable assessing more detailed components of the forecasting process,
 
 Comparisons like the one we have conducted here support a more informed view of the role of modelling in pandemic preparedness and response.
 By accounting for forecast target difficulty, we adjusted for a lower bound of error set by the forecast target itself, and estimated the realistic room for improvement from improving forecasting methods.
+Ranking individual models before and after this adjustment reordered them substantially (Supplement), so the choice of evaluation design is not neutral for how forecasters are compared, even when the score itself is held fixed.
 Our specific results suggest that focusing on improving understanding of the forecast target may yield more gains in forecast performance than advancing specific modelling techniques.
 As the field of infectious disease forecasting develops, we encourage evaluators to consider a wider range of study designs, adopting informal to formal methods where appropriate in order to isolate specific components of forecast performance.
