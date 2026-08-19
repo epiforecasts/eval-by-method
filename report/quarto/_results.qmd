@@ -120,7 +120,7 @@ mutate(diff = max_targets - min_targets)
 print_table1(scores)
 ```
 
-Table 1 summarises model characteristics by structure and geographic target selection; eligibility criteria and exclusion counts are in the STROBE flow diagram (Supplementary Figure S1).
+Table 1 summarises model characteristics by structure and geographic target selection.
 Forecasters could participate in any of 26,624 available targets (104 weeks, 32 countries, 4 horizons, 2 epidemiological outcomes).
 Median participation was `r model_forecasts[["Median"]]`% of available targets (IQR `r model_forecasts[["1st Qu."]]`-`r model_forecasts[["3rd Qu."]]`%, range `r model_forecasts[["Min."]]` to `r model_forecasts[["Max."]]`).
 

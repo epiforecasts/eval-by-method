@@ -34,7 +34,7 @@ digraph processes {
   subgraph cluster_TG {
     label = "Target-generating process"; color = "black"; fontcolor = "black"
     T1 [label = "Epidemic dynamics"]
-    T2 [label = "Observation process"]
+    T2 [label = "Target observation"]
     T3 [label = "Target specification"]
   }
   F [label = "Forecast"]
@@ -49,38 +49,30 @@ digraph processes {
 ')
 ```
 
-Comparable samples of many independent models across many targets come from participatory forecast challenges, which collate predictions for pre-specified targets in a standardised format [@pollett2020; @reich2022].
-Such comparisons are prone to selection bias and confounding, because forecasters participate differentially across targets: aggregated comparisons conflate the performance of a modelling approach with the difficulty of the targets it was applied to.
+Participatory forecast challenges provide comparable samples of many independent models across many targets.
+Such challenges collate predictions for pre-specified targets in a standardised format [@pollett2020; @reich2022].
+However, comparisons are prone to confounding when forecasters are free to selectively participate across targets and/or over time.
+Aggregated comparisons then conflate the performance of a modelling approach with the difficulty of the targets it was applied to.
+To address this bias, evaluators have borrowed traditional methods from observational research, which can be applied throughout the research workflow and with varying degrees of formality [@mcnamee2005; @kahlert2017].
+These act at three points: how the exposure is measured, how the outcome is defined, and how units are compared.
+The first two are design choices we describe in the Methods, being the classification of model structure and the scale on which forecasts are scored.
+@tbl-approaches sets out the third: the tools available for controlling variation from the target-generating process, ordered from no control at all through to full adjustment.
 
-Evaluators have borrowed, mostly implicitly, from observational research to control this bias (@tbl-approaches).
-Epidemiology separates tools applied when a study is designed, such as restriction and matching, from those applied to data already collected, such as stratification, standardisation and regression adjustment [@mcnamee2005; @kahlert2017].
-In forecast evaluation that distinction largely collapses, since the evaluator almost always works with forecasts already submitted.
-The exception is differential participation, which a protocol requiring every model to forecast every target would remove at the point of collection, but that is available to hub organisers rather than to anyone evaluating afterwards.
-@tbl-approaches is therefore restricted to retrospective tools, ordered by the stage of the analysis at which each acts.
-Among the elements governing how units are compared, from matching through to regression adjustment, that order is also one of increasing formality.
-It does not extend to the whole table: complete ascertainment and unbiased classification of the exposure are prerequisites to any comparison rather than weaker forms of it.
-The simpler tools may not isolate a single component of performance when variation is large across both many targets and many models.
+| Approach | In forecast evaluation | Threat addressed | Limitation |
+|-----------------|-----------------------|----------------|-----------------|
+| Unadjusted comparison | Rank models, or compare mean scores between structures, over all forecasts as submitted | None | Conflates the method used with the difficulty of the targets each model chose to forecast |
+| Inclusion criteria | Exclude targets whose observed data were revised after forecasts were made [@sherratt2023]; or exclude models below a submission threshold | Confounding, selection | Loses power; narrows the population the estimate applies to |
+| Matching on covariates | Compare forecasters only on targets both submitted for [@bracher2021] | Confounding | Sparse overlap; the estimate holds only for the matched set |
+| Stratification | Report scores by horizon, location, or epidemic phase [@reich2019; @cramer2022] | Confounding | Cells sparse and uneven with several interacting factors; continuous covariates need arbitrary binning |
+| Indirect standardisation | Relative skill against a naive baseline model available for all targets [@bracher2021] | Confounding by target difficulty | Interpretable only against the chosen reference, which materially changes rankings [@stapper] |
+| Regression adjustment | Estimate the partial effect of model structure, adjusting for the covariates of the target | Confounding, clustering | Specification-dependent; the estimand is not formally defined |
 
-| Study design element | In observational research | In forecast evaluation | Threat addressed | Limitation |
-|---------------|---------------|---------------|---------------|---------------|
-| Inclusion criteria | Exclude units with particular covariate values so the covariate cannot vary | Exclude targets whose observed data were revised after forecasts were made [@sherratt2023]; or exclude models below a submission threshold | Confounding, selection | Loses power; narrows the population the estimate applies to |
-| Measurement of exposure | Classify exposure without sight of the outcome, and report agreement between assessors | Classify the model characteristic under comparison from submitted metadata, with the classifier blind to scores | Information | Metadata are self-reported and thin; misclassification remains, and attenuates effects toward the null |
-| Scale of outcome | Express the outcome so it does not depend on a nuisance quantity: rates rather than counts, or ratios rather than differences | Score forecasts per 100,000 population, and on the log scale so the score reflects relative rather than absolute error [@bosse2022; @bosse2023] | Confounding by population size and by incidence magnitude | Removes the dependence by redefining what is measured, not by adjusting for it; the quantity compared is no longer error on the natural scale |
-| Unadjusted comparison | Report the crude association between exposure and outcome, with no control | Rank models, or compare mean scores between structures, over all forecasts as submitted | None | Conflates the method used with the difficulty of the targets each model chose to forecast |
-| Matching on covariates | Pair exposed and unexposed units on covariate values | Compare forecasters only on targets both submitted for [@bracher2021] | Confounding | Sparse overlap; the estimate holds only for the matched set |
-| Stratification | Estimate the association within levels of a covariate, then pool | Report scores by horizon, location, or epidemic phase [@reich2019; @cramer2022] | Confounding | Cells sparse and uneven with several interacting factors; continuous covariates need arbitrary binning |
-| Indirect standardisation | Compare observed events against those expected under a reference rate, as in a standardised mortality ratio | Relative skill against a naive baseline model available for all targets [@bracher2021] | Confounding by target difficulty | Interpretable only against the chosen reference, which materially changes rankings [@stapper] |
-| Regression adjustment | Enter covariates in a model; read the partial association | Estimate the partial effect of model structure adjusting for outcome, incidence, trend, variant, country, horizon, and model | Confounding, clustering | Specification-dependent; the estimand is not formally defined |
-| Quantitative bias analysis | Derive a minimal sufficient adjustment set from a directed acyclic graph [@hernan2020]; bound unmeasured confounding with an E-value [@vanderweele2017] | Not yet applied in forecast evaluation | Residual confounding | Requires metadata and sample size that current hubs do not provide |
+: Approaches to controlling variation from the target-generating process in comparative forecast evaluation, with the analogous tools of observational study design. Rows run from no control at all through to full adjustment. {#tbl-approaches}
 
-: Approaches to controlling bias in comparative forecast evaluation, with analogous tools from observational study design. Rows follow the sequence of analysis: what enters the sample, measurement of exposure and outcome, comparison across units of observation, and estimation. {#tbl-approaches}
+Evaluation is particularly difficult in settings where study variables interact.
+In this case, even a large set of forecasts in aggregate becomes sparse once cross-classified by several covariates. When stratified, this leaves too little in each cell to estimate a stable and unbiased association ("sparse-data bias" [@greenland2016]).
+An alternative approach is to use joint estimation through regression modelling, which uses all observations to inform each estimate.
 
-Model structure is further entangled with strategy.
-A forecaster may produce forecasts for any target from updated data alone, as statistical time-series and many semi-mechanistic models do, or tailor a model to the data-generating process of a specific target.
-Strategy may therefore influence performance separately, confounding the effect of structure.
-
-Here we estimate the partial effect of model structure on predictive performance, while jointly adjusting for factors contributing to target difficulty.
-We score short-term Covid-19 forecasts across Europe with proper scoring rules, and model them with a generalised additive mixed model accounting for the epidemiological outcome, trend and level of incidence, dominant variant phase, country, forecast horizon, and individual model.
-Pooling across sparse, interacting subgroups by partial shrinkage avoids stratifying them, and continuous sources of difficulty enter as smooth functions.
-A directed acyclic graph in the Supplement sets out our assumptions; this work is exploratory rather than formally causal.
+Here we develop a regression-based approach to evaluating forecast performance, isolating the effect of model structure while accounting for the factors that make one forecast target harder to predict than another.
+We demonstrate it on forecasts from 48 models predicting short-term Covid-19 incidence across Europe.
 We find most variation in observed performance is associated with the forecast target rather than the forecasting method, and argue for a wider range of evaluative study designs.

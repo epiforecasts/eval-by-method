@@ -43,7 +43,7 @@ Ensemble combinations across multiple models, not considered here, are widely re
 Investment [@rivers2019] and standardisation [@epiforge2021; @kerr2025] have created a much broader comparable sample of forecast performance, which reduces random error but cannot by itself account for bias.
 Our analysis is a middle ground in handling that bias formally.
 Less formality may suffice with minimal confounding, such as a single forecast target, or a sample large enough for simple stratification, which ours is not once cross-classified (Results).
-More formality would specify the causal estimand with a directed acyclic graph, derive a minimal sufficient adjustment set, and bound unmeasured confounding with a quantitative bias analysis such as an E-value.
+More formality would specify the causal estimand with a directed acyclic graph, derive a minimal sufficient adjustment set [@hernan2020], and bound unmeasured confounding with a quantitative bias analysis such as an E-value [@vanderweele2017].
 A further option we did not pursue is to weight each forecast by the probability that its model submitted for that target, as propensity score methods do [@kahlert2017], which addresses differential participation directly but requires its determinants to be measured.
 Future comparison projects could enable this by encouraging methodological diversity and collating structured metadata, such as methodology and model revisions, alongside predictions [@pollett2020].
 Combining several collaborative efforts would also increase the sample of independent models, enough to assess finer components of the forecasting process: the local context modellers use, or whether performance scales with effort spent revising and evaluating a model.

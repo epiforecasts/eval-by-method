@@ -3,6 +3,26 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Reduce the Background table to one axis; state the study aim in Methods
+
+`report/quarto/_background.qmd`, `report/quarto/_methods.qmd`, `report/quarto/_discussion.qmd`, `report/references.bib`
+
+The Background table mixed three axes: the stage of the workflow, whether a tool controlled the forecast-generating or the target-generating process, and degree of formality.
+Eight of its nine rows acted on the target-generating side, which the table did not show.
+
+It is now restricted to that one axis, with six rows running from no control at all through to full adjustment: unadjusted comparison, inclusion criteria, matching, stratification, indirect standardisation, regression adjustment.
+The "In observational research" column is dropped, since the row labels are the epidemiological names and the prose says where they come from.
+468 words to 241.
+
+The rows removed are prerequisites rather than alternatives: measurement of the exposure and the scale of the outcome are design choices described in Methods, and quantitative bias analysis is covered in the Discussion.
+`@hernan2020` and `@vanderweele2017` appeared only in the removed quantitative bias analysis row, and move to the Discussion sentence on minimal sufficient adjustment sets and E-values.
+
+Methods now opens with a Study aim subsection giving the estimand: the exposure is model structure, forecasters chose their own targets so a crude comparison of scores is confounded, adjustment is what makes the comparison possible across all targets at once, and the estimand is a direct rather than a total effect because modeller strategy is unmeasured.
+The Background aims paragraph shrinks to the approach, the demonstration and the finding.
+This closes reviewer comments 1.7 and 1.16 (#105, #114).
+
+Adds `greenland2016` for sparse-data bias.
+
 ## Unreleased — Cut the manuscript prose by around a quarter (#100)
 
 `report/quarto/_abstract.qmd`, `_background.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`
