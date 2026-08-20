@@ -1,10 +1,20 @@
-Forecasters predicting infectious disease outbreaks have met with varying success. Identifying sources of variation is useful suggest both the potential to improve performance, and what performance to expect in a given setting. Among many possible influences, some of this variation comes from the method used to make a forecast, and some from the difficulty of the target being forecast. Realised performance therefore combines two processes (@fig-processes). Here we set out one approach to identifying effects on performance, applied to forecasts of Covid-19 in Europe.
+Forecasters predicting infectious disease outbreaks have met with varying success.
+This is demonstrable as the field increasingly adopts standardised metrics for quantifying and comparing such performance.
+With this comes the opportunity to identify common features or correlates of performance across a wider range of contributing factors.
+This is motivated by both suggesting potential room for improvement across forecasting methods, and to set expectations for forecast performance across different infectious disease settings.
 
-What makes a target hard to predict is increasingly reasonably well described. Performance is better under stable epidemic dynamics [@bracher2022], in larger populations [@lopez2024], where surveillance is timely and accurate [@reich2019; @holcomb2023], and where informative leading indicators exist [@delvalle2018]. Difficulty also varies systematically between pathogens and between seasons of the same pathogen [@metcalf2017].
-At the same time, performance is consistently better for targets specified at shorter horizons [@cramer2022], and may be plausibly bounded by the serial interval linking disease to observation [@sherratt2023]. Measured directly, a fundamental entropy barrier to forecasting disease time series does exist, but it typically lies beyond the time scale of a single outbreak, so what limits performance in practice usually lies elsewhere [@scarpino2019].
-Some specific quantities are nonetheless out of reach: the turning point and end of an expanding epidemic cannot be precisely forecast whatever the model [@castro2020].
+Among many possible influences, some of this variation comes from the method used to make a forecast, and some from the difficulty of the target being forecast.
+Realised performance therefore combines two processes (@fig-processes).
+Here we set out one approach to identifying effects on performance, applied to forecasts of Covid-19 in Europe.
 
-The contribution of the method is less clear. Forecasters use approaches ranging from purely data-driven statistical models to mechanistic models embedding explicit hypotheses about transmission, and different structures suit different purposes, such as scenario projection, policy analysis, or nowcasting [@woolhouse2011; @dattner2018; @funk2020]. Yet comparisons between structures have repeatedly found little evidence that any performs better than another [@carlson2018; @viboud2018; @reich2019], a null result that is hard to interpret while the two sources of variation remain entangled.
+What makes a target hard to predict is increasingly well described.
+Performance is better under stable epidemic dynamics [@bracher2022], in larger populations [@lopez2024], where surveillance is timely and accurate [@reich2019; @holcomb2023], and where informative leading indicators exist [@delvalle2018].
+Predictive difficulty also varies systematically between pathogens and between seasons of the same pathogen [@metcalf2017].
+At the same time, performance is consistently better for targets specified at shorter horizons [@cramer2022], and may be plausibly bounded by the serial interval linking disease to observation [@sherratt2023].
+
+The contribution of the method is less clear.
+Forecasters use approaches ranging from purely data-driven statistical models to mechanistic models embedding explicit hypotheses about transmission, and different structures suit different purposes, such as scenario projection, policy analysis, or nowcasting [@woolhouse2011; @dattner2018; @funk2020].
+Yet comparisons between structures have repeatedly found little evidence that any performs better than another [@carlson2018; @viboud2018; @reich2019], a null result that is hard to interpret while the two sources of variation remain entangled.
 
 ```{r}
 #| label: fig-processes
@@ -52,7 +62,7 @@ The first two are design choices we describe in the Methods, being the classific
 @tbl-approaches sets out the third: the tools available for controlling variation from the target-generating process, ordered from no control at all through to full adjustment.
 
 | Approach | In forecast evaluation | Threat addressed | Limitation |
-|-----------------|---------------------|-----------------|-----------------|
+|-----------------|--------------------|-----------------|-----------------|
 | Unadjusted comparison | Rank models, or compare mean scores between structures, over all forecasts as submitted | None | Conflates the method used with the difficulty of the targets each model chose to forecast |
 | Inclusion criteria | Exclude targets whose observed data were revised after forecasts were made [@sherratt2023]; or exclude models below a submission threshold | Confounding, selection | Loses power; narrows the population the estimate applies to |
 | Matching on covariates | Compare forecasters only on targets both submitted for [@bracher2021] | Confounding | Sparse overlap; the estimate holds only for the matched set |

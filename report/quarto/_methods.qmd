@@ -10,18 +10,23 @@ We treat the estimand as a direct rather than a total effect, because a forecast
 #### Study design
 
 We evaluated forecasts of incident Covid-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European Covid-19 Forecast Hub [@euroHub2021].
-The Hub solicited real-time forecasts one to four weeks ahead. Any forecaster was eligible for inclusion, with no selection criteria.
+The Hub solicited real-time forecasts one to four weeks ahead.
+Any forecaster was eligible for inclusion, with no selection criteria.
 
-For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or forecast over the full 4-week horizon. We also excluded the ensemble of all Hubs models.
+For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or forecast over the full 4-week horizon.
+We also excluded the ensemble of all Hubs models.
 Full eligibility and a STROBE flow diagram are given in the Supplement.
 
 We evaluated forecasts against Johns Hopkins University data on cumulative daily reported cases and deaths [@dong2020], converted to incident weekly counts, as available on 10 March 2023 when collation stopped.
 
 We scored forecasts with the weighted interval score (WIS), a proper scoring rule and generalisation of the continuous ranked probability score, reflecting a forecast's dispersion, overprediction and underprediction [@bracher2021].
-Before scoring we normalised forecasts and observations to incidence per 100,000 population and log-transformed both. This supports comparability across varying populations with varying magnitude of incidence across locations and over time. The log-transform can also be read as evaluating prediction of the growth rate [@bosse2023].
+Before scoring we normalised forecasts and observations to incidence per 100,000 population and log-transformed both.
+This supports comparability across varying populations with varying magnitude of incidence across locations and over time.
+The log-transform can also be read as evaluating prediction of the growth rate [@bosse2023].
 We report the log-transform based score as the LWIS, and separately report the natural-scale WIS as a sensitivity analysis in the Supplement.
 
-We note that the specification of regression modelling in this setting is extremely flexible. We include a directed acyclic graph in the Supplement to illustrate our approach, but consider this work exploratory rather than formally causal. 
+We note that the specification of regression modelling in this setting is extremely flexible.
+We include a directed acyclic graph in the Supplement to illustrate our approach, but consider this work exploratory rather than formally causal.
 
 #### Forecasting model structure
 

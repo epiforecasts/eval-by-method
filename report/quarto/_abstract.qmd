@@ -1,7 +1,5 @@
-Forecasters predicting infectious disease outbreaks have met with varying success.
-Some of that variation comes from the method used to make a forecast, and some from the difficulty of the target being forecast.
-When many forecasters each predict many different targets, the two are hard to tell apart.
-Here we use a regression model to separate them.
+Forecasters predicting infectious disease outbreaks have met with varying success. When many forecasters each predict many different targets, is is difficult to identify why their performance varies.
+We suggest a conceptual framework for identifying factors that contribute to forecast performance. We separate the process of creating a forecast from the processes that create the forecasting target in question. We identify common strategies for addressing this challenge, and demonstrate a regression-based approach to evaluation with sparse data.
 
 We evaluated forecasts of weekly COVID-19 cases and deaths over two years across 32 European countries, scored against observed data with the weighted interval score (WIS).
 We classified 48 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
