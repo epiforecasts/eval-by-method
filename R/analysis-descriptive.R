@@ -110,7 +110,15 @@ create_raw_table1 <- function(scores) {
   bind_rows(overall, method, targets)
 }
 
-print_table1 <- function(scores) {
+# `caption = NULL` hands captioning to the Quarto chunk (#| tbl-cap), which is
+# what lets the table be cross-referenced and numbered with everything else.
+print_table1 <- function(scores, caption = paste0(
+  "Characteristics of models and forecasts sampled from ",
+  "the European COVID-19 Forecast Hub, March 2021-2023. ",
+  "Models (%) shows number of models and percentage of all included models. ",
+  "Single-country shows models targeting one country as a fraction and percentage ",
+  "of models in each method group."
+)) {
   # Cohort characteristics — no outcome data
   # Composition (single-country %) computed once across both epi targets
   composition <- scores |>
@@ -160,9 +168,28 @@ print_table1 <- function(scores) {
   table1 <- table1 |>
     select(Variable, group, starts_with("Models_"))
 
-    ## add composition column for Method rows
+    ## add composition column for Method rows, and for the Overall row, which
+    ## otherwise renders as NA
+    overall_composition <- scores |>
+      select(Model, CountryTargets) |>
+      distinct() |>
+      summarise(
+        n_single = sum(CountryTargets == "Single-country"),
+        n_models = n()
+      ) |>
+      transmute(
+        Variable = "Overall",
+        # create_raw_table1() leaves `group` empty for the Overall row
+        group = "",
+        `Single-country` = paste0(
+          n_single, "/", n_models,
+          " (", round(n_single / n_models * 100), "%)"
+        )
+      )
+
     table1 <- table1 |>
-      left_join(composition, by = c("Variable", "group")) |>
+      left_join(bind_rows(composition, overall_composition),
+                by = c("Variable", "group")) |>
       relocate(`Single-country`, .after = last_col())
 
     ## reorder epi target columns
@@ -181,13 +208,7 @@ print_table1 <- function(scores) {
     select(-group) |>
     rename(" " = Variable) |>
     kable(
-      caption = paste0(
-        "Characteristics of models and forecasts sampled from ",
-        "the European COVID-19 Forecast Hub, March 2021-2023. ",
-        "Models (%) shows number of models and percentage of all included models. ",
-        "Single-country shows models targeting one country as a fraction and percentage ",
-        "of models in each method group."
-      ),
+      caption = caption,
       col.names = c(" ", rep(c("Models (%)"), length(epi_targets)), "Single-country (%)"),
       align = c("l", rep("r", length(epi_targets)), "r")
     ) |>
@@ -265,7 +286,16 @@ print_table_method_target <- function(method_by_target) {
 }
 
 # Table 2: unadjusted vs adjusted effects --------------------
-print_table2 <- function(effects, show_ratio = TRUE) {
+print_table2 <- function(effects, show_ratio = TRUE, caption = paste0(
+  "Partial effects of model structure on the performance of COVID-19 forecasts ",
+  "(LWIS, the weighted interval score of log-transformed forecasts and observations), ",
+  "from univariate (unadjusted) and a joint (adjusted) generalised additive mixed model. ",
+  "Effects represent deviations from the grand mean under a sum-to-zero constraint, ",
+  "expressed as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean LWIS. ",
+  "A ratio below 1 indicates better-than-average performance; 1 indicates the grand-mean LWIS. ",
+  "Raw partial effects on the log scale are reported in the Supplement. ",
+  "95% CI = 95% confidence interval."
+)) {
   effects |>
     filter(group_var %in% c("Method")) |>
     mutate(
@@ -296,16 +326,7 @@ print_table2 <- function(effects, show_ratio = TRUE) {
       "Adjusted ratio (95% CI)" = Adjusted
     ) |>
     kable(
-      caption = paste0(
-        "Partial effects of model structure on the performance of COVID-19 forecasts ",
-        "(LWIS, the weighted interval score of log-transformed forecasts and observations), ",
-        "from univariate (unadjusted) and a joint (adjusted) generalised additive mixed model. ",
-        "Effects represent deviations from the grand mean under a sum-to-zero constraint, ",
-        "expressed as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean LWIS. ",
-        "A ratio below 1 indicates better-than-average performance; 1 indicates the grand-mean LWIS. ",
-        "Raw partial effects on the log scale are reported in the Supplement. ",
-        "95% CI = 95% confidence interval."
-      ),
+      caption = caption,
       align = c("l", "l", "r", "r")
     ) |>
     collapse_rows(columns = 1, valign = "top") |>

@@ -54,7 +54,12 @@ We used a generalised additive mixed model to associate performance with model s
 #### Forecaster characteristics
 
 ```{r}
-#| label: results-describe-structures
+#| label: tbl-models
+#| tbl-cap: >-
+#|   Characteristics of models and forecasts sampled from the European COVID-19
+#|   Forecast Hub, March 2021-2023. Models (%) shows the number of models and the
+#|   percentage of all included models. Single-country shows models targeting one
+#|   country as a fraction and percentage of models in each method group.
 
 # Overall participation
 model_forecasts <- scores |>
@@ -116,15 +121,14 @@ model_targets <- table_targets(scores)
 multi_targets <- filter(model_targets, CountryTargets == "Multi-country")|>
 mutate(diff = max_targets - min_targets)
 
-# Table 2 (the Background study-design table is Table 1)
-print_table1(scores)
+print_table1(scores, caption = NULL)
 ```
 
-Table 2 summarises model characteristics by structure and geographic target selection.
+@tbl-models summarises model characteristics by structure and geographic target selection.
 Forecasters could participate in any of 26,624 available targets (104 weeks, 32 countries, 4 horizons, 2 epidemiological outcomes).
 Median participation was `r model_forecasts[["Median"]]`% of available targets (IQR `r model_forecasts[["1st Qu."]]`-`r model_forecasts[["3rd Qu."]]`%, range `r model_forecasts[["Min."]]` to `r model_forecasts[["Max."]]`).
 
-We classified `r n_by_method[["Mechanistic"]]` models as mechanistic, `r n_by_method[["Statistical"]]` as statistical, `r n_by_method[["Semi-mechanistic"]]` as semi-mechanistic, `r n_by_method[["Agent-based"]]` as agent-based and `r n_by_method[["Judgement"]]` as human judgement (Table 2; Supplement).
+We classified `r n_by_method[["Mechanistic"]]` models as mechanistic, `r n_by_method[["Statistical"]]` as statistical, `r n_by_method[["Semi-mechanistic"]]` as semi-mechanistic, `r n_by_method[["Agent-based"]]` as agent-based and `r n_by_method[["Judgement"]]` as human judgement (@tbl-models; Supplement).
 Raters disagreed on `r n_disagree` (`r p_disagree`%) classifications, most often for semi-mechanistic models, `r n_semi_mech_split` of `r n_by_method[["Semi-mechanistic"]]` of which drew at least one vote for a statistical structure.
 Statistical models contributed the largest share of forecasts (`r p_by_method[["Statistical"]]`%), partly because the Hub baseline model submitted for every country in almost every week; mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic"]]`% and `r p_by_method[["Semi-mechanistic"]]`%, and agent-based and judgement models under 2% each.
 
@@ -220,14 +224,23 @@ effects_comp <- results$effects |>
 
 We report effects as a ratio against the grand-mean LWIS, where 1 is average performance and 0.9 an LWIS 10% lower than average, with raw partial effects in the Supplement.
 
-No structural approach dominated (Table 3, @fig-structure-effects A).
+No structural approach dominated (@tbl-structure, @fig-structure-effects A).
 The largest shifts under adjustment were among agent-based and human judgement models, which had appeared to perform better than average unadjusted, and adjustment shrank the standard errors throughout.
 A pooled estimate averages a structure's effects on cases and deaths, so a value near the grand mean can arise either from average performance on both, or from relatively good performance on one and poor on the other.
 
 ```{r}
-#| label: results-table2
+#| label: tbl-structure
+#| tbl-cap: >-
+#|   Partial effects of model structure on the performance of COVID-19 forecasts
+#|   (LWIS, the weighted interval score of log-transformed forecasts and observations),
+#|   from univariate (unadjusted) and joint (adjusted) generalised additive mixed models.
+#|   Effects are deviations from the grand mean under a sum-to-zero constraint, expressed
+#|   as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean
+#|   LWIS, where a ratio below 1 indicates better-than-average performance.
+#|   Raw partial effects on the log scale are reported in the Supplement.
+#|   95% CI = 95% confidence interval.
 
-print_table2(results$effects)
+print_table2(results$effects, caption = NULL)
 ```
 ```{r}
 #| label: results-method-target

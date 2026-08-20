@@ -68,3 +68,7 @@ The Spearman annotation in the rank panel sits top-left and slightly overlaps on
 The Background study-design table is cross-referenced (`@tbl-approaches`), so Quarto numbers it Table 1. The two Results tables are produced by `print_table1()` and `print_table2()` as plain `kable` output with no label, so Quarto does not number them, and the prose referred to them as "Table 1" and "Table 2" — colliding with the Background table. The prose now calls them Table 2 and Table 3, which matches the order a reader meets them.
 
 This is a patch, not a fix. The durable fix is to give both Results tables chunk labels (`#| label: tbl-models`, `#| label: tbl-structure`) and captions as `#| tbl-cap`, then reference them as `@tbl-models` and `@tbl-structure` so the numbering maintains itself. That needs the captions moved out of `print_table1()` and `print_table2()` in `R/analysis-descriptive.R`, since a kable caption and a chunk `tbl-cap` would otherwise both render.
+
+## Overall row of the model characteristics table
+
+The "Single-country (%)" column rendered as NA in the Overall row, because composition was computed by model structure only. It now shows the count across all models. Check the number reads as you expect against the per-structure rows.
