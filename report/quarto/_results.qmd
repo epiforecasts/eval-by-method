@@ -34,7 +34,6 @@ scores_natural <- process_data(scoring_scale = "natural") |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
 ```
 
-<!---Summary--->
 ```{r}
 #| label: results-participation-text
 
@@ -47,11 +46,11 @@ n_teams <- distinct(scores, Model) |>
 teams_models <- summary(n_teams$n)
 ```
 
-We evaluated `r n_models` forecasting models from `r nrow(n_teams)` modelling teams participating in the European COVID-19 Forecast Hub.
+We evaluated `r n_models` forecasting models from `r nrow(n_teams)` modelling teams participating in the European COVID-19 Forecast Hub over 2021-2023.
 Models differed both in which targets they forecast and in how well they performed.
 We used a generalised additive mixed model to associate performance with model structure, adjusting for the number of countries a model targeted and for the epidemiological context of each target.
 
-#### Forecaster characteristics
+#### Participation and characteristics
 
 ```{r}
 #| label: tbl-models
@@ -124,17 +123,33 @@ mutate(diff = max_targets - min_targets)
 print_table1(scores, caption = NULL)
 ```
 
-@tbl-models summarises model characteristics by structure and geographic target selection.
+<!--TODO drop geo scope rows, show overall combined column (?with % participation across N targets?) -->
+
 Forecasters could participate in any of 26,624 available targets (104 weeks, 32 countries, 4 horizons, 2 epidemiological outcomes).
 Median participation was `r model_forecasts[["Median"]]`% of available targets (IQR `r model_forecasts[["1st Qu."]]`-`r model_forecasts[["3rd Qu."]]`%, range `r model_forecasts[["Min."]]` to `r model_forecasts[["Max."]]`).
+<!--TODO add the sparse-matrix numbers here and a ref to the Supplement figure-->
 
 We classified `r n_by_method[["Mechanistic"]]` models as mechanistic, `r n_by_method[["Statistical"]]` as statistical, `r n_by_method[["Semi-mechanistic"]]` as semi-mechanistic, `r n_by_method[["Agent-based"]]` as agent-based and `r n_by_method[["Judgement"]]` as human judgement (@tbl-models; Supplement).
 Raters disagreed on `r n_disagree` (`r p_disagree`%) classifications, most often for semi-mechanistic models, `r n_semi_mech_split` of `r n_by_method[["Semi-mechanistic"]]` of which drew at least one vote for a statistical structure.
-Statistical models contributed the largest share of forecasts (`r p_by_method[["Statistical"]]`%), partly because the Hub baseline model submitted for every country in almost every week; mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic"]]`% and `r p_by_method[["Semi-mechanistic"]]`%, and agent-based and judgement models under 2% each.
-
-`r targets[["Single-country"]]` models forecast for a single country and `r targets[["Multi-country"]]` for multiple countries, of which only `r nrow(multi_targets |> filter(consistent))` kept the same number of countries throughout (Supplement).
+Statistical models contributed the largest share of predictions (`r p_by_method[["Statistical"]]`%), partly because the Hub baseline model submitted for every country in almost every week; mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic"]]`% and `r p_by_method[["Semi-mechanistic"]]`%, and agent-based and judgement models under 2% each.
 
 #### Forecast performance
+
+```{r}
+#| label: fig-error-vs-obs
+#| fig-cap: >-
+#|   Forecast error scales with the magnitude of the observed outcome.
+#|   Weighted interval score (WIS) on the natural scale is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
+#|   Faint points show individual forecasts; lines show a generalised additive model smooth fit per model-structure group, with shaded 95% confidence intervals.
+#|   Both axes are shown on the log scale; lower WIS indicates better performance.
+#|   Colour: model structure.
+#| fig-height: 4
+#| fig-width: 8
+
+plot_error_vs_obs(scores_natural)
+```
+
+<!--TODO some very aggregate figure of observed per 100k against performance -->
 
 ```{r}
 #| label: results-describe-performance
@@ -153,12 +168,11 @@ phase_best <- as.character(median_by_phase$VariantPhase[1])
 phase_worst <- as.character(median_by_phase$VariantPhase[nrow(median_by_phase)])
 ```
 
-Unadjusted performance varied with both the outcome forecast and the epidemic context.
+<!-- TODO some super aggregated performance measure here, possibly against the Hub ensemble -->Considering crude aggregated performance.
+Variation was driven by epidemiological processes over time.
 Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths, and scores tracked the magnitude of the outcome being predicted (@fig-error-vs-obs).
 Across variant phases, forecasts were most accurate during the `r phase_best` phase and least accurate during `r phase_worst`, the period of steepest change in reported incidence.
-
-In aggregate, agent-based and judgement models appeared to outperform mechanistic and statistical approaches, particularly for deaths from spring 2022.
-Model structure was itself distributed unevenly across geographic and epidemiological targets, so these crude comparisons are unreliable.
+<!--TODO something about forecast horizon? -->
 
 ```{r}
 #| label: results-sparsity
@@ -169,28 +183,18 @@ strata_vars <- c("epi_target", "Horizon", "Location", "Trend",
                  "VariantPhase", "CountryTargets", "Method")
 strata_possible <- prod(sapply(scores[strata_vars], n_distinct))
 strata_obs <- count(scores, across(all_of(strata_vars)))
-strata_filled <- nrow(strata_obs)
+strata_filled <- round(nrow(strata_obs) / strata_possible * 100)
 strata_median <- median(strata_obs$n)
 strata_thin <- round(mean(strata_obs$n < 5) * 100)
 ```
 
-Adjusting for these differences by stratification would leave little to work with.
-Cross-classifying forecasts by the categorical covariates alone gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r format(strata_filled, big.mark = ",")` contain any forecast.
-The median non-empty stratum holds `r strata_median` forecasts and `r strata_thin`% hold fewer than five, and incidence, a continuous covariate, cannot be stratified without arbitrary binning.
+#### Effect of model structure
 
-```{r}
-#| label: fig-error-vs-obs
-#| fig-cap: >-
-#|   Forecast error scales with the magnitude of the observed outcome.
-#|   Weighted interval score (WIS) on the natural scale is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
-#|   Faint points show individual forecasts; lines show a generalised additive model smooth fit per model-structure group, with shaded 95% confidence intervals.
-#|   Both axes are shown on the log scale; lower WIS indicates better performance.
-#|   Colour: model structure.
-#| fig-height: 4
-#| fig-width: 8
-
-plot_error_vs_obs(scores_natural)
-```
+In crude comparison, agent-based and human judgement models appeared to outperform mechanistic and statistical approaches.
+However, participation between model structures was unevenly distributed across forecast targets.
+Handling this with a stratification approach would produce sparse data, given both the range of targets, and number and type of covariates we wish to adjust for.
+To demonstrate, cross-classifying forecasts by the categorical covariates alone (epidemiological outcome, location, epidemic trend, variant phase, number of countries targeted) gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled` % contain any forecast.
+Among these, each non-empty stratum holds only `r strata_median` forecasts and `r strata_thin`% hold fewer than five forecasts.
 
 ```{r}
 #| label: results-scores-results
@@ -220,13 +224,9 @@ effects_comp <- results$effects |>
   filter(group_var %in% c("Method"))
 ```
 
-#### Effect of model structure
-
-We report effects as a ratio against the grand-mean LWIS, where 1 is average performance and 0.9 an LWIS 10% lower than average, with raw partial effects in the Supplement.
-
-No structural approach dominated (@tbl-structure, @fig-structure-effects A).
-The largest shifts under adjustment were among agent-based and human judgement models, which had appeared to perform better than average unadjusted, and adjustment shrank the standard errors throughout.
-A pooled estimate averages a structure's effects on cases and deaths, so a value near the grand mean can arise either from average performance on both, or from relatively good performance on one and poor on the other.
+We report regression results as a ratio against the grand-mean LWIS, where 1 is average performance and 0.9 an LWIS 10% lower than average, with raw partial effects in the Supplement.
+After adjustment, no structural approach dominated (@tbl-structure, @fig-structure-effects A).
+The largest shifts under adjustment were among agent-based and human judgement models, while adjustment shrank the standard errors throughout.
 
 ```{r}
 #| label: tbl-structure
@@ -242,6 +242,7 @@ A pooled estimate averages a structure's effects on cases and deaths, so a value
 
 print_table2(results$effects, caption = NULL)
 ```
+
 ```{r}
 #| label: results-method-target
 
@@ -263,19 +264,21 @@ mbt_diff <- vapply(
 mbt_widest <- names(which.max(abs(mbt_diff)))
 ```
 
-Separated by outcome, differences between structures were larger than the pooled estimates suggested, though no structure-by-outcome estimate was distinguishable from the grand mean (@fig-structure-effects B; Supplement).
-Model structures differed in the direction of their outcome-specific effects, and these largely offset when averaged.
-The widest separation was among `r tolower(mbt_widest)` models, the worst-performing structure for case forecasts and the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
-Mechanistic and statistical models reversed less sharply in the other direction, performing marginally better on cases than on deaths.
-An estimate that averages over outcomes therefore recovers close to zero for most structures, whether or not outcome-specific differences exist.
-Human judgement models performed relatively better on cases than on deaths (cases ratio `r mbt_ratio[["Judgement_Cases"]]`; deaths ratio `r mbt_ratio[["Judgement_Deaths"]]`), in the same direction as a previous comparison of human and model-based forecasts in this setting [@bosse2022].
-The agent-based interval for death forecasts only marginally spans the grand mean, the widest separation rests on only three contributing models, and both the size of these differences and, for two of the five structures, their direction depend on the choice of error family (Supplement).
+Differences between model structures also reduced when separated by outcome (@fig-structure-effects B; Supplement).
+However, model structures differed in the direction of their outcome-specific effects.
+The widest separation was among `r tolower(mbt_widest)` models, which were the worst-performing model structure for case forecasts but the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
+<!--TODO note: check whether we only have eg 1 ABM forecasting for each target, so this is weak, even though we also include a model-specific effect-->
+
+All other model structures performed more similarly between epidemiological outcomes, performing marginally better on cases than on deaths.
+We noted that differences between outcomes largely offset when averaged; an averaged estimate therefore gives close to zero for most structures, whether or not outcome-specific differences exist.
+
+<!--TODO relabel axes to add "Adjusted performance ratio" ie matching text-->
 
 ```{r}
 #| label: fig-structure-effects
 #| fig-cap: >-
 #|   No model structure performed differently from the average once the difficulty of
-#|   its targets was accounted for, and structures that predicted one outcome relatively
+#|   its targets was accounted for; structures that predicted one outcome relatively
 #|   well predicted the other relatively poorly, so the difference cancels when pooled.
 #|   Performance ratio (95% CI) by model structure, pooled across epidemiological
 #|   outcomes (A) and estimated separately for case and death forecasts (B).
@@ -294,12 +297,13 @@ plot_structure_effects(results$effects, results$method_by_target)
 
 #### Other drivers of forecast performance
 
-Features of the target explained more variation in performance than features of the model, and were modelled jointly across both outcomes, so each estimate is a single effect shared by case and death forecasts (full reporting in the Supplement).
+Target-generating processes explained more variation in performance than features of the forecasting process.
 Targets were most predictable during stable periods of the epidemic curve (ratio `r table_effects["Adjusted_Stable","ratio_ci"]`) and least during increasing trends (ratio `r table_effects["Adjusted_Increasing","ratio_ci"]`).
 Predictability was better in the earlier Alpha and Delta phases (ratios `r table_effects["Adjusted_Alpha","ratio_ci"]` and `r table_effects["Adjusted_Delta","ratio_ci"]`) and worst under Omicron BA.1 (ratio `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`), and death forecasts scored lower than case forecasts (ratio `r table_effects["Adjusted_Deaths","ratio_ci"]`).
 
-Turning to the forecasters, the covariates describing them left most of the difference between models unexplained.
-Substantial variation between individual models remained after adjustment (@fig-model-variation A), so model structure and geographic scope do not account for how differently forecasters performed.
+Despite some covariates accounting for the forecasting process, most of the difference between individual model performance was left unexplained (@fig-model-variation A).
+We accounted for whether models forecast for one or multiple countries, with `r targets[["Single-country"]]` models forecasting for a single country and `r targets[["Multi-country"]]` for multiple countries (of which only `r nrow(multi_targets |> filter(consistent))` kept the same number of countries throughout, see Supplement).
+<!--TODO add ratio_ci for geo scope; consider where to report diffs by horizon, probably here-->
 
 ```{r}
 #| label: results-ranks
@@ -309,9 +313,11 @@ ranks <- rank_models(results$effects)
 rank_summary <- summarise_ranks(ranks)
 ```
 
-Adjustment also changed which models appeared best.
+We compared this remaining variation between individual models in terms of ranked model order.
 Ranking models by their partial effect before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`, with `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places (@fig-model-variation B).
-Observed performance therefore reflects the difficulty of the targets a model chose as much as the model itself.
+<!--TODO is spearman correct here for rank? not wilcoxon or similar?-->
+
+<!--TODO drop the shape on the geom point as it's not the main interest and relabel the individual model labels on the y axis to "Crude rank {overall crude unadjusted rank}", relabel x-axis to "Adjusted performance ratio"-->
 
 ```{r}
 #| label: fig-model-variation
@@ -336,5 +342,6 @@ plot_model_variation(results$effects, scores, ranks = ranks)
 #### Sensitivity analysis
 
 Repeating the analysis on the natural scale of scores, and under alternative covariate sets, changed no estimate materially (Supplement).
-The exception was the choice of error family: refitting with a Gaussian in place of the Tweedie changed the size of every structure-by-outcome estimate and the direction of two of the five, widening the case-death difference for human judgement models, removing it for agent-based models, and reversing it for semi-mechanistic models.
-A Gaussian family is dominated by the largest scores, which fall disproportionately among case forecasts.
+The exception was the choice of error family: refitting with a Gaussian in place of the Tweedie changed the size of every structure-by-outcome estimate and the direction of two of the five.
+Specifically, this widened the case-death difference for human judgement models, removed it for agent-based models, and reversed it for semi-mechanistic models.
+We explain this where using a Gaussian family is dominated by the largest scores, which fall disproportionately among case forecasts.
