@@ -43,25 +43,22 @@ Every number and figure here is generated from the same fitted model as the main
 Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> .
 All Hub data are now archived at:
 
-- Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
-- Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
+-   Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
+-   Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
 
 Data for this work were downloaded on 30th May 2023.
 These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
 
 The codebase for this paper is publicly available at:
 
-- Github: <https://github.com/epiforecasts/eval-by-method>
-- Zenodo with DOI: <https://doi.org/10.5281/zenodo.14903162>
+-   Github: <https://github.com/epiforecasts/eval-by-method>
+-   Zenodo with DOI: <https://doi.org/10.5281/zenodo.14903162>
 
 Comments and code contributions are welcome - please use Github [Issues](https://github.com/epiforecasts/eval-by-method/issues).
 
 Please cite code using:
 
-- Katharine Sherratt & Sebastian Funk.
-  (2025).
-  epiforecasts/eval-by-method: Zenodo.
-  <https://doi.org/10.5281/zenodo.14903162>
+-   Katharine Sherratt & Sebastian Funk. (2025). epiforecasts/eval-by-method: Zenodo. <https://doi.org/10.5281/zenodo.14903162>
 
 ### Study participation
 
@@ -285,10 +282,10 @@ We developed this work in two major versions.
 The first aimed to evaluate both model structure and geographic target specificity (one or multiple countries) and their effect on model performance.
 The second substantially revised the aim and scope:
 
-- Limited aim to developing the use of a modelling approach to evaluate forecast performance
-- Specified a single response (model structure) and treating other covariates as confounding factors
-- Improved range of confounding factors (epidemiological outcomes covering both cases and deaths; adding a covariate for dominant variant phase)
-- More extensive model checking and diagnostics to address highly skewed residuals
+-   Limited aim to developing the use of a modelling approach to evaluate forecast performance
+-   Specified a single response (model structure) and treating other covariates as confounding factors
+-   Improved range of confounding factors (epidemiological outcomes covering both cases and deaths; adding a covariate for dominant variant phase)
+-   More extensive model checking and diagnostics to address highly skewed residuals
 
 See the (Sensitivity analysis){#sensitivity-analysis} below for alternative model specifications.
 
@@ -312,10 +309,10 @@ The outcome also changes the scale and reporting characteristics of the series b
 
 The joint model therefore adjusts for:
 
-- Forecast target difficulty (which block backdoor paths from epidemic dynamics into the score), as:
-  - `EpiTarget`, `Trend`, `Horizon`, `Incidence`, `Location`, `VariantPhase`
-- Forecaster strategy, as:
-  - `CountryTargets`, `Model`
+-   Forecast target difficulty (which block backdoor paths from epidemic dynamics into the score), as:
+    -   `EpiTarget`, `Trend`, `Horizon`, `Incidence`, `Location`, `VariantPhase`
+-   Forecaster strategy, as:
+    -   `CountryTargets`, `Model`
 
 Querying the diagram for a minimal sufficient adjustment set returns this exact set of covariates, for the direct effect of model structure on the score.
 It returns no valid adjustment set for the total effect: modeller strategy is unobserved and confounds model structure with the choice of geographic scope, so no set of measured covariates blocks that path.
@@ -339,7 +336,7 @@ In the fitted model the crossed effects average to zero within each outcome to n
 This is emergent rather than imposed: the smooth retains all ten coefficients, so no centring constraint was applied.
 We did not treat the outcome as a random effect, which with two levels gives no basis for estimating a variance and would shrink a large, well-identified contrast toward zero.
 
-### Model fitting
+### Model fitting {#model-fitting}
 
 We noted our outcome of LWIS had a strongly skewed PDF.
 
@@ -466,7 +463,6 @@ Negative values indicate better-than-average performance.
 Partial effect on forecast performance of key covariates included in the fully adjusted model for additional covariates.
 Partial effects of individual model structure and individual model are presented in the main text.
 
-
 (A) Spatial covariates
 
 ```{r}
@@ -531,7 +527,6 @@ The main text reports these exponentiated, and reports a pooled effect per struc
 print_table_method_target(results$method_by_target)
 ```
 
-
 ```{r}
 #| label: supplement-method-target-raw
 
@@ -593,7 +588,7 @@ ranks |>
   kable_styling(full_width = FALSE)
 ```
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ## Sensitivity analyses
 
@@ -606,12 +601,12 @@ We also scored against the raw total incident weekly count per target.
 This had near-zero impact on model fitting or results on the log-transformed scores.
 Difference in median WIS (across all targets):
 
-  | Target | Scale   | Raw count | Per 100k |
-  | ------ | ------- | --------- | -------- |
-  | Cases  | log     | 0.292     | 0.278    |
-  | Cases  | natural | 2426      | 34.4     |
-  | Deaths | log     | 0.239     | 0.093    |
-  | Deaths | natural | 14.7      | 0.199    |
+| Target | Scale   | Raw count | Per 100k |
+|--------|---------|-----------|----------|
+| Cases  | log     | 0.292     | 0.278    |
+| Cases  | natural | 2426      | 34.4     |
+| Deaths | log     | 0.239     | 0.093    |
+| Deaths | natural | 14.7      | 0.199    |
 
 #### Natural scale WIS
 
@@ -634,19 +629,19 @@ We tried several alternative model specifications.
 
 #### Covariate selection
 
-  | Domain              | Variable         | Model version | Impact   |
-  | ------------------- | ---------------- | ------------- | -------- |
-  | Forecast target     |                  |               |          |
-  |                     | `EpiTarget`      | V2*           | None     |
-  |                     | `VariantPhase`   | V2*           | Some     |
-  |                     | `Trend`          | All           | Untested |
-  |                     | `Horizon`        | All           | Untested |
-  |                     | `Incidence`      | All           | Untested |
-  |                     | `Location`       | All           | Untested |
-  | Forecaster strategy |                  |               |          |
-  |                     | `CountryTargets` | All           | Untested |
-  |                     | `Model`          | All           | Untested |
-  | Outcome             | `Method`         | All           |          |
+| Domain              | Variable         | Model version | Impact   |
+|---------------------|------------------|---------------|----------|
+| Forecast target     |                  |               |          |
+|                     | `EpiTarget`      | V2\*          | None     |
+|                     | `VariantPhase`   | V2\*          | Some     |
+|                     | `Trend`          | All           | Untested |
+|                     | `Horizon`        | All           | Untested |
+|                     | `Incidence`      | All           | Untested |
+|                     | `Location`       | All           | Untested |
+| Forecaster strategy |                  |               |          |
+|                     | `CountryTargets` | All           | Untested |
+|                     | `Model`          | All           | Untested |
+| Outcome             | `Method`         | All           |          |
 
 \* Covariates included in V2 were added based on reviewer feedback.
 

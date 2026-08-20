@@ -41,9 +41,21 @@ Read the work as it stands:
 - The supplement is in [report/supplement.qmd](./report/supplement.qmd).
 - The former pre-print is on [medRxiv](https://doi.org/10.1101/2025.04.10.25325611); note, this is out of date.
 
+#### Explore
+
+A guide to the codebase:
+
+- `R/` --- analysis and utility scripts:
+  - `process-score.R` scores forecasts; `process-data.R` joins scores to explanatory variables; `analysis-model.R` fits the GAMM; `analysis-descriptive.R` builds summary tables; `plot-model-results.R` and `plot-model-flow.R` make the figures; `dag-check.R` defines the confounding DAG.
+  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` --- data access, model metadata, and variant-phase classification.
+  - `R/sensitivity/` --- robustness checks (autocorrelation, link function, log-response model, model-building notebook).
+- `data/` --- forecasts (`covid19-forecast-hub-europe.parquet`), observed incidence, populations, model classification, and computed scores.
+- `report/quarto/` --- the manuscript section files; `report/quarto/supplement/` the supplement.
+- `output/` --- fitted model results and diagnostic plots, under scale-named subdirectories (`log/`, `natural/`).
+
 #### Reproduce
 
-To re-run the analysis end to end, without editing anything:
+To re-run the analysis end to end:
 
 1. Restore the package environment ([renv](https://rstudio.github.io/renv/articles/renv.html)):
 
@@ -82,18 +94,6 @@ To re-run the analysis end to end, without editing anything:
    Render `index.qmd`, not `report/manuscript.qmd`: the latter's includes are project-root-relative and only resolve when a file at the repo root is the top-level document.
 
    `analysis-model.R` must be run before rendering --- it is not sourced by the results section.
-
-#### Explore
-
-A guide to the codebase:
-
-- `R/` --- analysis and utility scripts:
-  - `process-score.R` scores forecasts; `process-data.R` joins scores to explanatory variables; `analysis-model.R` fits the GAMM; `analysis-descriptive.R` builds summary tables; `plot-model-results.R` and `plot-model-flow.R` make the figures; `dag-check.R` defines the confounding DAG.
-  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` --- data access, model metadata, and variant-phase classification.
-  - `R/sensitivity/` --- robustness checks (autocorrelation, link function, log-response model, model-building notebook).
-- `data/` --- forecasts (`covid19-forecast-hub-europe.parquet`), observed incidence, populations, model classification, and computed scores.
-- `report/quarto/` --- the manuscript section files; `report/quarto/supplement/` the supplement.
-- `output/` --- fitted model results and diagnostic plots, under scale-named subdirectories (`log/`, `natural/`).
 
 --------------------------------------------------------------------------------
 
