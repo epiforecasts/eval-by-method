@@ -1,5 +1,5 @@
 We assessed the partial effect of model structure on the accuracy of Covid-19 forecasts across European countries, using a model-based approach to adjust for the main sources of variation between forecast targets.
-After adjustment no structural approach dominated.
+After adjustment, no single approach to model structure clearly outperformed.
 Estimates were imprecise and none was distinguishable from the overall average, whether pooled across epidemiological outcomes or estimated separately for cases and deaths, and substantial variation between individual models remained unexplained.
 Evaluating across multiple forecast targets therefore requires accounting for what varies between targets before considering what varies within the forecasting process.
 
@@ -23,8 +23,10 @@ Results may therefore be biased by unobserved characteristics that affected part
 The Hub baseline model, a deliberately naive statistical model submitting for almost every country and week, contributes a large share of the statistical group's forecasts and anchors that group towards the performance achievable without epidemiological structure.
 We may also have misclassified the exposure: metadata were thin, raters disagreed on most semi-mechanistic models, and we did not track changes to each model's methods over time.
 Combining data across multiple Hub projects, with a more detailed assessment of the model cohort, would support a deeper investigation.
+The sparsity that ruled out a stratified comparison also shapes the estimates we report: cross-classifying forecasts by the covariates alone leaves most strata empty and most of the remainder holding fewer than five forecasts.
+Penalised terms handle this by shrinking sparsely informed cells towards the average, which trades the instability of a stratified estimate for a conservative one.
 
-<!-- TODO: reference back to addressing sparse data bias here or in the prev para --> A model-based evaluation of this kind is extremely flexible, and we developed the specification here over several iterations without considering it final.
+A model-based evaluation of this kind is extremely flexible, and we developed the specification here over several iterations without considering it final.
 Nonetheless, varying the covariates, the link function and the error family left the pooled partial effects of model structure essentially unchanged.
 The only specification choice that changed results was whether model structure was allowed to interact with the epidemiological outcome.
 This is a consequence of pooling: an effect shared across outcomes is the average of the outcome-specific effects, and because those pointed in opposite directions they averaged close to zero, so a shared term was near zero by construction and, being penalised, shrunk to zero exactly.

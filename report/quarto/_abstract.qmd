@@ -10,4 +10,5 @@ That average concealed structures which predicted one outcome relatively well an
 Performance was driven more by which targets were hard to predict than by which modelling approach a forecaster used.
 
 This approach sits between informal and fully formal ways of handling bias in evaluation studies.
-As infectious disease forecasting grows, we encourage evaluators to choose from a wider range of study designs, matching the formality of the method to the question, so they can isolate the part of performance they want to measure.
+As infectious disease forecasting grows, we encourage evaluators to choose from a wider range of study designs, matching the formality of the method to the question and data available.
+Specifically, evaluating across multiple forecast targets requires explicit accounting for the variation producing each target, before considering what varies within the forecasting process.

@@ -76,11 +76,22 @@ We also excluded the ensemble model created by the Hub team, because it is const
 We retained the Hub baseline model: it is an independently specified statistical model, and including it gives a naive reference point against which participant forecasts can be read.
 
 ```{r}
+#| label: supplement-model-flow-counts
+#| include: false
+
+# Written by create_model_flow() in R/plot-model-flow.R alongside the flowchart,
+# so the counts here and in the figure come from one source
+flow_counts <- read_csv(here("output", "model-flow-counts.csv")) |>
+  (\(x) setNames(x$n_models, paste(x$target_variable, x$step)))()
+```
+
+Of `r flow_counts[["case submitted"]]` models submitting case forecasts during the study period, `r flow_counts[["case included"]]` met these criteria; of `r flow_counts[["death submitted"]]` submitting death forecasts, `r flow_counts[["death included"]]` did.
+
+```{r}
 #| label: supplement-model-flow
 #| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
-#| TODO: output as csv, or similar so that participation can be described throughout from a single source
 
-# source(here("R", "plot-model-flow.R"))
+# source(here("R", "plot-model-flow.R")) to regenerate this and the counts above
 knitr::include_graphics(here("output", "flowchart.png"))
 ```
 
