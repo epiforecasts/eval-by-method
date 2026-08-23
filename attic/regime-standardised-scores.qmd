@@ -1,0 +1,288 @@
+---
+title: "Standardising forecast scores by epidemic regime"
+format:
+  html:
+    toc: true
+    df-print: kable
+execute:
+  echo: false
+  message: false
+  warning: false
+  cache: true
+---
+
+```{r}
+#| label: setup
+
+library(here)
+library(tidyverse)
+library(mgcv)
+library(marginaleffects)
+
+theme_set(theme_classic())
+
+source(here("R", "process-data.R"))
+
+scores <- process_data(scoring_scale = "log") |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
+  filter(Horizon == 1)
+
+# Weekly growth, computed on the distinct observation series rather than on
+# forecast rows, where consecutive rows are the same week and a different model.
+weekly <- scores |>
+  distinct(Location, epi_target, target_end_date, Incidence, pop) |>
+  arrange(Location, epi_target, target_end_date) |>
+  group_by(Location, epi_target) |>
+  mutate(Growth = log((Incidence + 0.5) / (lag(Incidence) + 0.5))) |>
+  ungroup() |>
+  select(Location, epi_target, target_end_date, Growth)
+
+regime_breaks <- c(-Inf, -0.2, -0.05, 0.05, 0.2, Inf)
+regime_labels <- c("Falling fast", "Falling", "Stable", "Rising", "Rising fast")
+
+d <- scores |>
+  left_join(weekly, by = c("Location", "epi_target", "target_end_date")) |>
+  mutate(
+    IncidencePK = log((Incidence + 0.5) / pop * 1e5),
+    Regime = cut(Growth, regime_breaks, labels = regime_labels),
+    Epi_target = factor(epi_target),
+    Model = factor(Model),
+    Location = factor(Location)
+  ) |>
+  filter(is.finite(wis), is.finite(IncidencePK), is.finite(Growth))
+```
+
+## The problem
+
+Forecast evaluations report a mean score per target type, and compare those means.
+Cases and deaths are scored separately, and deaths usually score better.
+
+That mean is taken over whatever mix of epidemic conditions the evaluation period happened to contain.
+If score depends on epidemic state, and the state distribution differs between the things being compared, the comparison is confounded by the mix rather than by anything about forecasting.
+
+This is analogous to a traditional epidemiologist's crude rate comparison:
+
+| Mortality | Forecast evaluation |
+|---|---|
+| Crude death rate | Mean score over all targets |
+| Age stratum | Epidemic regime (level, growth) |
+| Age-specific rate | Regime-specific mean score |
+| Reference population | Reference regime distribution |
+| Age-standardised rate | Regime-standardised mean score |
+
+When stratum-specific rates are proportional across groups, a single standardised summary is appropriate.
+However, when they cross or diverge, the summary hides informative variation (i.e. effect modification), and the strata should be shown instead.
+
+## Data and stratification
+
+Weekly COVID-19 case and death forecasts submitted to the European Forecast Hub, scored with the weighted interval score on the log scale (LWIS), horizon one-week only.
+The Hub ensemble is excluded.
+
+Epidemic regime is the weekly log change in observed incidence, cut at ±0.05 and ±0.2, computed within country and outcome.
+Growth is dimensionless, so its strata mean the same thing for cases and deaths.
+Incidence level is not comparable across outcomes and is not used for stratification (but see below).
+
+```{r}
+#| label: tbl-regime-mix
+#| tbl-cap: "Distribution of target weeks across epidemic regimes, percentage total, by outcome"
+
+regime_mix <- d |>
+  distinct(Location, epi_target, target_end_date, Regime) |>
+  count(epi_target, Regime) |>
+  group_by(epi_target) |>
+  mutate(pct = round(100 * n / sum(n), 1)) |>
+  ungroup() |>
+  select(-n) |>
+  pivot_wider(names_from = epi_target, values_from = pct)
+
+regime_mix
+```
+
+If columns in @tbl-regime-mix show very different distributions, this suggests standardisation is a useful adjustment before comparison.
+
+## Crude, stratum-specific, and standardised distributions
+
+```{r}
+#| label: tbl-crude
+#| tbl-cap: "Crude comparison: mean LWIS per forecast, by outcome."
+
+crude <- d |>
+  group_by(epi_target) |>
+  summarise(crude = mean(wis), `N forecasts` = n(), .groups = "drop")
+
+crude |> mutate(`Crude mean LWIS` = round(crude, 4))
+```
+
+```{r}
+#| label: tbl-strata
+#| tbl-cap: "Regime-specific mean LWIS by outcome; ratios below one favour deaths."
+
+strata <- d |>
+  group_by(epi_target, Regime) |>
+  summarise(mean_wis = mean(wis), forecasts = n(), .groups = "drop")
+
+strata_wide <- strata |>
+  select(-forecasts) |>
+  pivot_wider(names_from = epi_target, values_from = mean_wis) |>
+  mutate(ratio_deaths_cases = Deaths / Cases) |>
+  mutate(across(where(is.numeric), \(x) round(x, 4)))
+
+strata_wide
+```
+
+For standardisation, any fixed reference works; we reference the pooled regime distribution across both outcomes, so neither outcome is privileged.
+
+```{r}
+#| label: tbl-standardised
+#| tbl-cap: "Directly standardised mean LWIS, weighting regime-specific means by the pooled regime distribution across both outcomes."
+
+reference <- d |>
+  distinct(Location, epi_target, target_end_date, Regime) |>
+  count(Regime) |>
+  mutate(weight = n / sum(n)) |>
+  select(Regime, weight)
+
+standardised <- strata |>
+  left_join(reference, by = "Regime") |>
+  group_by(epi_target) |>
+  summarise(standardised = sum(weight * mean_wis), .groups = "drop") |>
+  left_join(crude, by = "epi_target") |>
+  select(epi_target, crude, standardised) |>
+  mutate(across(where(is.numeric), \(x) round(x, 4)))
+
+standardised
+```
+
+### Interpretation
+
+Compare @tbl-crude with @tbl-standardised to see how much of the crude gap is regime mix.
+Then read the ratio column of @tbl-strata to see whether a single standardised number is defensible.
+
+A roughly constant ratio across regimes means the outcomes differ by a common factor, and either the crude or the standardised comparison will adequately summarise it.
+A ratio that changes across regimes means the difference between outcomes depends on epidemic state, and no single number represents it.
+In that case the standardised value would be substantively misleading (in the same way an age-standardised rate ratio is when the age-specific ratios cross).
+
+Here the ratio is close to constant and the two regime distributions are close to identical, so standardisation over phase is defensible and leaves the comparison where it started.
+That is a useful negative: it rules phase out as an explanation for the case-death gap, which the crude comparison alone cannot do.
+
+## Model-based standardisation
+
+Direct standardisation on a single stratifying variable is difficult to support with sparse stratum-specific data, and cannot cross-stratify for an incidence level, country, and variant constant at the same time.
+The model-based equivalent is g-computation: fit score as a function of the target-generating variables, predict every target under a common regime, and average.
+
+```{r}
+#| label: fit-target-model
+
+m_target <- bam(
+  wis ~
+    Epi_target +
+    te(IncidencePK, Growth, by = Epi_target, k = c(5, 5)) +
+    s(VariantPhase, bs = "re") +
+    s(Location, bs = "re"),
+  data = d,
+  family = tw(link = "log"),
+  discrete = TRUE,
+  nthreads = 4
+)
+```
+
+```{r}
+#| label: tbl-gcomp
+#| tbl-cap: "Model-based standardisation: mean predicted LWIS with growth set to each regime midpoint for every target, holding all other covariates at their observed values."
+
+regime_points <- c(-0.35, -0.12, 0, 0.12, 0.35)
+
+gcomp <- map_dfr(regime_points, \(g) {
+  avg_predictions(
+    m_target,
+    newdata = transform(d, Growth = g),
+    by = "Epi_target",
+    type = "response"
+  ) |>
+    as_tibble() |>
+    mutate(Growth = g)
+}) |>
+  select(Epi_target, Growth, estimate, conf.low, conf.high) |>
+  mutate(across(where(is.numeric), \(x) round(x, 4)))
+
+gcomp
+```
+
+This holds incidence level, country, and variant at their observed values while moving only growth, so it separates epidemic phase from the level and place it usually travels with.
+
+## Where standardisation runs out
+
+Growth is dimensionless and means the same thing for both outcomes, which is what made the sections above possible.
+Incidence level does not: five deaths per 100,000 in a week is a catastrophe and five cases per 100,000 is nothing.
+No reference distribution over level means the same thing on both sides of the comparison, so the level component of difficulty cannot be standardised across outcomes at all.
+
+This is not a technicality, because level is where the difficulty gradient sits.
+Moving phase across its full range in @tbl-gcomp changes the score by a fifth; moving level changes it by an order of magnitude.
+
+Within a single outcome, level does decompose.
+Rate carries epidemic severity and count carries observation noise, and the two separate because population spans two orders of magnitude across the 32 countries.
+
+```{r}
+#| label: tbl-rate-count
+#| tbl-cap: "Mean LWIS for death forecasts by weekly rate per 100,000 and by weekly count. Reading across a row holds rate roughly fixed and varies count; reading down a column holds count and varies rate. Target counts are distinct country-weeks."
+
+rate_count <- d |>
+  filter(epi_target == "Deaths") |>
+  mutate(
+    count = cut(Incidence, c(-1, 5, 20, 100, Inf)),
+    rate  = cut(Incidence / pop * 1e5, c(-1, 0.5, 1, 5, Inf))
+  ) |>
+  group_by(rate, count) |>
+  summarise(
+    mean_wis = round(mean(wis), 4),
+    targets = n_distinct(Location, target_end_date),
+    .groups = "drop"
+  ) |>
+  pivot_wider(names_from = count, values_from = c(mean_wis, targets))
+
+rate_count
+```
+
+Both gradients are present in @tbl-rate-count, and they carry different meanings.
+
+The row gradient is observation noise.
+A country recording three deaths a week bounces between one and six for reasons unconnected to the epidemic, and that variation is large in the space the score is computed in.
+Small counts are therefore harder, not easier, which is the opposite of what a compression argument would predict.
+
+The column gradient is a mix of epidemic difficulty and the scoring transform.
+`process-score.R` normalises to per 100,000 and then applies `log(x + 1)`, so the offset sits on a rate rather than a count.
+Where the rate is well below one per 100,000, `log(r + 1)` is close to `r` and almost no transformation happens; where it is in the hundreds, the transform behaves as intended.
+Death scores are therefore closer to an absolute error measure and case scores closer to a relative one, which is enough on its own to produce part of the gap.
+
+Two cells are too thin to read: the highest rate band at counts below five, and at counts of 5 to 20.
+The second is structurally empty rather than merely sparse, since a rate above five per 100,000 at a count under twenty requires a population below 400,000.
+
+## Conclusion
+
+Standardisation transfers cleanly to forecast evaluation when the stratifying variable has a common scale across the things being compared.
+Epidemic phase qualifies, and applying it here rules phase out as an explanation for the case-death difference.
+
+Epidemic level does not qualify, and level is where the difficulty actually lives.
+The apparent superiority of death forecasts is therefore not a claim standardisation can settle, and neither is its converse.
+
+The useful output is the diagnostic rather than an adjusted number: a comparison that looks standardisable, an argument for why one component of it is and the other is not, and a scoring-scale artefact surfaced by asking the question.
+
+## Limitations
+
+Exploratory. No pre-specified hypothesis, and the regime cutpoints were chosen for interpretability rather than derived.
+
+LWIS mixes calibration and sharpness, so a higher score means a forecast was scored worse, not that the target was harder in any independent sense.
+
+Growth is measured on observed data as reported, so revisions and reporting artefacts enter the stratification.
+Deaths lag cases, so a death week classified as stable may follow a volatile case week; the regimes are contemporaneous with the target, not with the epidemic.
+
+The g-computation in @tbl-gcomp assumes positivity, and it does not hold everywhere.
+Setting growth to 0.35 for every target includes country-weeks whose incidence level never co-occurs with fast growth, so some predictions come from unsupported regions of the tensor surface.
+Restricting to rows inside each outcome's observed joint range, or reporting how many fall outside it, would bound this.
+
+Model composition is not adjusted for.
+If the set of models forecasting in one regime differs from another, regime-specific means absorb that difference.
+Adding `s(Model, bs = "re")` to `m_target` tests it, at the cost of no longer being a purely target-side description.
+
+Horizon one only.
+If regime effects work through turning points, they should grow with horizon, which is a check rather than an assumption.
