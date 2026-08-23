@@ -121,8 +121,7 @@ Mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic
 ```{r}
 #| label: fig-error-vs-obs
 #| fig-cap: >-
-#|   Forecast error scales with the magnitude of the observed outcome.
-#|   Weighted interval score (WIS) plotted against observed incidence per 100,000 population for COVID-19 cases and deaths across 32 European countries.
+#|   Weighted interval score (WIS) against observed incidence per 100,000 population for COVID-19 cases and deaths across 32 European countries.
 #|   Faint points show individual forecasts.
 #|   Both axes are shown on the log scale; lower WIS indicates better performance.
 #| fig-height: 4
@@ -169,7 +168,7 @@ beat_ensemble <- scores |>
   summarise(n_models = n(), n_better = sum(median < ensemble))
 ```
 
-Crude aggregated performance varied more with the epidemiological process being predicted than between forecasters.
+Aggregated performance varied more with the epidemiological process being predicted than between forecasters.
 Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths, and scores tracked the magnitude of the outcome being predicted (@fig-error-vs-obs).
 Across variant phases, forecasts were most accurate during the `r phase_best` phase and least accurate during `r phase_worst`, the period of steepest change in reported incidence.
 Scores worsened with forecast horizon, from a median LWIS of `r median_by_horizon[["Cases 1"]]` at one week to `r median_by_horizon[["Cases 4"]]` at four weeks for cases, and `r median_by_horizon[["Deaths 1"]]` to `r median_by_horizon[["Deaths 4"]]` for deaths.
@@ -191,7 +190,7 @@ strata_thin <- round(mean(strata_obs$n < 5) * 100)
 
 #### Effect of model structure
 
-In crude comparison, agent-based and human judgement models appeared to outperform mechanistic and statistical approaches.
+Before adjustment, agent-based and human judgement models appeared to outperform mechanistic and statistical approaches.
 However, participation between model structures was unevenly distributed across forecast targets.
 Handling this with a stratification approach would produce sparse data, given both the range of targets, and number and type of covariates we wish to adjust for.
 To demonstrate, cross-classifying forecasts by the categorical covariates alone (epidemiological outcome, location, epidemic trend, variant phase, number of countries targeted) gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled` % contain any forecast.
@@ -232,16 +231,18 @@ The largest shifts under adjustment were among agent-based and human judgement m
 ```{r}
 #| label: tbl-structure
 #| tbl-cap: >-
-#|   Partial effects of model structure on the performance of COVID-19 forecasts
-#|   (LWIS, the weighted interval score of log-transformed forecasts and observations),
-#|   from univariate (unadjusted) and joint (adjusted) generalised additive mixed models.
+#|   Estimated effects of model structure on COVID-19 forecast performance, where 
+#|   a ratio below 1 indicates better-than-average performance.
+#|   Performance measured as LWIS (weighted interval score of log-transformed forecasts 
+#|   and observations), and estimated from univariate (unadjusted) and joint (adjusted) 
+#|   generalised additive mixed models adjusted for varying features of the forecast target: 
+#|   weekly incidence, trend, 
 #|   Effects are deviations from the grand mean under a sum-to-zero constraint, expressed
-#|   as the exponentiated partial effect: a multiplicative ratio relative to the grand-mean
-#|   LWIS, where a ratio below 1 indicates better-than-average performance.
-#|   Raw partial effects on the log scale are reported in the Supplement.
+#|   as the exponentiated partial effect: a multiplicative ratio relative to the overall (grand-mean)
+#|   LWIS, where 
 #|   95% CI = 95% confidence interval.
 
-print_table2(results$effects, caption = NULL)
+print_table2(results$effects)
 ```
 
 ```{r}
@@ -280,27 +281,21 @@ The widest separation was among `r tolower(mbt_widest)` models, which were the w
 This contrast rests on `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Cases"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Cases"]` forecasts for cases, and `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Deaths"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Deaths"]` forecasts for deaths, so the structure-level estimate is close to a statement about individual models, even with a model-specific effect in the fit.
 
 All other model structures performed more similarly between epidemiological outcomes, performing marginally better on cases than on deaths.
-We noted that differences between outcomes largely offset when averaged; an averaged estimate therefore gives close to zero for most structures, whether or not outcome-specific differences exist.
+We noted that differences between outcomes largely offset when averaged.
+An averaged estimate therefore gives close to zero for most structures, whether or not outcome-specific differences exist.
 
 ```{r}
 #| label: fig-structure-effects
 #| fig-cap: >-
-#|   No model structure performed differently from the average once the difficulty of
-#|   its targets was accounted for; structures that predicted one outcome relatively
-#|   well predicted the other relatively poorly, so the difference cancels when pooled.
-#|   Performance ratio (95% CI) by model structure, pooled across epidemiological
-#|   outcomes (A) and estimated separately for case and death forecasts (B).
-#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS;
+#|   No model structure performed differently from the average after adjustment for the difficulty
+#|   of its forecast targets.
+#|   Performance ratio (95% CI) by model structure, as the exponentiated partial effect relative to the grand-mean LWIS;
 #|   a ratio below 1 indicates better-than-average performance.
-#|   In A, filled symbols are adjusted and open symbols unadjusted estimates.
-#|   In B, colour and shape give the epidemiological outcome.
-#|   Both panels come from a single joint model in which model structure is crossed
-#|   with the epidemiological outcome; note the panels use different scales.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
-#| fig-height: 3.5
+#| fig-height: 3
 #| fig-width: 9
 
-plot_structure_effects(results$effects, results$method_by_target)
+plot_method_target(results$method_by_target)
 ```
 
 #### Other drivers of forecast performance
@@ -323,7 +318,7 @@ rank_summary <- summarise_ranks(ranks)
 ```
 
 We compared this remaining variation between individual models in terms of ranked model order.
-Ranking models by their partial effect before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`, with `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places and the furthest moving `r rank_summary$max_change` places (@fig-model-variation B).
+Ranking models by their performance before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`. `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places and the furthest moving `r rank_summary$max_change` places (@fig-model-variation B).
 
 ```{r}
 #| label: fig-model-variation
@@ -332,7 +327,7 @@ Ranking models by their partial effect before and after adjustment gives a Spear
 #|   target difficulty reorders them substantially, so which models look best depends on
 #|   how the evaluation is designed.
 #|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and
-#|   labelled by the model's crude rank before adjustment, which colour also gives.
+#|   labelled by the model's unadjusted rank.
 #|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS,
 #|   where a ratio below 1 indicates better-than-average performance, adjusted for model
 #|   structure, geographic scope, forecast horizon, epidemic trend, variant phase and location.

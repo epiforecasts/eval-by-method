@@ -6,107 +6,18 @@ library("gammit")
 source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
 
-# Adjusted effect of each model, ordered by that effect and labelled by the
-# model's crude (unadjusted) rank. Structure is not shown: it is one of the
-# covariates already adjusted for, so what is left to see is how far the crude
-# order is scrambled, which the labels and the colour gradient both carry.
-# The crude rank is also an anonymous label, so no team is identified.
-plot_models <- function(random_effects, ranks = NULL, x_labels = TRUE) {
-  if (is.null(ranks)) ranks <- rank_models(random_effects)
-  effects <- random_effects |>
-    filter(group_var == "Model") |>
-    left_join(select(ranks, group, rank_unadjusted), by = "group") |>
-    mutate(label = paste("Crude rank", rank_unadjusted))
-  # Levels run from worst to best adjusted effect: coord_flip() then puts the
-  # best-performing model at the top.
-  label_levels <- effects |>
-    filter(model == "Adjusted") |>
-    arrange(desc(value)) |>
-    pull(label)
-  plot <- effects |>
-      mutate(label = factor(label, levels = label_levels)) |>
-      ggplot(aes(x = label, col = rank_unadjusted)) +
-      geom_point(aes(y = exp(value))) +
-      geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5))) +
-      geom_hline(yintercept = 1, lty = 2) +
-      labs(y = "Adjusted performance ratio", x = "",
-           colour = "Crude rank (1 = best)") +
-      scale_y_log10() +
-      scale_colour_viridis_c() +
-      guides(colour = guide_colourbar(barwidth = 10, barheight = 0.5,
-                                      title.position = "top")) +
-      theme(
-        legend.position = "bottom",
-        legend.margin = margin(t = 0, b = 0),
-        strip.background = element_blank()
-      ) +
-      coord_flip()
-    if (!x_labels) {
-      plot <- plot +
-        theme(
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()
-        )
-    }
-  return(plot)
-}
+# Note plot style, to use everywhere: lineranges showing CIs should always be bars (lwd=2) surrounding a point the same colour, with lower alpha; effects shown as forest plots should order in ascending order of the point estimate, except for method (model structure) and epi outcome, which should be shown in the specified order; epi outcome should be coloured as specified throughout
 
-# Partial effect of each model structure, shown separately for case and death
-# forecasts. These come from the s(Method, Epi_target) cells, so the two points
-# for a structure are the quantity the interaction is there to expose: whether a
-# structure predicts one outcome relatively better than the other.
-plot_method_target <- function(method_by_target, method_levels = NULL) {
-  if (is.null(method_levels)) {
-    method_levels <- rev(sort(unique(method_by_target$Method)))
-  }
-  method_by_target |>
-    mutate(
-      Method = factor(Method, levels = method_levels),
-      `Epidemiological target` = factor(Epi_target,
-                                        levels = c("Cases", "Deaths"))
-    ) |>
-    ggplot(aes(x = Method, col = `Epidemiological target`,
-               shape = `Epidemiological target`)) +
-    geom_point(aes(y = exp(value)), position = position_dodge(width = 0.6)) +
-    geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5)),
-                   position = position_dodge(width = 0.6)) +
-    geom_hline(yintercept = 1, lty = 2, alpha = 0.4) +
-    scale_y_log10() +
-    scale_colour_brewer(type = "qual", palette = "Set1") +
-    labs(y = "Adjusted performance ratio", x = NULL,
-         colour = NULL, shape = NULL) +
-    theme(legend.position = "bottom", strip.background = element_blank()) +
-    coord_flip()
-}
+plot_config <- list(
+  epi_levels = ordered(c("Cases"= "#fe9929", "Deaths" = "#993404")),
+  method_levels = ordered(c("Judgement" = "#0c2c84",
+                            "Statistical" = "#225ea8",
+                            "Semi-mechanistic" = "#1d91c0",
+                            "Mechanistic" = "#7fcdbb",
+                            "Agent-based" = "#c7e9b4"))
+)
 
-# Structure effects as one figure: pooled across outcomes (A) and separately by
-# outcome (B). The two panels answer the same question at different resolution,
-# so they share a y axis ordering and only panel A carries the labels.
-plot_structure_effects <- function(effects, method_by_target) {
-  method_levels <- effects |>
-    filter(group_var == "Method") |>
-    pull(group) |>
-    unique() |>
-    as.character() |>
-    sort() |>
-    rev()
-
-  # Panel A overlays unadjusted estimates, so only panel B can be called adjusted
-  pooled <- plot_effects(effects, variables = "Method") +
-    scale_x_discrete(limits = method_levels) +
-    labs(y = "Performance ratio (vs average model)")
-
-  by_target <- plot_method_target(method_by_target, method_levels = method_levels) +
-    labs(y = "Adjusted performance ratio") +
-    theme(
-      axis.text.y = element_blank(),
-      axis.ticks.y = element_blank()
-    )
-
-  (pooled | by_target) +
-    patchwork::plot_annotation(tag_levels = "A")
-}
-
+# Fit vs observed
 plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
   p <- ggplot(fit_obs, aes(observed, fitted)) +
     geom_point(alpha = 0.1, size = 0.4) +
@@ -123,14 +34,41 @@ plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
   return(p)
 }
 
+# Partial effect of each model structure, for case and death
+plot_method_target <- function(method_by_target, plot_config) {
+  if (is.null(method_levels)) {
+    method_levels <- rev(sort(unique(method_by_target$Method)))
+  }
+
+  method_by_target |>
+    mutate(
+      Method = factor(Method, levels = plot_config$method_levels),
+      `Epidemiological target` = factor(Epi_target,
+                                        levels = c("Cases", "Deaths"))
+    ) |>
+    ggplot(aes(x = Method, col = `Epidemiological target`)) +
+    geom_point(aes(y = exp(value)), position = position_dodge(width = 0.6),
+               size = 1.5, alpha = 0.8)+
+    geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5)),
+                   position = position_dodge(width = 0.6), lwd = 2,
+                   alpha = 0.6) +
+    geom_hline(yintercept = 1, lty = 2, alpha = 0.4) +
+    scale_y_log10() +
+    scale_colour_manual(values = colour_key) +
+    labs(y = "Adjusted performance ratio", x = NULL,
+         colour = NULL) +
+    theme(legend.position = "bottom", strip.background = element_blank()) +
+    coord_flip()
+}
+
+# All effects (used in supplement)
 plot_effects <- function(random_effects,
                          variables = NULL) {
   if(is.null(variables)){variables <- unique(random_effects$group_var)}
 
-  # Colour separates the variables when several are shown together. With a
-  # single variable it would encode nothing, so it becomes one fixed grey.
+  # Colour separates the variables when several are shown together
   colour_scale <- if (length(variables) > 1) {
-    scale_colour_brewer(type = "qual", palette = "Dark2", guide = "none")
+    scale_colour_viridis_d("B", guide = "none")
   } else {
     scale_colour_manual(values = "grey30", guide = "none")
   }
@@ -143,24 +81,62 @@ plot_effects <- function(random_effects,
     geom_point(aes(y = exp(value)),
                position = position_dodge(width=1)) +
     geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5),),
-                   position = position_dodge(width=1)) +
+                   position = position_dodge(width=1), lwd = 2, alpha = 0.7) +
     geom_hline(yintercept = 1, lty = 2, alpha = 0.25) +
     scale_y_log10() +
     scale_shape_manual(values = c("Adjusted" = 16, "Unadjusted" = 1)) +
-    labs(y = "Performance ratio (vs average model)", x = NULL,
+    labs(y = "Performance ratio vs average", x = NULL,
          colour = NULL, shape = NULL) +
     colour_scale +
     theme(legend.position = "bottom", strip.background = element_blank()) +
     coord_flip()
 }
 
-# Model ranking before and after adjustment (#168) ---------------------------
-#
+# Individual models before and after adjustment ---------------------------
 # Individual-model effects come in two versions: "Unadjusted" from a univariate
-# model with s(Model) alone, and "Adjusted" from the joint model. Ranking
-# models under each gives the difference an increasingly controlled evaluation
-# design makes to which models look best, holding the score itself fixed.
-#
+# model with s(Model) alone, and "Adjusted" from the joint model
+# Adjusted effect of each model, ordered by that effect but labelled by the
+# model's unadjusted rank
+plot_models <- function(random_effects, ranks = NULL, x_labels = TRUE) {
+  if (is.null(ranks)) ranks <- rank_models(random_effects)
+  effects <- random_effects |>
+    filter(group_var == "Model") |>
+    left_join(select(ranks, group, rank_unadjusted), by = "group") |>
+    mutate(label = paste("Unadjusted rank", rank_unadjusted))
+  # Levels run from worst to best adjusted effect: coord_flip() then puts the
+  # best-performing model at the top.
+  label_levels <- effects |>
+    filter(model == "Adjusted") |>
+    arrange(desc(value)) |>
+    pull(label)
+  plot <- effects |>
+    mutate(label = factor(label, levels = label_levels)) |>
+    ggplot(aes(x = label, col = rank_unadjusted)) +
+    geom_point(aes(y = exp(value))) +
+    geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5))) +
+    geom_hline(yintercept = 1, lty = 2) +
+    labs(y = "Adjusted performance ratio", x = "",
+         colour = "Unadjusted rank (1 = best)") +
+    scale_y_log10() +
+    scale_colour_viridis_b() +
+    guides(colour = guide_colourbar(barwidth = 10, barheight = 0.5,
+                                    title.position = "top")) +
+    theme(
+      legend.position = "bottom",
+      legend.margin = margin(t = 0, b = 0),
+      strip.background = element_blank()
+    ) +
+    coord_flip()
+  if (!x_labels) {
+    plot <- plot +
+      theme(
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()
+      )
+  }
+  return(plot)
+}
+
 # Rank 1 is the best-performing model (lowest partial effect on the score).
 rank_models <- function(random_effects, anonymise = TRUE) {
   classification <- classify_models() |>
@@ -188,7 +164,7 @@ rank_models <- function(random_effects, anonymise = TRUE) {
 }
 
 # Summary statistics for the ranking comparison, so the text tracks the fit.
-summarise_ranks <- function(ranks, threshold = 5) {
+summarise_ranks <- function(ranks, threshold = 10) {
   list(
     n = nrow(ranks),
     spearman = cor(ranks$rank_unadjusted, ranks$rank_adjusted,
@@ -215,7 +191,7 @@ plot_model_ranks <- function(ranks, annotate = TRUE) {
                        breaks = c(1, seq(10, n_models, by = 10))) +
     scale_y_continuous(limits = c(1, n_models),
                        breaks = c(1, seq(10, n_models, by = 10))) +
-    scale_colour_brewer(type = "qual", palette = 2) +
+    scale_colour_manual(values = plot_config$method_levels) +
     coord_equal() +
     labs(x = "Unadjusted rank (1 = best)", y = "Adjusted rank (1 = best)",
          colour = NULL) +
