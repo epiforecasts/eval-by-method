@@ -3,6 +3,37 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Regime standardisation sketch
+
+`attic/regime-standardised-scores.qmd`
+
+Exploratory note, held outside the manuscript. Treats the case-versus-death score comparison as a crude rate comparison and applies direct standardisation over epidemic regime, defined as the weekly log change in observed incidence. Includes a g-computation version using a target-only GAMM, so incidence level, country, and variant are held fixed while growth moves. Sourced from `attic/inc-gr-tensor.R`, which fits the same target-only specification.
+
+Standardising over phase leaves the case-death ratio unchanged, so phase is ruled out as an explanation. Level cannot be standardised across outcomes, because a rate per 100,000 does not mean the same thing for cases and deaths, and level is where the difficulty gradient sits. A rate-by-count decomposition within deaths separates observation noise from epidemic severity, and shows that `process-score.R` applies its `log(x + 1)` offset after normalising to per 100,000 — so at death rates below one per 100,000 the log transform is close to the identity, and death scores are closer to an absolute error measure than case scores are.
+
+## Unreleased — Results TODOs cleared
+
+`R/analysis-descriptive.R`, `R/plot-model-results.R`, `R/plot-model-flow.R`, `report/quarto/_results.qmd`, `report/quarto/_discussion.qmd`, `report/supplement.qmd`
+
+The ten inline TODOs in the Results section are resolved. No refit: all estimates still come from `output/log/results.rds`.
+
+Table 1 (`print_table1()`) drops the geographic-scope rows and the single-country column, and gains a combined Models (%) column across both outcomes and a median participation column, as a percentage of the 26,624 available forecast targets.
+
+`plot_models()` no longer shows model structure or geographic scope, both of which its estimates already adjust for. Models are labelled by their crude rank before adjustment and coloured by the same, so panel A of the model-variation figure shows how far adjustment scrambles the crude order. It takes the `ranks` object rather than `scores`, so `plot_model_variation()` no longer needs the score data. Panel B keeps structure colour and now carries its own key.
+
+"Adjusted performance ratio" replaces the generic axis label wherever a panel shows adjusted estimates alone; the pooled structure panel keeps the old label because it overlays unadjusted estimates.
+
+`plot_error_vs_obs()` converts observed incidence to per 100,000 population before plotting. Weighted interval scores were already computed on population-normalised forecasts (`R/process-score.R`), so the figure had been mixing units. `Incidence` in `process_data()` is unchanged, since it feeds the covariates the saved fit used.
+
+Results gains: coverage of the target matrix in the participation paragraph; a crude comparison against the Hub ensemble, with the reason it is excluded from the fit; median LWIS by forecast horizon, reported descriptively because horizon enters the fit as a per-model smooth; the number of models and forecasts behind the widest case-death structure contrast; and adjusted ratios for single- and multi-country models.
+
+The Spearman correlation is kept for the rank comparison: both columns rank the same models, so the rank changes sum to zero and a paired location test has nothing to detect. The sentence now also gives the largest single move.
+
+Discussion links the limitations paragraph back to the sparse-stratum argument in Results, and says what penalised terms do about it.
+
+`create_model_flow()` writes `output/model-flow-counts.csv` alongside the flowchart, and the Supplement reads the submitted and included model counts from it.
+
+
 ## Unreleased — Results figures reworked; discussion and supplement pass
 
 `R/plot-model-results.R`, `report/quarto/_results.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_references.qmd`, `report/supplement.qmd`

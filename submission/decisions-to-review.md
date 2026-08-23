@@ -55,9 +55,9 @@ Participation, LWIS density, residual diagnostics, observed against fitted, spat
 
 The supplement carried a TODO to panel the case and death trend figures side by side. Each is a 32-country facet grid, so merging them would give 64 panels in one figure and neither would be legible. They stay as two figures, with captions rewritten to name the trend classification rather than reading "Trends (cases)". The TODO is removed; say if you want them merged anyway.
 
-## Participation TODO left in place
+## Participation counts now come from one file
 
-`report/supplement.qmd` still carries the TODO about writing participation counts to a CSV so they can be described from a single source. That is a code-organisation change rather than a writing one, so I have not touched it.
+`create_model_flow()` writes `output/model-flow-counts.csv` alongside the flowchart, and the Supplement reads the submitted and included counts from it rather than leaving them only inside the figure. Regenerating the flowchart regenerates the counts. This closes the TODO that was left in place in the previous session.
 
 ## Rank annotation placement
 
@@ -72,3 +72,43 @@ This is a patch, not a fix. The durable fix is to give both Results tables chunk
 ## Overall row of the model characteristics table
 
 The "Single-country (%)" column rendered as NA in the Overall row, because composition was computed by model structure only. It now shows the count across all models. Check the number reads as you expect against the per-structure rows.
+
+# Results TODOs cleared, 20 August 2026
+
+The ten inline TODOs in `report/quarto/_results.qmd` are resolved as follows. No model was refitted; all numbers still come from `output/log/results.rds`.
+
+## Table 1 restructured
+
+Geographic scope rows and the single-country column are gone; the table is now the Overall row and the five structure rows, with Models (%) for cases, for deaths, and combined, plus median participation as a percentage of the 26,624 available targets. Geographic scope is still reported in the text and in the model estimates, so the table no longer carries it twice.
+
+## Figure 3A no longer shows model structure
+
+Panel A drops the geographic-scope shape and the structure colour: both are covariates the panel's estimates already adjust for. Models are labelled by their crude rank before adjustment and coloured by the same, so the panel shows how far the crude order is scrambled. Structure colour stays in panel B, which now carries its own key.
+
+## Axis labels
+
+"Adjusted performance ratio" is used only where a panel shows adjusted estimates alone: Figure 2B and Figure 3A. Figure 2A overlays unadjusted estimates as open symbols, so it keeps "Performance ratio (vs average model)".
+
+## Crude aggregate performance against the ensemble
+
+The opening of the performance section now reports how many models beat the Hub ensemble on median LWIS, per outcome, and says why the ensemble is excluded from the fit. This is a crude comparison of medians, not a like-for-like one: the ensemble forecast almost every target while most models forecast a small subset.
+
+## Forecast horizon
+
+Reported descriptively (median LWIS at each horizon, separately for cases and deaths) rather than as an estimate, because horizon enters the fit as a smooth by model and so has no pooled effect to quote. The "Other drivers" section says this explicitly.
+
+## How thin the agent-based estimate is
+
+Results now gives the models and forecasts behind the structure with the widest case-death separation, computed from the data rather than written in. On the current fit that is agent-based models: three models on cases, two on deaths.
+
+## Spearman kept for the rank comparison
+
+A Wilcoxon signed-rank test would test whether ranks shifted systematically, and cannot: both columns rank the same 48 models, so the rank changes sum to zero by construction. The question is how strongly the two orderings agree, which is what Spearman answers. The sentence now also gives the largest single move.
+
+## Observed incidence per 100,000
+
+Weighted interval scores were computed on population-normalised forecasts, but the `Incidence` column plotted against them was a raw count, so Figure 1 mixed units. The conversion is done inside `plot_error_vs_obs()` only. `Incidence` in `process_data()` is untouched, because it feeds the trend and level classification the saved fit used.
+
+## Sparse data referenced in the Discussion
+
+Two sentences at the end of the limitations paragraph link back to the sparse-stratum argument in Results and say what penalised terms do about it. This makes the conservative direction of the estimates explicit rather than implied.
