@@ -66,6 +66,20 @@ create_model_flow <- function() {
     mutate(across(starts_with("inc_"), ~ if_else(is.na(.), FALSE, .))) |>
     filter(target_variable != "hosp")
 
+  # Model counts at each step, written out so that the flowchart, the Methods
+  # and the Supplement all describe participation from one source
+  models |>
+    group_by(target_variable) |>
+    summarise(
+      submitted = n(),
+      quantiles = sum(inc_quantile),
+      horizon = sum(inc_quantile & inc_horizon),
+      included = sum(inc_quantile & inc_horizon & inc_xhub),
+      .groups = "drop"
+    ) |>
+    pivot_longer(-target_variable, names_to = "step", values_to = "n_models") |>
+    readr::write_csv(here("output", "model-flow-counts.csv"))
+
   flow <- imap(c("case", "death"),
                ~ models |>
                  filter(target_variable == .x) |>

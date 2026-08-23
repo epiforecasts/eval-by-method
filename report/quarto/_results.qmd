@@ -28,10 +28,6 @@ ensemble <- scores |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
 scores <- scores |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
-
-# natural-scale scores for descriptive error-vs-observation figure
-scores_natural <- process_data(scoring_scale = "natural") |>
-  filter(!grepl("EuroCOVIDhub-ensemble", Model))
 ```
 
 ```{r}
@@ -40,26 +36,37 @@ scores_natural <- process_data(scoring_scale = "natural") |>
 max_forecasts <- 104 * 2 * 4 * 32 # 104 weeks * 2 epi outcomes * 4 horizons * 32 countries
 n_models <- length(unique(scores$Model))
 n_forecasts <- nrow(scores)
-n_teams <- distinct(scores, Model) |> 
-  separate(Model, into = c("team", "model"), sep = "-") |> 
+n_teams <- distinct(scores, Model) |>
+  separate(Model, into = c("team", "model"), sep = "-") |>
   count(team)
 teams_models <- summary(n_teams$n)
+
+# Coverage of the target matrix: how many of the available targets drew any
+# forecast, and how many models
+cells_covered <- scores |>
+  distinct(epi_target, Location, forecast_date, Horizon) |>
+  nrow()
+p_cells <- round(cells_covered / max_forecasts * 100)
+models_per_cell <- scores |>
+  count(epi_target, Location, forecast_date, Horizon) |>
+  pull(n) |>
+  summary()
 ```
 
 We evaluated `r n_models` forecasting models from `r nrow(n_teams)` modelling teams participating in the European COVID-19 Forecast Hub over 2021-2023.
-Models differed both in which targets they forecast and in how well they performed.
-We used a generalised additive mixed model to associate performance with model structure, adjusting for the number of countries a model targeted and for the epidemiological context of each target.
 
-#### Participation and characteristics
+#### Participant characteristics
 
 ```{r}
 #| label: tbl-models
 #| tbl-cap: >-
-#|   Characteristics of models and forecasts sampled from the European COVID-19
-#|   Forecast Hub, March 2021-2023. Models (%) shows the number of models and the
-#|   percentage of all included models. Single-country shows models targeting one
-#|   country as a fraction and percentage of models in each method group.
-
+#|   Characteristics of models sampled from the European COVID-19 Forecast Hub,
+#|   March 2021-2023. Models (%) shows the number of models and the percentage of
+#|   that column's total: models forecasting cases, models forecasting deaths,
+#|   and all included models. Participation is the median across models in each
+#|   group of the percentage of the 26,624 available forecast targets a model
+#|   submitted for.
+# <!--TODO clarify last sentence -->
 # Overall participation
 model_forecasts <- scores |>
   group_by(Model) |>
@@ -90,48 +97,24 @@ n_semi_mech_split <- n_distinct(
   semi_mech_votes$model[semi_mech_votes$classification == "Statistical"]
 )
 
-# Country targets
-targets <- scores |>
-  select(Model, CountryTargets) |>
-  distinct() |>
-  pull(CountryTargets) |>
-  table()
-targets <- targets[targets > 0]
-
-single_countries <- scores |>
-group_by(epi_target) |>
-  filter(CountryTargets == "Single-country") |>
-  select(Model, Location) |>
-  distinct() |>
-  pull(Location) |>
-  table()
-single_countries <- rev(sort(single_countries[single_countries > 0]))
-
-multi_countries <- scores |>
-group_by(epi_target) |>
-  filter(CountryTargets == "Multi-country") |>
-  select(Model, Location) |>
-  distinct() |>
-  pull(Location) |>
-  table()
-multi_countries <- rev(sort(multi_countries[multi_countries > 0]))
-
-model_targets <- table_targets(scores)
-multi_targets <- filter(model_targets, CountryTargets == "Multi-country")|>
-mutate(diff = max_targets - min_targets)
-
-print_table1(scores, caption = NULL)
+# Epi targets
+model_epi_target <- scores |>
+  group_by(Method, Model, .drop = TRUE) |>
+  distinct(epi_target, .keep_all = TRUE) |>
+  summarise(model_epi_target = paste(sort(unique(epi_target)), collapse = " & ")) |>
+  mutate(`Model structure` = as.character(Method))
+gtsummary::tbl_summary(model_epi_target, include = `Model structure`, by = model_epi_target) # TODO add total column
 ```
 
-<!--TODO drop geo scope rows, show overall combined column (?with % participation across N targets?) -->
-
 Forecasters could participate in any of 26,624 available targets (104 weeks, 32 countries, 4 horizons, 2 epidemiological outcomes).
+Among them, forecasters covered `r p_cells`% of available targets, with a median of `r models_per_cell[["Median"]]` models forecasting each covered target (IQR `r models_per_cell[["1st Qu."]]`-`r models_per_cell[["3rd Qu."]]`, maximum `r models_per_cell[["Max."]]`).
+Coverage was uneven across countries, weeks and model structures (Supplement).
 Median participation was `r model_forecasts[["Median"]]`% of available targets (IQR `r model_forecasts[["1st Qu."]]`-`r model_forecasts[["3rd Qu."]]`%, range `r model_forecasts[["Min."]]` to `r model_forecasts[["Max."]]`).
-<!--TODO add the sparse-matrix numbers here and a ref to the Supplement figure-->
 
 We classified `r n_by_method[["Mechanistic"]]` models as mechanistic, `r n_by_method[["Statistical"]]` as statistical, `r n_by_method[["Semi-mechanistic"]]` as semi-mechanistic, `r n_by_method[["Agent-based"]]` as agent-based and `r n_by_method[["Judgement"]]` as human judgement (@tbl-models; Supplement).
-Raters disagreed on `r n_disagree` (`r p_disagree`%) classifications, most often for semi-mechanistic models, `r n_semi_mech_split` of `r n_by_method[["Semi-mechanistic"]]` of which drew at least one vote for a statistical structure.
-Statistical models contributed the largest share of predictions (`r p_by_method[["Statistical"]]`%), partly because the Hub baseline model submitted for every country in almost every week; mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic"]]`% and `r p_by_method[["Semi-mechanistic"]]`%, and agent-based and judgement models under 2% each.
+Raters disagreed on `r n_disagree` (`r p_disagree`%) classifications, most often for semi-mechanistic models, `r n_semi_mech_split` of which drew one vote for a statistical structure.
+Statistical models contributed the largest share of predictions (`r p_by_method[["Statistical"]]`%), partly because the Hub baseline model submitted for every country in almost every week.
+Mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic"]]`% and `r p_by_method[["Semi-mechanistic"]]`%, and agent-based and judgement models under 2% each.
 
 #### Forecast performance
 
@@ -139,17 +122,13 @@ Statistical models contributed the largest share of predictions (`r p_by_method[
 #| label: fig-error-vs-obs
 #| fig-cap: >-
 #|   Forecast error scales with the magnitude of the observed outcome.
-#|   Weighted interval score (WIS) on the natural scale is plotted against observed incidence for COVID-19 cases and deaths across 32 European countries.
-#|   Faint points show individual forecasts; lines show a generalised additive model smooth fit per model-structure group, with shaded 95% confidence intervals.
+#|   Weighted interval score (WIS) plotted against observed incidence per 100,000 population for COVID-19 cases and deaths across 32 European countries.
+#|   Faint points show individual forecasts.
 #|   Both axes are shown on the log scale; lower WIS indicates better performance.
-#|   Colour: model structure.
 #| fig-height: 4
 #| fig-width: 8
-
-plot_error_vs_obs(scores_natural)
+plot_error_vs_obs(scores)
 ```
-
-<!--TODO some very aggregate figure of observed per 100k against performance -->
 
 ```{r}
 #| label: results-describe-performance
@@ -158,7 +137,7 @@ plot_error_vs_obs(scores_natural)
 # performance without fitting anything
 median_by_target <- scores |>
   group_by(epi_target) |>
-  summarise(median = round(median(wis, na.rm = TRUE), 2)) |>
+  summarise(median = sprintf("%.2f", median(wis, na.rm = TRUE))) |>
   (\(x) setNames(x$median, x$epi_target))()
 median_by_phase <- scores |>
   group_by(VariantPhase) |>
@@ -166,13 +145,35 @@ median_by_phase <- scores |>
   arrange(median)
 phase_best <- as.character(median_by_phase$VariantPhase[1])
 phase_worst <- as.character(median_by_phase$VariantPhase[nrow(median_by_phase)])
+median_by_horizon <- scores |>
+  group_by(epi_target, Horizon) |>
+  summarise(median = sprintf("%.2f", median(wis, na.rm = TRUE)), .groups = "drop") |>
+  (\(x) setNames(x$median, paste(x$epi_target, x$Horizon)))()
+
+# The Hub ensemble is excluded from the fit because it is built from the
+# forecasts it would be compared against; it is kept here as a reference point
+ensemble_median <- ensemble |>
+  group_by(epi_target) |>
+  summarise(median = sprintf("%.2f", median(wis, na.rm = TRUE))) |>
+  (\(x) setNames(x$median, x$epi_target))()
+beat_ensemble <- scores |>
+  group_by(epi_target, Model) |>
+  summarise(median = median(wis, na.rm = TRUE), .groups = "drop") |>
+  left_join(
+    ensemble |>
+      group_by(epi_target) |>
+      summarise(ensemble = median(wis, na.rm = TRUE)),
+    by = "epi_target"
+  ) |>
+  group_by(epi_target) |>
+  summarise(n_models = n(), n_better = sum(median < ensemble))
 ```
 
-<!-- TODO some super aggregated performance measure here, possibly against the Hub ensemble -->Considering crude aggregated performance.
-Variation was driven by epidemiological processes over time.
+Crude aggregated performance varied more with the epidemiological process being predicted than between forecasters.
 Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths, and scores tracked the magnitude of the outcome being predicted (@fig-error-vs-obs).
 Across variant phases, forecasts were most accurate during the `r phase_best` phase and least accurate during `r phase_worst`, the period of steepest change in reported incidence.
-<!--TODO something about forecast horizon? -->
+Scores worsened with forecast horizon, from a median LWIS of `r median_by_horizon[["Cases 1"]]` at one week to `r median_by_horizon[["Cases 4"]]` at four weeks for cases, and `r median_by_horizon[["Deaths 1"]]` to `r median_by_horizon[["Deaths 4"]]` for deaths.
+Against the Hub ensemble, which we excluded from the analysis because it is constructed from the forecasts it would be compared against, `r beat_ensemble$n_better[beat_ensemble$epi_target == "Cases"]` of `r beat_ensemble$n_models[beat_ensemble$epi_target == "Cases"]` models achieved a lower median LWIS for cases (ensemble `r ensemble_median[["Cases"]]`) and `r beat_ensemble$n_better[beat_ensemble$epi_target == "Deaths"]` of `r beat_ensemble$n_models[beat_ensemble$epi_target == "Deaths"]` for deaths (ensemble `r ensemble_median[["Deaths"]]`).
 
 ```{r}
 #| label: results-sparsity
@@ -209,10 +210,10 @@ table_effects <- results$effects |>
   mutate(value_ci = paste0(round(value, 2),
                            " (", round(lower_2.5, 2), "-",
                            upper_97.5_text, ")"),
-         # exponentiated: multiplicative ratio vs grand-mean LWIS (1 = average)
-         ratio_ci = paste0(round(exp(value), 2),
-                           " (", round(exp(lower_2.5), 2), "-",
-                           round(exp(upper_97.5), 2), ")"),
+         # exponentiated: multiplicative ratio vs grand-mean LWIS (1 = average).
+         # Fixed to 2 dp so ratios at or near 1 print as 1.00, not 1
+         ratio_ci = sprintf("%.2f (%.2f-%.2f)",
+                            exp(value), exp(lower_2.5), exp(upper_97.5)),
          group = paste(model, group, sep = "_")) |>
   column_to_rownames("group")
 
@@ -262,17 +263,24 @@ mbt_diff <- vapply(
   numeric(1)
 )
 mbt_widest <- names(which.max(abs(mbt_diff)))
+# How much data the widest-separating structure rests on, per outcome
+mbt_widest_n <- scores |>
+  filter(Method == mbt_widest) |>
+  group_by(epi_target) |>
+  summarise(
+    n_models = n_distinct(Model),
+    n_forecasts = format(n(), big.mark = ","),
+    .groups = "drop"
+  )
 ```
 
 Differences between model structures also reduced when separated by outcome (@fig-structure-effects B; Supplement).
 However, model structures differed in the direction of their outcome-specific effects.
 The widest separation was among `r tolower(mbt_widest)` models, which were the worst-performing model structure for case forecasts but the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
-<!--TODO note: check whether we only have eg 1 ABM forecasting for each target, so this is weak, even though we also include a model-specific effect-->
+This contrast rests on `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Cases"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Cases"]` forecasts for cases, and `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Deaths"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Deaths"]` forecasts for deaths, so the structure-level estimate is close to a statement about individual models, even with a model-specific effect in the fit.
 
 All other model structures performed more similarly between epidemiological outcomes, performing marginally better on cases than on deaths.
 We noted that differences between outcomes largely offset when averaged; an averaged estimate therefore gives close to zero for most structures, whether or not outcome-specific differences exist.
-
-<!--TODO relabel axes to add "Adjusted performance ratio" ie matching text-->
 
 ```{r}
 #| label: fig-structure-effects
@@ -303,7 +311,8 @@ Predictability was better in the earlier Alpha and Delta phases (ratios `r table
 
 Despite some covariates accounting for the forecasting process, most of the difference between individual model performance was left unexplained (@fig-model-variation A).
 We accounted for whether models forecast for one or multiple countries, with `r targets[["Single-country"]]` models forecasting for a single country and `r targets[["Multi-country"]]` for multiple countries (of which only `r nrow(multi_targets |> filter(consistent))` kept the same number of countries throughout, see Supplement).
-<!--TODO add ratio_ci for geo scope; consider where to report diffs by horizon, probably here-->
+Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), so geographic scope explained none of the difference between models.
+Forecast horizon entered the model as a smooth fitted separately for each model, so it has no single pooled effect; the crude gradient across horizons is given above.
 
 ```{r}
 #| label: results-ranks
@@ -314,10 +323,7 @@ rank_summary <- summarise_ranks(ranks)
 ```
 
 We compared this remaining variation between individual models in terms of ranked model order.
-Ranking models by their partial effect before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`, with `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places (@fig-model-variation B).
-<!--TODO is spearman correct here for rank? not wilcoxon or similar?-->
-
-<!--TODO drop the shape on the geom point as it's not the main interest and relabel the individual model labels on the y axis to "Crude rank {overall crude unadjusted rank}", relabel x-axis to "Adjusted performance ratio"-->
+Ranking models by their partial effect before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`, with `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places and the furthest moving `r rank_summary$max_change` places (@fig-model-variation B).
 
 ```{r}
 #| label: fig-model-variation
@@ -325,18 +331,18 @@ Ranking models by their partial effect before and after adjustment gives a Spear
 #|   Individual models differ widely in performance after adjustment, and adjusting for
 #|   target difficulty reorders them substantially, so which models look best depends on
 #|   how the evaluation is designed.
-#|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect.
+#|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and
+#|   labelled by the model's crude rank before adjustment, which colour also gives.
 #|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS,
 #|   where a ratio below 1 indicates better-than-average performance, adjusted for model
 #|   structure, geographic scope, forecast horizon, epidemic trend, variant phase and location.
-#|   (B) Rank of each model before and against after adjustment, with the diagonal marking
-#|   no change in rank; distance from it is how far a model moved.
-#|   Colour: model structure. Shape in A: geographic scope.
+#|   (B) Rank of each model before and after adjustment, with the diagonal marking
+#|   no change in rank; distance from it is how far a model moved. Colour: model structure.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 8
 #| fig-width: 11
 
-plot_model_variation(results$effects, scores, ranks = ranks)
+plot_model_variation(results$effects, ranks = ranks)
 ```
 
 #### Sensitivity analysis

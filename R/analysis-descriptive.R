@@ -106,39 +106,60 @@ create_raw_table1 <- function(scores) {
   overall <- table_confint(scores, "scale") |>
     mutate(Variable = "Overall", group = "")
   method <- table_confint(scores, "Method")
-  targets <- table_confint(scores, "CountryTargets")
-  bind_rows(overall, method, targets)
+  bind_rows(overall, method)
 }
 
 # `caption = NULL` hands captioning to the Quarto chunk (#| tbl-cap), which is
 # what lets the table be cross-referenced and numbered with everything else.
-print_table1 <- function(scores, caption = paste0(
-  "Characteristics of models and forecasts sampled from ",
-  "the European COVID-19 Forecast Hub, March 2021-2023. ",
-  "Models (%) shows number of models and percentage of all included models. ",
-  "Single-country shows models targeting one country as a fraction and percentage ",
-  "of models in each method group."
-)) {
-  # Cohort characteristics — no outcome data
-  # Composition (single-country %) computed once across both epi targets
-  composition <- scores |>
-    select(Model, Method, CountryTargets) |>
+print_table1 <- function(scores, caption = NULL) {
+  # Totals
+  n_available_targets <- 104 * 2 * 4 * 32
+  total_models <- n_distinct(scores$Model)
+
+  # Participation: median, across models in each group
+  # of each model's share of available forecast targets
+  participation_by_model <- scores |>
+    group_by(Model, Method) |>
+    summarise(n_forecasts = n(), .groups = "drop") |>
+    mutate(p_participation = n_forecasts / n_available_targets * 100)
+
+  participation <- bind_rows(
+    participation_by_model |>
+      summarise(Participation = paste0(round(median(p_participation)), "%")) |>
+      mutate(Variable = "Overall", group = ""),
+    participation_by_model |>
+      group_by(Method) |>
+      summarise(Participation = paste0(round(median(p_participation)), "%"), .groups = "drop") |>
+      rename(Variable = Method) |>
+      mutate(group = "Method")
+  ) |>
+    select(Variable, group, Participation)
+
+  # Overall Models column: distinct models per group across BOTH epi targets,
+  # as a percentage of all distinct models in `scores`
+  models_by_method <- scores |>
+    select(Model, Method) |>
     distinct() |>
-    group_by(Method) |>
-    summarise(
-      n_single = sum(CountryTargets == "Single-country"),
-      n_models = n(),
-      .groups = "drop"
-    ) |>
+    count(Method, name = "n_models") |>
     mutate(
-      `Single-country` = paste0(
-        n_single, "/", n_models,
-        " (", round(n_single / n_models * 100), "%)"
-      ),
+      p_models = round(n_models / total_models * 100, 1),
+      Models_Overall = paste0(n_models, " (", p_models, "%)"),
       Variable = Method,
       group = "Method"
-    ) |>
-    select(Variable, group, `Single-country`)
+    )
+
+  overall_models <- bind_rows(
+    scores |>
+      summarise(n_models = n_distinct(Model)) |>
+      mutate(
+        p_models = round(n_models / total_models * 100, 1),
+        Models_Overall = paste0(n_models, " (", p_models, "%)"),
+        Variable = "Overall",
+        group = ""
+      ),
+    models_by_method
+  ) |>
+    select(Variable, group, Models_Overall)
 
   epi_targets <- unique(scores$epi_target)
   tables <- epi_targets |>
@@ -168,87 +189,161 @@ print_table1 <- function(scores, caption = paste0(
   table1 <- table1 |>
     select(Variable, group, starts_with("Models_"))
 
-    ## add composition column for Method rows, and for the Overall row, which
-    ## otherwise renders as NA
-    overall_composition <- scores |>
-      select(Model, CountryTargets) |>
-      distinct() |>
-      summarise(
-        n_single = sum(CountryTargets == "Single-country"),
-        n_models = n()
-      ) |>
-      transmute(
-        Variable = "Overall",
-        # create_raw_table1() leaves `group` empty for the Overall row
-        group = "",
-        `Single-country` = paste0(
-          n_single, "/", n_models,
-          " (", round(n_single / n_models * 100), "%)"
-        )
-      )
-
-    table1 <- table1 |>
-      left_join(bind_rows(composition, overall_composition),
-                by = c("Variable", "group")) |>
-      relocate(`Single-country`, .after = last_col())
-
-    ## reorder epi target columns
+  ## reorder epi target columns
   for (outcome in rev(epi_targets)) {
     table1 <- table1 |>
       relocate(ends_with(outcome), .after = Variable)
   }
 
-  ## build spanning headers
+  ## add the combined-outcome Models column and the Participation column,
+  ## both computed once across both epi targets
+  table1 <- table1 |>
+    left_join(overall_models, by = c("Variable", "group")) |>
+    left_join(participation, by = c("Variable", "group"))
+
+  ## build spanning headers — only the per-outcome Models columns sit under
+  ## the outcome span; the combined Models column is labelled in its own right
   headers_to_add <- c(" " = 1, vapply(
     epi_targets, \(x) sum(grepl(paste0("_", x, "$"), colnames(table1))),
     1L
-  ), " " = 1)
+  ), "Both outcomes" = 1, " " = 1)
 
   table1 |>
     select(-group) |>
     rename(" " = Variable) |>
     kable(
       caption = caption,
-      col.names = c(" ", rep(c("Models (%)"), length(epi_targets)), "Single-country (%)"),
-      align = c("l", rep("r", length(epi_targets)), "r")
+      col.names = c(" ", rep("Models (%)", length(epi_targets) + 1), "Participation (%)"),
+      align = c("l", rep("r", length(epi_targets) + 1), "r")
     ) |>
     pack_rows(index = c(
       " " = 1,
-      "Method" = 5,
-      "Geographic scope" = 2
+      "Method" = 5
     )) |>
     add_header_above(headers_to_add)
 }
 
 # Descriptive ---------
 # Figure: forecast error vs observed incidence ------------------------
-# Simple descriptive: how forecast error (WIS) scales with the magnitude of
-# the observed outcome, by model structure. Pass natural-scale scores
-# (process_data("natural")) so WIS and observed incidence share natural units.
-# Forecast-level points are shown faintly with a per-Method GAM smooth on top,
-# avoiding arbitrary binning. Both quantities are analysed on the log scale
-# throughout (log(x + 1)); the smooth is fit in log space. Axis ticks are
-# displayed at round powers of 10 for legibility (display base does not affect
-# the fit).
-plot_error_vs_obs <- function(scores_natural) {
-  plot_data <- scores_natural |>
+plot_error_vs_obs <- function(scores) {
+  plot_data <- scores |>
+    mutate(incidence_pk = Incidence / pop * 100000) |>
     filter(!is.na(wis),
-           !is.na(Incidence),
-           Incidence > 0
+           !is.na(Incidence)
     )
 
-  ggplot(plot_data, aes(x = Incidence, y = wis, colour = Method, fill = Method)) +
+  ggplot(plot_data, aes(x = incidence_pk, y = wis)) +
     geom_point(alpha = 0.03, size = 0.4, stroke = 0) +
-    geom_smooth(method = "gam", formula = y ~ s(x), alpha = 0.15, linewidth = 0.8) +
-    facet_wrap(~epi_target, scales = "free", nrow = 1) +
-    scale_x_log10(labels = scales::label_comma()) +
-    scale_y_log10(labels = scales::label_comma()) +
-    scale_colour_brewer(type = "qual", palette = 2, aesthetics = c("colour", "fill")) +
+    facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free") +
+    scale_x_log10(labels = \(x) format(x, big.mark = ",", trim = TRUE,
+                                       scientific = FALSE, drop0trailing = TRUE)) +
+    scale_y_continuous() +
     labs(
-      x = "Observed incidence (log scale)",
-      y = "WIS (log scale)",
-      colour = NULL,
-      fill = NULL
+      x = "Observed incidence", y = "Performance (LWIS)",
+      colour = NULL, fill = NULL
+    ) +
+    theme(legend.position = "bottom")
+
+  plot_data |>
+    filter(Horizon==1) |>
+    mutate(bincidence_pk = as.factor(signif(incidence_pk, 4))) |>
+    ggplot(aes(x = bincidence_pk, y = wis)) +
+    geom_boxplot() +
+    facet_wrap(~epi_target, scales = "free") +
+    labs(x = "", y = "") +
+    theme(legend.position = "bottom")
+}
+
+plot_wis_over_time <- function(scores) {
+  panels <- c("Observed per 100k", paste("Horizon", 1:4))
+
+  obs <- scores |>
+    distinct(Location, epi_target, target_end_date, Incidence, pop) |>
+    mutate(
+      value = Incidence / pop * 1e5,
+      panel = factor("Observed per 100k", panels)
+    )
+
+  wis <- scores |>
+    filter(!is.na(wis)) |>
+    mutate(
+      value = wis,
+      panel = factor(paste("Horizon", Horizon), panels)
+    )
+
+  ggplot(mapping = aes(x = target_end_date, y = value)) +
+    geom_line(
+      data = obs, aes(group = Location),
+      alpha = 0.25, linewidth = 0.3
+    ) +
+    geom_point(
+      data = wis,
+      alpha = 0.02, size = 0.3, stroke = 0
+    ) +
+    facet_grid(
+      rows = vars(panel), cols = vars(epi_target),
+      scales = "free_y", switch = "y"
+    ) +
+    labs(x = NULL, y = NULL) +
+    theme(strip.placement = "outside")
+}
+scores |>
+  filter(!is.na(wis)) |>
+  ggplot(aes(x = target_end_date, y = wis)) +
+  geom_hex(bins = 50) +
+  scale_fill_viridis_c(trans = "log10", name = "Forecasts") +
+  facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free_y") +
+  labs(x = NULL, y = "LWIS")
+
+scores |>
+  filter(!is.na(wis), !is.na(Incidence)) |>
+  mutate(incidence_pk = Incidence / pop * 1e5) |>
+  ggplot(aes(x = target_end_date, y = incidence_pk, z = wis)) +
+  stat_summary_hex(bins = 40, fun = median) +
+  scale_y_log10() +
+  scale_fill_viridis_c(name = "Median LWIS") +
+  facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free_y")
+
+plot_wis_components <- function(scores) {
+  wis_comp <- scores |>
+    mutate(incidence_pk = Incidence / pop * 100000) |>
+    select(target_end_date,
+           epi_target, Horizon,
+           incidence_pk,
+           wis, dispersion, underprediction, overprediction) |>
+    pivot_longer(cols = c(dispersion, underprediction, overprediction),
+                 names_to = "component", values_to = "value") |>
+    # per-target percentage of total WIS, so that the three components sum to 100% per target
+    mutate(value_percent = value / wis * 100) |>
+    group_by(target_end_date, epi_target, Horizon, incidence_pk, component) |>
+    summarise(
+      n = n(),
+      value_percent = sum(value_percent, na.rm = TRUE) / n,
+      .groups = "drop"
+    )
+
+  wis_comp |>
+    filter(component == "dispersion" & Horizon == 1) |>
+    ggplot(aes(x = target_end_date, y = incidence_pk)) +
+    geom_tile() +
+    scale_x_log10(labels = \(x) format(x, big.mark = ",", trim = TRUE,
+                                       scientific = FALSE, drop0trailing = TRUE)) +
+    scale_y_log10(labels = \(x) format(x, big.mark = ",", trim = TRUE,
+                                       scientific = FALSE, drop0trailing = TRUE)) +
+    facet_wrap(~epi_target, scales = "free")
+
+
+  wis_comp |>
+    ggplot(aes(x = incidence_pk, y = value_percent, colour = component)) +
+    geom_point() +
+    scale_x_log10(labels = \(x) format(x, big.mark = ",", trim = TRUE,
+                                       scientific = FALSE, drop0trailing = TRUE)) +
+    scale_y_continuous(labels = \(x) paste0(x, "%")) +
+    facet_grid(cols = vars(epi_target), rows = vars(Horizon), scales = "free") +
+    labs(
+      x = "X",
+      y = "Score component",
+      colour = NULL
     ) +
     theme(legend.position = "bottom")
 }

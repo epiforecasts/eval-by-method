@@ -6,73 +6,37 @@ library("gammit")
 source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
 
-plot_models <- function(random_effects, scores, x_labels = TRUE,
-                        anonymise = TRUE) {
-  classification <- classify_models() |>
-    rename(group = model)
-  targets <- table_targets(scores) |>
-    select(group = Model, CountryTargets) |>
-    distinct()
+# Adjusted effect of each model, ordered by that effect and labelled by the
+# model's crude (unadjusted) rank. Structure is not shown: it is one of the
+# covariates already adjusted for, so what is left to see is how far the crude
+# order is scrambled, which the labels and the colour gradient both carry.
+# The crude rank is also an anonymous label, so no team is identified.
+plot_models <- function(random_effects, ranks = NULL, x_labels = TRUE) {
+  if (is.null(ranks)) ranks <- rank_models(random_effects)
   effects <- random_effects |>
     filter(group_var == "Model") |>
-    left_join(classification) |>
-    left_join(targets)
-  # Order models by their adjusted effect, so the figure reads as a ranking.
-  # Anonymised labels are still numbered within a structure, so a label
-  # identifies a model without revealing which team it belongs to.
-  effect_order <- effects |>
+    left_join(select(ranks, group, rank_unadjusted), by = "group") |>
+    mutate(label = paste("Crude rank", rank_unadjusted))
+  # Levels run from worst to best adjusted effect: coord_flip() then puts the
+  # best-performing model at the top.
+  label_levels <- effects |>
     filter(model == "Adjusted") |>
-    arrange(value) |>
-    pull(group)
-  models <- effects |>
-    select(classification, CountryTargets, group) |>
-    distinct() |>
-    group_by(classification, CountryTargets) |>
-    mutate(
-      id = row_number(),
-      anon_group = paste(classification, CountryTargets, id),
-      ) |>
-    ungroup() |>
-    mutate(group = factor(group, levels = effect_order)) |>
-    arrange(group) |>
-    mutate(
-      anon_group = factor(anon_group, levels = rev(unique(anon_group))),
-      group = as.character(group)
-    ) |>
-    select(group, anon_group)
-  group_var <- ifelse(anonymise, "anon_group", "group")
+    arrange(desc(value)) |>
+    pull(label)
   plot <- effects |>
-      left_join(models, by = "group") |>
-      mutate(
-        Model = factor(model, levels = c("Adjusted", "Unadjusted"))
-      ) |>
-      ggplot(aes(x = .data[[group_var]], col = classification,
-                 shape = CountryTargets, lty = Model)) +
-      geom_point(aes(y = exp(value)),
-                 position = position_dodge(width=1)) +
-      geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5)),
-                     position = position_dodge(width=1)) +
+      mutate(label = factor(label, levels = label_levels)) |>
+      ggplot(aes(x = label, col = rank_unadjusted)) +
+      geom_point(aes(y = exp(value))) +
+      geom_linerange(aes(ymin = exp(lower_2.5), ymax = exp(upper_97.5))) +
       geom_hline(yintercept = 1, lty = 2) +
-      labs(y = "Performance ratio (vs average model)", x = "",
-           colour = NULL, shape = NULL, lty = NULL) +
+      labs(y = "Adjusted performance ratio", x = "",
+           colour = "Crude rank (1 = best)") +
       scale_y_log10() +
-      scale_shape_manual(
-        values = c("Single-country" = 16, "Multi-country" = 17),
-        drop = FALSE
-      ) +
-      scale_colour_brewer(type = "qual", palette = 2) +
-      # Three keys do not fit on one row at this width, so stack them
-      guides(colour = guide_legend(nrow = 1, order = 1),
-             shape = guide_legend(nrow = 1, order = 2),
-             # a single series needs no adjusted/unadjusted key
-             lty = if (n_distinct(effects$model) > 1) {
-               guide_legend(nrow = 1, order = 3)
-             } else {
-               "none"
-             }) +
+      scale_colour_viridis_c() +
+      guides(colour = guide_colourbar(barwidth = 10, barheight = 0.5,
+                                      title.position = "top")) +
       theme(
         legend.position = "bottom",
-        legend.box = "vertical",
         legend.margin = margin(t = 0, b = 0),
         strip.background = element_blank()
       ) +
@@ -109,7 +73,7 @@ plot_method_target <- function(method_by_target, method_levels = NULL) {
     geom_hline(yintercept = 1, lty = 2, alpha = 0.4) +
     scale_y_log10() +
     scale_colour_brewer(type = "qual", palette = "Set1") +
-    labs(y = "Performance ratio (vs average model)", x = NULL,
+    labs(y = "Adjusted performance ratio", x = NULL,
          colour = NULL, shape = NULL) +
     theme(legend.position = "bottom", strip.background = element_blank()) +
     coord_flip()
@@ -127,12 +91,13 @@ plot_structure_effects <- function(effects, method_by_target) {
     sort() |>
     rev()
 
+  # Panel A overlays unadjusted estimates, so only panel B can be called adjusted
   pooled <- plot_effects(effects, variables = "Method") +
     scale_x_discrete(limits = method_levels) +
     labs(y = "Performance ratio (vs average model)")
 
   by_target <- plot_method_target(method_by_target, method_levels = method_levels) +
-    labs(y = "Performance ratio (vs average model)") +
+    labs(y = "Adjusted performance ratio") +
     theme(
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank()
@@ -254,6 +219,8 @@ plot_model_ranks <- function(ranks, annotate = TRUE) {
     coord_equal() +
     labs(x = "Unadjusted rank (1 = best)", y = "Adjusted rank (1 = best)",
          colour = NULL) +
+    # five structures do not fit on one row at this panel width
+    guides(colour = guide_legend(nrow = 2)) +
     theme(legend.position = "bottom", strip.background = element_blank())
 
   if (annotate) {
@@ -270,12 +237,12 @@ plot_model_ranks <- function(ranks, annotate = TRUE) {
 
 # Individual-model variation as one figure: adjusted effect per model (A), and
 # what adjustment does to their ranking (B).
-plot_model_variation <- function(effects, scores, ranks = NULL) {
+plot_model_variation <- function(effects, ranks = NULL) {
   if (is.null(ranks)) ranks <- rank_models(effects)
   effects_adjusted <- filter(effects, model == "Adjusted" | group_var != "Model")
-  # Panel A's legend covers both panels: same structures, same palette
-  (plot_models(effects_adjusted, scores) |
-     (plot_model_ranks(ranks) + guides(colour = "none"))) +
+  # The panels no longer share an aesthetic, so each carries its own key
+  (plot_models(effects_adjusted, ranks = ranks) |
+     plot_model_ranks(ranks)) +
     patchwork::plot_layout(widths = c(1.6, 1)) +
     patchwork::plot_annotation(tag_levels = "A") &
     theme(legend.position = "bottom")
