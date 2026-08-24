@@ -1,5 +1,5 @@
 ---
-title: "Using model-based evaluation to interpret variation in infectious disease forecast performance"
+title: "Interpreting variation in infectious disease forecast performance with model-based evaluation"
 ---
 
 {{< include report/manuscript.qmd >}}

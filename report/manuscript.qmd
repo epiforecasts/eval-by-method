@@ -2,8 +2,6 @@
 format: html
 ---
 
-Using model-based evaluation to interpret variation in infectious disease forecast performance
-
 Katharine Sherratt (1), Rok Grah (2), Bastian Prasse (2), Friederike Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 
 (1) Centre for Mathematical Modelling of Infectious Diseases, London School of Hygiene & Tropical Medicine
