@@ -6,42 +6,41 @@ Fair comparison across forecasters and targets therefore requires accounting for
 In this study, we focused specifically on the performance effect of model structure within the forecast-generating process.
 With an effective sample of 48 independent models, we found no clear evidence that any of the five broad model structures performed better than the others.
 At the same time, individual model rankings were unstable before and after adjustment, and this instability did not relate to model structure.
-This suggests that within a given target, forecasters have as much to learn from models unlike their own as from those sharing their structure.
+This suggests that for a given forecast target, forecasters have as much to learn from models unlike their own as from those sharing their structure.
 
-Features of the forecast target instead made substantial differences to performance.
+Features of the epidemiological target instead made substantial differences to performance.
 This is consistent with evidence that particular pathogens and seasons are intrinsically harder to forecast than others [@white2025], and with concerns that the complexity of infectious disease dynamics limits predictability.
 The turning point and end of an expanding epidemic may not be precisely forecastable [@castro2020], and predictability itself is bounded, more tightly for endemic-epidemic outbreaks than for others [@scarpino2019].
 Where the target sets much of the error, the room left for a forecasting method to improve is smaller than an unadjusted comparison implies.
 
-A model-based evaluation of this kind is extremely flexible, and we developed the specification here over several iterations and do not consider it final.
+A model-based evaluation of this kind is extremely flexible.
+We developed the specification here over several iterations and do not consider it final.
 There are likely many additional interactions between the effects explored here.
-For example, different model structures may be more or less well equipped to predict at each interval of the one to four week forecast horizon.
-Models incorporating underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics.
-We fit the effect of horizon to each individual model, which may have absorbed differences otherwise attributable to model structure.
+For example, different model structures may be more or less well equipped to predict at each interval of the one to four week forecast horizon; those able to incorporate underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics.
+We fit the effect of horizon to each individual model, which may have absorbed these structural differences.
 We also only partially accounted for variation among forecast targets.
 For example, real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [@holcomb2023], so the target a forecast was scored against was not always the target available when it was made.
-Varying the inclusion of some covariates, the link function and the error family left the partial effects of model structure essentially unchanged (see Supplement).
-Our findings also come from a single pathogen, collaborative project, and set of two outcomes over two years in Europe, and we did not test whether the same balance between target and method holds elsewhere.
+Nontheless, varying the inclusion of some covariates, the link function, and the error family left the partial effects of model structure essentially unchanged (see Supplement).
 
 We adopted a coarse characterisation of the forecasting process, while a more sophisticated view could point towards interventions to improve forecast accuracy.
 We pre-specified five structures by their inclusion of mechanism, but we had little access to model metadata, raters disagreed on most semi-mechanistic models, and we did not track changes to each model's methods over time.
+Our findings also come from a single pathogen, collaborative project, and set of two outcomes over two years in Europe, and we did not test whether the same balance between target and method holds elsewhere.
+Combining several collaborative efforts would increase the sample of independent models, enough to assess finer components of the forecasting process, such as the effect of forecasters' resources, capacity, or motivation.
+Future comparison projects could support this by encouraging methodological diversity, and collating structured metadata, such as methodology and model revisions, alongside predictions [@pollett2020].
+
 Clarifying how performance relates to the scale and scope of human involvement in model development, implementation, or validation deserves specific focus.
 Generally stronger performance has been linked to forecasters' experience and capacity to anticipate underlying data-generating processes, such as changing surveillance, behaviour, or pathogen characteristics [@mcgowan2019; @clapham2021; @bracher2022].
 In this study, we also noted strong unadjusted differences in models using greater levels of human involvement, whether this was encoded qualitatively (human judgement forecasters)[@bosse2024], or quantitatively (agent-based models)[@wolffram2023].
 However, these contributed 6/48 forecasting models and under 5% of predictions.
-Our framework used penalised terms, shrinking such sparsely informed cells towards the null.
-The wide intervals here plausibly reflect uncertainty from few independent models, not necessarily greater true variability in performance.
+Our framework used penalised terms, shrinking such sparsely informed cells towards the null, so the wide intervals here plausibly reflect uncertainty from few independent models, not necessarily greater true variability in performance.
 We recommend further work to better measure and more robustly sample the use of forecasters' judgement, which would have immediate application to improving forecasting with human-in-the-loop large language models.
 
+We conclude that the choice of evaluation design is not neutral for interpreting variation in forecast performance.
 As the field of infectious disease forecasting develops, greater investment [@rivers2019] and standardisation [@epiforge2021; @kerr2025] are creating a broader comparable sample of forecast performance.
 This reduces random error when comparing models.
 However, by itself this increase in size cannot account for bias in the sample of either forecasters or forecast targets.
-Combining several collaborative efforts would increase the sample of independent models, enough to assess finer components of the forecasting process, such as the effect of forecasters' resources, capacity, or motivation.
-Future comparison projects could support this by encouraging methodological diversity, and collating structured metadata, such as methodology and model revisions, alongside predictions [@pollett2020].
-
-We conclude that the choice of evaluation design is not neutral for interpreting variation in forecast performance.
-We consider the model-based approach here a middle ground among formal methods for handling bias.
+We consider our model-based approach here a middle ground among formal methods for handling bias.
 Less formality, such as simple stratification, may suffice with minimal confounding among forecast targets (e.g. a single target), or with a more structured sample of forecasters (e.g. quota-based).
 Adding formality to address differential participation could include propensity score methods, to weight each forecast by the probability that its model submitted for that target [@kahlert2017].
 Going further still, a fully specified causal estimand could include describing both forecast-generating and target-generating processes, deriving a minimal sufficient adjustment set [@hernan2020], and identifying unmeasured confounding with quantitative bias analysis [@vanderweele2017].
-Rather than defaulting to any one of these, we encourage evaluators to match the formality of the design to the part of performance they want to measure.
+Rather than defaulting to any one of these, we encourage evaluators to match the formality of the study design to the intended generality of the hypothesis.

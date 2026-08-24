@@ -1,14 +1,8 @@
 Forecasters predicting infectious disease outbreaks meet with varying success.
-This variation is increasingly visible as the field adopts standardised methods for quantifying and comparing forecast performance, bringing the opportunity to investigate its correlates and causes.
-Among many possible influences, some of this variation comes from the method used to make a forecast, and some from the difficulty of the target being forecast, so that realised performance combines two processes (@fig-processes).
-Distinguishing between the two separates the room for improvement available to a forecasting method from the accuracy that can be expected in a given infectious disease setting.
-
-Separating the two processes requires variation in both within a single sample, with many independent models predicting many targets of differing difficulty, scored using the same method.
-Participatory forecast challenges aim to provide this by collating predictions for pre-specified targets in a standardised format [@pollett2020; @reich2022].
-Forecasters are free to choose which targets they predict, and when.
-This creates two problems for evaluation.
-Repeated forecasts from the same model are not independent, so evaluating across them risks pseudoreplication [@heffner1996pseudoreplication]: the evaluation is overpowered by the number of forecasts while underpowered to detect differences between model specifications.
-Aggregated comparisons also conflate the performance of a modelling approach with the difficulty of the targets it was applied to.
+This variation is increasingly visible as the field adopts standardised methods for evaluating and comparing forecasts.
+This presents an opportunity to investigate the correlates and causes of variation in forecast performance.
+We suggest that two separate processes contribute to realised forecast performance: those that contribute to producing a forecast, and those that generate the observed target for prediction (@fig-processes).
+Distinguishing between these separates the room for improvement available to a forecasting method, from the accuracy that can be expected from any forecast in a given infectious disease setting.
 
 ```{r}
 #| label: fig-processes
@@ -48,7 +42,13 @@ digraph processes {
 ')
 ```
 
-There is a growing understanding of the factors producing variation among forecast targets.
+Identifying the relative impact of these factors requires many independent forecasters predicting many differing targets, and comparably scored for resulting accuracy.
+Participatory forecast challenges aim to provide this by collating predictions for pre-specified targets in a standardised format, with forecasters free to choose which targets they predict [@pollett2020; @reich2022].
+Nonetheless, this creates two problems for evaluation.
+Repeated forecasts from the same model are not independent, so evaluating across them risks becoming overpowered by the number of forecasts, yet underpowered to detect differences between models (aking to pseudoreplication [@heffner1996pseudoreplication]).
+Further, comparisons that are aggregated across targets conflate the performance of a modelling approach with the specific difficulty of different epidemiological targets for prediction.
+
+There is a growing understanding of the factors producing variation among the targets of infectious disease forecasts.
 Performance is better under stable epidemic dynamics [@bracher2022], in larger populations [@lopez2024], where surveillance is timely and accurate [@reich2019; @holcomb2023], and where informative leading indicators exist [@delvalle2018].
 Predictive difficulty also varies systematically between pathogens and between seasons of the same pathogen [@metcalf2017].
 Across time, performance may be linked to the serial interval between successive observations of disease [@sherratt2023], and is consistently better at shorter forecast horizons [@cramer2022].
@@ -63,24 +63,22 @@ Other factors in model specification and implementation are rarely or inconsiste
 
 Evaluation is particularly difficult where forecasts must be cross-classified by several of these sources at once.
 Even a large set of forecasts becomes sparse once stratified by several covariates, leaving too few forecasts in each stratum to estimate a stable and unbiased association ("sparse-data bias" [@greenland2016]).
-Traditional methods from observational research offer varying degrees of formality in controlling which units are compared [@heffner1996pseudoreplication; @mcnamee2005; @kahlert2017].
-@tbl-approaches sets out these tools as they apply to the analysis of existing forecasts.
+Traditional methods from observational research offer varying degrees of formality in controlling which units are compared [@heffner1996pseudoreplication; @mcnamee2005; @kahlert2017]; @tbl-approaches.
 
-  | Approach                 | In forecast evaluation                                                                                                                     | Threat addressed                 | Limitation                                                                                             |
-  | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
-  | Unadjusted comparison    | Rank models, or compare mean scores between structures, over all forecasts as submitted                                                    | None                             | Conflates the method used with the difficulty of the targets each model chose to forecast              |
-  | Inclusion criteria       | Exclude targets whose observed data were revised after forecasts were made [@sherratt2023]; or exclude models below a submission threshold | Confounding, selection           | Loses power; narrows the population the estimate applies to                                            |
-  | Matching on covariates   | Compare forecasters only on targets both submitted for [@bracher2021]                                                                      | Confounding                      | Sparse overlap; the estimate holds only for the matched set                                            |
-  | Stratification           | Report scores by horizon, location, or epidemic phase [@reich2019; @cramer2022]                                                            | Confounding                      | Cells sparse and uneven with several interacting factors; continuous covariates need arbitrary binning |
-  | Indirect standardisation | Relative skill against a naive baseline model available for all targets [@bracher2021]                                                     | Confounding by target difficulty | Interpretable only against the chosen reference, which materially changes rankings [@stapper]          |
-  | Regression adjustment    | Estimate the partial effect of model structure, adjusting for the covariates of the target                                                 | Confounding, clustering          | Specification-dependent; the estimand is not formally defined                                          |
+| Threat to validity | Approach to control | Example use in forecast evaluation | Limitation |
+|--------------|------------------|----------------------------|-------------------|
+| None | Unadjusted comparison | Rank models, or compare summary scores, over all forecasts as submitted | Conflates the method used with the difficulty of the targets each model chose to forecast |
+| Confounding, selection | Inclusion criteria | Exclude forecasts without comparable reporting of probabilistic uncertainty [@sherratt2023] | Loses power; narrows the population the estimate applies to |
+| Confounding | Matching on covariates | Compare forecasters only on targets both submitted for [@bracher2021] | Sparse overlap; the estimate holds only for the matched set |
+| Confounding | Stratification | Report scores by horizon, location, or epidemic phase [@reich2019; @cramer2022] | Cells sparse and uneven with several interacting factors; continuous covariates need arbitrary binning |
+| Differential population sizes | Indirect standardisation | Relative skill against a naive baseline model available for all targets [@bracher2021] | Interpretable only against the chosen reference, which materially changes rankings [@stapper] |
+| Confounding, clustering | Regression adjustment | Estimate the partial effect of model structure, adjusting for the covariates of the target | Specification-dependent; the estimand is not formally defined |
 
-  : Approaches to controlling variation from the target-generating process in comparative forecast evaluation, with the analogous tools of observational study design.
-    Rows run from no control at all through to full adjustment.
-    {#tbl-approaches}
+: Approaches to controlling variation in comparative forecast evaluation, compared with analogous tools of observational study design aiming to address threats to validity of comparison. Rows run from no control at all through to full adjustment. {#tbl-approaches}
 
-Here we develop this into an approach for evaluating the effect of forecasting model structure on forecast performance, while accounting for variation in other features of the forecast- and target-generating processes, and for the repeated forecasts contributed by each model.
-The regression approach uses joint in the final row estimates jointly, using all observations to inform each estimate rather than discarding those outside a stratum or matched set.
-Here we develop this into an approach for evaluating the effect of forecasting model structure on forecast performance, while accounting for variation in other features of the forecast- and target-generating processes.
+Here we develop one approach to tracing specific influences on forecast performance, while accounting for variation across the forecast- and target-generating processes.
+We use a joint estimation regression approach that makes use of all observations to inform each estimate, rather than discarding those outside a stratum or matched set.
 We demonstrate this with forecasts from 48 models predicting short-term COVID-19 incidence across Europe.
-We find performance is more strongly associated with the forecast target than with the model structure, interpret this in the context of study designs for comparative forecast evaluation, and propose specific directions for both designing and analysing comparative evaluations.
+We focus on the effect of forecasting model structure on performance.
+We find performance is more strongly associated with the forecast target than with the forecasting model structure.
+We interpret this in the context of study designs for comparative forecast evaluation, and propose specific directions to motivate further comparative evaluations.
