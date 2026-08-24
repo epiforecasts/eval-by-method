@@ -3,6 +3,24 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Results figures and tables fixed
+
+`report/quarto/_results.qmd`, `R/plot-model-results.R`
+
+Table 1 (`tbl-models`) rebuilt to match its own caption: adds a `Participation (%)` row (median, IQR of the percentage of available targets each model submitted for) and an `All included` total column via `gtsummary::add_overall()`, replacing a table that only showed model-structure counts split by which outcome(s) a model forecast. Table 2 (`tbl-structure`) caption was truncated mid-sentence in the source (cut off after "weekly incidence, trend,"); completed with the full covariate list and the dangling final clause removed.
+
+Figure 3 (`fig-structure-effects`) is a single panel by design; two prose cross-references (`@fig-structure-effects A`, `@fig-structure-effects B`) wrongly implied a two-panel figure and are corrected to plain `@fig-structure-effects`. Separately, `plot_config` in `R/plot-model-results.R` conflated colour values and level order into one `ordered()` factor keyed by hex code, which silently sorted levels alphabetically by colour string and broke both `factor(..., levels = plot_config$method_levels)` and `scale_colour_manual(values = ...)` wherever they were used — this produced an all-`NA` y-axis in Figure 3 and an uncoloured legend in Figure 4 panel B (`plot_model_ranks()`), the second only surfacing because Figure 3's dead reference to an undefined `colour_key` had been masking the same bug there. `plot_config` is now split into `*_colours` (named vector, for `scale_*_manual`) and `*_levels` (plain ordered vector of names, for `factor(levels = )`), with both plotting functions updated to use the correct one; both figures re-rendered and verified against `output/log/results.rds`.
+
+## Unreleased — Background and Discussion revision
+
+`report/quarto/_background.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_methods.qmd`
+
+Background: the aims sentence at the end of the opening paragraph is cut, so aims are stated once, in the final paragraph. The selective-participation passage now announces its two problems before listing them. The claim that "most variation" is associated with the target is replaced by the contrast the results support, matching the Discussion. The truncated final sentence is completed as designing and analysing comparative evaluations. The sentence introducing the approaches table no longer restates the caption's ordering, and the regression paragraph now identifies itself as the table's final row rather than an alternative to the table. `Covid-19` standardised to `COVID-19` throughout, including in `_methods.qmd`.
+
+Prose only, no refit. Three claims corrected against what the analysis supports: the penalisation sentence is now indicative, since every categorical covariate is already a penalised random effect (`bs = "re"`, `R/analysis-model.R`); the "driven more by the target" claim is stated as the contrast the results carry, rather than as a variance share the analysis never computes; and `@scarpino2019` is cited as bounded predictability rather than inherent unpredictability.
+
+Summary paragraph cut from five sentences to four, dropping the repeated "none distinguishable from the overall average". The ranking-instability sentence now says the instability did not relate to model structure, so the inference that follows it holds. Paragraph on target difficulty gains a closing sentence on the room left for methods to improve. A generalisability limitation is added (single pathogen, project, and pair of outcomes, over two years in Europe), and the conclusion ends on matching design formality to the question, as in the abstract. Remaining edits are wording and two grammar fixes (`limit`/`limits`, `specifing`).
+
 ## Unreleased — Regime standardisation sketch
 
 `attic/regime-standardised-scores.qmd`

@@ -9,7 +9,7 @@ We treat the estimand as a direct rather than a total effect, because a forecast
 
 #### Study design
 
-We evaluated forecasts of incident Covid-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European Covid-19 Forecast Hub [@euroHub2021].
+We evaluated forecasts of incident COVID-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European COVID-19 Forecast Hub [@euroHub2021].
 The Hub solicited real-time forecasts one to four weeks ahead.
 Any forecaster was eligible for inclusion, with no selection criteria.
 

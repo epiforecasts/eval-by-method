@@ -1,3 +1,4 @@
+library("here")
 library("purrr")
 library("dplyr")
 library("ggplot2")
@@ -9,12 +10,15 @@ source(here("R", "analysis-descriptive.R"))
 # Note plot style, to use everywhere: lineranges showing CIs should always be bars (lwd=2) surrounding a point the same colour, with lower alpha; effects shown as forest plots should order in ascending order of the point estimate, except for method (model structure) and epi outcome, which should be shown in the specified order; epi outcome should be coloured as specified throughout
 
 plot_config <- list(
-  epi_levels = ordered(c("Cases"= "#fe9929", "Deaths" = "#993404")),
-  method_levels = ordered(c("Judgement" = "#0c2c84",
-                            "Statistical" = "#225ea8",
-                            "Semi-mechanistic" = "#1d91c0",
-                            "Mechanistic" = "#7fcdbb",
-                            "Agent-based" = "#c7e9b4"))
+  epi_colours = c("Cases" = "#fe9929", "Deaths" = "#993404"),
+  epi_levels = c("Cases", "Deaths"),
+  method_colours = c("Judgement" = "#0c2c84",
+                     "Statistical" = "#225ea8",
+                     "Semi-mechanistic" = "#1d91c0",
+                     "Mechanistic" = "#7fcdbb",
+                     "Agent-based" = "#c7e9b4"),
+  method_levels = c("Judgement", "Statistical", "Semi-mechanistic",
+                    "Mechanistic", "Agent-based")
 )
 
 # Fit vs observed
@@ -35,11 +39,7 @@ plot_fit_obs <- function(fit_obs, scale_label = "WIS") {
 }
 
 # Partial effect of each model structure, for case and death
-plot_method_target <- function(method_by_target, plot_config) {
-  if (is.null(method_levels)) {
-    method_levels <- rev(sort(unique(method_by_target$Method)))
-  }
-
+plot_method_target <- function(method_by_target) {
   method_by_target |>
     mutate(
       Method = factor(Method, levels = plot_config$method_levels),
@@ -54,7 +54,7 @@ plot_method_target <- function(method_by_target, plot_config) {
                    alpha = 0.6) +
     geom_hline(yintercept = 1, lty = 2, alpha = 0.4) +
     scale_y_log10() +
-    scale_colour_manual(values = colour_key) +
+    scale_colour_manual(values = plot_config$epi_colours) +
     labs(y = "Adjusted performance ratio", x = NULL,
          colour = NULL) +
     theme(legend.position = "bottom", strip.background = element_blank()) +
@@ -191,7 +191,7 @@ plot_model_ranks <- function(ranks, annotate = TRUE) {
                        breaks = c(1, seq(10, n_models, by = 10))) +
     scale_y_continuous(limits = c(1, n_models),
                        breaks = c(1, seq(10, n_models, by = 10))) +
-    scale_colour_manual(values = plot_config$method_levels) +
+    scale_colour_manual(values = plot_config$method_colours) +
     coord_equal() +
     labs(x = "Unadjusted rank (1 = best)", y = "Adjusted rank (1 = best)",
          colour = NULL) +

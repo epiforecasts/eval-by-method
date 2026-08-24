@@ -19,6 +19,7 @@ library(patchwork)
 source(here("R", "process-data.R"))
 source(here("R", "analysis-descriptive.R"))
 source(here("R", "plot-model-results.R"))
+source(here("R", "analysis-supplement.R"))
 theme_set(theme_classic())
 knitr::opts_chunk$set(
   eval = TRUE,
@@ -190,6 +191,23 @@ geom_point(alpha = 0.3, position = "jitter") +
 facet_grid(cols = vars(epi_target), rows = vars(Method)) +
 labs(x = "Forecast week", y = "Number of target countries") +
 theme(legend.position = "none")
+```
+
+The main text shows this same relationship as aggregated percentile bands.
+At the level of individual forecasts, the same data show where forecasts actually concentrate and where scores cluster or trail off.
+
+```{r}
+#| label: supplement-error-density
+#| fig-cap: >-
+#|   Density of individual forecasts by observed incidence per 100,000 population and
+#|   weighted interval score (WIS, log scale), for COVID-19 cases and deaths across 32
+#|   European countries, faceted by forecast horizon (columns, weeks ahead). Hexagonal
+#|   bins are coloured by the number of forecasts they contain (log scale). This is the
+#|   forecast-level detail behind the main text's percentile bands of the same relationship.
+#| fig-height: 5
+#| fig-width: 10
+
+plot_error_vs_obs_hex(scores)
 ```
 
 ## Data processing

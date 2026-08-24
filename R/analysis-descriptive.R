@@ -16,33 +16,66 @@ library(kableExtra)
 library(stringr)
 
 # Figure: forecast error vs observed incidence ------------------------
-plot_error_vs_obs <- function(scores) {
+# Shared prep: incidence per 100k, plus a log-spaced incidence bin mid-point
+# (numeric, via findInterval -- not a formatted-label parse, which silently
+# drops rows if the label text doesn't round-trip through as.numeric()).
+prep_error_vs_obs <- function(scores, n_bins = 20) {
   plot_data <- scores |>
     mutate(incidence_pk = Incidence / pop * 100000) |>
-    filter(!is.na(wis),
-           !is.na(Incidence)
-    )
+    filter(!is.na(wis), !is.na(incidence_pk), incidence_pk > 0)
+
+  log_inc <- log10(plot_data$incidence_pk)
+  breaks <- seq(min(log_inc), max(log_inc), length.out = n_bins + 1)
+  bin_idx <- findInterval(log_inc, breaks, all.inside = TRUE)
+  plot_data$bin_mid <- 10^((breaks[bin_idx] + breaks[bin_idx + 1]) / 2)
+  plot_data
+}
+
+incidence_scale_x <- function() {
+  scale_x_log10(labels = \(x) format(x, big.mark = ",", trim = TRUE,
+                                     scientific = FALSE, drop0trailing = TRUE))
+}
+
+# WIS against observed incidence: 5-25% and 25-75% quantile bands per
+# horizon, no median line, so the full spread (not just central tendency)
+# is visible. Bands nest per horizon (coloured), faceted by epi_target.
+plot_error_vs_obs_bands <- function(scores, n_bins = 20, min_n = 20) {
+  binned <- prep_error_vs_obs(scores, n_bins = n_bins) |>
+    group_by(epi_target, Horizon, bin_mid) |>
+    summarise(
+      q05 = quantile(wis, 0.05),
+      q25 = quantile(wis, 0.25),
+      q75 = quantile(wis, 0.75),
+      n = n(),
+      .groups = "drop"
+    ) |>
+    filter(n >= min_n)
+
+  ggplot(binned, aes(x = bin_mid, fill = factor(Horizon), group = Horizon)) +
+    geom_ribbon(aes(ymin = q05, ymax = q25), alpha = 0.15) +
+    geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.35) +
+    facet_wrap(~epi_target, scales = "free") +
+    incidence_scale_x() +
+    scale_y_log10() +
+    scale_fill_viridis_d("Horizon (weeks)", end = 0.85) +
+    labs(x = "Observed incidence per 100,000", y = "Performance (LWIS)") +
+    theme_classic() +
+    theme(legend.position = "bottom", strip.background = element_blank())
+}
+
+# Hex-binned density of WIS against observed incidence, by horizon
+plot_error_vs_obs_hex <- function(scores, bins = 40) {
+  plot_data <- prep_error_vs_obs(scores)
 
   ggplot(plot_data, aes(x = incidence_pk, y = wis)) +
-    geom_point(alpha = 0.03, size = 0.4, stroke = 0) +
+    geom_hex(bins = bins) +
     facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free") +
-    scale_x_log10(labels = \(x) format(x, big.mark = ",", trim = TRUE,
-                                       scientific = FALSE, drop0trailing = TRUE)) +
-    scale_y_continuous() +
-    labs(
-      x = "Observed incidence", y = "Performance (LWIS)",
-      colour = NULL, fill = NULL
-    ) +
-    theme(legend.position = "bottom")
-
-  plot_data |>
-    filter(Horizon==1) |>
-    mutate(bincidence_pk = as.factor(signif(incidence_pk, 4))) |>
-    ggplot(aes(x = bincidence_pk, y = wis)) +
-    geom_boxplot() +
-    facet_wrap(~epi_target, scales = "free") +
-    labs(x = "", y = "") +
-    theme(legend.position = "bottom")
+    incidence_scale_x() +
+    scale_y_log10() +
+    scale_fill_viridis_c("Forecasts", trans = "log10", labels = scales::label_comma()) +
+    labs(x = "Observed incidence per 100,000", y = "Performance (LWIS)") +
+    theme_classic() +
+    theme(legend.position = "bottom", strip.background = element_blank())
 }
 
 plot_wis_over_time <- function(scores) {
@@ -78,23 +111,6 @@ plot_wis_over_time <- function(scores) {
     labs(x = NULL, y = NULL) +
     theme(strip.placement = "outside")
 }
-#
-# scores |>
-#   filter(!is.na(wis)) |>
-#   ggplot(aes(x = target_end_date, y = wis)) +
-#   geom_hex(bins = 50) +
-#   scale_fill_viridis_c(trans = "log10", name = "Forecasts") +
-#   facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free_y") +
-#   labs(x = NULL, y = "LWIS")
-#
-# scores |>
-#   filter(!is.na(wis), !is.na(Incidence)) |>
-#   mutate(incidence_pk = Incidence / pop * 1e5) |>
-#   ggplot(aes(x = target_end_date, y = incidence_pk, z = wis)) +
-#   stat_summary_hex(bins = 40, fun = median) +
-#   scale_y_log10() +
-#   scale_fill_viridis_c(name = "Median LWIS") +
-#   facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free_y")
 
 # Table: structure effects by epidemiological target ---------
 # One row per model structure, one column per target, from the

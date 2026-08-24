@@ -62,16 +62,16 @@ We evaluated `r n_models` forecasting models from `r nrow(n_teams)` modelling te
 #| tbl-cap: >-
 #|   Characteristics of models sampled from the European COVID-19 Forecast Hub,
 #|   March 2021-2023. Models (%) shows the number of models and the percentage of
-#|   that column's total: models forecasting cases, models forecasting deaths,
-#|   and all included models. Participation is the median across models in each
-#|   group of the percentage of the 26,624 available forecast targets a model
-#|   submitted for.
-# <!--TODO clarify last sentence -->
+#|   that column's total, grouped by which epidemiological outcome(s) a model
+#|   forecast: cases only, deaths only, both, and all included models combined.
+#|   Participation is the median (IQR) across models in each group of the
+#|   percentage of the 26,624 available forecast targets a model submitted for.
 # Overall participation
 model_forecasts <- scores |>
   group_by(Model) |>
   summarise(n_forecasts = n(),
   p_max = n_forecasts / max_forecasts * 100)
+model_participation <- select(model_forecasts, Model, Participation = p_max)
 model_forecasts <- round(summary(model_forecasts$p_max), 0)
 # Model structures
 structures <- scores |>
@@ -102,8 +102,17 @@ model_epi_target <- scores |>
   group_by(Method, Model, .drop = TRUE) |>
   distinct(epi_target, .keep_all = TRUE) |>
   summarise(model_epi_target = paste(sort(unique(epi_target)), collapse = " & ")) |>
-  mutate(`Model structure` = as.character(Method))
-gtsummary::tbl_summary(model_epi_target, include = `Model structure`, by = model_epi_target) # TODO add total column
+  mutate(`Model structure` = as.character(Method)) |>
+  left_join(model_participation, by = "Model")
+gtsummary::tbl_summary(
+  model_epi_target,
+  include = c(`Model structure`, Participation),
+  by = model_epi_target,
+  statistic = list(Participation ~ "{median} ({p25}, {p75})"),
+  digits = list(Participation ~ 1),
+  label = list(Participation ~ "Participation (%)")
+) |>
+  gtsummary::add_overall(last = TRUE, col_label = "All included, N = {N}")
 ```
 
 Forecasters could participate in any of 26,624 available targets (104 weeks, 32 countries, 4 horizons, 2 epidemiological outcomes).
@@ -121,12 +130,16 @@ Mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic
 ```{r}
 #| label: fig-error-vs-obs
 #| fig-cap: >-
-#|   Weighted interval score (WIS) against observed incidence per 100,000 population for COVID-19 cases and deaths across 32 European countries.
-#|   Faint points show individual forecasts.
+#|   Weighted interval score (WIS, log scale) against observed incidence per 100,000
+#|   population, for COVID-19 cases and deaths across 32 European countries.
+#|   Bands show the 5-25th and 25-75th percentile of WIS within each incidence bin,
+#|   coloured by forecast horizon; no median line is shown, so the bands carry the
+#|   full spread rather than a single summary value.
 #|   Both axes are shown on the log scale; lower WIS indicates better performance.
+#|   Forecast-level density behind these bands is shown in the Supplement.
 #| fig-height: 4
 #| fig-width: 8
-plot_error_vs_obs(scores)
+plot_error_vs_obs_bands(scores)
 ```
 
 ```{r}
@@ -225,21 +238,22 @@ effects_comp <- results$effects |>
 ```
 
 We report regression results as a ratio against the grand-mean LWIS, where 1 is average performance and 0.9 an LWIS 10% lower than average, with raw partial effects in the Supplement.
-After adjustment, no structural approach dominated (@tbl-structure, @fig-structure-effects A).
+After adjustment, no structural approach dominated (@tbl-structure, @fig-structure-effects).
 The largest shifts under adjustment were among agent-based and human judgement models, while adjustment shrank the standard errors throughout.
 
 ```{r}
 #| label: tbl-structure
 #| tbl-cap: >-
-#|   Estimated effects of model structure on COVID-19 forecast performance, where 
+#|   Estimated effects of model structure on COVID-19 forecast performance, where
 #|   a ratio below 1 indicates better-than-average performance.
-#|   Performance measured as LWIS (weighted interval score of log-transformed forecasts 
-#|   and observations), and estimated from univariate (unadjusted) and joint (adjusted) 
-#|   generalised additive mixed models adjusted for varying features of the forecast target: 
-#|   weekly incidence, trend, 
+#|   Performance measured as LWIS (weighted interval score of log-transformed forecasts
+#|   and observations), and estimated from univariate (unadjusted) and joint (adjusted)
+#|   generalised additive mixed models adjusted for varying features of the forecast target:
+#|   weekly incidence, trend, variant phase, location and forecast horizon, plus
+#|   model-specific effects.
 #|   Effects are deviations from the grand mean under a sum-to-zero constraint, expressed
 #|   as the exponentiated partial effect: a multiplicative ratio relative to the overall (grand-mean)
-#|   LWIS, where 
+#|   LWIS.
 #|   95% CI = 95% confidence interval.
 
 print_table2(results$effects)
@@ -275,7 +289,7 @@ mbt_widest_n <- scores |>
   )
 ```
 
-Differences between model structures also reduced when separated by outcome (@fig-structure-effects B; Supplement).
+Differences between model structures also reduced when separated by outcome (@fig-structure-effects; Supplement).
 However, model structures differed in the direction of their outcome-specific effects.
 The widest separation was among `r tolower(mbt_widest)` models, which were the worst-performing model structure for case forecasts but the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
 This contrast rests on `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Cases"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Cases"]` forecasts for cases, and `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Deaths"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Deaths"]` forecasts for deaths, so the structure-level estimate is close to a statement about individual models, even with a model-specific effect in the fit.
@@ -305,7 +319,7 @@ Targets were most predictable during stable periods of the epidemic curve (ratio
 Predictability was better in the earlier Alpha and Delta phases (ratios `r table_effects["Adjusted_Alpha","ratio_ci"]` and `r table_effects["Adjusted_Delta","ratio_ci"]`) and worst under Omicron BA.1 (ratio `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`), and death forecasts scored lower than case forecasts (ratio `r table_effects["Adjusted_Deaths","ratio_ci"]`).
 
 Despite some covariates accounting for the forecasting process, most of the difference between individual model performance was left unexplained (@fig-model-variation A).
-We accounted for whether models forecast for one or multiple countries, with `r targets[["Single-country"]]` models forecasting for a single country and `r targets[["Multi-country"]]` for multiple countries (of which only `r nrow(multi_targets |> filter(consistent))` kept the same number of countries throughout, see Supplement).
+We accounted for whether models forecast for one or multiple countries, with 19 models forecasting for a single country and 29 for multiple countries (of which only 2 kept the same number of countries throughout, see Supplement).
 Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), so geographic scope explained none of the difference between models.
 Forecast horizon entered the model as a smooth fitted separately for each model, so it has no single pooled effect; the crude gradient across horizons is given above.
 
