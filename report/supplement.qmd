@@ -381,12 +381,19 @@ stat_of <- function(label, scale, col, digits = 1) {
 }
 ```
 
-The choice of family matters a great deal on the log scale and very little on the natural scale.
+The choice of family matters a great deal more the log scale than the natural scale.
 On the log scale, moving from Gaussian to Tweedie reduces residual skew from `r stat_of("family-gaussian-log", "log", "resid_skew")` to `r stat_of("family-tweedie-log", "log", "resid_skew")` and kurtosis from `r stat_of("family-gaussian-log", "log", "resid_kurtosis")` to `r stat_of("family-tweedie-log", "log", "resid_kurtosis")`.
-On the natural scale, the WIS is skewed beyond what any Tweedie can absorb, and the residual skew is essentially unchanged (`r stat_of("primary-interaction", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
+On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("primary-interaction", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
 
 ```{r}
 #| label: supplement-family-comparison
+#| tbl-cap: >-
+#|   Comparison of error families for the joint model on the log scale.
+#|   Skew and kurtosis are of the deviance residuals for comparison between family.
+#|   Lower absolute skew and kurtosis indicate a
+#|   distributional assumption better matched to the outcome.
+#|   Tweedie is the family used in the primary model,
+#|   fitted without the 1e-7 constant used here (see below).
 
 read_csv(here("output", "diagnostics", "fit-summary.csv"),
          show_col_types = FALSE) |>
@@ -404,14 +411,6 @@ read_csv(here("output", "diagnostics", "fit-summary.csv"),
     `Residual kurtosis` = round(as.numeric(resid_kurtosis), 1)
   ) |>
   kable(
-    caption = paste0(
-      "Comparison of error families for the joint model on the log scale. ",
-      "Skew and kurtosis are of the deviance residuals, which place each family ",
-      "on a comparable footing. Lower absolute skew and kurtosis indicate a ",
-      "distributional assumption better matched to the outcome. ",
-      "All arms converge. Tweedie is the family used in the primary model, ",
-      "which is fitted without the 1e-7 constant used here (see below)."
-    ),
     align = c("l", "r", "r", "r", "r")
   ) |>
   kable_styling(full_width = FALSE)
@@ -474,7 +473,7 @@ Negative values indicate better-than-average performance.
 Partial effect on forecast performance of key covariates included in the fully adjusted model for additional covariates.
 Partial effects of individual model structure and individual model are presented in the main text.
 
-(A) Spatial covariates
+(A) Geographic
 
 ```{r}
 #| label: supplement-plot-spatial-effects
@@ -482,11 +481,11 @@ Partial effects of individual model structure and individual model are presented
 #|   Performance varied more between countries than between single- and
 #|   multi-country models. Partial effects (95% CI) for geographic scope and
 #|   country, as a ratio against the grand-mean LWIS.
-
+# TODO. in supplement, panel target features into a single figure (A: epi outcome, B: epidemic trend, C: variant phase, D: country), next to it panel forecaster features (A: single/multi country, B: model structure); show adjusted effect only; use a sensible colour scale to differentiate groups. 
 plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 ```
 
-(B) Temporal covariates
+(B) Epidemic state
 
 ```{r}
 #| label: supplement-plot-temporal-effects
