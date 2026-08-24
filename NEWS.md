@@ -5,11 +5,17 @@ Newest first.
 
 ## Unreleased — Results figures and tables fixed
 
-`report/quarto/_results.qmd`, `R/plot-model-results.R`
+`report/quarto/_results.qmd`, `report/supplement.qmd`, `R/plot-model-results.R`, `R/analysis-descriptive.R`
 
 Table 1 (`tbl-models`) rebuilt to match its own caption: adds a `Participation (%)` row (median, IQR of the percentage of available targets each model submitted for) and an `All included` total column via `gtsummary::add_overall()`, replacing a table that only showed model-structure counts split by which outcome(s) a model forecast. Table 2 (`tbl-structure`) caption was truncated mid-sentence in the source (cut off after "weekly incidence, trend,"); completed with the full covariate list and the dangling final clause removed.
 
 Figure 3 (`fig-structure-effects`) is a single panel by design; two prose cross-references (`@fig-structure-effects A`, `@fig-structure-effects B`) wrongly implied a two-panel figure and are corrected to plain `@fig-structure-effects`. Separately, `plot_config` in `R/plot-model-results.R` conflated colour values and level order into one `ordered()` factor keyed by hex code, which silently sorted levels alphabetically by colour string and broke both `factor(..., levels = plot_config$method_levels)` and `scale_colour_manual(values = ...)` wherever they were used — this produced an all-`NA` y-axis in Figure 3 and an uncoloured legend in Figure 4 panel B (`plot_model_ranks()`), the second only surfacing because Figure 3's dead reference to an undefined `colour_key` had been masking the same bug there. `plot_config` is now split into `*_colours` (named vector, for `scale_*_manual`) and `*_levels` (plain ordered vector of names, for `factor(levels = )`), with both plotting functions updated to use the correct one; both figures re-rendered and verified against `output/log/results.rds`.
+
+The country-scope sentence in "Other drivers of forecast performance" referenced `targets`/`multi_targets`, neither ever defined in `_results.qmd`; the render failed the moment it reached that inline code. Replaced with the computed values as plain text (19 single-country models, 29 multi-country, 2 of 29 keeping a consistent country count throughout), since the two numbers are used nowhere else in the document.
+
+Figure 1 (`fig-error-vs-obs`) rebuilt again: `plot_error_vs_obs_bands()` replaces the earlier scatter-plus-trend fix with 5-25th and 25-75th percentile bands of WIS by observed incidence, coloured by horizon, no median line, so the full spread is shown rather than a single summary curve. A companion `plot_error_vs_obs_hex()` (hex-binned density of the same relationship, faceted by horizon) is added to the supplement as `supplement-error-density`, cross-referenced from the main-text caption, giving the forecast-level detail behind the bands. Both share a new `prep_error_vs_obs()` helper that bins observed incidence numerically via `findInterval()`, replacing the earlier `signif()`-and-parse approach that silently dropped rows whenever the formatted bin label didn't round-trip through `as.numeric()`. A `ggridges` density-by-horizon alternative was drafted and rendered for comparison (`output/scratch-review/fig1-ridges.png`) but not wired in: it cannot carry the incidence axis, so it answers a different question than the figure needs to.
+
+`report/supplement.qmd`'s setup chunk never sourced `R/analysis-supplement.R`, so `table_confint()`/`table_metadata()` were undefined the moment the supplement's own metadata table chunk ran; added the missing `source()`.
 
 ## Unreleased — Background and Discussion revision
 
