@@ -5,7 +5,7 @@ Newest first.
 
 ## Unreleased — Results figures and tables fixed
 
-`report/quarto/_results.qmd`, `report/supplement.qmd`, `R/plot-model-results.R`, `R/analysis-descriptive.R`
+`report/quarto/_results.qmd`, `report/supplement.qmd`, `R/plot-model-results.R`, `R/analysis-descriptive.R`, `renv.lock`
 
 Table 1 (`tbl-models`) rebuilt to match its own caption: adds a `Participation (%)` row (median, IQR of the percentage of available targets each model submitted for) and an `All included` total column via `gtsummary::add_overall()`, replacing a table that only showed model-structure counts split by which outcome(s) a model forecast. Table 2 (`tbl-structure`) caption was truncated mid-sentence in the source (cut off after "weekly incidence, trend,"); completed with the full covariate list and the dangling final clause removed.
 
@@ -16,6 +16,8 @@ The country-scope sentence in "Other drivers of forecast performance" referenced
 Figure 1 (`fig-error-vs-obs`) rebuilt again: `plot_error_vs_obs_bands()` replaces the earlier scatter-plus-trend fix with 5-25th and 25-75th percentile bands of WIS by observed incidence, coloured by horizon, no median line, so the full spread is shown rather than a single summary curve. A companion `plot_error_vs_obs_hex()` (hex-binned density of the same relationship, faceted by horizon) is added to the supplement as `supplement-error-density`, cross-referenced from the main-text caption, giving the forecast-level detail behind the bands. Both share a new `prep_error_vs_obs()` helper that bins observed incidence numerically via `findInterval()`, replacing the earlier `signif()`-and-parse approach that silently dropped rows whenever the formatted bin label didn't round-trip through `as.numeric()`. A `ggridges` density-by-horizon alternative was drafted and rendered for comparison (`output/scratch-review/fig1-ridges.png`) but not wired in: it cannot carry the incidence axis, so it answers a different question than the figure needs to.
 
 `report/supplement.qmd`'s setup chunk never sourced `R/analysis-supplement.R`, so `table_confint()`/`table_metadata()` were undefined the moment the supplement's own metadata table chunk ran; added the missing `source()`.
+
+The `gtsummary::tbl_summary()` call added for Table 1 above was never captured in `renv.lock`, so every CI render since has failed at `tbl-models` with no package called 'gtsummary'. Added `gtsummary` and its 12 transitive dependencies (`gt`, `cards`, `cardx`, `hexbin`, and others) via a scoped `renv::record()` rather than a full `renv::snapshot()`, which would also pull in the `brms`/`rstan` toolchain used only by `R/sensitivity/model-building.qmd` and add an unrelated, heavy compile step to CI.
 
 ## Unreleased — Background and Discussion revision
 
