@@ -3,6 +3,18 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Abstract revision
+
+`report/quarto/_abstract.qmd`, `CLAUDE.md`, `submission/Revision_reviews-response.md`
+
+The abstract now carries the quantities the Results section already reports, rather than asserting the headline without them: 207,713 forecasts from 48 models; adjusted structure effects of 0.98-1.05 times the average LWIS with every interval spanning 1; and the rank instability the Discussion leans on (Spearman 0.44 before versus after adjustment, 23 of 48 models moving at least ten places). All read from `output/log/results.rds`, so they need rechecking on any refit — the abstract is included before the Results chunks run and cannot compute them inline.
+
+Three errors fixed: `is is`, a missing `more` in the target-versus-method sentence, and a broken referent where separating the forecast- and target-generating processes was given as the cause of the comparison problem rather than the response to it. `WIS` is now `LWIS` throughout, matching Methods, and "no single type of model performed best" is stated as no structure being clearly different from the overall average, which is what the fit supports.
+
+Reviewer comment #111 closed: the abstract names the five model structures and now also lists whether a model forecast for one or many countries among the adjusted covariates. The stale copy of the abstract in `CLAUDE.md` is resynced and marked as a copy of `report/quarto/_abstract.qmd`.
+
+Outstanding: the abstract runs 344 words against the PLOS Computational Biology limit of 300, and `report/manuscript.qmd` still has no Author Summary section, which the original submission carried.
+
 ## Unreleased — Results figures and tables fixed
 
 `report/quarto/_results.qmd`, `report/supplement.qmd`, `R/plot-model-results.R`, `R/analysis-descriptive.R`, `renv.lock`

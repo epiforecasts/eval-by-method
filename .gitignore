@@ -84,3 +84,4 @@ README_files/
 
 # Detached job logs
 /outputs/
+/output/logs/

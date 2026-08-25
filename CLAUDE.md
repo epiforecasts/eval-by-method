@@ -4,21 +4,25 @@ This is an R-based research project analysing COVID-19 forecast accuracy across 
 
 ## Abstract
 
-Forecasters predicting infectious disease outbreaks have met with varying success.
-Some of this variation in performance comes from the method used to make a forecast, when different models are better or worse at prediction.
-The rest comes from the target being forecast, when some outbreaks are easier or harder to predict than others.
-However, when many forecasters each predict many different targets, it becomes difficult to trace the impact of these factors shaping performance.
-Here we use a regression model to separate the effect of the forecasting method, from the difficulty of the target, in forecast performance.
+Source of truth: `report/quarto/_abstract.qmd`. Copy below, resync when that file changes.
 
-We evaluated forecasts of weekly COVID-19 cases and deaths over two years across 32 European countries, scoring them against observed data with the Weighted Interval Score (WIS).
-We expected a model's structure to shape how well it predicted, so we classified 48 models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement) and estimated how much structure alone affected performance.
-A generalised additive mixed model let us adjust for everything that makes a target easier or harder to predict: the outcome being forecast, its level and trend, the dominant variant, the country, the forecast horizon, and differences between individual models.
+Forecasters predicting infectious disease outbreaks meet with varying success.
+When many forecasters each predict many different targets, it is difficult to identify why their performance varies.
+Considering this variation, we separate the process of creating a forecast from the process generating the target it predicts.
+Comparing across combinations of the two conflates the method a forecaster used with the difficulty of the targets they chose, while stratifying by these factors leaves too few comparable forecasts.
+We identify common strategies for this problem, and demonstrate a regression-based approach to evaluation with sparse data.
 
-Once we accounted for the difficulty of the target, no single type of model performed best.
-Differences in European COVID-19 forecast performance were driven more by which targets were hard to predict than by which modelling approach a forecaster used.
+We evaluated 207,713 forecasts of weekly COVID-19 cases and deaths from 48 models over two years across 32 European countries, scored against observed data with the weighted interval score of log-transformed values (LWIS).
+We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement), and estimated the effect of model structure in a generalised additive mixed model adjusting for the epidemiological outcome, its level and trend, the dominant pathogen variant, the country, the forecast horizon, whether a model forecast for one or many countries, and differences between individual models.
+No model structure was clearly different from the overall average (ratios 0.98 to 1.05 of the average LWIS, all intervals spanning 1).
+Instead, performance was driven by factors varying between forecast targets, such as the epidemic trend.
+We left substantial variation in individual model performance unexplained.
+Ranking individual models before and after adjustment gave a Spearman correlation of 0.44, with 23 of 48 models moving at least ten places.
 
-This approach sits between informal and fully formal ways of handling bias in evaluation studies.
-As infectious disease forecasting grows, we encourage evaluators to choose from a wider range of study designs, matching the formality of the method to the question, so they can isolate the part of performance they actually want to measure.
+Our model-based approach sits between informal and fully formal ways of handling bias in observational studies of forecast performance.
+Less formal designs such as stratification suffice with a single target or a structured sample of forecasters, while going further could include propensity weighting or a fully specified causal estimand.
+As infectious disease forecasting grows, we encourage evaluators to match the formality of the design to the question and the data available.
+Evaluating across multiple forecast targets requires explicit accounting for the variation producing each target, before considering what varies within the forecasting process.
 
 
 ## Project Structure
