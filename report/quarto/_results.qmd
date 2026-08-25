@@ -60,12 +60,10 @@ We evaluated `r n_models` forecasting models from `r nrow(n_teams)` modelling te
 ```{r}
 #| label: tbl-models
 #| tbl-cap: >-
-#|   Characteristics of models sampled from the European COVID-19 Forecast Hub,
-#|   March 2021-2023. Models (%) shows the number of models and the percentage of
-#|   that column's total, grouped by which epidemiological outcome(s) a model
-#|   forecast: cases only, deaths only, both, and all included models combined.
-#|   Participation is the median (IQR) across models in each group of the
-#|   percentage of the 26,624 available forecast targets a model submitted for.
+#|   Characteristics of models sampled from the European COVID-19 Forecast Hub, March 2021-2023.
+#|   Models (%) shows the number of models and the percentage of that column's total, grouped by which epidemiological outcome(s) a model forecast: cases only, deaths only, both, and all included models combined.
+#|   Participation is the median (IQR) across models in each group of the percentage of the 26,624 available forecast targets a model submitted for.
+
 # Overall participation
 model_forecasts <- scores |>
   group_by(Model) |>
@@ -130,15 +128,14 @@ Mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic
 ```{r}
 #| label: fig-error-vs-obs
 #| fig-cap: >-
-#|   Weighted interval score (WIS, log scale) against observed incidence per 100,000
-#|   population, for COVID-19 cases and deaths across 32 European countries.
-#|   Bands show the 5-25th and 25-75th percentile of WIS within each incidence bin,
-#|   coloured by forecast horizon; no median line is shown, so the bands carry the
-#|   full spread rather than a single summary value.
-#|   Both axes are shown on the log scale; lower WIS indicates better performance.
-#|   Forecast-level density behind these bands is shown in the Supplement.
+#|   Log-transform weighted interval score (LWIS), against the magnitude of observed incidence per 100,000 population, for COVID-19 cases and deaths across 32 European countries.
+#|   Lower LWIS indicates better performance.
+#|   Ribbons show the 5th, 25th, and 75th percentiles of LWIS (y axis), summarised within increasing bands of observed incidence spaced across the log scale (x axis).
+#|   Ribbons are coloured by forecast horizon.
+#|   Both axes are shown on the log scale.
 #| fig-height: 4
 #| fig-width: 8
+
 plot_error_vs_obs_bands(scores)
 ```
 
@@ -182,10 +179,11 @@ beat_ensemble <- scores |>
 ```
 
 Aggregated performance varied more with the epidemiological process being predicted than between forecasters.
-Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths, and scores tracked the magnitude of the outcome being predicted (@fig-error-vs-obs).
+Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths.
+For deaths in particular, scores varied non-linearly with the magnitude of the outcome being predicted (@fig-error-vs-obs).
 Across variant phases, forecasts were most accurate during the `r phase_best` phase and least accurate during `r phase_worst`, the period of steepest change in reported incidence.
-Scores worsened with forecast horizon, from a median LWIS of `r median_by_horizon[["Cases 1"]]` at one week to `r median_by_horizon[["Cases 4"]]` at four weeks for cases, and `r median_by_horizon[["Deaths 1"]]` to `r median_by_horizon[["Deaths 4"]]` for deaths.
-Against the Hub ensemble, which we excluded from the analysis because it is constructed from the forecasts it would be compared against, `r beat_ensemble$n_better[beat_ensemble$epi_target == "Cases"]` of `r beat_ensemble$n_models[beat_ensemble$epi_target == "Cases"]` models achieved a lower median LWIS for cases (ensemble `r ensemble_median[["Cases"]]`) and `r beat_ensemble$n_better[beat_ensemble$epi_target == "Deaths"]` of `r beat_ensemble$n_models[beat_ensemble$epi_target == "Deaths"]` for deaths (ensemble `r ensemble_median[["Deaths"]]`).
+Scores worsened with forecast horizon (@fig-error-vs-obs), from a median LWIS of `r median_by_horizon[["Cases 1"]]` at one week to `r median_by_horizon[["Cases 4"]]` at four weeks for cases, and `r median_by_horizon[["Deaths 1"]]` to `r median_by_horizon[["Deaths 4"]]` for deaths.
+Against the Hub ensemble, constructed from the median of the forecasts we assess in this analysis, `r beat_ensemble$n_better[beat_ensemble$epi_target == "Cases"]` of `r beat_ensemble$n_models[beat_ensemble$epi_target == "Cases"]` models achieved a lower median LWIS for cases (ensemble `r ensemble_median[["Cases"]]`) and `r beat_ensemble$n_better[beat_ensemble$epi_target == "Deaths"]` of `r beat_ensemble$n_models[beat_ensemble$epi_target == "Deaths"]` for deaths (ensemble `r ensemble_median[["Deaths"]]`).
 
 ```{r}
 #| label: results-sparsity
@@ -203,11 +201,12 @@ strata_thin <- round(mean(strata_obs$n < 5) * 100)
 
 #### Effect of model structure
 
-Before adjustment, agent-based and human judgement models appeared to outperform mechanistic and statistical approaches.
-However, participation between model structures was unevenly distributed across forecast targets.
+Participation between model structures was unevenly distributed across forecast targets.
 Handling this with a stratification approach would produce sparse data, given both the range of targets, and number and type of covariates we wish to adjust for.
-To demonstrate, cross-classifying forecasts by the categorical covariates alone (epidemiological outcome, location, epidemic trend, variant phase, number of countries targeted) gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled` % contain any forecast.
-Among these, each non-empty stratum holds only `r strata_median` forecasts and `r strata_thin`% hold fewer than five forecasts.
+To demonstrate, cross-classifying forecasts by the categorical covariates alone (epidemiological outcome, location, epidemic trend, variant phase, number of countries targeted) gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled`% contain any forecast.
+Among these, each non-empty stratum holds a median of only `r strata_median` forecasts and `r strata_thin`% hold fewer than five.
+We report model-based effect estimates as a ratio against the grand-mean LWIS for each factor, under a sum-to-zero constraint; a ratio of 0.9 represents an LWIS 10% lower (better) than the group average.
+We report raw partial effects in the Supplement.
 
 ```{r}
 #| label: results-scores-results
@@ -237,23 +236,16 @@ effects_comp <- results$effects |>
   filter(group_var %in% c("Method"))
 ```
 
-We report regression results as a ratio against the grand-mean LWIS, where 1 is average performance and 0.9 an LWIS 10% lower than average, with raw partial effects in the Supplement.
 After adjustment, no structural approach dominated (@tbl-structure, @fig-structure-effects).
 The largest shifts under adjustment were among agent-based and human judgement models, while adjustment shrank the standard errors throughout.
 
 ```{r}
 #| label: tbl-structure
 #| tbl-cap: >-
-#|   Estimated effects of model structure on COVID-19 forecast performance, where
-#|   a ratio below 1 indicates better-than-average performance.
-#|   Performance measured as LWIS (weighted interval score of log-transformed forecasts
-#|   and observations), and estimated from univariate (unadjusted) and joint (adjusted)
-#|   generalised additive mixed models adjusted for varying features of the forecast target:
-#|   weekly incidence, trend, variant phase, location and forecast horizon, plus
-#|   model-specific effects.
-#|   Effects are deviations from the grand mean under a sum-to-zero constraint, expressed
-#|   as the exponentiated partial effect: a multiplicative ratio relative to the overall (grand-mean)
-#|   LWIS.
+#|   Adjusting for features of the forecasting context alters the interpretation of variation.
+#|   Estimated effects of model structure on COVID-19 forecast performance, where a ratio below 1 indicates better-than-average performance.
+#|   Performance measured as LWIS (weighted interval score of log-transformed forecasts and observations), and estimated from univariate (unadjusted) and adjusted generalised additive mixed models.
+#|   Adjustment included: the interaction of model structure with epidemiological outcome; weekly incidence, trend, variant phase, location and forecast horizon; whether a model forecast for one or many locations; and an individul model-specific effect.
 #|   95% CI = 95% confidence interval.
 
 print_table2(results$effects)
@@ -289,22 +281,19 @@ mbt_widest_n <- scores |>
   )
 ```
 
-Differences between model structures also reduced when separated by outcome (@fig-structure-effects; Supplement).
-However, model structures differed in the direction of their outcome-specific effects.
+Differences between model structures were modified by epidemiological outcome (@fig-structure-effects; Supplement).
 The widest separation was among `r tolower(mbt_widest)` models, which were the worst-performing model structure for case forecasts but the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
 This contrast rests on `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Cases"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Cases"]` forecasts for cases, and `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Deaths"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Deaths"]` forecasts for deaths, so the structure-level estimate is close to a statement about individual models, even with a model-specific effect in the fit.
 
-All other model structures performed more similarly between epidemiological outcomes, performing marginally better on cases than on deaths.
+Other model structures performed more similarly between epidemiological outcomes, performing marginally better on cases than on deaths.
 We noted that differences between outcomes largely offset when averaged.
 An averaged estimate therefore gives close to zero for most structures, whether or not outcome-specific differences exist.
 
 ```{r}
 #| label: fig-structure-effects
 #| fig-cap: >-
-#|   No model structure performed differently from the average after adjustment for the difficulty
-#|   of its forecast targets.
-#|   Performance ratio (95% CI) by model structure, as the exponentiated partial effect relative to the grand-mean LWIS;
-#|   a ratio below 1 indicates better-than-average performance.
+#|   No model structure performed meaningfully differently from the average after adjustment for features of the epidemiological prediction target.
+#|   Showing performance ratio (95% CI) by model structure, as the exponentiated partial effect relative to the grand-mean LWIS; a ratio below 1 indicates better-than-average performance.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 3
 #| fig-width: 9
@@ -312,13 +301,14 @@ An averaged estimate therefore gives close to zero for most structures, whether 
 plot_method_target(results$method_by_target)
 ```
 
-#### Other drivers of forecast performance
+#### Wider influences on forecast performance
 
-Target-generating processes explained more variation in performance than features of the forecasting process.
+Epidemiological processes generating the forecast target explained more variation in performance than features of the forecasting process.
 Targets were most predictable during stable periods of the epidemic curve (ratio `r table_effects["Adjusted_Stable","ratio_ci"]`) and least during increasing trends (ratio `r table_effects["Adjusted_Increasing","ratio_ci"]`).
 Predictability was better in the earlier Alpha and Delta phases (ratios `r table_effects["Adjusted_Alpha","ratio_ci"]` and `r table_effects["Adjusted_Delta","ratio_ci"]`) and worst under Omicron BA.1 (ratio `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`), and death forecasts scored lower than case forecasts (ratio `r table_effects["Adjusted_Deaths","ratio_ci"]`).
+We report the total set of modelled effects in the Supplement.
 
-Despite some covariates accounting for the forecasting process, most of the difference between individual model performance was left unexplained (@fig-model-variation A).
+Most of the difference between individual model performance was left unexplained (@fig-model-variation A).
 We accounted for whether models forecast for one or multiple countries, with 19 models forecasting for a single country and 29 for multiple countries (of which only 2 kept the same number of countries throughout, see Supplement).
 Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), so geographic scope explained none of the difference between models.
 Forecast horizon entered the model as a smooth fitted separately for each model, so it has no single pooled effect; the crude gradient across horizons is given above.
@@ -327,26 +317,22 @@ Forecast horizon entered the model as a smooth fitted separately for each model,
 #| label: results-ranks
 #| include: false
 
+# TODO fix panel B
 ranks <- rank_models(results$effects)
 rank_summary <- summarise_ranks(ranks)
 ```
 
 We compared this remaining variation between individual models in terms of ranked model order.
-Ranking models by their performance before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`. `r rank_summary$n_moved` of `r rank_summary$n` models moving at least `r rank_summary$threshold` places and the furthest moving `r rank_summary$max_change` places (@fig-model-variation B).
+Ranking models by their performance before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`.
+`r rank_summary$n_moved` of `r rank_summary$n` models moved at least `r rank_summary$threshold` places, with the furthest moving `r rank_summary$max_change` places (@fig-model-variation B).
 
 ```{r}
 #| label: fig-model-variation
 #| fig-cap: >-
-#|   Individual models differ widely in performance after adjustment, and adjusting for
-#|   target difficulty reorders them substantially, so which models look best depends on
-#|   how the evaluation is designed.
-#|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and
-#|   labelled by the model's unadjusted rank.
-#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS,
-#|   where a ratio below 1 indicates better-than-average performance, adjusted for model
-#|   structure, geographic scope, forecast horizon, epidemic trend, variant phase and location.
-#|   (B) Rank of each model before and after adjustment, with the diagonal marking
-#|   no change in rank; distance from it is how far a model moved. Colour: model structure.
+#|   Individual models differ in performance after adjustment, so which models look best depends on how the evaluation is designed.
+#|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and labelled by the model's unadjusted rank.
+#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS, where a ratio below 1 indicates better-than-average performance, adjusted for model structure, geographic scope, forecast horizon, epidemic trend, variant phase and location.
+#|   (B) Rank of each model before and after adjustment, with the diagonal marking no change in rank, coloured by model structure.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 8
 #| fig-width: 11

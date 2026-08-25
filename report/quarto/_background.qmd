@@ -65,20 +65,22 @@ Evaluation is particularly difficult where forecasts must be cross-classified by
 Even a large set of forecasts becomes sparse once stratified by several covariates, leaving too few forecasts in each stratum to estimate a stable and unbiased association ("sparse-data bias" [@greenland2016]).
 Traditional methods from observational research offer varying degrees of formality in controlling which units are compared [@heffner1996pseudoreplication; @mcnamee2005; @kahlert2017]; @tbl-approaches.
 
-| Threat to validity | Approach to control | Example use in forecast evaluation | Limitation |
-|--------------|------------------|----------------------------|-------------------|
-| None | Unadjusted comparison | Rank models, or compare summary scores, over all forecasts as submitted | Conflates the method used with the difficulty of the targets each model chose to forecast |
-| Confounding, selection | Inclusion criteria | Exclude forecasts without comparable reporting of probabilistic uncertainty [@sherratt2023] | Loses power; narrows the population the estimate applies to |
-| Confounding | Matching on covariates | Compare forecasters only on targets both submitted for [@bracher2021] | Sparse overlap; the estimate holds only for the matched set |
-| Confounding | Stratification | Report scores by horizon, location, or epidemic phase [@reich2019; @cramer2022] | Cells sparse and uneven with several interacting factors; continuous covariates need arbitrary binning |
-| Differential population sizes | Indirect standardisation | Relative skill against a naive baseline model available for all targets [@bracher2021] | Interpretable only against the chosen reference, which materially changes rankings [@stapper] |
-| Confounding, clustering | Regression adjustment | Estimate the partial effect of model structure, adjusting for the covariates of the target | Specification-dependent; the estimand is not formally defined |
+  | Threat to validity            | Approach to control      | Example use in forecast evaluation                                                          | Limitation                                                                                             |
+  | ----------------------------- | ------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+  | None                          | Unadjusted comparison    | Rank models, or compare summary scores, over all forecasts as submitted                     | Conflates the method used with the difficulty of the targets each model chose to forecast              |
+  | Confounding, selection        | Inclusion criteria       | Exclude forecasts without comparable reporting of probabilistic uncertainty [@sherratt2023] | Loses power; narrows the population the estimate applies to                                            |
+  | Confounding                   | Matching on covariates   | Compare forecasters only on targets both submitted for [@bracher2021]                       | Sparse overlap; the estimate holds only for the matched set                                            |
+  | Confounding                   | Stratification           | Report scores by horizon, location, or epidemic phase [@reich2019; @cramer2022]             | Cells sparse and uneven with several interacting factors; continuous covariates need arbitrary binning |
+  | Differential population sizes | Indirect standardisation | Relative skill against a naive baseline model available for all targets [@bracher2021]      | Interpretable only against the chosen reference, which materially changes rankings [@stapper]          |
+  | Confounding, clustering       | Regression adjustment    | Estimate the partial effect of model structure, adjusting for the covariates of the target  | Specification-dependent; the estimand is not formally defined                                          |
 
-: Approaches to controlling variation in comparative forecast evaluation, compared with analogous tools of observational study design aiming to address threats to validity of comparison. Rows run from no control at all through to full adjustment. {#tbl-approaches}
+  : Approaches to controlling variation in comparative forecast evaluation, compared with analogous tools of observational study design aiming to address threats to validity of comparison.
+    Rows run from no control at all through to full adjustment.
+    {#tbl-approaches}
 
 Here we develop one approach to tracing specific influences on forecast performance, while accounting for variation across the forecast- and target-generating processes.
 We use a joint estimation regression approach that makes use of all observations to inform each estimate, rather than discarding those outside a stratum or matched set.
-We demonstrate this with forecasts from 48 models predicting short-term COVID-19 incidence across Europe.
-We focus on the effect of forecasting model structure on performance.
+We demonstrate this with forecasts from 48 models predicting short-term COVID-19 incidence across Europe, and focus on the effect of forecasting model structure on performance.
+We classified into five categories of model structure, and adjust for other features of the forecasting process and target.
 We find performance is more strongly associated with the forecast target than with the forecasting model structure.
-We interpret this in the context of study designs for comparative forecast evaluation, and propose specific directions to motivate further comparative evaluations.
+We interpret this in the context of study designs for comparative forecast evaluation, and propose directions for more detailed comparative evaluations.

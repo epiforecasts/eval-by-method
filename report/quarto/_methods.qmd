@@ -1,58 +1,48 @@
-#### Study aim
-
-We aimed to estimate how much variation in forecast performance is attributable to the structure of the forecasting model, rather than to the difficulty of the targets each model chose to forecast.
-The exposure is model structure, classified into five categories; the outcome is the score of each forecast.
-Forecasters chose which countries, weeks and outcomes to submit for, so structure is associated with target difficulty and a crude comparison of scores is confounded.
-We therefore estimate a partial association: the difference in score between structures with the features of the target held fixed.
-Adjustment is what makes that comparison possible across all targets at once, rather than restricting it to the subset every model forecast.
-We treat the estimand as a direct rather than a total effect, because a forecaster's strategy is unmeasured and connects structure to the choice of target; these assumptions are set out as a directed acyclic graph in the Supplement.
-
-#### Study design
+### Study design
 
 We evaluated forecasts of incident COVID-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European COVID-19 Forecast Hub [@euroHub2021].
 The Hub solicited real-time forecasts one to four weeks ahead.
 Any forecaster was eligible for inclusion, with no selection criteria.
-
 For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or forecast over the full 4-week horizon.
 We also excluded the ensemble of all Hubs models.
 Full eligibility and a STROBE flow diagram are given in the Supplement.
 
 We evaluated forecasts against Johns Hopkins University data on cumulative daily reported cases and deaths [@dong2020], converted to incident weekly counts, as available on 10 March 2023 when collation stopped.
-
-We scored forecasts with the weighted interval score (WIS), a proper scoring rule and generalisation of the continuous ranked probability score, reflecting a forecast's dispersion, overprediction and underprediction [@bracher2021].
-Before scoring we normalised forecasts and observations to incidence per 100,000 population and log-transformed both.
+Before evaluation, we normalised forecasts and observations to incidence per 100,000 population and log-transformed both.
 This supports comparability across varying populations with varying magnitude of incidence across locations and over time.
 The log-transform can also be read as evaluating prediction of the growth rate [@bosse2023].
-We report the log-transform based score as the LWIS, and separately report the natural-scale WIS as a sensitivity analysis in the Supplement.
 
-We note that the specification of regression modelling in this setting is extremely flexible.
-We include a directed acyclic graph in the Supplement to illustrate our approach, but consider this work exploratory rather than formally causal.
+We scored forecasts with the weighted interval score (WIS), a proper scoring rule and generalisation of the continuous ranked probability score, reflecting a forecast's dispersion, overprediction and underprediction [@bracher2021].
+We report this log-transformed data evaluated with the WIS as the LWIS, and separately report the natural-scale WIS in the Supplement.
+We aimed to estimate the effect of model structure on forecast performance.
 
-#### Forecasting model structure
+#### Forecasting processes
 
 We classified model structures as "Agent-based" (detailed individual-level interactions), "Mechanistic" (broadly compartmental), "Semi-mechanistic" (statistical models with epidemiological elements such as delay distributions or generation intervals), "Statistical" (context-agnostic time-series), and "Judgement" (ensembles of human-judgement predictions).
 Classification used self-reported metadata: an optional description of methods, and links to model code, website or publication (schema and example in the Supplement).
 Four of us (KS, SF, FB, JM) classified models independently, with at least two rating each model.
 The majority vote determined the final classification, ties were resolved by an additional independent rater, and two investigators (SF, KS) reviewed all classifications.
 
-#### Forecast target difficulty
-
-The epidemiological target (incident cases or deaths) entered as a fixed factor within a single model rather than stratifying the analysis: with two levels a fixed factor gives one fully identified contrast, where a random effect has too few levels to identify a variance.
-
-Remaining covariates account for task difficulty.
-Forecast horizon captures the increasing difficulty of forecasting further ahead.
-Transmission dynamics are unobserved, so we adjusted for observed factors associated with them.
-Upstream of transmission: country, as a proxy for national policy or population structure, and dominant variant phase, classified from public sequence data into a discrete sequence of phases [@variant-data].
-Downstream: the count of incident outcomes in the target week, and the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average with a change of +/-5% as "Stable").
-Both are detailed in the Supplement.
-
-#### Task participation and residual confounding
-
 We classified each model as forecasting for a single country or for more than one, using a binary classification rather than a count because few teams submitted for between 2 and 32 countries, and because forecasters changed the number of targets they submitted over time.
 A random effect for individual model identity separates the contribution of model structure from variation between individual implementations.
-We did not adjust for unobserved characteristics of the forecasting team, such as capacity, infrastructure, or experience, although these plausibly shape both the choice of model structure and realised performance.
 
-#### Analysis
+#### Epidemiological target processes
+
+We include two epidemiological targets, incident cases or deaths, and considered these to separately interact with the effect of model structure.
+We then considered observed data associated with our view of important transmission dynamics.
+Upstream of transmission, we include the target country, as a proxy for population-level transmission behaviour and policy; and dominant circulating pathogen variant, classified from public sequence data into a discrete sequence of phases [@variant-data].
+Downstream of transmission, we identified the count of incident outcomes in the target week, and the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average (with a change of +/-5% as "Stable").
+We fully detail each included covariate in the Supplement.
+
+#### Residual confounding
+
+We include the length of forecast horizon (from 1 to 4 weeks) as a common confounding variable representing increasing uncertainty of forecasting further ahead; we allow this effect to vary for each individual model.
+
+We did not adjust for unobserved characteristics of the forecasting team, such as capacity, infrastructure, or experience, although these plausibly shape both the choice of model structure and realised performance.
+We therefore treat the estimand as a direct rather than a total effect, considering possible unmeasured confounders.
+We illustrate our approach as a directed acyclic graph in the Supplement, and consider this work exploratory rather than fully causal.
+
+### Model-based analysis
 
 ```{r}
 #| label: methods-setup
@@ -73,35 +63,36 @@ We fitted a single hierarchical model across both epidemiological targets.
 The LWIS is continuous, non-negative and strongly right-skewed, so we treated the LWIS of each forecast $i$ as Tweedie-distributed with a log link, letting the linear predictor $\eta_i$ act multiplicatively on the expected score:
 
 $$
-\mathrm{LWIS}_i \sim \mathrm{Tw}_p(\mu_i,\, \phi), \qquad \log \mu_i = \eta_i,
+  \mathrm{LWIS}_i \sim \mathrm{Tw}_p(\mu_i,\, \phi), \qquad \log \mu_i = \eta_i,
 $$
 
 where $\phi$ is the dispersion and the power parameter $p \in (1, 2)$ is estimated alongside the smoothing parameters, giving a variance function $\mathrm{Var}(\mathrm{LWIS}_i) = \phi\,\mu_i^{p}$.
-A Tweedie with $p$ in this range has a point mass at zero, so forecasts scoring exactly zero are modelled as such.
-We compared this family against a Gaussian and a Gamma on the same specification (Supplement).
-The estimated $p$ was `r round(tweedie_p, 2)`, close to a Gamma, but a Gamma has no support at zero and would require displacing the exact zeros by an arbitrary constant.
+We adopted a Tweedie distribution to support forecasts scoring exactly zero.
+We compared this against a Gaussian and a Gamma on the same specification (see Supplement).
+The estimated $p$ was `r round(tweedie_p, 2)`, close to a Gamma, but a Gamma has no support at zero and would require an arbitrary constant for these scores.
 
 The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological target, random-effect contributions from categorical covariates, and two smooths for continuous covariates:
 
 $$
-\eta_i = \beta_0 \;+\; \beta_{\text{target}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+  \eta_i = \beta_0 \;+\; \beta_{\text{target}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
 $$
 
 Here $\beta_{\text{target}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
 
 $$
-u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Target},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
+  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Target},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
 $$
 
-Model structure enters as a single grouping factor crossing structure with epidemiological target, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
-We did not include a separate main effect for structure alongside it, which would be aliased with the average of the crossed cells, and we report the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
-The epidemiological target remains a fixed effect: being unpenalised it absorbs the difference common to all structures, leaving the crossed term to carry only departures from it.
+Model structure enters as a single grouping factor crossing with epidemiological target, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
+We report both the separate effects per target and the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
+The epidemiological target remains a fixed effect.
+Being unpenalised, this absorbs any difference common to all structures, leaving the crossed term to carry variation from it.
 Both choices are set out in the Supplement.
 
 $f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence, and $\{f^{\text{Horizon}}_k\}$ a factor-smooth interaction (sum-to-zero constrained, $k=3$ basis functions per model), allowing the horizon effect to vary by model.
 
-We fitted all models with the `mgcv` package in R using fast restricted maximum likelihood [@wood2011], and checked fit by visual inspection of residuals via Q-Q plots.
-To assess confounding, we fitted univariate models to contrast unadjusted and adjusted estimates of the partial effect of model structure on LWIS.
-Summary statistics describe LWIS by model structure and target strategy.
+We fitted all models with the `mgcv` package in R using fast restricted maximum likelihood [@wood2011].
+We checked fit by visual inspection of residuals and conducted extensive sensitivity analysis.
+To assess confounding, we also fitted univariate models to provide a comparison between unadjusted and adjusted estimates of the effect of model structure on LWIS.
 
 All data and code are publicly available online [@sherratt2025].
