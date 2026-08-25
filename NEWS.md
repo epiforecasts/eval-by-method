@@ -3,6 +3,18 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Development summary since the first submission
+
+`submission/development-since-first-submission.md`
+
+A single internal record of how the work changed since commit `d89f813` (12 April 2025, PCOMPBIOL-D-25-00717 and the medRxiv preprint): conceptual development, implementation, and validation, in about two pages, with two appendices.
+
+Appendix A gives the verified status of all 42 reviewer comments and journal requirements — 23 addressed, 7 partly, 5 outstanding, 5 dissolved by the rescoping rather than answered, 1 rejected with reasons, 1 to redo at resubmission. Status was checked against the manuscript and code at `1ca9f45`, not against `submission/Revision_reviews-response.md`, which stays in place as the working file but whose X marks no longer match: seven unticked rows are done, and four ticked or closed rows (#106, #108, #128, #132) have no supporting change. Comment 1.12 was added in `93145e4` and reverted in `b1aa259`, with the issue closed claiming completion.
+
+Appendix B catalogues the 16 model specifications tried with the reason each was kept or rejected, keyed to `output/diagnostics/fit-summary.csv`, and the 22 further-work ideas considered, each with its branch, `attic/` file, or issue and the result or reason for stopping. Two carry usable negative results that live nowhere else: standardising over epidemic regime leaves the case-death ratio unchanged, and the lagged ensemble is worse at every horizon on both outcomes.
+
+Outstanding items collected in one place for resubmission: no Author Summary; abstract at 344 words against a 300 limit; figures not exported to .tif/.eps (#135) and not written to `output/` at all (#173); `R/sensitivity/check-autocorrelation.R` non-runnable since `model-logresp.R` was deleted in `c5a7c93`; `R/README.md` and `CLAUDE.md` describing a specification and file layout that no longer exist; and the "Under development" callout still in `report/manuscript.qmd`.
+
 ## Unreleased — Abstract revision
 
 `report/quarto/_abstract.qmd`, `CLAUDE.md`, `submission/Revision_reviews-response.md`

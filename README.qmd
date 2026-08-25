@@ -40,6 +40,7 @@ Read the work as it stands:
 - The full paper (background, methods, results, discussion) is in [report/manuscript.qmd](./report/manuscript.qmd), which assembles the section files in [report/quarto/](./report/quarto/).
 - The supplement is in [report/supplement.qmd](./report/supplement.qmd).
 - The former pre-print is on [medRxiv](https://doi.org/10.1101/2025.04.10.25325611); note, this is out of date.
+  - See an [overview of what's changed](submission/development-since-first-submission.md)
 
 #### Explore
 
