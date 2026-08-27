@@ -296,7 +296,7 @@ An averaged estimate therefore gives close to zero for most structures, whether 
 #|   Showing performance ratio (95% CI) by model structure, as the exponentiated partial effect relative to the grand-mean LWIS; a ratio below 1 indicates better-than-average performance.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 3
-#| fig-width: 9
+#| fig-width: 4
 
 plot_method_target(results$method_by_target)
 ```

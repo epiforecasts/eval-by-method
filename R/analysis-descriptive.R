@@ -1,6 +1,6 @@
 # Aim: describe interval score in terms of model structure and country target type
 # Load data:
-# source(here("R", "process-data.R"))
+# source(here::here("R", "process-data.R"))
 # scores <- process_data(scoring_scale = "log")
 library(here)
 library(dplyr)
@@ -69,11 +69,26 @@ plot_error_vs_obs_hex <- function(scores, bins = 40) {
 
   ggplot(plot_data, aes(x = incidence_pk, y = wis)) +
     geom_hex(bins = bins) +
-    facet_grid(rows = vars(epi_target), cols = vars(Horizon), scales = "free") +
+    facet_grid(
+      rows = vars(epi_target),
+      cols = vars(Horizon),
+      scales = "free_y",
+      margins = FALSE,
+      axes = "all_x",
+      axis.labels = "all_x"
+    ) +
     incidence_scale_x() +
-    scale_y_log10() +
-    scale_fill_viridis_c("Forecasts", trans = "log10", labels = scales::label_comma()) +
-    labs(x = "Observed incidence per 100,000", y = "Performance (LWIS)") +
+    scale_y_log10(n.breaks = 4, labels = scales::label_number(accuracy = 0.001)) +
+    scale_fill_viridis_c(
+      "Forecasts",
+      trans = "log10",
+      labels = scales::label_comma()
+    ) +
+    labs(
+      x = "Observed incidence per 100,000",
+      y = "Predictive accuracy \n (log weighted interval score),
+      subtitle = "Forecast horizon, weeks ahead"
+    ) +
     theme_classic() +
     theme(legend.position = "bottom", strip.background = element_blank())
 }
