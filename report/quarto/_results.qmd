@@ -245,7 +245,7 @@ The largest shifts under adjustment were among agent-based and human judgement m
 #|   Adjusting for features of the forecasting context alters the interpretation of variation.
 #|   Estimated effects of model structure on COVID-19 forecast performance, where a ratio below 1 indicates better-than-average performance.
 #|   Performance measured as LWIS (weighted interval score of log-transformed forecasts and observations), and estimated from univariate (unadjusted) and adjusted generalised additive mixed models.
-#|   Adjustment included: the interaction of model structure with epidemiological outcome; weekly incidence, trend, variant phase, location and forecast horizon; whether a model forecast for one or many locations; and an individul model-specific effect.
+#|   Adjustment included: the interaction of model structure with epidemiological outcome; weekly incidence, trend, variant phase, location and forecast horizon; whether a model forecast for one or many locations; and an individual model-specific effect.
 #|   95% CI = 95% confidence interval.
 
 print_table2(results$effects)

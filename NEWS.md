@@ -3,6 +3,14 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Typo fixes
+
+`report/quarto/_background.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_results.qmd`
+
+"aking" to "akin", "Nontheless" to "Nonetheless", and "individul" to "individual" in the Table 2 caption.
+
+Also closes an unterminated y-axis label string in `plot_error_vs_obs_hex()` (`R/analysis-descriptive.R`, from `f0996b2`), which stopped the site from rendering.
+
 ## Unreleased — Development summary since the first submission
 
 `submission/development-since-first-submission.md`

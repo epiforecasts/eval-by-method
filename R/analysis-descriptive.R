@@ -86,7 +86,7 @@ plot_error_vs_obs_hex <- function(scores, bins = 40) {
     ) +
     labs(
       x = "Observed incidence per 100,000",
-      y = "Predictive accuracy \n (log weighted interval score),
+      y = "Predictive accuracy\n(log weighted interval score)",
       subtitle = "Forecast horizon, weeks ahead"
     ) +
     theme_classic() +

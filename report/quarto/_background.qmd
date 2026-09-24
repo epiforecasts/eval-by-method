@@ -45,7 +45,7 @@ digraph processes {
 Identifying the relative impact of these factors requires many independent forecasters predicting many differing targets, and comparably scored for resulting accuracy.
 Participatory forecast challenges aim to provide this by collating predictions for pre-specified targets in a standardised format, with forecasters free to choose which targets they predict [@pollett2020; @reich2022].
 Nonetheless, this creates two problems for evaluation.
-Repeated forecasts from the same model are not independent, so evaluating across them risks becoming overpowered by the number of forecasts, yet underpowered to detect differences between models (aking to pseudoreplication [@heffner1996pseudoreplication]).
+Repeated forecasts from the same model are not independent, so evaluating across them risks becoming overpowered by the number of forecasts, yet underpowered to detect differences between models (akin to pseudoreplication [@heffner1996pseudoreplication]).
 Further, comparisons that are aggregated across targets conflate the performance of a modelling approach with the specific difficulty of different epidemiological targets for prediction.
 
 There is a growing understanding of the factors producing variation among the targets of infectious disease forecasts.
