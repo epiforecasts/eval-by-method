@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Rank comparison panel legible without colour
+
+`R/plot-model-results.R`
+
+Panel B of the rank figure (`plot_model_ranks()`) now encodes model structure by shape as well as colour, in one merged legend, keeping the project palette.
+
 ## Unreleased — Typo fixes
 
 `report/quarto/_background.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_results.qmd`
