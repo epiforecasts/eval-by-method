@@ -129,3 +129,6 @@
   padding: 0.3em 0.6em;
   font-size: 0.95em;
 }
+
+.reveal h2 { font-size: 1.1em; line-height: 1.2; text-wrap: balance; }
+.reveal #title-slide .title { font-size: 1.4em; line-height: 1.15; }
