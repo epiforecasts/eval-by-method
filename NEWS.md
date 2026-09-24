@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Future work split: Hub extensions and evaluation-design sketch
+
+`attic/future-work.qmd`, `attic/evaluation-design-sketch.qmd`
+
+The causal future-work list is split in two. `attic/future-work.qmd` now lists extensions to the European Hub analysis itself, grouped as temporal consistency (forecast stability, autocorrelation), target data and revisions, sample and exposure, inference, and external validity, each with its existing branch or attic file, status and smallest next step. `attic/evaluation-design-sketch.qmd` sketches the separate methods piece proposed in #174: the ladder of evaluation designs with the estimand and assumption at each rung, the DAG-reasoning sketch (now on branch `paper/dag-reasoning`), a simulation specification, a mapping onto Spiegelhalter and Riesch's (2011) levels of uncertainty, positioning against the scoringutils missing-forecasts work, and an output plan. The general causal items from the earlier list moved to the sketch; the Hub-specific ones stay in `future-work.qmd`.
+
 ## Unreleased — Lab meeting slides trimmed
 
 `slides/lab-meeting.qmd`
