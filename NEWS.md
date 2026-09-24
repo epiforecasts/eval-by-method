@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Lab meeting slides
+
+`slides/lab-meeting.qmd`, `slides/lab-meeting.css`, `slides/img/`, `_quarto.yml`, `.gitignore`
+
+A revealjs deck for the epiforecasts lab meeting, built with the site and linked from the navbar. It alternates theory and data across eight steps, reads every number from `output/log/results.rds`, and has Observable widgets for participation, stratification sparsity and rank changes.
+
 ## Unreleased — Rank comparison panel legible without colour
 
 `R/plot-model-results.R`

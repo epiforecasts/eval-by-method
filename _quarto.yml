@@ -4,6 +4,7 @@ project:
   render:
     - index.qmd
     - report/supplement.qmd
+    - slides/lab-meeting.qmd
 
 bibliography: report/references.bib
 csl: report/plos-computational-biology.csl
@@ -16,6 +17,8 @@ website:
         href: index.html
       - text: "Supplement"
         href: report/supplement.html
+      - text: "Slides"
+        href: slides/lab-meeting.html
 
 format:
   html:
