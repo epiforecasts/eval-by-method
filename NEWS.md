@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Lab meeting slides trimmed
+
+`slides/lab-meeting.qmd`
+
+The deck is shorter: the footer, some speaker notes and several "What next?" questions are gone, and a slide now contrasts the original title with the current one. The source is one sentence per line, with nested divs fenced by longer colons.
+
 ## Unreleased — Lab meeting slides
 
 `slides/lab-meeting.qmd`, `slides/lab-meeting.css`, `slides/img/`, `_quarto.yml`, `.gitignore`
