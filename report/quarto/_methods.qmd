@@ -84,7 +84,7 @@ $$
 $$
 
 Model structure enters as a single grouping factor crossing with epidemiological outcome, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
-We report both the separate effects per target and the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
+We report both the separate effects per outcome and the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
 The epidemiological outcome remains a fixed effect.
 Being unpenalised, this absorbs any difference common to all structures, leaving the crossed term to carry variation from it.
 Both choices are set out in the Supplement.
@@ -94,8 +94,8 @@ $f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transform
 We fitted all models with the `mgcv` package in R using fast restricted maximum likelihood [@wood2011].
 We checked fit by visual inspection of residuals and conducted extensive sensitivity analysis.
 To assess confounding, we also fitted univariate models to provide a comparison between unadjusted and adjusted estimates of the effect of model structure on LWIS.
-We report each categorical effect as the exponentiated random effect, which multiplies the expected LWIS relative to a the population mean (a zero random effect), with all other terms held fixed; the epidemiological outcome is reported as deaths relative to cases.
-A ratio of 0.9 represents an expected LWIS 10% lower (better) than average.
+We report each categorical effect as the exponentiated random effect, which multiplies the expected LWIS relative to the population mean (a zero random effect), with all other terms held fixed; the epidemiological outcome is reported as deaths relative to cases.
+A ratio of 0.9 represents an expected LWIS 10% lower (better) than the population mean.
 We report raw partial effects in the Supplement.
 
 All data and code are publicly available online [@sherratt2025].
