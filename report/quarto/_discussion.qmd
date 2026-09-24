@@ -27,6 +27,8 @@ We fit the effect of horizon to each individual model, which may have absorbed t
 We also only partially accounted for variation among forecast targets.
 For example, real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [@holcomb2023], so the target a forecast was scored against was not always the target available when it was made.
 Nonetheless, varying the inclusion of some covariates and the link function left the effects of model structure essentially unchanged (see Supplement).
+The error family mattered more: a Gaussian fit changed the size of every structure-by-outcome estimate and the direction of two, as it is dominated by the largest scores, which fall disproportionately among case forecasts.
+Any single structure-by-outcome contrast should be read with this sensitivity in mind.
 
 Two further sources of bias follow from the observational design.
 We had no information on how forecasters chose which targets to predict and when to participate, so we could only adjust for the observed features of those targets.
