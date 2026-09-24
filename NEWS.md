@@ -3,6 +3,32 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Lab meeting slides trimmed
+
+`slides/lab-meeting.qmd`
+
+The deck is shorter: the footer, some speaker notes and several "What next?" questions are gone, and a slide now contrasts the original title with the current one. The source is one sentence per line, with nested divs fenced by longer colons.
+
+## Unreleased — Lab meeting slides
+
+`slides/lab-meeting.qmd`, `slides/lab-meeting.css`, `slides/img/`, `_quarto.yml`, `.gitignore`
+
+A revealjs deck for the epiforecasts lab meeting, built with the site and linked from the navbar. It alternates theory and data across eight steps, reads every number from `output/log/results.rds`, and has Observable widgets for participation, stratification sparsity and rank changes.
+
+## Unreleased — Rank comparison panel legible without colour
+
+`R/plot-model-results.R`
+
+Panel B of the rank figure (`plot_model_ranks()`) now encodes model structure by shape as well as colour, in one merged legend, keeping the project palette.
+
+## Unreleased — Typo fixes
+
+`report/quarto/_background.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_results.qmd`
+
+"aking" to "akin", "Nontheless" to "Nonetheless", and "individul" to "individual" in the Table 2 caption.
+
+Also closes an unterminated y-axis label string in `plot_error_vs_obs_hex()` (`R/analysis-descriptive.R`, from `f0996b2`), which stopped the site from rendering.
+
 ## Unreleased — Development summary since the first submission
 
 `submission/development-since-first-submission.md`

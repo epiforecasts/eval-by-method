@@ -20,7 +20,7 @@ For example, different model structures may be more or less well equipped to pre
 We fit the effect of horizon to each individual model, which may have absorbed these structural differences.
 We also only partially accounted for variation among forecast targets.
 For example, real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [@holcomb2023], so the target a forecast was scored against was not always the target available when it was made.
-Nontheless, varying the inclusion of some covariates, the link function, and the error family left the partial effects of model structure essentially unchanged (see Supplement).
+Nonetheless, varying the inclusion of some covariates, the link function, and the error family left the partial effects of model structure essentially unchanged (see Supplement).
 
 We adopted a coarse characterisation of the forecasting process, while a more sophisticated view could point towards interventions to improve forecast accuracy.
 We pre-specified five structures by their inclusion of mechanism, but we had little access to model metadata, raters disagreed on most semi-mechanistic models, and we did not track changes to each model's methods over time.
