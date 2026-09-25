@@ -79,17 +79,6 @@ The Gamma and Tweedie families both accommodate a right-skewed positive outcome,
 The two fit this data almost identically, and both converge.
 We report the Tweedie fit because a Gamma has no support at zero: fitting it requires adding a constant to every score, which displaces the 553 forecasts that score exactly zero to a value set by the size of that constant.
 
-```{r}
-#| label: supplement-fit-stats
-
-fit_stats <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
-                      show_col_types = FALSE)
-stat_of <- function(label, scale, col, digits = 1) {
-  round(as.numeric(fit_stats[[col]][fit_stats$spec_label == label &
-                                      fit_stats$scale == scale]), digits)
-}
-```
-
 The choice of family matters a great deal more the log scale than the natural scale.
 On the log scale, moving from Gaussian to Tweedie reduces residual skew from `r stat_of("family-gaussian-log", "log", "resid_skew")` to `r stat_of("family-tweedie-log", "log", "resid_skew")` and kurtosis from `r stat_of("family-gaussian-log", "log", "resid_kurtosis")` to `r stat_of("family-tweedie-log", "log", "resid_kurtosis")`.
 On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("primary-interaction", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.

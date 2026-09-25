@@ -21,12 +21,12 @@ We present results from scoring forecast error on the natural scale (difference 
 ```{r}
 #| label: supplement-natural-scale
 
-scores <- process_data(scoring_scale = "natural")
-ensemble <- scores |>
+scores_natural <- process_data(scoring_scale = "natural")
+ensemble_natural <- scores_natural |>
   filter(grepl("EuroCOVIDhub-ensemble", Model))
-scores <- scores |>
+scores_natural <- scores_natural |>
   filter(!grepl("EuroCOVIDhub-ensemble", Model))
-print_table1(scores)
+print_table1(scores_natural)
 ```
 
 ## Model specification
