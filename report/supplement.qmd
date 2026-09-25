@@ -367,7 +367,7 @@ We did not treat the outcome as a random effect, which with two levels gives no 
 
 ### Forecast horizon and individual models
 
-Performance is known to worsen with horizon, so the model includes one horizon curve shared by all models, `s(Horizon, k = 4)`, and a factor smooth giving each model its own deviation from it, `s(Horizon, Model, k = 3, bs = "fs")`.
+Performance is known to worsen with horizon, so the model includes one horizon curve shared by all models, `s(Horizon, k = 4)`, and a factor smooth giving each model its own deviation from it, `s(Horizon, Model, k = 4, bs = "fs")`.
 The factor smooth penalises each model's whole deviation, including its level and slope, towards zero.
 It therefore also carries the individual model effect, and there is no separate `s(Model, bs = "re")`: with both terms, a model's level would be split between them by the relative variance estimates.
 We report a model's effect as its deviation averaged over the horizons it forecast, so no model is judged on horizons it did not forecast.

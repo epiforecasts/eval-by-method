@@ -91,8 +91,9 @@ Being unpenalised, this absorbs any difference common to all structures, leaving
 Both choices are set out in the Supplement.
 
 $f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence.
-Forecast performance is known to worsen with horizon, so $f_{\text{Horizon}}$ was a smooth of horizon shared by all models ($k=4$ basis functions).
-Each model $k$ had its own deviation from this curve, $f^{\text{Horizon}}_k$ ($k=3$), with its level and slope penalised towards zero.
+Forecast performance is known to worsen with horizon, so $f_{\text{Horizon}}$ was a smooth of horizon shared by all models.
+Each model $k$ had its own deviation from this curve, $f^{\text{Horizon}}_k$, with its level and slope penalised towards zero.
+Both smooths used four basis functions.
 This deviation carries the individual model effect, so there is no separate model random effect, and a model forecasting few horizons is shrunk towards the shared curve rather than extrapolated to horizons it did not forecast.
 We compare alternative horizon specifications in the Supplement.
 
