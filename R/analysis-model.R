@@ -31,10 +31,11 @@ m.formula_joint <- wis ~
   s(Location, bs = "re") +
   # VariantPhase: dominant variant phase (random effect)
   s(VariantPhase, bs = "re") +
-  # Horizon: forecast horizon (smooth, by model)
-  s(Horizon, by = Model, k = 3, bs = "sz") +
-  # Model: individual model (random effect)
-  s(Model, bs = "re")
+  # Horizon: shared forecast-horizon curve (smooth)~
+  s(Horizon, k = 4) +
+  # Model: individual model, as a penalised deviation from the shared
+  # horizon curve (factor smooth)~
+  s(Horizon, Model, k = 3, bs = "fs")
 
 # * See R/sensitivity/check-family.R
 # ^ Note on the interaction term:
@@ -42,6 +43,15 @@ m.formula_joint <- wis ~
 # cases versus deaths. The pooled per-structure effect is recovered
 # as a contrast across cells (method_pooled_effects()).
 # Epi_target stays as an unpenalised fixed effect, to take the component that's shared by all model structures into a single coefficient
+# ~ Note on the horizon and model terms:
+# Performance is known a priori to worsen with horizon, so s(Horizon) carries
+# one curve shared by all models. bs = "fs" gives each model its own curve,
+# penalised (intercept and slope included) towards zero deviation from that
+# curve, so a model forecasting few horizons is shrunk to the shared shape
+# rather than extrapolated. The fs term includes a per-model level, so there is
+# no separate s(Model, bs = "re"). A model's effect is its fs deviation averaged
+# over the horizons it forecast (model_horizon_effects()).
+# See R/sensitivity/check-horizon-spec.qmd
 
 # --- Functional model ---
 # Function: fits the joint model and univariate models, extracts random effects,
@@ -81,7 +91,7 @@ model_wis <- function(
     trend = wis ~ s(Trend, bs = "re"),
     location = wis ~ s(Location, bs = "re"),
     variant = wis ~ s(VariantPhase, bs = "re"),
-    horizon = wis ~ s(Horizon, by = Model, k = 3, bs = "sz"),
+    horizon = wis ~ s(Horizon, k = 4),
     model = wis ~ s(Model, bs = "re")
   )
   m.fit <- function(m.formula) {
@@ -132,9 +142,11 @@ model_wis <- function(
 
   # Drop the raw interaction cells from `effects`: reported per target
   # via `method_by_target`
+  # Model effects come from the fs horizon term, not a random effect
   random_effects_joint <- extract_ranef_terms(m.fits_joint) |>
     filter(group_var != "Method:Epi_target") |>
     bind_rows(method_pooled_effects(m.fits_joint)) |>
+    bind_rows(model_horizon_effects(m.fits_joint)) |>
     mutate(model = "Adjusted") |>
     bind_rows(extract_target_effect(m.fits_joint, "Adjusted"))
 
@@ -147,6 +159,11 @@ model_wis <- function(
   method_by_target <- method_target_effects(m.fits_joint) |>
     mutate(model = "Adjusted")
 
+  # Model effects at horizon 1 only, the horizon every model forecast.
+  # Kept out of `effects` for the same reason (supplement only).
+  model_h1 <- model_horizon_effects(m.fits_joint, horizons = 1) |>
+    mutate(model = "Adjusted")
+
   # Extract model checks
   checks <- k.check(m.fits_joint)
   formula <- m.fits_joint$formula
@@ -154,6 +171,7 @@ model_wis <- function(
     data = m.data,
     effects = random_effects,
     method_by_target = method_by_target,
+    model_h1 = model_h1,
     checks = checks,
     formula = formula
   )
