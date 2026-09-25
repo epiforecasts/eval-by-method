@@ -89,6 +89,7 @@ The manuscript prose lives in per-section Quarto files under `report/quarto/`, a
 - `report/quarto/_results.qmd` — results (also holds the analysis code chunks)
 - `report/quarto/_discussion.qmd` — discussion
 - `report/quarto/_references.qmd` — references
+- `report/quarto/supplement/` — supplement prose and code, as seven fragments (`_setup`, `_intro`, `_data`, `_covariates`, `_model`, `_estimates`, `_sensitivity`), one section each. Edit the relevant fragment for any supplement writing change; fragments hold subsections only (no top-level section heading, which the including page supplies).
 - `submission/Revision_reviews-response.md` — tracks reviewer suggestions and planned response; X marks completion. Consult when making revision-related changes.
 - `submission/first/` — archived original submission (manuscript PDF/DOCX, cover letter, supplement, `reviews.md`, and the `results.rds` from that round).
 
@@ -96,8 +97,9 @@ The manuscript prose lives in per-section Quarto files under `report/quarto/`, a
 
 - `report/manuscript.qmd` — assembles the `report/quarto/_*.qmd` sections. Not itself a render target: its includes are project-root-relative (`/report/quarto/…`), which only resolve when a file at the repo root is the top-level document. Render `index.qmd` instead (see below).
 - `report/quarto/_results.qmd` — results section; sources R scripts and renders figures/tables.
-- `report/supplement.qmd` — supplementary materials; self-contained, with its own setup chunk. Rendered as its own page, not included in the manuscript.
-- Site build (`quarto render` uses `_quarto.yml` → `_site/`): renders `index.qmd` (a thin wrapper including `report/manuscript.qmd`) and `report/supplement.qmd` directly; two-page site with navbar. Bibliography `report/references.bib`, style `report/plos-computational-biology.csl`.
+- `report/supplement.qmd` — combined supplement, PDF only. Includes all seven `report/quarto/supplement/_*.qmd` fragments in order and renders to `_site/report/supplement.pdf`. Includes are relative (`quarto/supplement/_x.qmd`), not project-root-relative.
+- `report/supplement/` — supplement website pages, one per section (`index`, `data`, `covariates`, `model`, `estimates`, `sensitivity`), each a thin wrapper including the setup fragment and its own section fragment via a relative path (`../quarto/supplement/_x.qmd`). `report/supplement/_metadata.yml` sets the shared front matter (toc, code-fold). `index.qmd` carries an `aliases` entry so the pre-split `report/supplement.html` URL still resolves, landing on the overview page.
+- Site build (`quarto render` uses `_quarto.yml` → `_site/`): renders `index.qmd` (a thin wrapper including `report/manuscript.qmd`), `report/supplement.qmd`, and the pages under `report/supplement/`. The navbar's Supplement item is a dropdown linking each page plus the combined PDF. Bibliography `report/references.bib`, style `report/plos-computational-biology.csl`. CI (`render-report.yaml`) installs TinyTeX before rendering, needed for the supplement PDF build.
 - Pre-print: [medRxiv 10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
 
 **Note**: manuscript prose and rendered analysis are separate. The section `.qmd` files are not auto-generated — changes to analysis code and changes to manuscript text must be coordinated manually.
@@ -147,7 +149,7 @@ model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
 | Change manuscript prose (wording, framing, conclusions) | Relevant `report/quarto/_*.qmd` section file |
 | Change analysis, model, or figures | Relevant `R/` script. `_results.qmd` sources `process-data.R`, `analysis-descriptive.R`, `plot-model-results.R` at render. But `analysis-model.R` and `plot-model-flow.R` are **not** sourced — re-run `model_wis()` per scale (and regenerate the flowchart) to refresh `output/` before rendering |
 | Respond to a reviewer comment | Check `submission/Revision_reviews-response.md`, update `R/` script if needed, then update the relevant `report/quarto/_*.qmd`, mark as completed in `submission/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
-| Add or change a supplementary figure | Relevant `R/` script + `report/supplement.qmd` |
+| Add or change a supplementary figure | Relevant `R/` script + the relevant `report/quarto/supplement/_*.qmd` fragment |
 | All changes | Update `NEWS.md` (change log; newest first) |
 
 ## Dependencies
@@ -169,6 +171,7 @@ Status: [ ] not started, [x] done.
 - [x] Update manuscript text to clarify what the structure term reports. Superseded by the structure-by-outcome interaction (#158): the pooled effect is now a contrast across a structure's two cells and carries real estimates, so the text reports imprecision rather than a term shrunk to nothing.
 - [ ] Model fitting outputs are labelled `primary-interaction` in `output/diagnostics/fit-summary.csv`. Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row.
 - [x] Untrack the Quarto freeze cache on branch `supplementary-descriptive`. Done on that branch only (commit 6553f40, not pushed): 46 files untracked, `/_freeze/` added to `.gitignore`, `NEWS.md` noted. `main` never tracked the cache.
+- [ ] Add `crossref` numbering configuration for the `fig-supp-*`/`tbl-supp-*` labels introduced by the modular supplement split, once the chapter-lettered numbering scheme (so labels match between the web pages and the PDF) is finalised in a local spike.
 
 ### Verification
 After changing `analysis-model.R` (or upstream scoring/data), regenerate the saved model outputs first — the manuscript reads `output/log/results.rds` and `fit_obs.rds`, it does not re-fit. Stale outputs render silently wrong, or break (e.g. the supplement density chunk needs `results$data`). Then run `quarto render index.qmd` for the manuscript alone, or `quarto render` for the full site, and check figures render correctly.

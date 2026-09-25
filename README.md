@@ -68,8 +68,11 @@ Read the work as it stands:
 - The full paper (background, methods, results, discussion) is in
   [report/manuscript.qmd](./report/manuscript.qmd), which assembles the
   section files in [report/quarto/](./report/quarto/).
-- The supplement is in
-  [report/supplement.qmd](./report/supplement.qmd).
+- The supplement is assembled from fragments in
+  [report/quarto/supplement/](./report/quarto/supplement/);
+  [report/supplement.qmd](./report/supplement.qmd) combines them into a
+  single PDF, and [report/supplement/](./report/supplement/) renders
+  them as separate website pages.
 - The pre-print is on
   [medRxiv](https://doi.org/10.1101/2025.04.10.25325611).
 
@@ -105,12 +108,12 @@ To re-run the analysis end to end, without editing anything:
        source(here("R", "analysis-model.R"))
     ```
 
-6.  Render the manuscript, or the full two-page site (manuscript plus
-    supplement):
+6.  Render the manuscript, or the full site (manuscript, supplement PDF,
+    and supplement pages):
 
     ``` sh
        quarto render index.qmd   # manuscript only
-       quarto render             # manuscript + supplement
+       quarto render             # manuscript + supplement PDF + supplement pages
     ```
 
     Render `index.qmd`, not `report/manuscript.qmd`: the latter’s

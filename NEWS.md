@@ -3,6 +3,23 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Supplement split into modular fragments
+
+`report/supplement.qmd`, `report/supplement/`, `report/quarto/supplement/`, `R/analysis-supplement.R`, `_quarto.yml`, `.github/workflows/render-report.yaml`
+
+The supplement is now assembled from seven fragments under `report/quarto/supplement/` (`_setup`, `_intro`, `_data`, `_covariates`, `_model`, `_estimates`, `_sensitivity`), mirroring the manuscript's include pattern.
+`report/supplement.qmd` includes all seven and renders to a single PDF at `_site/report/supplement.pdf`.
+Six new pages under `report/supplement/` (`index`, `data`, `covariates`, `model`, `estimates`, `sensitivity`) include the same fragments and render as separate website pages.
+The navbar's Supplement item is now a dropdown linking each page plus the combined PDF.
+`report/supplement/index.qmd` carries an `aliases` entry so the old `report/supplement.html` URL still resolves, landing on the overview page rather than a specific section.
+`fit_stats` and `stat_of()` moved from a chunk in the supplement to `R/analysis-supplement.R`, since both are now needed in two different fragments.
+The natural-scale sensitivity chunk's `scores` and `ensemble` are renamed `scores_natural` and `ensemble_natural`, so no fragment can read the wrong scale.
+Captioned figure and table chunk labels are renamed from `supplement-<x>` to `fig-supp-<x>` or `tbl-supp-<x>`; captions given via `kable(caption = ...)` moved to the chunk's `tbl-cap` option.
+Four previously uncaptioned floats now have a caption; the ranks table's caption, which depends on a value computed in the same chunk, is split into a data chunk and a captioned table chunk using `tbl-cap: !expr`.
+In-page `#id` links that now cross pages are rewritten as format-aware pairs, linking to an in-document anchor in the PDF and to the target page on the website.
+CI (`render-report.yaml`) installs TinyTeX before rendering, since the PDF build needs a LaTeX engine the runner doesn't otherwise have.
+Numbering configuration (`crossref`) for the new figure and table labels is not yet added; it depends on a chapter-lettered numbering scheme being finalised separately so labels match between the web pages and the PDF.
+
 ## Unreleased — Future work split: Hub extensions and evaluation-design sketch
 
 `attic/future-work.qmd`, `attic/evaluation-design-sketch.qmd`
