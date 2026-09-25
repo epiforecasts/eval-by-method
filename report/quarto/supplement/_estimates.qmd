@@ -1,0 +1,132 @@
+Effects are random effects for each level of a covariate, relative to a forecast at the average level of that covariate with all other terms held fixed.
+Negative raw effects, or ratios below 1, indicate better-than-average performance.
+
+## Partial effects across covariates
+
+Partial effect on forecast performance of key covariates included in the fully adjusted model for additional covariates.
+Partial effects of individual model structure and individual model are presented in the main text.
+
+(A) Geographic
+
+```{r}
+#| label: supplement-plot-spatial-effects
+#| fig-cap: >-
+#|   Performance varied more between countries than between single- and
+#|   multi-country models. Partial effects (95% CI) for geographic scope and
+#|   country, as a ratio of the expected LWIS relative to the average level.
+# TODO. in supplement, panel target features into a single figure (A: epi outcome, B: epidemic trend, C: variant phase, D: country), next to it panel forecaster features (A: single/multi country, B: model structure); show adjusted effect only; use a sensible colour scale to differentiate groups. 
+plot_effects(results$effects, variables = c("CountryTargets", "Location"))
+```
+
+(B) Epidemic state
+
+```{r}
+#| label: supplement-plot-temporal-effects
+#| fig-cap: >-
+#|   Epidemic trend and variant phase both shifted performance, with increasing
+#|   trends and the Omicron BA.1 phase hardest to predict. Partial effects
+#|   (95% CI) as a ratio of the expected LWIS relative to the average level.
+
+plot_effects(results$effects, variables = c("Trend", "VariantPhase"))
+```
+
+## Partial effects on the raw scale
+
+The main-text figures and tables report exponentiated effects (multiplicative ratios of the expected LWIS relative to the average level of each factor).
+The table below gives the underlying raw partial effects from the fully adjusted model.
+
+```{r}
+#| label: supplement-raw-coefficients
+
+results$effects |>
+  filter(model == "Adjusted") |>
+  transmute(
+    Variable = group_var,
+    Group = group,
+    `Partial effect (95% CI), log scale` = paste0(
+      round(value, 3),
+      " (", round(lower_2.5, 3), ", ", round(upper_97.5, 3), ")"
+    )
+  ) |>
+  arrange(Variable, Group) |>
+  kable(
+    caption = paste0(
+      "Raw partial effects on the log scale of the linear predictor, from ",
+      "the fully adjusted generalised additive mixed model. Negative values indicate ",
+      "better-than-average performance. 95% CI = 95% confidence interval."
+    ),
+    align = c("l", "l", "r")
+  ) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  kable_styling(full_width = FALSE)
+```
+
+The model structure term is fitted as a single grouping factor crossing structure with epidemiological outcome, so its raw partial effects are one per structure-by-outcome cell.
+The main text reports these exponentiated, and reports a pooled effect per structure derived as a contrast averaging a structure's two cells.
+
+```{r}
+#| label: supplement-table-method-target
+
+print_table_method_target(results$method_by_target)
+```
+
+```{r}
+#| label: supplement-method-target-raw
+
+results$method_by_target |>
+  transmute(
+    `Model structure` = Method,
+    Outcome = Epi_target,
+    `Partial effect (95% CI), log scale` = paste0(
+      round(value, 3),
+      " (", round(lower_2.5, 3), ", ", round(upper_97.5, 3), ")"
+    )
+  ) |>
+  arrange(`Model structure`, Outcome) |>
+  kable(
+    caption = paste0(
+      "Raw partial effects of model structure by epidemiological outcome, ",
+      "on the log scale, from the fully adjusted generalised additive mixed ",
+      "model. Negative values indicate better-than-average performance. ",
+      "95% CI = 95% confidence interval."
+    ),
+    align = c("l", "l", "r")
+  ) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  kable_styling(full_width = FALSE)
+```
+
+## Model ranking before and after adjustment
+
+Individual models can be ranked by their partial effect on the score, either from a univariate model containing only individual model identity, or from the fully adjusted model.
+The first ranks models by observed performance, and so by a combination of the method used and the difficulty of the targets each model chose to forecast.
+The second ranks them by performance after the target-related covariates are held fixed.
+The comparison is reported in the main text; the table below gives the models that move furthest between the two.
+
+```{r}
+#| label: supplement-ranks
+
+ranks <- rank_models(results$effects)
+rank_summary <- summarise_ranks(ranks)
+
+ranks |>
+  mutate(`Rank change` = rank_change) |>
+  arrange(desc(abs(`Rank change`))) |>
+  head(10) |>
+  transmute(
+    Model = label,
+    `Unadjusted rank` = rank_unadjusted,
+    `Adjusted rank` = rank_adjusted,
+    `Rank change` = `Rank change`
+  ) |>
+  kable(
+    caption = paste0(
+      "The ten models whose rank changes most under adjustment, of ",
+      rank_summary$n, " models. A positive change means a model ranks better ",
+      "once the difficulty of its targets is accounted for. Models are ",
+      "anonymised and numbered within model structure."
+    ),
+    align = c("l", "r", "r", "r")
+  ) |>
+  kable_styling(full_width = FALSE)
+```
