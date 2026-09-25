@@ -3,6 +3,38 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Future work split: Hub extensions and evaluation-design sketch
+
+`attic/future-work.qmd`, `attic/evaluation-design-sketch.qmd`
+
+The causal future-work list is split in two. `attic/future-work.qmd` now lists extensions to the European Hub analysis itself, grouped as temporal consistency (forecast stability, autocorrelation), target data and revisions, sample and exposure, inference, and external validity, each with its existing branch or attic file, status and smallest next step. `attic/evaluation-design-sketch.qmd` sketches the separate methods piece proposed in #174: the ladder of evaluation designs with the estimand and assumption at each rung, the DAG-reasoning sketch (now on branch `paper/dag-reasoning`), a simulation specification, a mapping onto Spiegelhalter and Riesch's (2011) levels of uncertainty, positioning against the scoringutils missing-forecasts work, and an output plan. The general causal items from the earlier list moved to the sketch; the Hub-specific ones stay in `future-work.qmd`.
+
+## Unreleased — Lab meeting slides trimmed
+
+`slides/lab-meeting.qmd`
+
+The deck is shorter: the footer, some speaker notes and several "What next?" questions are gone, and a slide now contrasts the original title with the current one. The source is one sentence per line, with nested divs fenced by longer colons.
+
+## Unreleased — Lab meeting slides
+
+`slides/lab-meeting.qmd`, `slides/lab-meeting.css`, `slides/img/`, `_quarto.yml`, `.gitignore`
+
+A revealjs deck for the epiforecasts lab meeting, built with the site and linked from the navbar. It alternates theory and data across eight steps, reads every number from `output/log/results.rds`, and has Observable widgets for participation, stratification sparsity and rank changes.
+
+## Unreleased — Rank comparison panel legible without colour
+
+`R/plot-model-results.R`
+
+Panel B of the rank figure (`plot_model_ranks()`) now encodes model structure by shape as well as colour, in one merged legend, keeping the project palette.
+
+## Unreleased — Typo fixes
+
+`report/quarto/_background.qmd`, `report/quarto/_discussion.qmd`, `report/quarto/_results.qmd`
+
+"aking" to "akin", "Nontheless" to "Nonetheless", and "individul" to "individual" in the Table 2 caption.
+
+Also closes an unterminated y-axis label string in `plot_error_vs_obs_hex()` (`R/analysis-descriptive.R`, from `f0996b2`), which stopped the site from rendering.
+
 ## Unreleased — Development summary since the first submission
 
 `submission/development-since-first-submission.md`

@@ -45,21 +45,21 @@ digraph processes {
 Identifying the relative impact of these factors requires many independent forecasters predicting many differing targets, and comparably scored for resulting accuracy.
 Participatory forecast challenges aim to provide this by collating predictions for pre-specified targets in a standardised format, with forecasters free to choose which targets they predict [@pollett2020; @reich2022].
 Nonetheless, this creates two problems for evaluation.
-Repeated forecasts from the same model are not independent, so evaluating across them risks becoming overpowered by the number of forecasts, yet underpowered to detect differences between models (aking to pseudoreplication [@heffner1996pseudoreplication]).
-Further, comparisons that are aggregated across targets conflate the performance of a modelling approach with the specific difficulty of different epidemiological targets for prediction.
+Repeated forecasts from the same model are not independent, so evaluating across them risks becoming overpowered by the number of forecasts, yet underpowered to detect differences between models (akin to pseudoreplication [@heffner1996pseudoreplication]).
+Further, comparisons that are aggregated across targets conflate the performance of model structure with the specific difficulty of different epidemiological targets for prediction.
 
-There is a growing understanding of the factors producing variation among the targets of infectious disease forecasts.
-Performance is better under stable epidemic dynamics [@bracher2022], in larger populations [@lopez2024], where surveillance is timely and accurate [@reich2019; @holcomb2023], and where informative leading indicators exist [@delvalle2018].
-Predictive difficulty also varies systematically between pathogens and between seasons of the same pathogen [@metcalf2017].
-Across time, performance may be linked to the serial interval between successive observations of disease [@sherratt2023], and is consistently better at shorter forecast horizons [@cramer2022].
-
-There is less clear evidence for factors within the forecasting process.
+Evidence on factors within the forecasting process is unclear.
 As in many forecasting domains, the only reliably strong performance has come from ensemble combinations of many forecasters [@sherratt2023; @cramer2022; @reich2019accuracy].
 Individual forecasters use approaches ranging from purely data-driven statistical models, to mechanistic models embedding explicit hypotheses about transmission, and these structures suit different purposes, such as scenario projection, policy analysis, or nowcasting [@woolhouse2011; @dattner2018; @funk2020].
 Some evaluations find better performance from statistical over more mechanistic model structures [@delvalle2018; @mcgowan2019; @johansson2019], while others have repeatedly found little evidence that any structure performs better than another [@carlson2018; @viboud2018; @reich2019].
-However, a null result is hard to interpret when sources of variation are confounded.
 Model structure is the most consistently recorded aspect of the forecasting process.
 Other factors in model specification and implementation are rarely or inconsistently documented in enough detail to support comparison.
+
+Factors producing variation among forecast targets are somewhat better understood.
+Performance is better under stable epidemic dynamics [@bracher2022], in larger populations [@lopez2024], where surveillance is timely and accurate [@reich2019; @holcomb2023], and where informative leading indicators exist [@delvalle2018].
+Predictive difficulty also varies systematically between pathogens and between seasons of the same pathogen [@metcalf2017].
+Performance is consistently better at shorter forecast horizons [@cramer2022], and for outcomes with longer delays from infection to report, such as for deaths compared to cases [@sherratt2023].
+Because forecasters choose which targets to predict, these factors can confound any comparison between models or model structures, making such comparisons hard to interpret.
 
 Evaluation is particularly difficult where forecasts must be cross-classified by several of these sources at once.
 Even a large set of forecasts becomes sparse once stratified by several covariates, leaving too few forecasts in each stratum to estimate a stable and unbiased association ("sparse-data bias" [@greenland2016]).
@@ -80,7 +80,7 @@ Traditional methods from observational research offer varying degrees of formali
 
 Here we develop one approach to tracing specific influences on forecast performance, while accounting for variation across the forecast- and target-generating processes.
 We use a joint estimation regression approach that makes use of all observations to inform each estimate, rather than discarding those outside a stratum or matched set.
-We demonstrate this with forecasts from 48 models predicting short-term COVID-19 incidence across Europe, and focus on the effect of forecasting model structure on performance.
-We classified into five categories of model structure, and adjust for other features of the forecasting process and target.
-We find performance is more strongly associated with the forecast target than with the forecasting model structure.
+We demonstrate this with forecasts from 48 models predicting short-term COVID-19 incidence across Europe, and focus on the effect of model structure on performance.
+We classified models into five categories of model structure, and adjusted for other features of the forecasting process and target.
+We found performance was more strongly associated with the forecast target than with model structure.
 We interpret this in the context of study designs for comparative forecast evaluation, and propose directions for more detailed comparative evaluations.
