@@ -1,0 +1,14 @@
+---
+title: "Supplement"
+aliases: [/report/supplement.html]
+---
+
+{{< include ../quarto/supplement/_intro.qmd >}}
+
+- [Data and participation](data.html): how forecasts and observations were sourced, who took part, and how models met the study's eligibility criteria.
+- [Covariate derivation](covariates.html): how model structure, epidemic trend and variant phase were classified and derived.
+- [Model specification and fitting](model.html): the causal diagram behind covariate selection, why structure has no separate main effect, and how the model was fitted and checked.
+- [Estimates](estimates.html): the full set of partial effects behind the main-text figures, on both the reported and raw scale, and the model ranking comparison.
+- [Sensitivity analyses](sensitivity.html): alternative scales, covariate sets and error families tried during model development.
+
+The full supplement is also available as a single combined document: [supplement.pdf](../supplement.pdf).

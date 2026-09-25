@@ -4,6 +4,7 @@ project:
   render:
     - index.qmd
     - report/supplement.qmd
+    - report/supplement/*.qmd
     - slides/lab-meeting.qmd
 
 bibliography: report/references.bib
@@ -16,7 +17,21 @@ website:
       - text: "Manuscript"
         href: index.html
       - text: "Supplement"
-        href: report/supplement.html
+        menu:
+          - text: "Overview"
+            href: report/supplement/index.html
+          - text: "Data and participation"
+            href: report/supplement/data.html
+          - text: "Covariate derivation"
+            href: report/supplement/covariates.html
+          - text: "Model specification and fitting"
+            href: report/supplement/model.html
+          - text: "Estimates"
+            href: report/supplement/estimates.html
+          - text: "Sensitivity analyses"
+            href: report/supplement/sensitivity.html
+          - text: "Full supplement (PDF)"
+            href: report/supplement.pdf
       - text: "Slides"
         href: slides/lab-meeting.html
 
