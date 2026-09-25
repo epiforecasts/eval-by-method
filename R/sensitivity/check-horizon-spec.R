@@ -31,6 +31,9 @@ horizon_specs <- list(
     s(Model, Horizon, k = 3, bs = "sz"),
   "fs" = wis ~ Epi_target + s(Horizon, k = 3) +
     s(Horizon, Model, k = 3, bs = "fs"),
+  # k = 4 is the maximum basis for four horizons (primary specification)
+  "fs k4" = wis ~ Epi_target + s(Horizon, k = 4) +
+    s(Horizon, Model, k = 4, bs = "fs"),
   "factor re" = wis ~ Epi_target + HorizonF + s(Model, bs = "re") +
     s(Model, HorizonF, bs = "re")
 )
