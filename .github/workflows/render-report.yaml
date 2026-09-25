@@ -38,6 +38,9 @@ jobs:
       - name: Setup quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
+      - name: Install TinyTeX
+        run: quarto install tinytex --no-prompt
+
       - name: Install system dependencies
         run: |
           brew install gettext libpng

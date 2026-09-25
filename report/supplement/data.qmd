@@ -1,0 +1,7 @@
+---
+title: "Data and participation"
+---
+
+{{< include ../quarto/supplement/_setup.qmd >}}
+
+{{< include ../quarto/supplement/_data.qmd >}}

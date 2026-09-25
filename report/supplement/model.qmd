@@ -1,0 +1,7 @@
+---
+title: "Model specification and fitting"
+---
+
+{{< include ../quarto/supplement/_setup.qmd >}}
+
+{{< include ../quarto/supplement/_model.qmd >}}

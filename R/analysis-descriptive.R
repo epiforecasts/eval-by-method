@@ -154,7 +154,7 @@ print_table2 <- function(effects, show_ratio = TRUE) {
     filter(group_var %in% c("Method")) |>
     mutate(
       # Exponentiate point estimate and both CI bounds: multiplicative ratio
-      # relative to the grand-mean LWIS
+      # of the expected LWIS relative to the average level of the factor
       ratio = paste0(
         round(exp(value), 2),
         " (", round(exp(lower_2.5), 2), ", ", round(exp(upper_97.5), 2), ")"

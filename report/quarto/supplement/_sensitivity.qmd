@@ -1,0 +1,106 @@
+## Data processing
+
+### Population normalisation
+
+We scored forecasts and observations normalised by country population per 100,000.
+We also scored against the raw total incident weekly count per target.
+This had near-zero impact on model fitting or results on the log-transformed scores.
+Difference in median WIS (across all targets):
+
+| Target | Scale   | Raw count | Per 100k |
+|--------|---------|-----------|----------|
+| Cases  | log     | 0.292     | 0.278    |
+| Cases  | natural | 2426      | 34.4     |
+| Deaths | log     | 0.239     | 0.093    |
+| Deaths | natural | 14.7      | 0.199    |
+
+: Difference in median WIS between scoring on the raw count and per-100,000 population scales, by epidemiological outcome and scale. {#tbl-supp-population-normalisation}
+
+### Natural scale WIS
+
+We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.
+
+```{r}
+#| label: tbl-supp-natural-scale
+#| tbl-cap: >-
+#|   Participation and forecasts by model structure and epidemiological
+#|   outcome, scored on the natural scale.
+
+scores_natural <- process_data(scoring_scale = "natural")
+ensemble_natural <- scores_natural |>
+  filter(grepl("EuroCOVIDhub-ensemble", Model))
+scores_natural <- scores_natural |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+print_table1(scores_natural)
+```
+
+## Model specification
+
+We tried several alternative model specifications.
+
+### Covariate selection
+
+| Domain              | Variable         | Model version | Impact   |
+|---------------------|------------------|---------------|----------|
+| Forecast target     |                  |               |          |
+|                     | `EpiTarget`      | V2\*          | None     |
+|                     | `VariantPhase`   | V2\*          | Some     |
+|                     | `Trend`          | All           | Untested |
+|                     | `Horizon`        | All           | Untested |
+|                     | `Incidence`      | All           | Untested |
+|                     | `Location`       | All           | Untested |
+| Forecaster strategy |                  |               |          |
+|                     | `CountryTargets` | All           | Untested |
+|                     | `Model`          | All           | Untested |
+| Outcome             | `Method`         | All           |          |
+
+: Covariates considered across model versions, the version in which each was introduced, and their impact on model fit and estimates. {#tbl-supp-covariate-selection}
+
+\* Covariates included in V2 were added based on reviewer feedback.
+
+### Error family and link
+
+We first used a Gaussian distribution with a log link.
+Because LWIS is strongly right-skewed, this left high residual skewness (`r stat_of("family-gaussian-log", "log", "resid_skew")`) and kurtosis (`r stat_of("family-gaussian-log", "log", "resid_kurtosis")`).
+We avoid using additional data transformations (e.g. an additional log transform) on the outcome (LWIS) as this would violate propriety of the score.
+We instead addressed the skew through the error family, comparing Gaussian, Gamma and Tweedie families as reported under [[Model fitting](#model-fitting)]{.content-visible when-format="pdf"}[[Model fitting](model.html#model-fitting)]{.content-visible unless-format="pdf"} above, and adopting the Tweedie family for the reported analysis.
+
+The fitted relationships and partial effects remained stable across parameterisations.
+
+### Structure by outcome under a Gaussian family
+
+The structure-by-outcome effects are sensitive to the error family, in magnitude throughout and in direction for two of the five structures.
+The table below refits the same specification with a Gaussian family and log link, alongside the primary Tweedie fit.
+The case-versus-death contrast keeps its sign under the Gaussian family for judgement, mechanistic and statistical models.
+It does not for agent-based models, where the separation vanishes, or for semi-mechanistic models, where it reverses; in both the Gaussian contrast is close to zero.
+The Gaussian fit is dominated by the largest scores, which fall disproportionately among case forecasts, so it weights precisely the observations the Tweedie family is chosen to accommodate.
+Including or excluding the Hub baseline model makes no material difference to these estimates.
+We report the Tweedie fit throughout; the size of any single structure-by-outcome contrast should be read with this sensitivity in mind.
+
+```{r}
+#| label: tbl-supp-family-interaction
+#| tbl-cap: >-
+#|   Performance ratio by model structure and epidemiological outcome,
+#|   under the primary Tweedie family and under a Gaussian family with a
+#|   log link. A ratio below 1 indicates better-than-average performance.
+
+gaussian_cells <- read_csv(
+  here("output", "diagnostics", "method-by-target-gaussian.csv"),
+  show_col_types = FALSE
+)
+
+results$method_by_target |>
+  transmute(Method, Epi_target, Tweedie = round(exp(value), 2)) |>
+  left_join(
+    gaussian_cells |>
+      transmute(Method, Epi_target, Gaussian = round(exp(value), 2)),
+    by = c("Method", "Epi_target")
+  ) |>
+  arrange(Method, Epi_target) |>
+  rename(`Model structure` = Method, Outcome = Epi_target) |>
+  kable(
+    align = c("l", "l", "r", "r")
+  ) |>
+  collapse_rows(columns = 1, valign = "top") |>
+  kable_styling(full_width = FALSE)
+```
