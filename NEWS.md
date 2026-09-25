@@ -13,13 +13,13 @@ Abstract numbers follow the refit (structure ratios 0.97 to 1.08; rank Spearman 
 
 `output/log/`, `output/natural/`, `output/diagnostics/`
 
-Both scales refitted with the `fs` horizon specification under `spec_label = "primary-fs"`. Log scale: unadjusted-vs-adjusted rank Spearman 0.44 to 0.37, models moving at least ten places 23 to 19; structure ratios 0.97 to 1.08, all intervals still spanning 1. The five models forecasting only horizon 1 now have estimated effects rather than zero. Manuscript text not yet updated.
+Both scales refitted with the `fs` horizon specification under `spec_label = "primary-fs"`, with k = 3 for the per-model deviations. The specification has since moved to k = 4 in both terms, so these outputs are stale until refitted; the numbers below are from the k = 3 fit. Log scale: unadjusted-vs-adjusted rank Spearman 0.44 to 0.37, models moving at least ten places 23 to 19; structure ratios 0.97 to 1.08, all intervals still spanning 1. The five models forecasting only horizon 1 now have estimated effects rather than zero. Manuscript text not yet updated.
 
 ## Unreleased — Horizon as a shared curve with penalised model deviations
 
 `R/analysis-model.R`, `R/utils-effects.R`
 
-The joint model replaces `s(Horizon, by = Model, k = 3, bs = "sz") + s(Model, bs = "re")` with `s(Horizon, k = 4) + s(Horizon, Model, k = 3, bs = "fs")`, following `R/sensitivity/check-horizon-spec.qmd`: one horizon curve shared by all models, and each model's curve penalised towards it. The `fs` term carries each model's level, so the model random effect is dropped. A model's adjusted effect is now its `fs` deviation averaged over the horizons it forecast (`model_horizon_effects()`); `results$model_h1` holds the same at horizon 1 for the supplement. The univariate horizon fit is the shared curve alone. Outputs are not yet refitted.
+The joint model replaces `s(Horizon, by = Model, k = 3, bs = "sz") + s(Model, bs = "re")` with `s(Horizon, k = 4) + s(Horizon, Model, k = 4, bs = "fs")`, following `R/sensitivity/check-horizon-spec.qmd`: one horizon curve shared by all models, and each model's curve penalised towards it. Both terms use k = 4, the maximum basis for four horizons; the sensitivity check has `fs` arms with k = 3 and k = 4 in both terms (the k = 4 arm is not yet fitted). The `fs` term carries each model's level, so the model random effect is dropped. A model's adjusted effect is now its `fs` deviation averaged over the horizons it forecast (`model_horizon_effects()`); `results$model_h1` holds the same at horizon 1 for the supplement. The univariate horizon fit is the shared curve alone. Outputs are not yet refitted.
 
 ## Unreleased — Sensitivity to the model-by-horizon specification
 

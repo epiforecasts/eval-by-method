@@ -35,7 +35,7 @@ m.formula_joint <- wis ~
   s(Horizon, k = 4) +
   # Model: individual model, as a penalised deviation from the shared
   # horizon curve (factor smooth)~
-  s(Horizon, Model, k = 3, bs = "fs")
+  s(Horizon, Model, k = 4, bs = "fs")
 
 # * See R/sensitivity/check-family.R
 # ^ Note on the interaction term:
@@ -48,9 +48,11 @@ m.formula_joint <- wis ~
 # one curve shared by all models. bs = "fs" gives each model its own curve,
 # penalised (intercept and slope included) towards zero deviation from that
 # curve, so a model forecasting few horizons is shrunk to the shared shape
-# rather than extrapolated. The fs term includes a per-model level, so there is
-# no separate s(Model, bs = "re"). A model's effect is its fs deviation averaged
-# over the horizons it forecast (model_horizon_effects()).
+# rather than extrapolated. Both terms use k = 4, the maximum basis for four
+# horizons, so the penalty rather than the basis limits their shape. The fs
+# term includes a per-model level, so there is no separate s(Model, bs = "re").
+# A model's effect is its fs deviation averaged over the horizons it forecast
+# (model_horizon_effects()).
 # See R/sensitivity/check-horizon-spec.qmd
 
 # --- Functional model ---
