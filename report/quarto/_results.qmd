@@ -339,6 +339,6 @@ plot_model_variation(results$effects, ranks = ranks)
 
 #### Sensitivity analysis
 
-Repeating the analysis on the natural scale of scores, and under alternative covariate sets, changed no estimate materially (Supplement).
+Repeating the analysis on the natural scale gave the same direction for each structure, but semi-mechanistic models performed more consistently worse than average (ratio 1.57, 1.04–2.35) (Supplement).
 The exception was the choice of error family: refitting with a Gaussian in place of the Tweedie changed the size of every structure-by-outcome estimate and the direction of two of the five.
 Specifically, this widened the case-death difference for human judgement models, removed it for agent-based models, and reversed it for semi-mechanistic models.
