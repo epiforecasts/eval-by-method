@@ -4,7 +4,8 @@ We aimed to estimate the effect of model structure on forecast performance.
 We evaluated forecasts of incident COVID-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European COVID-19 Forecast Hub [@euroHub2021].
 The Hub solicited real-time forecasts one to four weeks ahead.
 Any forecaster was eligible for inclusion, with no selection criteria.
-For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or forecast over the full 4-week horizon.
+For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or that were more than four weeks ahead.
+Models could forecast any subset of the four horizons, and 8 of 48 did not forecast all four.
 We also excluded the ensemble of all Hubs models.
 Full eligibility and a STROBE flow diagram are given in the Supplement.
 
@@ -54,7 +55,7 @@ library(dplyr)
 # Tweedie power parameter of the primary fit, so the text tracks the fit
 tweedie_p <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
                       show_col_types = FALSE) |>
-  filter(spec_label == "primary-interaction", scale == "log") |>
+  filter(spec_label == "primary-fs", scale == "log") |>
   pull(family) |>
   (\(x) as.numeric(sub(".*p=([0-9.]+).*", "\\1", x)))()
 ```
@@ -74,13 +75,13 @@ The estimated $p$ was `r round(tweedie_p, 2)`, close to a Gamma, but a Gamma has
 The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological outcome, random-effect contributions from categorical covariates, and two smooths for continuous covariates:
 
 $$
-  \eta_i = \beta_0 \;+\; \beta_{\text{outcome}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+  \eta_i = \beta_0 \;+\; \beta_{\text{outcome}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f_{\text{Horizon}}(\mathrm{Horizon}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
 $$
 
 Here $\beta_{\text{outcome}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
 
 $$
-  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
+  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location}\}.
 $$
 
 Model structure enters as a single grouping factor crossing with epidemiological outcome, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
@@ -89,13 +90,18 @@ The epidemiological outcome remains a fixed effect.
 Being unpenalised, this absorbs any difference common to all structures, leaving the crossed term to carry variation from it.
 Both choices are set out in the Supplement.
 
-$f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence, and $\{f^{\text{Horizon}}_k\}$ a separate penalised smooth of horizon for each model ($k=3$ basis functions), each centred to average zero over the horizons of all forecasts, allowing the horizon effect to vary by model.
+$f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence.
+Forecast performance is known to worsen with horizon, so $f_{\text{Horizon}}$ was a smooth of horizon shared by all models ($k=4$ basis functions).
+Each model $k$ had its own deviation from this curve, $f^{\text{Horizon}}_k$ ($k=3$), with its level and slope penalised towards zero.
+This deviation carries the individual model effect, so there is no separate model random effect, and a model forecasting few horizons is shrunk towards the shared curve rather than extrapolated to horizons it did not forecast.
+We compare alternative horizon specifications in the Supplement.
 
 We fitted all models with the `mgcv` package in R using fast restricted maximum likelihood [@wood2011].
 We checked fit by visual inspection of residuals and conducted extensive sensitivity analysis.
 To assess confounding, we also fitted univariate models to provide a comparison between unadjusted and adjusted estimates of the effect of model structure on LWIS.
 We report each categorical effect as the exponentiated random effect, which multiplies the expected LWIS relative to the population mean (a zero random effect), with all other terms held fixed; the epidemiological outcome is reported as deaths relative to cases.
 A ratio of 0.9 represents an expected LWIS 10% lower (better) than the population mean.
+We report each individual model's effect as its deviation from the shared horizon curve, averaged over the horizons it forecast.
 We report raw partial effects in the Supplement.
 
 All data and code are publicly available online [@sherratt2025].

@@ -365,6 +365,19 @@ In the fitted model the crossed effects average to zero within each outcome to n
 This is emergent rather than imposed: the smooth retains all ten coefficients, so no centring constraint was applied.
 We did not treat the outcome as a random effect, which with two levels gives no basis for estimating a variance and would shrink a large, well-identified contrast toward zero.
 
+### Forecast horizon and individual models
+
+Performance is known to worsen with horizon, so the model includes one horizon curve shared by all models, `s(Horizon, k = 4)`, and a factor smooth giving each model its own deviation from it, `s(Horizon, Model, k = 3, bs = "fs")`.
+The factor smooth penalises each model's whole deviation, including its level and slope, towards zero.
+It therefore also carries the individual model effect, and there is no separate `s(Model, bs = "re")`: with both terms, a model's level would be split between them by the relative variance estimates.
+We report a model's effect as its deviation averaged over the horizons it forecast, so no model is judged on horizons it did not forecast.
+The same deviation at one week ahead, which every model forecast, is given under Results.
+
+An earlier specification, `s(Horizon, by = Model, k = 3)`, fitted a separate curve for each model with no shared curve.
+Its linear part was unpenalised, and each curve was centred over all forecasts rather than over the model's own.
+For the five models forecasting only one week ahead, the data fix only the sum of the model's level and its slope term, so the fit put the level into the unpenalised slope and left the model effect at exactly zero.
+Alternative specifications are compared in `R/sensitivity/check-horizon-spec.qmd`.
+
 ### Model fitting {#model-fitting}
 
 We noted our outcome of LWIS had a strongly skewed PDF.
@@ -401,7 +414,7 @@ stat_of <- function(label, scale, col, digits = 1) {
 
 The choice of family matters a great deal more the log scale than the natural scale.
 On the log scale, moving from Gaussian to Tweedie reduces residual skew from `r stat_of("family-gaussian-log", "log", "resid_skew")` to `r stat_of("family-tweedie-log", "log", "resid_skew")` and kurtosis from `r stat_of("family-gaussian-log", "log", "resid_kurtosis")` to `r stat_of("family-tweedie-log", "log", "resid_kurtosis")`.
-On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("primary-interaction", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
+On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("primary-fs", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
 
 ```{r}
 #| label: supplement-family-comparison
@@ -483,7 +496,7 @@ plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")),
 
 ## Results
 
-Effects are deviations from the grand mean for each covariate under a sum-to-zero constraint.
+Effects are deviations from the population mean (a zero random effect) for each covariate.
 Negative values indicate better-than-average performance.
 
 ### Partial effects across covariates
@@ -615,6 +628,44 @@ ranks |>
   ) |>
   kable_styling(full_width = FALSE)
 ```
+
+### Individual model effects at one week ahead
+
+```{r}
+#| label: supplement-model-h1
+#| fig-cap: >-
+#|   Individual model effects evaluated at one week ahead, the horizon every model
+#|   forecast, against the effect averaged over the horizons each model forecast
+#|   (main text). Each point is a model, as the exponentiated deviation from the
+#|   shared horizon curve; the dashed line marks equality.
+#| fig-height: 4
+#| fig-width: 5
+
+model_h1 <- results$effects |>
+  filter(model == "Adjusted", group_var == "Model") |>
+  select(group, average = value) |>
+  inner_join(select(results$model_h1, group, h1 = value), by = "group") |>
+  left_join(
+    scores |>
+      group_by(group = as.character(Model)) |>
+      summarise(horizons = factor(n_distinct(Horizon), levels = 1:4)),
+    by = "group"
+  )
+h1_spearman <- cor(model_h1$average, model_h1$h1, method = "spearman")
+
+ggplot(model_h1, aes(x = exp(average), y = exp(h1), colour = horizons)) +
+  geom_abline(slope = 1, intercept = 0, lty = 2, colour = "grey50") +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_colour_viridis_d(end = 0.85, drop = FALSE) +
+  labs(x = "Ratio, averaged over forecast horizons",
+       y = "Ratio at one week ahead",
+       colour = "Horizons forecast") +
+  theme(legend.position = "bottom")
+```
+
+Spearman correlation between the two: `r round(h1_spearman, 2)`.
 
 ------------------------------------------------------------------------
 

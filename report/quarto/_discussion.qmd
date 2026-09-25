@@ -17,7 +17,7 @@ A model-based evaluation of this kind is extremely flexible.
 We developed the specification here over several iterations and do not consider it final.
 There are likely many additional interactions between the effects explored here.
 For example, different model structures may be more or less well equipped to predict at each interval of the one to four week forecast horizon; those able to incorporate underlying epidemic mechanisms may be less responsive to shorter term data artefacts but relatively better able to demonstrate the impact of longer term dynamics.
-We fit the effect of horizon to each individual model, which may have absorbed these structural differences.
+We allowed each individual model its own deviation from a shared horizon curve, which may have absorbed these structural differences.
 We also only partially accounted for variation among forecast targets.
 For example, real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [@holcomb2023], so the target a forecast was scored against was not always the target available when it was made.
 Nonetheless, varying the inclusion of some covariates, the link function, and the error family left the partial effects of model structure essentially unchanged (see Supplement).

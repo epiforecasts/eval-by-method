@@ -308,7 +308,7 @@ We report the total set of modelled effects in the Supplement.
 Most of the difference between individual model performance was left unexplained (@fig-model-variation A).
 We accounted for whether models forecast for one or multiple countries, with 19 models forecasting for a single country and 29 for multiple countries (of which only 2 kept the same number of countries throughout, see Supplement).
 Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), explaining none of the difference between models.
-Forecast horizon entered the model as a smooth fitted separately for each model, so it has no single pooled effect; the crude gradient across horizons is given above.
+Forecast horizon entered the model as a curve shared by all models, with each model's deviation from it carrying the individual model effect; the crude gradient across horizons is given above.
 
 ```{r}
 #| label: results-ranks
@@ -328,7 +328,7 @@ Ranking models by their performance before and after adjustment gives a Spearman
 #| fig-cap: >-
 #|   Individual models differ in performance after adjustment, so which models look best depends on how the evaluation is designed.
 #|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and labelled by the model's unadjusted rank.
-#|   The ratio is the exponentiated random effect, which multiplies the expected LWIS relative to the population mean across models, where a ratio below 1 indicates better-than-average performance, adjusted for model structure by epidemiological outcome, whether a model forecast for one or many countries, forecast horizon, incidence, epidemic trend, variant phase and location.
+#|   The ratio is the exponentiated deviation of each model from the shared horizon curve, averaged over the horizons it forecast, which multiplies the expected LWIS relative to the population mean across models, where a ratio below 1 indicates better-than-average performance, adjusted for model structure by epidemiological outcome, whether a model forecast for one or many countries, forecast horizon, incidence, epidemic trend, variant phase and location.
 #|   (B) Rank of each model before and after adjustment, with the diagonal marking no change in rank, coloured by model structure.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 8

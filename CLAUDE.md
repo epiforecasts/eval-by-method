@@ -14,10 +14,10 @@ We identify common strategies for this problem, and demonstrate a regression-bas
 
 We evaluated 207,713 forecasts of weekly COVID-19 cases and deaths from 48 models over two years across 32 European countries, scored against observed data with the weighted interval score of log-transformed values (LWIS).
 We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement), and estimated the effect of model structure in a generalised additive mixed model adjusting for the epidemiological outcome, its level and trend, the dominant pathogen variant, the country, the forecast horizon, whether a model forecast for one or many countries, and differences between individual models.
-No model structure was clearly different from the overall average (ratios 0.98 to 1.05 of the average LWIS, all intervals spanning 1).
+No model structure was clearly different from the overall average (ratios 0.97 to 1.08 of the average LWIS, all intervals spanning 1).
 Instead, performance was driven by factors varying between forecast targets, such as the epidemic trend.
 We left substantial variation in individual model performance unexplained.
-Ranking individual models before and after adjustment gave a Spearman correlation of 0.44, with 23 of 48 models moving at least ten places.
+Ranking individual models before and after adjustment gave a Spearman correlation of 0.37, with 19 of 48 models moving at least ten places.
 
 Our model-based approach sits between informal and fully formal ways of handling bias in observational studies of forecast performance.
 Less formal designs such as stratification suffice with a single target or a structured sample of forecasters, while going further could include propensity weighting or a fully specified causal estimand.
@@ -128,9 +128,9 @@ source(here("R", "process-data.R"))
 #    Sourcing only DEFINES model_wis(); call it per scale to write output/<scale>/.
 source(here("R", "analysis-model.R"))
 model_wis(scoring_scale = "log",     output_dir = here("output", "log"),
-          spec_label = "tweedie-log")
+          spec_label = "primary-fs")
 model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
-          spec_label = "tweedie-log")
+          spec_label = "primary-fs")
 
 # 4. Render the manuscript alone (supplement is a separate page)
 #    Render index.qmd, NOT report/manuscript.qmd — the latter's includes are
@@ -168,7 +168,7 @@ Major R packages:
 Outstanding issues.
 Status: [ ] not started, [x] done.
 - [x] Update manuscript text to clarify what the structure term reports. Superseded by the structure-by-outcome interaction (#158): the pooled effect is now a contrast across a structure's two cells and carries real estimates, so the text reports imprecision rather than a term shrunk to nothing.
-- [ ] Model fitting outputs are labelled `primary-interaction` in `output/diagnostics/fit-summary.csv`. Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row.
+- [ ] Model fitting outputs are labelled `primary-fs` in `output/diagnostics/fit-summary.csv`. Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row.
 - [x] Untrack the Quarto freeze cache on branch `supplementary-descriptive`. Done on that branch only (commit 6553f40, not pushed): 46 files untracked, `/_freeze/` added to `.gitignore`, `NEWS.md` noted. `main` never tracked the cache.
 
 ### Verification
