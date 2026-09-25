@@ -14,12 +14,17 @@ Difference in median WIS (across all targets):
 | Deaths | log     | 0.239     | 0.093    |
 | Deaths | natural | 14.7      | 0.199    |
 
+: Difference in median WIS between scoring on the raw count and per-100,000 population scales, by epidemiological outcome and scale. {#tbl-supp-population-normalisation}
+
 ### Natural scale WIS
 
 We present results from scoring forecast error on the natural scale (difference between observation and prediction in count of case or death incidence), from which the WIS is then calculated and the analysis repeated.
 
 ```{r}
-#| label: supplement-natural-scale
+#| label: tbl-supp-natural-scale
+#| tbl-cap: >-
+#|   Participation and forecasts by model structure and epidemiological
+#|   outcome, scored on the natural scale.
 
 scores_natural <- process_data(scoring_scale = "natural")
 ensemble_natural <- scores_natural |>
@@ -49,6 +54,8 @@ We tried several alternative model specifications.
 |                     | `Model`          | All           | Untested |
 | Outcome             | `Method`         | All           |          |
 
+: Covariates considered across model versions, the version in which each was introduced, and their impact on model fit and estimates. {#tbl-supp-covariate-selection}
+
 \* Covariates included in V2 were added based on reviewer feedback.
 
 ### Error family and link
@@ -56,7 +63,7 @@ We tried several alternative model specifications.
 We first used a Gaussian distribution with a log link.
 Because LWIS is strongly right-skewed, this left high residual skewness (`r stat_of("family-gaussian-log", "log", "resid_skew")`) and kurtosis (`r stat_of("family-gaussian-log", "log", "resid_kurtosis")`).
 We avoid using additional data transformations (e.g. an additional log transform) on the outcome (LWIS) as this would violate propriety of the score.
-We instead addressed the skew through the error family, comparing Gaussian, Gamma and Tweedie families as reported under [Model fitting](#model-fitting) above, and adopting the Tweedie family for the reported analysis.
+We instead addressed the skew through the error family, comparing Gaussian, Gamma and Tweedie families as reported under [[Model fitting](#model-fitting)]{.content-visible when-format="pdf"}[[Model fitting](model.html#model-fitting)]{.content-visible unless-format="pdf"} above, and adopting the Tweedie family for the reported analysis.
 
 The fitted relationships and partial effects remained stable across parameterisations.
 
@@ -71,7 +78,11 @@ Including or excluding the Hub baseline model makes no material difference to th
 We report the Tweedie fit throughout; the size of any single structure-by-outcome contrast should be read with this sensitivity in mind.
 
 ```{r}
-#| label: supplement-family-interaction
+#| label: tbl-supp-family-interaction
+#| tbl-cap: >-
+#|   Performance ratio by model structure and epidemiological outcome,
+#|   under the primary Tweedie family and under a Gaussian family with a
+#|   log link. A ratio below 1 indicates better-than-average performance.
 
 gaussian_cells <- read_csv(
   here("output", "diagnostics", "method-by-target-gaussian.csv"),
@@ -88,11 +99,6 @@ results$method_by_target |>
   arrange(Method, Epi_target) |>
   rename(`Model structure` = Method, Outcome = Epi_target) |>
   kable(
-    caption = paste0(
-      "Performance ratio by model structure and epidemiological outcome, ",
-      "under the primary Tweedie family and under a Gaussian family with a ",
-      "log link. A ratio below 1 indicates better-than-average performance."
-    ),
     align = c("l", "l", "r", "r")
   ) |>
   collapse_rows(columns = 1, valign = "top") |>

@@ -7,7 +7,7 @@ The second substantially revised the aim and scope:
 -   Improved range of confounding factors (epidemiological outcomes covering both cases and deaths; adding a covariate for dominant variant phase)
 -   More extensive model checking and diagnostics to address highly skewed residuals
 
-See the (Sensitivity analysis){#sensitivity-analysis} below for alternative model specifications.
+See the [[sensitivity analyses](#sensitivity-analyses)]{.content-visible when-format="pdf"}[[sensitivity analyses](sensitivity.html)]{.content-visible unless-format="pdf"} below for alternative model specifications.
 
 ## Covariate selection
 
@@ -16,7 +16,7 @@ We show the assumptions underlying our strategy in a causal diagram.
 We emphasise that model specification is extremely flexible, and we approach this work is exploratory rather than fully inferential.
 
 ```{r}
-#| label: supplement-dag
+#| label: fig-supp-dag
 #| fig-cap: "Directed acyclic graph of assumed causal relationships among forecast performance (wis), model structure (Method), and covariates."
 
 source(here::here("R", "dag-check.R"))
@@ -61,7 +61,7 @@ We did not treat the outcome as a random effect, which with two levels gives no 
 We noted our outcome of LWIS had a strongly skewed PDF.
 
 ```{r}
-#| label: supplement-fitting-density
+#| label: fig-supp-fitting-density
 #| fig-cap: >-
 #|   The LWIS is strongly right-skewed, which is what the choice of error family
 #|   has to accommodate. Density of the LWIS across all scored forecasts.
@@ -84,7 +84,7 @@ On the log scale, moving from Gaussian to Tweedie reduces residual skew from `r 
 On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("primary-interaction", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
 
 ```{r}
-#| label: supplement-family-comparison
+#| label: tbl-supp-family-comparison
 #| tbl-cap: >-
 #|   Comparison of error families for the joint model on the log scale.
 #|   Skew and kurtosis are of the deviance residuals for comparison between family.
@@ -142,7 +142,7 @@ We used the `mgcv` package v1.9-4 using R 4.5, with the formula:
 We assessed model fit visually plotting observed-versus-fitted values and inspecting residuals in Q-Q and histogram plots.
 
 ```{r}
-#| label: supplement-diagnostics
+#| label: fig-supp-diagnostics
 #| fig-cap: >-
 #|   Residual diagnostics for the fitted model: quantile-quantile plot of deviance
 #|   residuals, residuals against the linear predictor, histogram of residuals, and
@@ -152,7 +152,7 @@ knitr::include_graphics(here("output", "log", "plots", "check_joint.png"))
 ```
 
 ```{r}
-#| label: supplement-fit-obs
+#| label: fig-supp-fit-obs
 #| fig-cap: >-
 #|   Fitted values track observed scores across the range, with the spread widening
 #|   at higher scores. Observed against fitted LWIS, by epidemiological outcome.

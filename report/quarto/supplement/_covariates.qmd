@@ -3,7 +3,9 @@
 Human raters classified models according to methodological structures.
 
 ```{r}
-#| label: supplement-classification
+#| label: tbl-supp-classification
+#| tbl-cap: >-
+#|   Classification of models by number of raters in total and agreement on model structure.
 
 model_classifier <- classify_models(return_majority = FALSE) |> 
   distinct(model, classification, raters, votes, agreement) |> 
@@ -16,7 +18,7 @@ model_classifier <- classify_models(return_majority = FALSE) |>
   arrange(Agreement, Model)
 
 model_classifier |> 
-    kable(caption = "Classification of models by number of raters in total and agreement on model structure")
+    kable()
 ```
 
 ## Epidemic trend identification
@@ -24,7 +26,7 @@ model_classifier |>
 We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
 
 ```{r}
-#| label: supplement-trends
+#| label: fig-supp-trends
 #| fig-cap: >-
 #|   Weekly incidence of reported cases in each country, coloured by the epidemic
 #|   trend assigned to that week ("Stable", "Increasing" or "Decreasing"), from the
@@ -54,7 +56,7 @@ scores |>
 ```
 
 ```{r}
-#| label: supplement-death-trends
+#| label: fig-supp-death-trends
 #| fig-cap: >-
 #|   Weekly incidence of reported deaths in each country, coloured by the epidemic
 #|   trend assigned to that week, derived as for cases.
@@ -77,7 +79,7 @@ This per-location approach accounts for the fact that variant dominance dates di
 Where genomic surveillance data were too sparse to identify a transition (Hungary), we supplemented with epidemiological reports to set the Alpha-to-Delta transition date.
 
 ```{r}
-#| label: supplement-variant-phases
+#| label: fig-supp-variant-phases
 #| fig-cap: "Variant phases identified by dominant variant in each location and week"
 
 # see: R/utils-variants.R

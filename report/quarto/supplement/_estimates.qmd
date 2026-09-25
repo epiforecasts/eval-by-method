@@ -9,7 +9,7 @@ Partial effects of individual model structure and individual model are presented
 (A) Geographic
 
 ```{r}
-#| label: supplement-plot-spatial-effects
+#| label: fig-supp-plot-spatial-effects
 #| fig-cap: >-
 #|   Performance varied more between countries than between single- and
 #|   multi-country models. Partial effects (95% CI) for geographic scope and
@@ -21,7 +21,7 @@ plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 (B) Epidemic state
 
 ```{r}
-#| label: supplement-plot-temporal-effects
+#| label: fig-supp-plot-temporal-effects
 #| fig-cap: >-
 #|   Epidemic trend and variant phase both shifted performance, with increasing
 #|   trends and the Omicron BA.1 phase hardest to predict. Partial effects
@@ -36,7 +36,11 @@ The main-text figures and tables report exponentiated effects (multiplicative ra
 The table below gives the underlying raw partial effects from the fully adjusted model.
 
 ```{r}
-#| label: supplement-raw-coefficients
+#| label: tbl-supp-raw-coefficients
+#| tbl-cap: >-
+#|   Raw partial effects on the log scale of the linear predictor, from
+#|   the fully adjusted generalised additive mixed model. Negative values indicate
+#|   better-than-average performance. 95% CI = 95% confidence interval.
 
 results$effects |>
   filter(model == "Adjusted") |>
@@ -50,11 +54,6 @@ results$effects |>
   ) |>
   arrange(Variable, Group) |>
   kable(
-    caption = paste0(
-      "Raw partial effects on the log scale of the linear predictor, from ",
-      "the fully adjusted generalised additive mixed model. Negative values indicate ",
-      "better-than-average performance. 95% CI = 95% confidence interval."
-    ),
     align = c("l", "l", "r")
   ) |>
   collapse_rows(columns = 1, valign = "top") |>
@@ -65,13 +64,22 @@ The model structure term is fitted as a single grouping factor crossing structur
 The main text reports these exponentiated, and reports a pooled effect per structure derived as a contrast averaging a structure's two cells.
 
 ```{r}
-#| label: supplement-table-method-target
+#| label: tbl-supp-table-method-target
+#| tbl-cap: >-
+#|   Exponentiated partial effects of model structure by epidemiological
+#|   outcome, as a ratio of the expected LWIS relative to the average level.
+#|   Ratios below 1 indicate better-than-average performance.
 
 print_table_method_target(results$method_by_target)
 ```
 
 ```{r}
-#| label: supplement-method-target-raw
+#| label: tbl-supp-method-target-raw
+#| tbl-cap: >-
+#|   Raw partial effects of model structure by epidemiological outcome,
+#|   on the log scale, from the fully adjusted generalised additive mixed
+#|   model. Negative values indicate better-than-average performance.
+#|   95% CI = 95% confidence interval.
 
 results$method_by_target |>
   transmute(
@@ -84,12 +92,6 @@ results$method_by_target |>
   ) |>
   arrange(`Model structure`, Outcome) |>
   kable(
-    caption = paste0(
-      "Raw partial effects of model structure by epidemiological outcome, ",
-      "on the log scale, from the fully adjusted generalised additive mixed ",
-      "model. Negative values indicate better-than-average performance. ",
-      "95% CI = 95% confidence interval."
-    ),
     align = c("l", "l", "r")
   ) |>
   collapse_rows(columns = 1, valign = "top") |>
@@ -104,10 +106,22 @@ The second ranks them by performance after the target-related covariates are hel
 The comparison is reported in the main text; the table below gives the models that move furthest between the two.
 
 ```{r}
-#| label: supplement-ranks
+#| label: supplement-ranks-data
+#| include: false
 
 ranks <- rank_models(results$effects)
 rank_summary <- summarise_ranks(ranks)
+rank_caption <- paste0(
+  "The ten models whose rank changes most under adjustment, of ",
+  rank_summary$n, " models. A positive change means a model ranks better ",
+  "once the difficulty of its targets is accounted for. Models are ",
+  "anonymised and numbered within model structure."
+)
+```
+
+```{r}
+#| label: tbl-supp-ranks
+#| tbl-cap: !expr rank_caption
 
 ranks |>
   mutate(`Rank change` = rank_change) |>
@@ -120,12 +134,6 @@ ranks |>
     `Rank change` = `Rank change`
   ) |>
   kable(
-    caption = paste0(
-      "The ten models whose rank changes most under adjustment, of ",
-      rank_summary$n, " models. A positive change means a model ranks better ",
-      "once the difficulty of its targets is accounted for. Models are ",
-      "anonymised and numbered within model structure."
-    ),
     align = c("l", "r", "r", "r")
   ) |>
   kable_styling(full_width = FALSE)
