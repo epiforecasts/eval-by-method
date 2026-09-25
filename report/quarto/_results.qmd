@@ -178,7 +178,7 @@ beat_ensemble <- scores |>
   summarise(n_models = n(), n_better = sum(median < ensemble))
 ```
 
-Aggregated performance varied more with the epidemiological process being predicted than between forecasters.
+Aggregated performance varied with the epidemiological outcome, its magnitude, the variant phase and the forecast horizon.
 Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths.
 For deaths in particular, scores varied non-linearly with the magnitude of the outcome being predicted (@fig-error-vs-obs).
 Across variant phases, forecasts were most accurate during the `r phase_best` phase and least accurate during `r phase_worst`, the period of steepest change in reported incidence.
@@ -202,11 +202,9 @@ strata_thin <- round(mean(strata_obs$n < 5) * 100)
 #### Effect of model structure
 
 Participation between model structures was unevenly distributed across forecast targets.
-Handling this with a stratification approach would produce sparse data, given both the range of targets, and number and type of covariates we wish to adjust for.
-To demonstrate, cross-classifying forecasts by the categorical covariates alone (epidemiological outcome, location, epidemic trend, variant phase, number of countries targeted) gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled`% contain any forecast.
+To assess the sparse-data problem for these forecasts, we cross-classified them by epidemiological outcome, forecast horizon, location, epidemic trend, variant phase, single or multiple countries, and model structure.
+This gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled`% contain any forecast.
 Among these, each non-empty stratum holds a median of only `r strata_median` forecasts and `r strata_thin`% hold fewer than five.
-We report model-based effect estimates as a ratio against the grand-mean LWIS for each factor, under a sum-to-zero constraint; a ratio of 0.9 represents an LWIS 10% lower (better) than the group average.
-We report raw partial effects in the Supplement.
 
 ```{r}
 #| label: results-scores-results
@@ -221,7 +219,7 @@ table_effects <- results$effects |>
   mutate(value_ci = paste0(round(value, 2),
                            " (", round(lower_2.5, 2), "-",
                            upper_97.5_text, ")"),
-         # exponentiated: multiplicative ratio vs grand-mean LWIS (1 = average).
+         # exponentiated: multiplies expected LWIS relative to the average level of the factor (1 = average).
          # Fixed to 2 dp so ratios at or near 1 print as 1.00, not 1
          ratio_ci = sprintf("%.2f (%.2f-%.2f)",
                             exp(value), exp(lower_2.5), exp(upper_97.5)),
@@ -236,7 +234,7 @@ effects_comp <- results$effects |>
   filter(group_var %in% c("Method"))
 ```
 
-After adjustment, no structural approach dominated (@tbl-structure, @fig-structure-effects).
+After adjustment, no model structure was clearly different from the average (@tbl-structure, @fig-structure-effects).
 The largest shifts under adjustment were among agent-based and human judgement models, while adjustment shrank the standard errors throughout.
 
 ```{r}
@@ -282,18 +280,17 @@ mbt_widest_n <- scores |>
 ```
 
 Differences between model structures were modified by epidemiological outcome (@fig-structure-effects; Supplement).
-The widest separation was among `r tolower(mbt_widest)` models, which were the worst-performing model structure for case forecasts but the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the grand mean.
+The widest separation was among `r tolower(mbt_widest)` models, which were the worst-performing model structure for case forecasts but the best for death forecasts (cases ratio `r mbt_ratio[[paste0(mbt_widest, "_Cases")]]`; deaths ratio `r mbt_ratio[[paste0(mbt_widest, "_Deaths")]]`), while their pooled estimate sits close to the average.
 This contrast rests on `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Cases"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Cases"]` forecasts for cases, and `r mbt_widest_n$n_models[mbt_widest_n$epi_target == "Deaths"]` models and `r mbt_widest_n$n_forecasts[mbt_widest_n$epi_target == "Deaths"]` forecasts for deaths, so the structure-level estimate is close to a statement about individual models, even with a model-specific effect in the fit.
 
 Other model structures performed more similarly between epidemiological outcomes, performing marginally better on cases than on deaths.
-We noted that differences between outcomes largely offset when averaged.
-An averaged estimate therefore gives close to zero for most structures, whether or not outcome-specific differences exist.
+Differences between outcomes largely offset in the pooled estimate for each structure.
 
 ```{r}
 #| label: fig-structure-effects
 #| fig-cap: >-
 #|   No model structure performed meaningfully differently from the average after adjustment for features of the epidemiological prediction target.
-#|   Showing performance ratio (95% CI) by model structure, as the exponentiated partial effect relative to the grand-mean LWIS; a ratio below 1 indicates better-than-average performance.
+#|   Showing performance ratio (95% CI) by model structure, as the exponentiated random effect, which multiplies the expected LWIS relative to the population mean for model structure; a ratio below 1 indicates better-than-average performance.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 3
 #| fig-width: 4
@@ -304,13 +301,13 @@ plot_method_target(results$method_by_target)
 #### Wider influences on forecast performance
 
 Epidemiological processes generating the forecast target explained more variation in performance than features of the forecasting process.
-Targets were most predictable during stable periods of the epidemic curve (ratio `r table_effects["Adjusted_Stable","ratio_ci"]`) and least during increasing trends (ratio `r table_effects["Adjusted_Increasing","ratio_ci"]`).
-Predictability was better in the earlier Alpha and Delta phases (ratios `r table_effects["Adjusted_Alpha","ratio_ci"]` and `r table_effects["Adjusted_Delta","ratio_ci"]`) and worst under Omicron BA.1 (ratio `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`), and death forecasts scored lower than case forecasts (ratio `r table_effects["Adjusted_Deaths","ratio_ci"]`).
+Performance was best during stable periods of the epidemic curve (ratio `r table_effects["Adjusted_Stable","ratio_ci"]`) and worst during increasing trends (ratio `r table_effects["Adjusted_Increasing","ratio_ci"]`).
+Performance was better in the earlier Alpha and Delta phases (ratios `r table_effects["Adjusted_Alpha","ratio_ci"]` and `r table_effects["Adjusted_Delta","ratio_ci"]`) and worst under Omicron BA.1 (ratio `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`), and death forecasts scored lower than case forecasts (ratio `r table_effects["Adjusted_Deaths","ratio_ci"]`).
 We report the total set of modelled effects in the Supplement.
 
 Most of the difference between individual model performance was left unexplained (@fig-model-variation A).
 We accounted for whether models forecast for one or multiple countries, with 19 models forecasting for a single country and 29 for multiple countries (of which only 2 kept the same number of countries throughout, see Supplement).
-Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), so geographic scope explained none of the difference between models.
+Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), explaining none of the difference between models.
 Forecast horizon entered the model as a smooth fitted separately for each model, so it has no single pooled effect; the crude gradient across horizons is given above.
 
 ```{r}
@@ -331,7 +328,7 @@ Ranking models by their performance before and after adjustment gives a Spearman
 #| fig-cap: >-
 #|   Individual models differ in performance after adjustment, so which models look best depends on how the evaluation is designed.
 #|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and labelled by the model's unadjusted rank.
-#|   The ratio is the exponentiated partial effect relative to the grand-mean LWIS, where a ratio below 1 indicates better-than-average performance, adjusted for model structure, geographic scope, forecast horizon, epidemic trend, variant phase and location.
+#|   The ratio is the exponentiated random effect, which multiplies the expected LWIS relative to the population mean across models, where a ratio below 1 indicates better-than-average performance, adjusted for model structure by epidemiological outcome, whether a model forecast for one or many countries, forecast horizon, incidence, epidemic trend, variant phase and location.
 #|   (B) Rank of each model before and after adjustment, with the diagonal marking no change in rank, coloured by model structure.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 8
@@ -345,4 +342,3 @@ plot_model_variation(results$effects, ranks = ranks)
 Repeating the analysis on the natural scale of scores, and under alternative covariate sets, changed no estimate materially (Supplement).
 The exception was the choice of error family: refitting with a Gaussian in place of the Tweedie changed the size of every structure-by-outcome estimate and the direction of two of the five.
 Specifically, this widened the case-death difference for human judgement models, removed it for agent-based models, and reversed it for semi-mechanistic models.
-We explain this where using a Gaussian family is dominated by the largest scores, which fall disproportionately among case forecasts.
