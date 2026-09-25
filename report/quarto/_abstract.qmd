@@ -6,10 +6,10 @@ We identify common strategies for this problem, and demonstrate a regression-bas
 
 We evaluated 207,713 forecasts of weekly COVID-19 cases and deaths from 48 models over two years across 32 European countries, scored against observed data with the weighted interval score of log-transformed values (LWIS).
 We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement), and estimated the effect of model structure in a generalised additive mixed model adjusting for the epidemiological outcome, its level and trend, the dominant pathogen variant, the country, the forecast horizon, whether a model forecast for one or many countries, and differences between individual models.
-No model structure was clearly different from the overall average (ratios 0.97 to 1.08 of the average LWIS, all intervals spanning 1).
+No model structure was clearly different from the overall average (ratios 0.96 to 1.08 of the average LWIS, all intervals spanning 1).
 Instead, performance was driven by factors varying between forecast targets, such as the epidemic trend.
 We left substantial variation in individual model performance unexplained.
-Ranking individual models before and after adjustment gave a Spearman correlation of 0.37, with 19 of 48 models moving at least ten places.
+Ranking individual models before and after adjustment gave a Spearman correlation of 0.37, with 18 of 48 models moving at least ten places.
 
 Our model-based approach sits between informal and fully formal ways of handling bias in observational studies of forecast performance.
 Less formal designs such as stratification suffice with a single target or a structured sample of forecasters, while going further could include propensity weighting or a fully specified causal estimand.
