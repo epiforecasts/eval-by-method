@@ -24,6 +24,7 @@ arm_labels <- c(
   "sz" = "Sum-to-zero deviations",
   "sz + model re" = "Sum-to-zero deviations + model level",
   "fs" = "Penalised deviations",
+  "fs k4" = "Penalised deviations, k = 4",
   "factor re" = "Horizon as categories"
 )
 current <- arm_labels[["by-model"]]
@@ -169,6 +170,8 @@ That suggests three requirements for the horizon and model terms:
 | Sum-to-zero deviations + model level | `s(Horizon, k=3) + s(Model, Horizon, k=3, bs="sz") + s(Model, bs="re")` | yes                    | no                                            | no                                   |
 +--------------------------------------+-------------------------------------------------------------------------+------------------------+-----------------------------------------------+--------------------------------------+
 | Penalised deviations                 | `s(Horizon, k=3) + s(Horizon, Model, k=3, bs="fs")`                     | yes                    | yes, one smoothing parameter                  | yes                                  |
++--------------------------------------+-------------------------------------------------------------------------+------------------------+-----------------------------------------------+--------------------------------------+
+| Penalised deviations, k = 4          | `s(Horizon, k=4) + s(Horizon, Model, k=4, bs="fs")`                     | yes                    | yes, one smoothing parameter                  | yes                                  |
 +--------------------------------------+-------------------------------------------------------------------------+------------------------+-----------------------------------------------+--------------------------------------+
 | Horizon as categories                | `HorizonF + s(Model, bs="re") + s(Model, HorizonF, bs="re")`            | yes, horizon unordered | yes                                           | yes                                  |
 +--------------------------------------+-------------------------------------------------------------------------+------------------------+-----------------------------------------------+--------------------------------------+
