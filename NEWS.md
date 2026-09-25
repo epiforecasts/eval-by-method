@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Refit with the shared horizon curve
+
+`output/log/`, `output/natural/`, `output/diagnostics/`
+
+Both scales refitted with the `fs` horizon specification under `spec_label = "primary-fs"`. Log scale: unadjusted-vs-adjusted rank Spearman 0.44 to 0.37, models moving at least ten places 23 to 19; structure ratios 0.97 to 1.08, all intervals still spanning 1. The five models forecasting only horizon 1 now have estimated effects rather than zero. Manuscript text not yet updated.
+
 ## Unreleased — Horizon as a shared curve with penalised model deviations
 
 `R/analysis-model.R`, `R/utils-effects.R`
