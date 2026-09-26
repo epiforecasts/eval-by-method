@@ -483,8 +483,8 @@ plot_fit_obs(readRDS(here("output", "log", "fit_obs.rds")),
 
 ## Results
 
-Effects are deviations from the grand mean for each covariate under a sum-to-zero constraint.
-Negative values indicate better-than-average performance.
+Effects are random effects for each level of a covariate, relative to a forecast at the average level of that covariate with all other terms held fixed.
+Negative raw effects, or ratios below 1, indicate better-than-average performance.
 
 ### Partial effects across covariates
 
@@ -498,7 +498,7 @@ Partial effects of individual model structure and individual model are presented
 #| fig-cap: >-
 #|   Performance varied more between countries than between single- and
 #|   multi-country models. Partial effects (95% CI) for geographic scope and
-#|   country, as a ratio against the grand-mean LWIS.
+#|   country, as a ratio of the expected LWIS relative to the average level.
 # TODO. in supplement, panel target features into a single figure (A: epi outcome, B: epidemic trend, C: variant phase, D: country), next to it panel forecaster features (A: single/multi country, B: model structure); show adjusted effect only; use a sensible colour scale to differentiate groups. 
 plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 ```
@@ -510,14 +510,14 @@ plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 #| fig-cap: >-
 #|   Epidemic trend and variant phase both shifted performance, with increasing
 #|   trends and the Omicron BA.1 phase hardest to predict. Partial effects
-#|   (95% CI) as a ratio against the grand-mean LWIS.
+#|   (95% CI) as a ratio of the expected LWIS relative to the average level.
 
 plot_effects(results$effects, variables = c("Trend", "VariantPhase"))
 ```
 
 ### Partial effects on the raw scale
 
-The main-text figures and tables report exponentiated effects (multiplicative ratios relative to the grand-mean LWIS).
+The main-text figures and tables report exponentiated effects (multiplicative ratios of the expected LWIS relative to the average level of each factor).
 The table below gives the underlying raw partial effects from the fully adjusted model.
 
 ```{r}
