@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Horizon as a shared curve with penalised model deviations
+
+`R/analysis-model.R`, `R/utils-effects.R`
+
+The joint model replaces `s(Horizon, by = Model, k = 3, bs = "sz") + s(Model, bs = "re")` with `s(Horizon, k = 4) + s(Horizon, Model, k = 4, bs = "fs")`, following `R/sensitivity/check-horizon-spec.qmd`: one horizon curve shared by all models, and each model's curve penalised towards it. Both terms use k = 4, the maximum basis for four horizons; the sensitivity check has `fs` arms with k = 3 and k = 4 in both terms (the k = 4 arm is not yet fitted). The `fs` term carries each model's level, so the model random effect is dropped. A model's adjusted effect is now its `fs` deviation averaged over the horizons it forecast (`model_horizon_effects()`); `results$model_h1` holds the same at horizon 1 for the supplement. The univariate horizon fit is the shared curve alone. Outputs are not yet refitted.
+
 ## Unreleased — Sensitivity to the model-by-horizon specification
 
 `R/sensitivity/check-horizon-spec.R`, `R/sensitivity/check-horizon-spec.qmd`
