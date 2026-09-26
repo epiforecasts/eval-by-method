@@ -62,6 +62,7 @@ Evaluating across multiple forecast targets requires explicit accounting for the
 
 - **check-autocorrelation.R**: Temporal autocorrelation diagnostic
 - **check-link-robustness.R**: Robustness of results to the model link function
+- **check-horizon-spec.R** / **check-horizon-spec.qmd**: Sensitivity to the model-by-horizon specification (reduced model, six specifications; cached fits in `output/sensitivity/horizon-spec/`)
 - **model-building.qmd**: Notebook documenting model specifications tried
 
 ### Utility Scripts (R/)

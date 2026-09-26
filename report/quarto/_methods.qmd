@@ -1,5 +1,6 @@
 ### Study design
 
+We aimed to estimate the effect of model structure on forecast performance.
 We evaluated forecasts of incident COVID-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European COVID-19 Forecast Hub [@euroHub2021].
 The Hub solicited real-time forecasts one to four weeks ahead.
 Any forecaster was eligible for inclusion, with no selection criteria.
@@ -14,7 +15,6 @@ The log-transform can also be read as evaluating prediction of the growth rate [
 
 We scored forecasts with the weighted interval score (WIS), a proper scoring rule and generalisation of the continuous ranked probability score, reflecting a forecast's dispersion, overprediction and underprediction [@bracher2021].
 We report this log-transformed data evaluated with the WIS as the LWIS, and separately report the natural-scale WIS in the Supplement.
-We aimed to estimate the effect of model structure on forecast performance.
 
 #### Forecasting processes
 
@@ -23,12 +23,12 @@ Classification used self-reported metadata: an optional description of methods, 
 Four of us (KS, SF, FB, JM) classified models independently, with at least two rating each model.
 The majority vote determined the final classification, ties were resolved by an additional independent rater, and two investigators (SF, KS) reviewed all classifications.
 
-We classified each model as forecasting for a single country or for more than one, using a binary classification rather than a count because few teams submitted for between 2 and 32 countries, and because forecasters changed the number of targets they submitted over time.
+We classified each model as forecasting for a single country or for more than one, using a binary classification ("CountryTargets") rather than a count of countries because few models submitted for between 2 and 32 countries, and because forecasters changed the number of targets they submitted over time.
 A random effect for individual model identity separates the contribution of model structure from variation between individual implementations.
 
 #### Epidemiological target processes
 
-We include two epidemiological targets, incident cases or deaths, and considered these to separately interact with the effect of model structure.
+We include two epidemiological outcomes, incident cases or deaths, and considered these to separately interact with the effect of model structure.
 We then considered observed data associated with our view of important transmission dynamics.
 Upstream of transmission, we include the target country, as a proxy for population-level transmission behaviour and policy; and dominant circulating pathogen variant, classified from public sequence data into a discrete sequence of phases [@variant-data].
 Downstream of transmission, we identified the count of incident outcomes in the target week, and the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average (with a change of +/-5% as "Stable").
@@ -59,7 +59,7 @@ tweedie_p <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
   (\(x) as.numeric(sub(".*p=([0-9.]+).*", "\\1", x)))()
 ```
 
-We fitted a single hierarchical model across both epidemiological targets.
+We fitted a single hierarchical model across both epidemiological outcomes.
 The LWIS is continuous, non-negative and strongly right-skewed, so we treated the LWIS of each forecast $i$ as Tweedie-distributed with a log link, letting the linear predictor $\eta_i$ act multiplicatively on the expected score:
 
 $$
@@ -71,28 +71,31 @@ We adopted a Tweedie distribution to support forecasts scoring exactly zero.
 We compared this against a Gaussian and a Gamma on the same specification (see Supplement).
 The estimated $p$ was `r round(tweedie_p, 2)`, close to a Gamma, but a Gamma has no support at zero and would require an arbitrary constant for these scores.
 
-The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological target, random-effect contributions from categorical covariates, and two smooths for continuous covariates:
+The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological outcome, random-effect contributions from categorical covariates, and two smooths for continuous covariates:
 
 $$
-  \eta_i = \beta_0 \;+\; \beta_{\text{target}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+  \eta_i = \beta_0 \;+\; \beta_{\text{outcome}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
 $$
 
-Here $\beta_{\text{target}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
+Here $\beta_{\text{outcome}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
 
 $$
-  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Target},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
+  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location},\, \text{Model}\}.
 $$
 
-Model structure enters as a single grouping factor crossing with epidemiological target, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
-We report both the separate effects per target and the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
-The epidemiological target remains a fixed effect.
+Model structure enters as a single grouping factor crossing with epidemiological outcome, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
+We report both the separate effects per outcome and the pooled effect of each structure as a contrast averaging its two cells, which accounts for the covariance between them.
+The epidemiological outcome remains a fixed effect.
 Being unpenalised, this absorbs any difference common to all structures, leaving the crossed term to carry variation from it.
 Both choices are set out in the Supplement.
 
-$f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence, and $\{f^{\text{Horizon}}_k\}$ a factor-smooth interaction (sum-to-zero constrained, $k=3$ basis functions per model), allowing the horizon effect to vary by model.
+$f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence, and $\{f^{\text{Horizon}}_k\}$ a separate penalised smooth of horizon for each model ($k=3$ basis functions), each centred to average zero over the horizons of all forecasts, allowing the horizon effect to vary by model.
 
 We fitted all models with the `mgcv` package in R using fast restricted maximum likelihood [@wood2011].
 We checked fit by visual inspection of residuals and conducted extensive sensitivity analysis.
 To assess confounding, we also fitted univariate models to provide a comparison between unadjusted and adjusted estimates of the effect of model structure on LWIS.
+We report each categorical effect as the exponentiated random effect, which multiplies the expected LWIS relative to the population mean (a zero random effect), with all other terms held fixed; the epidemiological outcome is reported as deaths relative to cases.
+A ratio of 0.9 represents an expected LWIS 10% lower (better) than the population mean.
+We report raw partial effects in the Supplement.
 
 All data and code are publicly available online [@sherratt2025].

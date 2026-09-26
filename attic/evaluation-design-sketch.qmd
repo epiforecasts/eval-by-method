@@ -1,0 +1,203 @@
+---
+title: "Designing comparative forecast evaluation: a sketch"
+subtitle: "Separate methods piece proposed in issue #174"
+author: "Kath Sherratt"
+date: 2026-09-24
+format: html
+---
+
+## Argument
+
+Forecast hubs let forecasters choose their own targets, so the targets each model forecast differ in difficulty.
+Any comparison of forecasters therefore targets some estimand under some assumption about how that choice relates to difficulty, whether or not the evaluator states it.
+Current practice (crude means, overlap restriction, pairwise relative skill, baseline scaling, stratification) sits on a ladder of increasing formality borrowed, often unknowingly, from observational epidemiology.
+Each rung estimates a different quantity, and they can rank the same forecasters very differently (eval-by-method: Spearman 0.44 between crude and adjusted rankings).
+We set out the ladder with the estimand and assumption at each rung, use a DAG to make the assumptions checkable, and show by simulation where each rung recovers true skill and where it fails.
+The recommendation is to state the estimand first and match the formality of the design to the question and the data.
+
+## Where the material comes from
+
+| Source | Contributes |
+|---|---|
+| eval-by-method `report/quarto/_background.qmd` | Two-process figure (forecast- vs target-generating); ladder table |
+| eval-by-method `report/quarto/_discussion.qmd`, last paragraph | Rungs above regression; "match formality to the question" |
+| `attic/future-work.qmd`, earlier version (git history) | Eight causal extensions; the general ones are carried below |
+| DAG-reasoning sketch: written in `report/quarto/supplement/dag-reasoning-sketch.qmd` (28d5aae, May to June 2026), moved to branch `paper/dag-reasoning` (3a82d6d) during the joint-fit clean-up | Estimand types, confounder taxonomy, colliders, identifiability table, DAG iteration history |
+| `attic/regime-standardised-scores.qmd` | Crude vs standardised rate analogy; g-computation example; a negative result for standardising over epidemic phase |
+| Issue #168; `rank_models()` in `R/plot-model-results.R` | Crude vs adjusted ranking on real data; full ladder not yet built |
+| scoringutils `vignettes/handling-missing-forecasts.Rmd`; issues #1122, #1055, #1140 | The lab's current tools for non-comparable forecast sets, and the open discussion of model-based alternatives |
+
+## Section outline
+
+### 1. The problem
+
+- Hub evaluations compare scores across forecasters and read the differences as evidence about what works.
+- Two processes produce each score: the one generating the forecast and the one generating the target (eval-by-method Figure 1).
+- Forecasters choose targets, so the second process is not balanced across forecasters.
+- Two consequences: pseudoreplication (many forecasts, few independent forecasters) and confounding of method with target difficulty.
+
+### 2. The ladder of designs
+
+The spine of the paper.
+Each rung made explicit in three columns eval-by-method's table leaves out: implied estimand, assumption, cost.
+
+| Rung | Current practice | Implied estimand | Assumption | Cost |
+|---|---|---|---|---|
+| Unadjusted | Mean score per model over its own targets | Performance on the targets each model chose | Target choice unrelated to difficulty | None paid; bias if assumption fails |
+| Restriction | Common target set only | Performance on the intersection | Intersection is the population of interest | Power; generality |
+| Imputation | Worst, mean or reference score for missing targets | Performance on all targets under the imputation model | Imputation model correct | Depends on strategy; "worst" penalises by design |
+| Matching | Pairwise comparison on shared targets | Geometric mean of pairwise ratios | Transitivity across different overlaps | Sparse overlap; hard to state a population |
+| Indirect standardisation | Relative skill against a baseline | Performance relative to one reference | Reference is on every target and neutral | Rankings depend on the reference (Stapper & Funk) |
+| Stratification, direct standardisation | Scores by horizon, location, phase | Standardised mean over a reference stratum mix | Strata capture difficulty; no effect modification | Sparse cells; binning continuous covariates |
+| Regression adjustment | Model-based (eval-by-method) | Conditional effect; marginal via g-computation | Correct specification; positivity | Specification dependence |
+| Propensity weighting | Not yet used | Performance over all targets, weighted by inverse submission probability | Submission model correct; positivity | Unstable weights where overlap is poor |
+| Causal estimand with bias analysis | Not yet used | Stated contrast, e.g. total effect of structure | Exchangeability, consistency, positivity, no interference | Needs a defended DAG; unmeasured confounding bounded, not removed |
+
+Notes to carry into the text:
+
+- Pairwise comparison is itself a form of imputation (nikosbosse, scoringutils #1122).
+- Relative transforms and log-transformed scores inside a regression lose propriety (seabbs, #1055; eval-by-method rejected a log response for this reason). Model the score with a log link instead.
+- Standardisation over one variable fails when stratum ratios cross; the regime notebook found they do not cross for epidemic phase, so phase does not explain the case-death gap.
+
+### 3. Stating assumptions with a DAG
+
+From the DAG-reasoning sketch, cut to one section.
+
+- Vocabulary. Exposure: a feature of the modelling strategy. Outcome: expected score, of which each realised score is one draw. Unit: forecast, nested in model, nested in team.
+- Confounder taxonomy. Team level (latent capacity). Task level (time, location, variant, horizon, incidence, trend). Selection induced (submission persistence, ensemble inclusion).
+- Estimand types. Total effect of a strategy choice. Direct effect, holding validation effort (recalibration, ensembling) fixed. Controlled direct effect under a common recalibration, usually what is wanted and rarely identifiable.
+- Colliders that look like sensible adjustments: ensemble inclusion, submission persistence. Model identity absorbs the exposure.
+- Effect modification is not in the DAG. eval-by-method's structure-by-outcome interaction is the example: effects of opposite sign for cases and deaths average to a null.
+- DAG iteration as a finding in itself: each version exposed an assumption the previous one buried (v1 to v3 in the sketch; eval-by-method #162, `R/dag-check.R`).
+
+Identifiability, from the DAG-reasoning sketch:
+
+| Question | Identifiable from hub data? | Why |
+|---|---|---|
+| Within-team change in calibration approach over time | Yes | Capacity differenced out |
+| Between-team method-class comparison, capacity proxies adjusted | Bounded | Residual capacity confounding; quantify with E-values |
+| Marginal causal effect of choosing mechanistic over statistical | No | No instrument, no within-team variation, capacity unmeasured |
+| Effect of ensembling on WIS | Mediator on the pathway | Depends on whether the qualification choice is held fixed |
+
+### 4. Simulation
+
+Question: which rung recovers true forecaster skill, and true rankings, under which kind of target choice?
+
+Data-generating process:
+
+- M forecasters with true skill a_m; a subset grouped into structures with a group effect, for the effect-modification scenario.
+- T targets (location by outcome by week) with difficulty d_t = f(observed covariates) + u_t, u_t unobserved.
+- Score s_mt with log mean a_m + d_t, Tweedie or log-normal noise, exact zeros allowed.
+- Submission P(m forecasts t) = logistic(g_m + lambda * c_m * d_t), where c_m correlates with a_m at rho. lambda sets how strongly choice depends on difficulty; g_m sets overlap.
+- Truth: each forecaster's expected score over the full target population, as a ratio to the all-forecaster average. Rank truth from that.
+
+Scenarios:
+
+| Scenario | lambda, rho | Difficulty | Expectation |
+|---|---|---|---|
+| Random participation | 0 | Observed | All rungs unbiased; compare precision |
+| Selection on observed difficulty | > 0, rho ≠ 0 | Observed | Crude and pairwise biased; regression and weighting recover |
+| Selection on unobserved difficulty | > 0 | u_t drives choice | All biased; bias analysis bounds it |
+| Sparse overlap | Low g_m | Observed | Restriction and pairwise lose forecasts or fail |
+| Effect modification | Structure effect flips sign by outcome | Observed | Every pooled summary misleads; only stratified or interaction estimates recover |
+
+Rungs and implementation:
+
+| Rung | Implementation |
+|---|---|
+| Unadjusted | `scoringutils::summarise_scores(by = "model")` |
+| Restriction | `scoringutils::filter_scores()` with `filter_to_intersection()` |
+| Imputation | `scoringutils::impute_missing_scores()`, worst, mean and reference strategies |
+| Matching | `scoringutils::get_pairwise_comparisons()` |
+| Indirect standardisation | `get_pairwise_comparisons(baseline = )` |
+| Stratification | `summarise_scores(by = c("model", stratum))`, directly standardised to the pooled stratum mix |
+| Regression | `mgcv::bam()`, Tweedie log link, model random effect; marginal via `marginaleffects::avg_predictions()` |
+| Propensity weighting | Logistic submission model per forecaster, weighted mean score |
+
+Metrics: bias in relative skill; Spearman correlation with true ranking; share of forecasters moving ten or more places; interval coverage where the rung gives one; share of forecasts used; spread of each forecaster's rank across rungs, as a measure of design uncertainty (section 6).
+
+Keep it small: one parameter grid, a few hundred replicates, one figure per metric.
+`yardstick/scratchpad/sim-calibration/sim-calibration.R` is a usable template for simulation code layout.
+
+### 5. Real-data demonstration
+
+Finish #168: apply every rung to the European hub scores already in `data/scores-raw-{case|death}.csv`.
+Report the matrix of rank correlations between rungs and the rank-change plot from `plot_model_ranks()`.
+No new data work.
+The US hub port (listed in `attic/future-work.qmd`) would add external validity but is not needed for the argument.
+
+### 6. Recommendations for evaluators
+
+From the DAG-reasoning sketch, plus the ladder:
+
+- State the estimand before choosing the design.
+- Draw the DAG and publish it with the evaluation.
+- Separate reporting a leaderboard from inferring what works.
+- Report how many forecasts and forecasters each summary rests on (scoringutils #1220).
+- Choose the lowest rung that the question and data support; move up only when target choice plausibly tracks difficulty.
+- Report how far rankings move across designs, not only the ranking from the chosen design.
+
+Levels of uncertainty (Spiegelhalter & Riesch 2011) give the reason for the last two points.
+Their five levels run from event, parameter and model uncertainty inside a model, to acknowledged and unknown inadequacies outside it.
+The design ladder is a different axis, about bias in the comparison rather than depth of uncertainty, so this is one paragraph and not a second framework.
+
+| Level | In comparative evaluation |
+|---|---|
+| Event | Noise in any single score |
+| Parameter | Interval widths; pseudoreplication; effective number of independent forecasters |
+| Model | Choice of design rung and specification; rank changes across rungs make it visible |
+| Acknowledged inadequacy | Unmeasured confounding such as team capacity; E-values bound it |
+| Unknown inadequacy | Whatever the DAG leaves out |
+
+Climbing the ladder mostly converts acknowledged but unquantified bias from target choice into stated model uncertainty.
+Unmeasured confounding stays at the fourth level and can only be bounded.
+Reporting the spread of rankings across rungs, as in a multiverse analysis, quantifies the third level at no extra cost once the ladder is built.
+
+## Causal extensions taken from the Hub analysis list
+
+`attic/future-work.qmd` holds extensions to the European Hub analysis itself.
+These items from its earlier causal list belong here instead, as general design questions:
+
+| Item | Where in this sketch | Smallest next step |
+|---|---|---|
+| Formal DAG and adjustment set (done for the Hub: #162, `R/dag-check.R`) | Section 3 | Generalise to a template DAG for any hub |
+| Precise estimand; marginal standardisation | Sections 2 and 3 | One estimand sentence per rung in the ladder table |
+| Positivity and overlap | Section 4, sparse-overlap scenario | Define overlap in the simulation by `g_m` |
+| Missingness and response weighting | Section 4, propensity rung | Specify the submission model |
+| Identifying assumptions, incl. no interference | Section 3 | One paragraph per assumption, with the design choice that supports it |
+
+The Hub-specific versions (overlap cross-tab, participation figure, E-values) stay in `attic/future-work.qmd`.
+
+## Positioning
+
+| Work | What it does | What this adds |
+|---|---|---|
+| Bracher et al. 2021; euro-hub-ensemble (eLife 2023) | Pairwise relative WIS to handle missingness | Names it as one rung with its own estimand |
+| Stapper & Funk, "Mind the baseline" | Baseline choice changes rankings | Places baseline scaling on the ladder beside the alternatives |
+| Kim, Ray & Reich 2026, IJF (doi:10.1016/j.ijforecast.2025.12.006) | Missing forecasts in model-importance metrics; simulation framework | Treats target choice as confounding, not only missingness |
+| scoringutils missing-forecasts vignette, #1122 | Filtering and imputation tools | Model-based and weighting rungs; when each tool is enough |
+| scoringutils #1055 (seabbs) | Argues a model-based approach would resolve non-comparable sets | Tests that claim by simulation |
+| performance-above-replacement | Same confounding logic for ensemble contributions | Shared simulation code, possibly |
+| Spiegelhalter & Riesch 2011, Phil Trans R Soc A (doi:10.1098/rsta.2011.0163) | Five levels of uncertainty, within and outside a model | Places design choice at the model level and unmeasured confounding at acknowledged inadequacy |
+
+Kim, Ray & Reich 2026 and Spiegelhalter & Riesch 2011 are not yet in `report/references.bib`.
+
+## Outputs and timing
+
+| Order | Output | When | Who |
+|---|---|---|---|
+| 1 | This sketch | Now, while eval-by-method is with reviewers | Kath |
+| 2 | Simulation as a scoringutils article on comparing forecasters who chose different targets | 2027 | Kath, with jcken95 and seabbs if #1140 is still open |
+| 3 | Short methods paper, about 3,000 to 4,000 words | After 2 | Kath; co-authors to decide |
+| 4 | Trim eval-by-method's Background | Only if 3 is published first | Kath |
+
+eval-by-method must stand alone while under review, so its Background stays as is.
+kath-a-log places this under plot #96 (forecast evaluation methods); Autumn and Winter 2026 hold `for:curiosity` work back, so steps 2 onwards start in 2027.
+
+## Open questions
+
+- Simulation or conceptual only? This sketch assumes a small simulation (the DAG-reasoning sketch left it open).
+- Engage with the scoring-rule literature (proper scores as estimands), or stay with study design?
+- How much of the Schlesinger qualification, verification and validation framing from the DAG-reasoning sketch to keep: a paragraph, or a structuring device?
+- European hub alone, or add the US hub for external validity?
+- Venue: IJF, a methods section of an epidemiology journal, or a commentary alongside eval-by-method?

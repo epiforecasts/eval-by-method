@@ -1,0 +1,134 @@
+.reveal .poll {
+  font-size: 1.1em;
+  margin: 1em 0;
+  padding: 0.6em 1em;
+  border-left: 6px solid #225ea8;
+  background: #f4f7fb;
+}
+
+.reveal .bignum p {
+  font-size: 1.1em;
+  margin: 0.4em 0;
+}
+
+.reveal .model {
+  font-family: "Menlo", "Consolas", monospace;
+  font-size: 0.8em;
+  padding: 0.6em 1em;
+  background: #f5f5f5;
+  border-radius: 6px;
+}
+
+.reveal .stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1em;
+  margin: 0.8em 0;
+  text-align: center;
+  font-size: 0.7em;
+  color: #444;
+}
+
+.reveal .stats span {
+  display: block;
+  font-size: 2.4em;
+  font-weight: 600;
+  color: #225ea8;
+}
+
+.reveal .crumb {
+  display: block;
+  margin-top: -0.6em;
+  margin-bottom: 0.6em;
+  font-size: 0.5em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7785;
+}
+
+.reveal .roadmap {
+  display: grid;
+  grid-template-rows: auto auto;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.4em 0.5em;
+  margin: 0.6em 0;
+}
+
+.reveal .roadmap .step {
+  padding: 0.5em 0.6em;
+  border-radius: 6px;
+  font-size: 0.7em;
+  line-height: 1.25;
+}
+
+.reveal .roadmap.summary .step { font-size: 0.5em; }
+
+.reveal .roadmap .step p { margin: 0; }
+
+.reveal .roadmap .theory { background: #e8eef7; border-top: 4px solid #225ea8; }
+.reveal .roadmap .data { background: #fbeee4; border-top: 4px solid #993404; }
+
+.reveal .tag {
+  display: block;
+  font-size: 0.7em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 0.3em;
+}
+
+.reveal .smaller-text { font-size: 0.7em; }
+
+.reveal .caption {
+  display: block;
+  font-size: 0.5em;
+  color: #555;
+  margin-top: 0.4em;
+}
+
+.reveal .approaches table { font-size: 0.75em; }
+
+.reveal .cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6em;
+}
+
+.reveal .cards .card {
+  padding: 0.5em 0.8em;
+  border: 1px solid #d6dde6;
+  border-left: 5px solid #225ea8;
+  border-radius: 6px;
+  font-size: 0.85em;
+}
+
+.reveal .cards .card h3 { font-size: 1.2em; margin: 0 0 0.3em; }
+
+.reveal .impact {
+  display: block;
+  margin-top: 0.4em;
+  font-weight: 600;
+  color: #993404;
+}
+
+.reveal .model-slide table { font-size: 0.8em; }
+.reveal .model-slide table td, .reveal .model-slide table th { padding: 0.15em 0.4em; }
+
+.reveal .margin-note {
+  margin-top: 0.8em;
+  padding-left: 0.6em;
+  border-left: 3px solid #993404;
+  font-size: 0.85em;
+  color: #555;
+}
+
+.reveal blockquote {
+  width: auto;
+  margin: 0;
+  padding: 0.3em 0.6em;
+  font-size: 0.95em;
+}
+
+.reveal h2 { font-size: 1.1em; line-height: 1.2; text-wrap: balance; }
+.reveal #title-slide .title { font-size: 1.4em; line-height: 1.15; }

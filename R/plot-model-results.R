@@ -185,10 +185,10 @@ plot_model_ranks <- function(ranks) {
 
   p <- ggplot(
     ranks,
-    aes(x = rank_unadjusted, y = rank_adjusted, colour = classification)
+    aes(x = rank_unadjusted, y = rank_adjusted, colour = classification, shape = classification)
   ) +
     geom_abline(slope = 1, intercept = 0, lty = 2, colour = "grey50") +
-    geom_point(aes(shape = classification), size = 1.8, alpha = 0.9) +
+    geom_point(size = 1.8, alpha = 0.9) +
     scale_x_continuous(
       limits = c(1, n_models),
       breaks = c(1, seq(10, n_models, by = 10))
@@ -197,15 +197,19 @@ plot_model_ranks <- function(ranks) {
       limits = c(1, n_models),
       breaks = c(1, seq(10, n_models, by = 10))
     ) +
-    scale_colour_manual(values = plot_config$method_colours) +
+    scale_colour_manual(values = plot_config$method_colours,
+                       breaks = plot_config$method_levels) +
+    scale_shape_manual(values = c(16, 17, 15, 18, 8),
+                      breaks = plot_config$method_levels) +
     coord_equal() +
     labs(
       x = "Unadjusted rank (1 = best)",
       y = "Adjusted rank (1 = best)",
-      colour = NULL
+      colour = NULL,
+      shape = NULL
     ) +
     # five structures do not fit on one row at this panel width
-    guides(colour = guide_legend(nrow = 2)) +
+    guides(colour = guide_legend(nrow = 2), shape = guide_legend(nrow = 2)) +
     theme(legend.position = "bottom", strip.background = element_blank())
 
   return(p)
