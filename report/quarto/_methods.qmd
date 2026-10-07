@@ -101,7 +101,7 @@ We checked fit by visual inspection of residuals and conducted extensive sensiti
 To assess confounding, we also fitted univariate models to provide a comparison between unadjusted and adjusted estimates of the effect of model structure on LWIS.
 We report each categorical effect as the exponentiated random effect, which multiplies the expected LWIS relative to the population mean (a zero random effect), with all other terms held fixed; the epidemiological outcome is reported as deaths relative to cases.
 A ratio of 0.9 represents an expected LWIS 10% lower (better) than the population mean.
-We report each individual model's effect as its deviation from the shared horizon curve, averaged over the horizons it forecast.
+We report each individual model's effect as its average deviation from the shared horizon curve over the horizons for which that model forecast.
 We report raw partial effects in the Supplement.
 
 All data and code are publicly available online [@sherratt2025].
