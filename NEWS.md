@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Rank comparison by quartile
+
+`R/plot-model-results.R`, `report/quarto/_abstract.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`, `report/references.bib`, `slides/lab-meeting.qmd`
+
+The count of models moving at least ten places, an arbitrary threshold, is replaced by the share of models changing quartile of the ranking: 30 of 48 (62.5%), against 75% expected if the two rankings were unrelated. Spearman (0.37) is kept as the whole-set measure. `rank_models()` adds each model's quartile, `summarise_ranks()` drops the threshold and furthest-move fields, and `tabulate_rank_quartiles()` gives the 4x4 quartile transition table, now in the supplement (11 models moved two or more quartiles). The rank panel marks quartile boundaries. The Discussion notes that the rank comparison counts every change equally, citing Carterette (2009) for uncertainty-aware ranking distances. Kendall's tau and rank-sum or Kolmogorov–Smirnov tests were considered: tau tells the same whole-set story as Spearman, and the distribution tests have nothing to detect, since both rankings are 1 to 48.
+
 ## Unreleased — Text updated for the shared horizon curve
 
 `report/quarto/_abstract.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`, `submission/development-since-first-submission.md`, `CLAUDE.md`
