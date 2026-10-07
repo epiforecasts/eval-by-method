@@ -9,7 +9,7 @@ We classified models by structure (agent-based, mechanistic, semi-mechanistic, s
 No model structure was clearly different from the overall average (ratios 0.96 to 1.08 of the average LWIS, all intervals spanning 1).
 Instead, performance was driven by factors varying between forecast targets, such as the epidemic trend.
 We left substantial variation in individual model performance unexplained.
-Ranking individual models before and after adjustment gave a Spearman correlation of 0.37, with 18 of 48 models moving at least ten places.
+When ranking individual models by their performance relative to others in the sample, we noted an individual model's ordinal position was only weakly persistent before-and-after adjustment (Spearman's rank correlation 0.37).
 
 Our model-based approach sits between informal and fully formal ways of handling bias in observational studies of forecast performance.
 Less formal designs such as stratification suffice with a single target or a structured sample of forecasters, while going further could include propensity weighting or a fully specified causal estimand.
