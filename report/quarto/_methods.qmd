@@ -5,7 +5,7 @@ We evaluated forecasts of incident COVID-19 cases and deaths for 32 European cou
 The Hub solicited real-time forecasts one to four weeks ahead.
 Any forecaster was eligible for inclusion, with no selection criteria.
 For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or that were more than four weeks ahead.
-Models could forecast any subset of the four horizons, and 8 of 48 did not forecast all four.
+Models could forecast any subset of the four horizons, noting that 8 of 48 did not forecast all four.
 We also excluded the ensemble of all Hubs models.
 Full eligibility and a STROBE flow diagram are given in the Supplement.
 
