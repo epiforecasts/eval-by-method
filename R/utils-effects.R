@@ -171,3 +171,42 @@ extract_ranef_terms <- function(fit, ci_level = 0.95, digits = 3) {
     list_rbind() |>
     mutate(across(where(is.numeric), \(x) round(x, digits)))
 }
+
+# Per-model effect under s(Horizon, Model, bs = "fs"): each model's deviation
+# from the shared horizon curve, averaged over horizons. There is no separate
+# s(Model) term, because the fs term already carries each model's level.
+#
+# `horizons = NULL` averages over the horizons each model actually forecast, with
+# equal weight per horizon, so a model is never judged on horizons it did not
+# forecast. A fixed vector (e.g. 1) evaluates every model at those horizons.
+# Each effect is a linear contrast of the fs coefficients, so its interval uses
+# the full posterior covariance.
+model_horizon_effects <- function(fit, horizons = NULL, ci_level = 0.95,
+                                  digits = 3) {
+  fs <- keep(fit$smooth, \(s) inherits(s, "fs.interaction"))
+  if (length(fs) != 1) {
+    stop("Fit must contain one s(Horizon, Model, bs = \"fs\") term.")
+  }
+  fs <- fs[[1]]
+  idx <- fs$first.para:fs$last.para
+  models <- levels(droplevels(fit$model$Model))
+
+  grid <- if (is.null(horizons)) {
+    distinct(fit$model, Model, Horizon)
+  } else {
+    expand.grid(Model = models, Horizon = horizons)
+  }
+  grid <- mutate(grid, Model = factor(Model, levels = levels(fit$model$Model)))
+  X <- PredictMat(fs, grid)
+
+  n_coef <- length(coef(fit))
+  contrasts <- map(models, function(m) {
+    cvec <- numeric(n_coef)
+    cvec[idx] <- colMeans(X[grid$Model == m, , drop = FALSE])
+    cvec
+  })
+  bind_cols(
+    tibble(group_var = "Model", effect = "Intercept", group = models),
+    contrast_effects(fit, contrasts, ci_level, digits)
+  )
+}
