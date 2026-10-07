@@ -375,7 +375,6 @@ The same deviation at one week ahead, which every model forecast, is given under
 
 An earlier specification, `s(Horizon, by = Model, k = 3)`, fitted a separate curve for each model with no shared curve.
 Its linear part was unpenalised, and each curve was centred over all forecasts rather than over the model's own.
-For the five models forecasting only one week ahead, the data fix only the sum of the model's level and its slope term, so the fit put the level into the unpenalised slope and left the model effect at exactly zero.
 Alternative specifications are compared in `R/sensitivity/check-horizon-spec.qmd`.
 
 ### Model fitting {#model-fitting}
