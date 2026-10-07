@@ -374,7 +374,6 @@ We report a model's effect as its deviation averaged over the horizons it foreca
 The same deviation at one week ahead, which every model forecast, is given under Results.
 
 An earlier specification, `s(Horizon, by = Model, k = 3)`, fitted a separate curve for each model with no shared curve.
-Its linear part was unpenalised, and each curve was centred over all forecasts rather than over the model's own.
 Alternative specifications are compared in `R/sensitivity/check-horizon-spec.qmd`.
 
 ### Model fitting {#model-fitting}
