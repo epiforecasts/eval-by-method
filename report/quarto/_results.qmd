@@ -308,7 +308,7 @@ We report the total set of modelled effects in the Supplement.
 Most of the difference between individual model performance was left unexplained (@fig-model-variation A).
 We accounted for whether models forecast for one or multiple countries, with 19 models forecasting for a single country and 29 for multiple countries (of which only 2 kept the same number of countries throughout, see Supplement).
 Both estimates were shrunk to the average (single-country ratio `r table_effects["Adjusted_Single-country","ratio_ci"]`; multi-country ratio `r table_effects["Adjusted_Multi-country","ratio_ci"]`), explaining none of the difference between models.
-Forecast horizon entered the model as a curve shared by all models, with each model's deviation from it carrying the individual model effect; the crude gradient across horizons is given above.
+We specified the effect of forecast horizon as a single shared curve among all models, from which each model deviated in its own set of forecast horizons.
 
 ```{r}
 #| label: results-ranks
