@@ -321,7 +321,7 @@ rank_summary <- summarise_ranks(ranks)
 
 We compared this remaining variation between individual models in terms of ranked model order.
 Ranking models by their performance before and after adjustment gives a Spearman correlation of `r round(rank_summary$spearman, 2)`.
-`r rank_summary$n_moved` of `r rank_summary$n` models moved at least `r rank_summary$threshold` places, with the furthest moving `r rank_summary$max_change` places (@fig-model-variation B).
+`r rank_summary$n_quartile_changed` of `r rank_summary$n` models (`r round(rank_summary$pct_quartile_changed, 1)`%) changed quartile of the ranking, compared with `r rank_summary$pct_quartile_chance`% expected if the two rankings were unrelated (@fig-model-variation B; Supplement).
 
 ```{r}
 #| label: fig-model-variation
@@ -329,7 +329,7 @@ Ranking models by their performance before and after adjustment gives a Spearman
 #|   Individual models differ in performance after adjustment, so which models look best depends on how the evaluation is designed.
 #|   (A) Adjusted performance ratio (95% CI) for each model, ordered by effect and labelled by the model's unadjusted rank.
 #|   The ratio is the exponentiated deviation of each model from the shared horizon curve, averaged over the horizons it forecast, which multiplies the expected LWIS relative to the population mean across models, where a ratio below 1 indicates better-than-average performance, adjusted for model structure by epidemiological outcome, whether a model forecast for one or many countries, forecast horizon, incidence, epidemic trend, variant phase and location.
-#|   (B) Rank of each model before and after adjustment, with the diagonal marking no change in rank, coloured by model structure.
+#|   (B) Rank of each model before and after adjustment, with the diagonal marking no change in rank and grey lines marking rank quartiles, coloured by model structure.
 #|   LWIS = weighted interval score of log-transformed forecasts and observations.
 #| fig-height: 8
 #| fig-width: 11
