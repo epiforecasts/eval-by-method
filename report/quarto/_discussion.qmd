@@ -21,6 +21,7 @@ We allowed each individual model its own deviation from a shared horizon curve, 
 We also only partially accounted for variation among forecast targets.
 For example, real-time data were frequently updated retrospectively, with different frequencies and magnitudes between national surveillance and reporting systems [@holcomb2023], so the target a forecast was scored against was not always the target available when it was made.
 Nonetheless, varying the inclusion of some covariates, the link function, and the error family left the partial effects of model structure essentially unchanged (see Supplement).
+Our comparison of model rankings also counted every change in rank equally, including between models whose performance was indistinguishable; ranking distances that account for uncertainty in each model's performance would be more robust [@carterette2009].
 
 We adopted a coarse characterisation of the forecasting process, while a more sophisticated view could point towards interventions to improve forecast accuracy.
 We pre-specified five structures by their inclusion of mechanism, but we had little access to model metadata, raters disagreed on most semi-mechanistic models, and we did not track changes to each model's methods over time.
