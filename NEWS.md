@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Text updated for the shared horizon curve
+
+`report/quarto/_abstract.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`, `submission/development-since-first-submission.md`, `CLAUDE.md`
+
+Abstract numbers follow the refit (structure ratios 0.96 to 1.08; rank Spearman 0.37, 18 of 48 models moving at least ten places). Methods describes the shared horizon curve and penalised per-model deviations, drops Model from the random-effect set, defines the model effect as the deviation averaged over a model's horizons, and corrects the inclusion criterion: forecasts more than four weeks ahead were excluded, but models were not required to forecast all four horizons (#180). The Tweedie power and supplement statistics read the `primary-fs` row. The supplement gains a section on the horizon specification and a figure of model effects at one week ahead, and no longer describes effects as sum-to-zero.
+
 ## Unreleased — Refit with the shared horizon curve
 
 `output/log/`, `output/natural/`, `output/diagnostics/`

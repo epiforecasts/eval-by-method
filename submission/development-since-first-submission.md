@@ -175,7 +175,7 @@ Fit statistics are in `output/diagnostics/fit-summary.csv`, keyed on (`spec_labe
 | — | Interaction at the level of individual model (#158, option 3) | Not built. Adding the structure interaction left individual model effects essentially unchanged (correlation 0.995), and a per-model effect is constant across outcomes so cannot represent a within-model difference |
 | — | Reclassify judgement models as "Ensemble" (#158, option 4; #24) | Not built. Would allow the Hub ensemble back in; no code written |
 | — | Nest Model within Method (reviewer 1.8) | Branch `nest-model-in-method`, two commits, never merged. Handled instead as crossed random effects |
-| — | Horizon basis `bs="fs"` vs `bs="sz"` (#57); time-spline k (#58) | `bs="sz"` adopted to centre on zero given the by-model intercept; the k question resolved by removing the time spline |
+| — | Horizon basis `bs="fs"` vs `bs="sz"` (#57); time-spline k (#58) | `bs="sz"` adopted, but it was a no-op: mgcv applies `sz` only to a factor inside `s()`, not to a `by` factor. Replaced by a shared curve plus `bs="fs"` deviations (#182). The k question resolved by removing the time spline |
 
 `attic/model-building.qmd` was meant to be the record of this process. It is an incomplete stub with broken fences, a duplicated unadjusted fit, and a pre-interaction formula, and names three checks never built:
 
