@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Refit with the shared horizon curve
+
+`output/log/`, `output/natural/`, `output/diagnostics/`
+
+Both scales refitted with the `fs` horizon specification, k = 4 in both terms, under `spec_label = "primary-fs"`. Log scale: unadjusted-vs-adjusted rank Spearman 0.44 to 0.37, models moving at least ten places 23 to 18; structure ratios 0.96 to 1.08, all intervals still spanning 1. Natural scale: the semi-mechanistic ratio moves from 1.50 (0.94–2.39) to 1.57 (1.04–2.35), no longer spanning 1. The five models forecasting only horizon 1 now have estimated effects rather than zero. An intermediate k = 3 fit gave near-identical model effects (Spearman 0.997 log, 0.979 natural).
+
 ## Unreleased — Horizon as a shared curve with penalised model deviations
 
 `R/analysis-model.R`, `R/utils-effects.R`
