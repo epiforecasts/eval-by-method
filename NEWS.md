@@ -5,9 +5,26 @@ Newest first.
 
 ## Unreleased — Rank comparison by quartile
 
-`R/plot-model-results.R`, `report/quarto/_abstract.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`, `report/references.bib`, `slides/lab-meeting.qmd`
+`R/plot-model-results.R`, `report/quarto/_results.qmd`, `_discussion.qmd`, `report/quarto/supplement/_estimates.qmd`, `report/references.bib`, `slides/lab-meeting.qmd`
 
 The count of models moving at least ten places, an arbitrary threshold, is replaced by the share of models changing quartile of the ranking: 30 of 48 (62.5%), against 75% expected if the two rankings were unrelated. Spearman (0.37) is kept as the whole-set measure. `rank_models()` adds each model's quartile, `summarise_ranks()` drops the threshold and furthest-move fields, and `tabulate_rank_quartiles()` gives the 4x4 quartile transition table, now in the supplement (11 models moved two or more quartiles). The rank panel marks quartile boundaries. The Discussion notes that the rank comparison counts every change equally, citing Carterette (2009) for uncertainty-aware ranking distances. Kendall's tau and rank-sum or Kolmogorov–Smirnov tests were considered: tau tells the same whole-set story as Spearman, and the distribution tests have nothing to detect, since both rankings are 1 to 48.
+
+## Unreleased — Supplement split into modular fragments
+
+`report/supplement.qmd`, `report/supplement/`, `report/quarto/supplement/`, `R/analysis-supplement.R`, `_quarto.yml`, `.github/workflows/render-report.yaml`
+
+The supplement is now assembled from seven fragments under `report/quarto/supplement/` (`_setup`, `_intro`, `_data`, `_covariates`, `_model`, `_estimates`, `_sensitivity`), mirroring the manuscript's include pattern.
+`report/supplement.qmd` includes all seven and renders to a single PDF at `_site/report/supplement.pdf`.
+Six new pages under `report/supplement/` (`index`, `data`, `covariates`, `model`, `estimates`, `sensitivity`) include the same fragments and render as separate website pages.
+The navbar's Supplement item is now a dropdown linking each page plus the combined PDF.
+`report/supplement/index.qmd` carries an `aliases` entry so the old `report/supplement.html` URL still resolves, landing on the overview page rather than a specific section.
+`fit_stats` and `stat_of()` moved from a chunk in the supplement to `R/analysis-supplement.R`, since both are now needed in two different fragments.
+The natural-scale sensitivity chunk's `scores` and `ensemble` are renamed `scores_natural` and `ensemble_natural`, so no fragment can read the wrong scale.
+Captioned figure and table chunk labels are renamed from `supplement-<x>` to `fig-supp-<x>` or `tbl-supp-<x>`; captions given via `kable(caption = ...)` moved to the chunk's `tbl-cap` option.
+Four previously uncaptioned floats now have a caption; the ranks table's caption, which depends on a value computed in the same chunk, is split into a data chunk and a captioned table chunk using `tbl-cap: !expr`.
+In-page `#id` links that now cross pages are rewritten as format-aware pairs, linking to an in-document anchor in the PDF and to the target page on the website.
+CI (`render-report.yaml`) installs TinyTeX before rendering, since the PDF build needs a LaTeX engine the runner doesn't otherwise have.
+Numbering configuration (`crossref`) for the new figure and table labels is not yet added; it depends on a chapter-lettered numbering scheme being finalised separately so labels match between the web pages and the PDF.
 
 ## Unreleased — Text updated for the shared horizon curve
 
@@ -31,7 +48,7 @@ The joint model replaces `s(Horizon, by = Model, k = 3, bs = "sz") + s(Model, bs
 
 `R/sensitivity/check-horizon-spec.R`, `R/sensitivity/check-horizon-spec.qmd`
 
-The primary model writes the horizon term as `s(Horizon, by = Model, k = 3, bs = "sz")`, but mgcv ignores `bs = "sz"` when the factor is a `by` variable and fits ordinary thin-plate smooths, so the per-model curves were never constrained to sum to zero across models (#57 was closed by d3c3299 without taking effect). Because performance is known to degrade with horizon, the horizon terms should include a shared curve with penalised per-model deviations; specifications are judged on that, not on fit statistics. A reduced model, LWIS ~ outcome + model + horizon, is fitted under six specifications (additive, by-model, `sz`, `sz` with the model random effect, `fs`, and a factor random effect) to show how each behaves, comparing each model's level and horizon gradient against the by-model specification used in the primary analysis. Only `fs` meets the requirements with an ordered horizon.
+The primary model writes the horizon term as `s(Horizon, by = Model, k = 3, bs = "sz")`, but mgcv ignores `bs = "sz"` when the factor is a `by` variable and fits ordinary thin-plate smooths, so the per-model curves were never constrained to sum to zero across models (#57 was closed by d3c3299 without taking effect). Because performance is known to degrade with horizon, the horizon terms should include a shared curve with penalised per-model deviations; specifications are judged on that, not on fit statistics. A reduced model, LWIS ~ outcome + model + horizon, is fitted under seven specifications (additive, by-model, `sz`, `sz` with the model random effect, `fs` with k = 3 and with k = 4 in both terms, and a factor random effect) to show how each behaves, comparing each model's level and horizon gradient against the by-model specification used in the primary analysis. Only `fs` meets the requirements with an ordered horizon.
 Under the by-model term, the models not forecasting all four horizons (#180) have their level absorbed by the unpenalised part of their horizon curve, so the five forecasting only horizon 1 have adjusted model effects at the prior in the primary fit.
 
 ## Unreleased — Future work split: Hub extensions and evaluation-design sketch

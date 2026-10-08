@@ -15,6 +15,14 @@ library(janitor)
 library(kableExtra)
 library(stringr)
 
+# Fit statistics lookup ----
+fit_stats <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
+                      show_col_types = FALSE)
+stat_of <- function(label, scale, col, digits = 1) {
+  round(as.numeric(fit_stats[[col]][fit_stats$spec_label == label &
+                                      fit_stats$scale == scale]), digits)
+}
+
 # Detailed participation table ----
 table_confint <- function(scores, group_var = NULL) {
   total_forecasts <- nrow(scores)

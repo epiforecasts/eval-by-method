@@ -1,0 +1,7 @@
+---
+title: "Covariate derivation"
+---
+
+{{< include ../quarto/supplement/_setup.qmd >}}
+
+{{< include ../quarto/supplement/_covariates.qmd >}}

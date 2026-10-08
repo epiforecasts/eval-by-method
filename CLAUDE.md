@@ -1,12 +1,29 @@
 # Project Overview
 
-This is an R-based research project analyzing COVID-19 forecast accuracy across European models. The study examines how model structure and geographic specificity influence forecast performance using data from the European COVID-19 Forecast Hub.
+This is an R-based research project analysing COVID-19 forecast accuracy across European models.
 
-## Research Question
+## Abstract
 
-How do model structure (mechanistic vs statistical) and geographic specificity (single-location vs multi-location models) affect forecast accuracy after adjusting for predictive difficulty?
+Source of truth: `report/quarto/_abstract.qmd`. Copy below, resync when that file changes.
 
-See `report/Research-narrative.md` for additional project context.
+Forecasters predicting infectious disease outbreaks meet with varying success.
+When many forecasters each predict many different targets, it is difficult to identify why their performance varies.
+Considering this variation, we separate the process of creating a forecast from the process generating the target it predicts.
+Comparing across combinations of the two conflates the method a forecaster used with the difficulty of the targets they chose, while stratifying by these factors leaves too few comparable forecasts.
+We identify common strategies for this problem, and demonstrate a regression-based approach to evaluation with sparse data.
+
+We evaluated 207,713 forecasts of weekly COVID-19 cases and deaths from 48 models over two years across 32 European countries, scored against observed data with the weighted interval score of log-transformed values (LWIS).
+We classified models by structure (agent-based, mechanistic, semi-mechanistic, statistical, or human judgement), and estimated the effect of model structure in a generalised additive mixed model adjusting for the epidemiological outcome, its level and trend, the dominant pathogen variant, the country, the forecast horizon, whether a model forecast for one or many countries, and differences between individual models.
+No model structure was clearly different from the overall average (ratios 0.96 to 1.08 of the average LWIS, all intervals spanning 1).
+Instead, performance was driven by factors varying between forecast targets, such as the epidemic trend.
+We left substantial variation in individual model performance unexplained.
+When ranking individual models by their performance relative to others in the sample, we noted an individual model's ordinal position was only weakly persistent before-and-after adjustment (Spearman's rank correlation 0.37).
+
+Our model-based approach sits between informal and fully formal ways of handling bias in observational studies of forecast performance.
+Less formal designs such as stratification suffice with a single target or a structured sample of forecasters, while going further could include propensity weighting or a fully specified causal estimand.
+As infectious disease forecasting grows, we encourage evaluators to match the formality of the design to the question and the data available.
+Evaluating across multiple forecast targets requires explicit accounting for the variation producing each target, before considering what varies within the forecasting process.
+
 
 ## Project Structure
 
@@ -25,7 +42,9 @@ See `report/Research-narrative.md` for additional project context.
   - Models WIS adjusting for: trend, location, time, horizon, model-specific effects
   - Isolates impact of Method (model structure) and CountryTargets (geographic specificity)
   - Uses `mgcv`, `gammit`, and `gratia` packages
-  - Outputs: `output/results.rds`
+  - Outputs (per scale, under scale-named subdirs of `output/` — `log/`, `natural/`): `results.rds` (includes fitted `data`), `fit_obs.rds`, and diagnostic plots (`plots/check_joint.png`)
+  - Defines `model_wis(scoring_scale, family_link = "log", output_dir, spec_label)`; sourcing alone fits nothing. Call it once per scale (`log`, `natural`) to write outputs. Must be run separately before rendering — it is **not** sourced by `report/quarto/_results.qmd`, which only reads `output/log/results.rds`
+  - `spec_label` archives that fit's `appraise()` panel and residual/fit statistics under `output/diagnostics/`, upserting a row in `fit-summary.csv` keyed on (`spec_label`, `scale`) so successive model specifications stay comparable. Pass a new label whenever the specification changes.
 
 - **analysis-descriptive.R**: Descriptive statistics and summary tables
   - Bootstrap confidence intervals
@@ -35,11 +54,20 @@ See `report/Research-narrative.md` for additional project context.
   - Adjusted vs unadjusted effects by model
   - Supports anonymized output for peer review
 
-- **plot-model-flow.R**: Workflow and flowchart visualizations
+- **plot-model-flow.R**: STROBE-style model-inclusion flowchart (`create_model_flow()` → `output/flowchart.png`)
+
+- **dag-check.R**: Defines and visualises the DAG used to reason about confounding (`ggdag`)
+
+### Sensitivity Scripts (R/sensitivity/)
+
+- **check-autocorrelation.R**: Temporal autocorrelation diagnostic
+- **check-link-robustness.R**: Robustness of results to the model link function
+- **check-horizon-spec.R** / **check-horizon-spec.qmd**: Sensitivity to the model-by-horizon specification (reduced model, six specifications; cached fits in `output/sensitivity/horizon-spec/`)
+- **model-building.qmd**: Notebook documenting model specifications tried
 
 ### Utility Scripts (R/)
 
-- **utils-data.R**: Functions for accessing forecasts, observations, and population data
+- **utils-data.R**: Access forecasts, observations, and population data; `download_obs()` / `download_pop()` also write CSVs to `data/`
 - **utils-metadata.R**: Model names, submissions, and metadata classification helpers
 - **utils-variants.R**: COVID-19 variant phase classification
 
@@ -50,21 +78,32 @@ See `report/Research-narrative.md` for additional project context.
 - `model-classification.csv`: Model categorization by structure and specificity
 - `populations.csv`: Population data by location
 - `scores-raw-{case|death}.csv`: Computed forecast scores (generated)
+- `variants/`: Raw variant-surveillance inputs (`ch-hosp.csv`, `ch-wgs.csv`, `eu-ecdc.csv`, `uk-ukhsa.csv`) used by `utils-variants.R`
 
 ### Manuscript text (prose and writing)
 
-- `report/Revision_manuscript.md` — full manuscript text (title, abstract, background, methods, results, discussion). **Edit this file for any writing changes.**
-- `report/Research-narrative.md` — Overall narrative of the research, and paragraph-by-paragraph one-line summary of the manuscript text
-- `submission/reviewer-response-analysis.md` — tracks reviewer suggestions and planned response; X marks completion. Consult when making revision-related changes.
+The manuscript prose lives in per-section Quarto files under `report/quarto/`, assembled by `report/manuscript.qmd`. **Edit the relevant section file for any writing change:**
+
+- `report/quarto/_abstract.qmd` — abstract
+- `report/quarto/_background.qmd` — background
+- `report/quarto/_methods.qmd` — methods
+- `report/quarto/_results.qmd` — results (also holds the analysis code chunks)
+- `report/quarto/_discussion.qmd` — discussion
+- `report/quarto/_references.qmd` — references
+- `report/quarto/supplement/` — supplement prose and code, as seven fragments (`_setup`, `_intro`, `_data`, `_covariates`, `_model`, `_estimates`, `_sensitivity`), one section each. Edit the relevant fragment for any supplement writing change; fragments hold subsections only (no top-level section heading, which the including page supplies).
+- `submission/Revision_reviews-response.md` — tracks reviewer suggestions and planned response; X marks completion. Consult when making revision-related changes.
+- `submission/first/` — archived original submission (manuscript PDF/DOCX, cover letter, supplement, `reviews.md`, and the `results.rds` from that round).
 
 ### Rendered analysis (code and outputs)
 
-- `report/results.qmd` — active Quarto document; sources R scripts and renders figures/tables for the results section
-- `report/supplement/Supplement.Rmd` — supplementary materials; sources the same R scripts
-- `report/results.Rmd` — legacy RMarkdown copy of results (inactive; use `.qmd`)
+- `report/manuscript.qmd` — assembles the `report/quarto/_*.qmd` sections. Not itself a render target: its includes are project-root-relative (`/report/quarto/…`), which only resolve when a file at the repo root is the top-level document. Render `index.qmd` instead (see below).
+- `report/quarto/_results.qmd` — results section; sources R scripts and renders figures/tables.
+- `report/supplement.qmd` — combined supplement, PDF only. Includes all seven `report/quarto/supplement/_*.qmd` fragments in order and renders to `_site/report/supplement.pdf`. Includes are relative (`quarto/supplement/_x.qmd`), not project-root-relative.
+- `report/supplement/` — supplement website pages, one per section (`index`, `data`, `covariates`, `model`, `estimates`, `sensitivity`), each a thin wrapper including the setup fragment and its own section fragment via a relative path (`../quarto/supplement/_x.qmd`). `report/supplement/_metadata.yml` sets the shared front matter (toc, code-fold). `index.qmd` carries an `aliases` entry so the pre-split `report/supplement.html` URL still resolves, landing on the overview page.
+- Site build (`quarto render` uses `_quarto.yml` → `_site/`): renders `index.qmd` (a thin wrapper including `report/manuscript.qmd`), `report/supplement.qmd`, and the pages under `report/supplement/`. The navbar's Supplement item is a dropdown linking each page plus the combined PDF. Bibliography `report/references.bib`, style `report/plos-computational-biology.csl`. CI (`render-report.yaml`) installs TinyTeX before rendering, needed for the supplement PDF build.
 - Pre-print: [medRxiv 10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
 
-**Note**: manuscript prose and rendered analysis are separate. `Revision_manuscript.md` is not auto-generated — changes to analysis code and changes to Manuscript text must be coordinated manually.
+**Note**: manuscript prose and rendered analysis are separate. The section `.qmd` files are not auto-generated — changes to analysis code and changes to manuscript text must be coordinated manually.
 
 ## Reproducing the Analysis
 
@@ -87,23 +126,32 @@ source(here("R", "process-score.R"))
 # 2. Prepare and integrate data
 source(here("R", "process-data.R"))
 
-# 3. Fit GAMM to weighted interval scores
+# 3. Fit GAMM to weighted interval scores (run before rendering).
+#    Sourcing only DEFINES model_wis(); call it per scale to write output/<scale>/.
 source(here("R", "analysis-model.R"))
+model_wis(scoring_scale = "log",     output_dir = here("output", "log"),
+          spec_label = "primary-fs")
+model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
+          spec_label = "primary-fs")
 
-# 4. Generate reports
-# Render report/results.qmd
-# Knit report/supplement/Supplement.Rmd
+# 4. Render the manuscript alone (supplement is a separate page)
+#    Render index.qmd, NOT report/manuscript.qmd — the latter's includes are
+#    project-root-relative and fail when it is the top-level document.
+# quarto render index.qmd
+
+# Or build the full two-page website (manuscript + supplement, with navbar):
+# quarto render   # uses root _quarto.yml; renders index.qmd and report/supplement.qmd
 ```
 
 ## Making Changes
 
 | Task | Where to edit |
 |---|---|
-| Change manuscript prose (wording, framing, conclusions) | `report/Revision_manuscript.md` + update in `Research-narrative.md` |
-| Change analysis, model, or figures | Relevant `R/` script; outputs flow into `results.qmd` automatically |
-| Respond to a reviewer comment | Check `report/Revision_reviews-response.md`, update `R/` script if needed, then update `report/Revision_manuscript.md`, mark as completed in `report/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
-| Add or change a supplementary figure | Relevant `R/` script + `report/supplement/Supplement.Rmd` |
-| All changes | Update `Plan.md` |
+| Change manuscript prose (wording, framing, conclusions) | Relevant `report/quarto/_*.qmd` section file |
+| Change analysis, model, or figures | Relevant `R/` script. `_results.qmd` sources `process-data.R`, `analysis-descriptive.R`, `plot-model-results.R` at render. But `analysis-model.R` and `plot-model-flow.R` are **not** sourced — re-run `model_wis()` per scale (and regenerate the flowchart) to refresh `output/` before rendering |
+| Respond to a reviewer comment | Check `submission/Revision_reviews-response.md`, update `R/` script if needed, then update the relevant `report/quarto/_*.qmd`, mark as completed in `submission/Revision_reviews-response.md`, and close the relevant Github Issue with a note |
+| Add or change a supplementary figure | Relevant `R/` script + the relevant `report/quarto/supplement/_*.qmd` fragment |
+| All changes | Update `NEWS.md` (change log; newest first) |
 
 ## Dependencies
 
@@ -117,8 +165,14 @@ Major R packages:
 - `here` - Path management
 - `lubridate` - Date handling
 
-## Publications
+## Task list
 
-- **DOI**: [10.5281/zenodo.14903161](https://doi.org/10.5281/zenodo.14903161)
-- **Pre-print**: [10.1101/2025.04.10.25325611](https://doi.org/10.1101/2025.04.10.25325611)
-- **Slides**: [Google Slides](https://docs.google.com/presentation/d/1BSdTEuZ_zKdU8tBFuRMmP7GwHht1D0oZSkaFWovz9ao/edit?slide=id.p)
+Outstanding issues.
+Status: [ ] not started, [x] done.
+- [x] Update manuscript text to clarify what the structure term reports. Superseded by the structure-by-outcome interaction (#158): the pooled effect is now a contrast across a structure's two cells and carries real estimates, so the text reports imprecision rather than a term shrunk to nothing.
+- [ ] Model fitting outputs are labelled `primary-fs` in `output/diagnostics/fit-summary.csv`. Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row.
+- [x] Untrack the Quarto freeze cache on branch `supplementary-descriptive`. Done on that branch only (commit 6553f40, not pushed): 46 files untracked, `/_freeze/` added to `.gitignore`, `NEWS.md` noted. `main` never tracked the cache.
+- [ ] Add `crossref` numbering configuration for the `fig-supp-*`/`tbl-supp-*` labels introduced by the modular supplement split, once the chapter-lettered numbering scheme (so labels match between the web pages and the PDF) is finalised in a local spike.
+
+### Verification
+After changing `analysis-model.R` (or upstream scoring/data), regenerate the saved model outputs first — the manuscript reads `output/log/results.rds` and `fit_obs.rds`, it does not re-fit. Stale outputs render silently wrong, or break (e.g. the supplement density chunk needs `results$data`). Then run `quarto render index.qmd` for the manuscript alone, or `quarto render` for the full site, and check figures render correctly.

@@ -1,0 +1,172 @@
+## Source data and code
+
+Forecast and observed data were sourced from the European COVID-19 Forecast Hub, available to view at <https://covid19forecasthub.eu/> .
+All Hub data are now archived at:
+
+-   Github: <https://github.com/european-modelling-hubs/covid19-forecast-hub-europe_archive>
+-   Zenodo with DOI: <https://doi.org/10.5281/zenodo.13986751>
+
+Data for this work were downloaded on 30th May 2023.
+These data are available in the Github repository for this paper at: <https://github.com/epiforecasts/eval-by-method/tree/main/data>
+
+The codebase for this paper is publicly available at:
+
+-   Github: <https://github.com/epiforecasts/eval-by-method>
+-   Zenodo with DOI: <https://doi.org/10.5281/zenodo.14903162>
+
+Comments and code contributions are welcome - please use Github [Issues](https://github.com/epiforecasts/eval-by-method/issues).
+
+Please cite code using:
+
+-   Katharine Sherratt & Sebastian Funk. (2025). epiforecasts/eval-by-method: Zenodo. <https://doi.org/10.5281/zenodo.14903162>
+
+## Study participation
+
+Forecasting teams were recruited to the European Covid-19 Forecast Hub using existing networks and ECDC publicity.
+Any forecaster was eligible to participate, and there were no selection criteria.
+All participation was voluntary and unrenumerated.
+Forecasters contributed a standard set of metadata describing their team and model, and uploaded forecasts weekly.
+Forecasters were optionally able to express uncertainty by reporting a distribution of up to 23 probabilistic quantiles for each prediction.
+Forecasts were validated against minimal formatting requirements for quantile intervals and that values were positive integers.
+
+For this study, we collected all forecasts from between 8 March 2021 to 10 March 2023.
+We excluded forecasts of hospitalisations, which experienced multiple changes in source data during the study period.
+We excluded forecasts that did not report the full set of 23 quantiles, in order to ensure fair comparison among probabilistic model results.
+We also excluded the ensemble model created by the Hub team, because it is constructed from the contributed forecasts and so would double-count them.
+We retained the Hub baseline model: it is an independently specified statistical model, and including it gives a naive reference point against which participant forecasts can be read.
+
+```{r}
+#| label: supplement-model-flow-counts
+#| include: false
+
+# Written by create_model_flow() in R/plot-model-flow.R alongside the flowchart,
+# so the counts here and in the figure come from one source
+flow_counts <- read_csv(here("output", "model-flow-counts.csv")) |>
+  (\(x) setNames(x$n_models, paste(x$target_variable, x$step)))()
+```
+
+Of `r flow_counts[["case submitted"]]` models submitting case forecasts during the study period, `r flow_counts[["case included"]]` met these criteria; of `r flow_counts[["death submitted"]]` submitting death forecasts, `r flow_counts[["death included"]]` did.
+
+```{r}
+#| label: fig-supp-model-flow
+#| fig-cap: "Eligibility criteria for models contributing case (left) and death (right) forecasts to the European COVID-19 Forecast Hub, March 2021 - March 2023"
+
+# source(here("R", "plot-model-flow.R")) to regenerate this and the counts above
+knitr::include_graphics(here("output", "flowchart.png"))
+```
+
+Characteristics of contributing models:
+
+```{r}
+#| label: tbl-supp-metadata
+#| tbl-cap: >-
+#|   Model characteristics contributing to the European COVID-19 Forecast Hub, by method used, number of countries targeted, and number of forecasts contributed.
+
+table_metadata <- function(scores) {
+    classification <- classify_models() |>
+        select(Model = model, Method = classification)
+    model_scores <- scores |>
+        group_by(Model, epi_target) |>
+        table_confint() |>
+        select(Model, epi_target, Forecasts = n_forecasts)
+    country_targets <- table_targets(scores) |>
+        select(Model, epi_target, CountryTargets)
+    metadata_table <- classification |>
+        left_join(model_scores) |>
+        mutate(Description = paste0("[Metadata](https://raw.githubusercontent.com/european-modelling-hubs/covid19-forecast-hub-europe_archive/refs/heads/main/model-metadata/", Model, ".yml)")) |>
+        inner_join(country_targets) |>
+        mutate(
+            epi_target = sub("s$", " forecasts", epi_target)
+        ) |>
+        pivot_wider(
+            names_from = "epi_target",
+            values_from = "Forecasts",
+            values_fill = ""
+        ) |>
+        rename("Country Targets" = CountryTargets) |>
+        arrange(Model)
+    return(metadata_table)
+}
+
+table_metadata(scores) |>
+  select(-Description) |>
+  kable()
+```
+
+Number of models participating in forecasting 1-week ahead case incidence for each country over the study period.
+
+```{r}
+#| label: fig-supp-participation
+#| fig-cap: >-
+#|   Participation varied by country and over time, and by model structure.
+#|   Number of models forecasting one week ahead for each country and week, by
+#|   model structure and epidemiological outcome.
+
+target_matrix <- scores |>
+distinct(epi_target, Location, forecast_date, Horizon) |>
+mutate(across(everything(), as.factor)) |>
+complete(epi_target, Location, forecast_date, Horizon)
+
+target_count <- scores |>
+group_by(epi_target, Location, forecast_date, Horizon) |>
+add_count(Method)
+
+scores_mean_method <- scores |>
+  group_by(epi_target, Location, target_end_date, Horizon, Method) |>
+  summarise(
+    wis_mean_method = mean(wis, na.rm = TRUE),
+    n = n()
+  )
+scores_mean_method |>
+  filter(Horizon == 1) |>
+  ggplot(aes(x = target_end_date, y = Location, fill = n)) +
+  geom_tile() +
+  scale_fill_binned(breaks = 0:10, palette = "Viridis") +
+  labs(x = NULL, y = "Country", fill = "Number of models") +
+  facet_grid(rows = vars(Method), cols = vars(epi_target)) +
+  theme(legend.position = "bottom")
+```
+
+We explored how models selected geographic targets over time.
+Forecasters both added and removed targets among the set for which they forecast each week.
+This figure shows number of targets submitted by each model at the 1-week ahead horizon.
+We noted the same variation for 2-4 week forecasts.
+
+```{r}
+#| label: fig-supp-target-count
+#| fig-cap: >-
+#|   The number of countries targeted by each model forecasting for 1-week ahead incidence of Covid-19 cases or deaths, shown by classification of model structure.
+#|   Each forecaster selected any number of targets from a set of 32 countries.
+
+target_time <- scores|>
+group_by(epi_target, Method, Horizon, forecast_date, Model) |>
+summarise(targets = n_distinct(Location),
+ae_median = median(ae_median))
+
+target_time |>
+filter(Horizon==1) |>
+ggplot(aes(x = forecast_date, y = targets,
+col = Model)) +
+geom_line(alpha = 0.3) +
+geom_point(alpha = 0.3, position = "jitter") +
+facet_grid(cols = vars(epi_target), rows = vars(Method)) +
+labs(x = "Forecast week", y = "Number of target countries") +
+theme(legend.position = "none")
+```
+
+The main text shows this same relationship as aggregated percentile bands.
+At the level of individual forecasts, the same data show where forecasts actually concentrate and where scores cluster or trail off.
+
+```{r}
+#| label: fig-supp-error-density
+#| fig-cap: >-
+#|   Density of individual forecasts by observed incidence per 100,000 population and
+#|   weighted interval score (WIS, log scale), for COVID-19 cases and deaths across 32
+#|   European countries, faceted by forecast horizon (columns, weeks ahead). Hexagonal
+#|   bins are coloured by the number of forecasts they contain (log scale). This is the
+#|   forecast-level detail behind the main text's percentile bands of the same relationship.
+#| fig-height: 5
+#| fig-width: 10
+
+plot_error_vs_obs_hex(scores)
+```

@@ -1,0 +1,3 @@
+This supplement supports "Using model-based evaluation to interpret variation in infectious disease forecast performance".
+It is organised as the analysis runs: how forecasts and observations were sourced and who took part; how the covariates were derived; how the model was specified and fitted; the full set of estimates behind the main-text figures; and the sensitivity analyses.
+Every number and figure here is generated from the same fitted model as the main text, `output/log/results.rds`.
