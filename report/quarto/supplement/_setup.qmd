@@ -1,0 +1,27 @@
+```{r}
+#| label: supplement-set-up
+#| include: false
+
+library(here)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(ggplot2)
+library(gratia)
+library(patchwork)
+source(here("R", "process-data.R"))
+source(here("R", "analysis-descriptive.R"))
+source(here("R", "plot-model-results.R"))
+source(here("R", "analysis-supplement.R"))
+theme_set(theme_classic())
+knitr::opts_chunk$set(
+  eval = TRUE,
+  echo = FALSE,
+  message = FALSE, warning = FALSE
+)
+# Load data
+scores <- process_data(scoring_scale = "log")
+scores <- scores |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model))
+results <- readRDS(here("output", "log", "results.rds"))
+```
