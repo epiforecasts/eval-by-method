@@ -11,18 +11,18 @@ Status is taken from `submission/development-since-first-submission.md`, Appendi
 
 ## Temporal consistency
 
-| Extension | Existing work | Status | Smallest next step |
-|---|---|---|---|
-| Forecast stability: how much a model revises its forecast of a fixed target week between horizons | Branch `exploratory-stability` (2bd13ae): `attic/stability.R`, `attic/stability.qmd`, Cramér distance between successive forecasts | Built, not merged | Merge the attic files to `main`; decide whether stability is a second outcome or a covariate for accuracy |
-| Temporal autocorrelation in scores | `R/sensitivity/check-autocorrelation.R` | Diagnosed, not modelled; script broken since `model-logresp.R` was deleted (c5a7c93) | Point the script at the primary fit; refit with AR(1) residuals (`bam(rho = )`) and compare structure SEs |
-| Lagged ensemble of the Hub ensemble | Same branch, `attic/ensemble-lag.R` | Done; negative result | None. Record the result if stability is merged |
+  | Extension                                                                                         | Existing work                                                                                                                      | Status                                                                               | Smallest next step                                                                                        |
+  | ---                                                                                               | ---                                                                                                                                | ---                                                                                  | ---                                                                                                       |
+  | Forecast stability: how much a model revises its forecast of a fixed target week between horizons | Branch `exploratory-stability` (2bd13ae): `attic/stability.R`, `attic/stability.qmd`, Cramér distance between successive forecasts | Built, not merged                                                                    | Merge the attic files to `main`; decide whether stability is a second outcome or a covariate for accuracy |
+  | Temporal autocorrelation in scores                                                                | `R/sensitivity/check-autocorrelation.R`                                                                                            | Diagnosed, not modelled; script broken since `model-logresp.R` was deleted (c5a7c93) | Point the script at the primary fit; refit with AR(1) residuals (`bam(rho = )`) and compare structure SEs |
+  | Lagged ensemble of the Hub ensemble                                                               | Same branch, `attic/ensemble-lag.R`                                                                                                | Done; negative result                                                                | None. Record the result if stability is merged                                                            |
 
 Stability findings so far:
 
-| Finding | Cases | Deaths |
-|---|---|---|
-| Revisions outside the previous forecast's 95% interval (nominal 5%) | 18% | 11% |
-| Mechanistic models' coherence gap against peers on the same target, after matching | −10.7 points | −5.4 points |
+  | Finding                                                                            | Cases        | Deaths      |
+  | ---                                                                                | ---          | ---         |
+  | Revisions outside the previous forecast's 95% interval (nominal 5%)                | 18%          | 11%         |
+  | Mechanistic models' coherence gap against peers on the same target, after matching | −10.7 points | −5.4 points |
 
 Case forecasts are revised around five times as much as death forecasts.
 Instability peaks with Omicron BA.1 in January 2022, the same hard period the accuracy analysis identifies, found without using observations.
@@ -30,51 +30,49 @@ Raw differences by structure mostly vanish once revisions are matched on target,
 
 ## Target data and revisions
 
-| Extension | Existing work | Status | Smallest next step |
-|---|---|---|---|
-| Data-revision covariate from the Hub archive `anomalies.csv` | `attic/plan-target-fixed-effect.md` (design, joins, fixed-factor term) | Plan only | Tabulate anomaly coverage for cases and deaths by country and date; coverage may cluster in hospitalisations and early 2021 |
-| Scoring against data available at forecast time versus final data | Discussion names this as partial adjustment (Holcomb et al. 2023) | Not started | Check whether the Hub archive keeps dated truth snapshots |
-| Forecaster stability versus target stability | Idea in `attic/plan-target-fixed-effect.md` | Idea only | Pair the stability measure with first-report-to-final revision size per country-week |
+  | Extension                                                         | Existing work                                                          | Status      | Smallest next step                                                                                                          |
+  | ---                                                               | ---                                                                    | ---         | ---                                                                                                                         |
+  | Data-revision covariate from the Hub archive `anomalies.csv`      | `attic/plan-target-fixed-effect.md` (design, joins, fixed-factor term) | Plan only   | Tabulate anomaly coverage for cases and deaths by country and date; coverage may cluster in hospitalisations and early 2021 |
+  | Scoring against data available at forecast time versus final data | Discussion names this as partial adjustment (Holcomb et al. 2023)      | Not started | Check whether the Hub archive keeps dated truth snapshots                                                                   |
+  | Forecaster stability versus target stability                      | Idea in `attic/plan-target-fixed-effect.md`                            | Idea only   | Pair the stability measure with first-report-to-final revision size per country-week                                        |
 
 ## Sample, participation and exposure
 
-| Extension | Existing work | Status | Smallest next step |
-|---|---|---|---|
-| Overlap of structures across targets (positivity) | `a046045` reports how sparse the sample becomes | Not done | Cross-tab of structure by country-target and variant phase |
-| Missingness and differential attrition by structure | Median participation row in Table 1 | Not done | Submission rate by model over time; sensitivity restricted to models submitting in at least 80% of eligible weeks |
-| Structure mix against the US Hub | `attic/model-building.qmd` | Not done | Compare structure proportions using the US models already in `data/model-classification.csv` |
-| Misclassification sensitivity | `attic/model-building.qmd` | Never built; #129 and #130 answered descriptively | Refit with models reallocated by second-ranked rater vote |
-| Team resources as a measured confounder | `attic/notebook.qmd` | Not started | Contributor counts per team from Hub metadata |
-| Why judgement forecasters do better on one outcome than the other (#158) | — | Not started | Needs a policy tracker or data-revision history |
-| Reclassify judgement models as "Ensemble" to let the Hub ensemble back in (#158, #24) | — | Not built | Decide the classification rule first |
+  | Extension                                                                             | Existing work                                   | Status                                            | Smallest next step                                                                                                |
+  | ---                                                                                   | ---                                             | ---                                               | ---                                                                                                               |
+  | Overlap of structures across targets (positivity)                                     | `a046045` reports how sparse the sample becomes | Not done                                          | Cross-tab of structure by country-target and variant phase                                                        |
+  | Missingness and differential attrition by structure                                   | Median participation row in Table 1             | Not done                                          | Submission rate by model over time; sensitivity restricted to models submitting in at least 80% of eligible weeks |
+  | Structure mix against the US Hub                                                      | `attic/model-building.qmd`                      | Not done                                          | Compare structure proportions using the US models already in `data/model-classification.csv`                      |
+  | Misclassification sensitivity                                                         | `attic/model-building.qmd`                      | Never built; #129 and #130 answered descriptively | Refit with models reallocated by second-ranked rater vote                                                         |
+  | Team resources as a measured confounder                                               | `attic/notebook.qmd`                            | Not started                                       | Contributor counts per team from Hub metadata                                                                     |
+  | Why judgement forecasters do better on one outcome than the other (#158)              | —                                               | Not started                                       | Needs a policy tracker or data-revision history                                                                   |
+  | Reclassify judgement models as "Ensemble" to let the Hub ensemble back in (#158, #24) | —                                               | Not built                                         | Decide the classification rule first                                                                              |
 
 ## Inference and robustness
 
-| Extension | Existing work | Status | Smallest next step |
-|---|---|---|---|
-| E-values for unmeasured confounding | `@vanderweele2017` cited in Discussion | Not done | E-value for each structure contrast |
-| Effective sample size | — | Not done | n at each level and ICC-implied n for the structure term |
-| WIS decomposition into dispersion, over- and underprediction | `attic/decompose-wis.R`, a brms draft regressing WIS on its own components, which sum to WIS by definition | Never run | Fit the primary model to each component separately, with `mgcv` |
+  | Extension                                                    | Existing work                                                                                              | Status    | Smallest next step                                              |
+  | ---                                                          | ---                                                                                                        | ---       | ---                                                             |
+  | E-values for unmeasured confounding                          | `@vanderweele2017` cited in Discussion                                                                     | Not done  | E-value for each structure contrast                             |
+  | Effective sample size                                        | —                                                                                                          | Not done  | n at each level and ICC-implied n for the structure term        |
+  | WIS decomposition into dispersion, over- and underprediction | `attic/decompose-wis.R`, a brms draft regressing WIS on its own components, which sum to WIS by definition | Never run | Fit the primary model to each component separately, with `mgcv` |
 
 ## External validity
 
-| Extension | Existing work | Status | Smallest next step |
-|---|---|---|---|
-| Port to the US COVID-19 Forecast Hub | `attic/port-to-us-forecast-hub.md` | Not started | Feasibility spike on deaths only, with variant phase stubbed |
+  | Extension                            | Existing work                      | Status      | Smallest next step                                           |
+  | ---                                  | ---                                | ---         | ---                                                          |
+  | Port to the US COVID-19 Forecast Hub | `attic/port-to-us-forecast-hub.md` | Not started | Feasibility spike on deaths only, with variant phase stubbed |
 
 ## Loose ideas
 
-From `attic/notebook.qmd`, not yet scoped:
+Not yet scoped:
 
 - Simpson's paradox: cases where the ensemble moves in the opposite direction to all its components.
+- propensity match scores by similarity of forecast target?
 - Forecast trend against observed trend.
-- Cramér distance among models, as model genealogy (kath-a-log #35).
+- Cramér distance among models, as model genealogy.
 - Ensemble performance as a function of size.
 
-## Suggested order
+# Trialled, discarded
 
-1. Merge the stability branch: the work is done and has results.
-2. Anomaly coverage check: decides whether the data-revision covariate is viable.
-3. Overlap cross-tab and participation figure: descriptive, ready for the supplement if reviewers ask.
-4. E-values and effective sample size.
-5. US Hub port, only if a further paper needs it.
+- Score 'standardisation' against background epidemic regime.
+  See regime-standardised-score.qmd
