@@ -88,3 +88,6 @@ README_files/
 # Standalone slide renders (the site build writes to _site/)
 /slides/*.html
 /slides/*_files/
+# Rendered sensitivity notebooks (render locally from the .qmd)
+/R/sensitivity/*.html
+/R/sensitivity/*_files/

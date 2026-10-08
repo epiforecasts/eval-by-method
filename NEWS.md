@@ -20,6 +20,31 @@ In-page `#id` links that now cross pages are rewritten as format-aware pairs, li
 CI (`render-report.yaml`) installs TinyTeX before rendering, since the PDF build needs a LaTeX engine the runner doesn't otherwise have.
 Numbering configuration (`crossref`) for the new figure and table labels is not yet added; it depends on a chapter-lettered numbering scheme being finalised separately so labels match between the web pages and the PDF.
 
+## Unreleased — Text updated for the shared horizon curve
+
+`report/quarto/_abstract.qmd`, `_methods.qmd`, `_results.qmd`, `_discussion.qmd`, `report/supplement.qmd`, `submission/development-since-first-submission.md`, `CLAUDE.md`
+
+Abstract numbers follow the refit (structure ratios 0.96 to 1.08; rank Spearman 0.37, 18 of 48 models moving at least ten places). Methods describes the shared horizon curve and penalised per-model deviations, drops Model from the random-effect set, defines the model effect as the deviation averaged over a model's horizons, and corrects the inclusion criterion: forecasts more than four weeks ahead were excluded, but models were not required to forecast all four horizons (#180). The Tweedie power and supplement statistics read the `primary-fs` row. The supplement gains a section on the horizon specification and a figure of model effects at one week ahead, and no longer describes effects as sum-to-zero.
+
+## Unreleased — Refit with the shared horizon curve
+
+`output/log/`, `output/natural/`, `output/diagnostics/`
+
+Both scales refitted with the `fs` horizon specification, k = 4 in both terms, under `spec_label = "primary-fs"`. Log scale: unadjusted-vs-adjusted rank Spearman 0.44 to 0.37, models moving at least ten places 23 to 18; structure ratios 0.96 to 1.08, all intervals still spanning 1. Natural scale: the semi-mechanistic ratio moves from 1.50 (0.94–2.39) to 1.57 (1.04–2.35), no longer spanning 1. The five models forecasting only horizon 1 now have estimated effects rather than zero. An intermediate k = 3 fit gave near-identical model effects (Spearman 0.997 log, 0.979 natural).
+
+## Unreleased — Horizon as a shared curve with penalised model deviations
+
+`R/analysis-model.R`, `R/utils-effects.R`
+
+The joint model replaces `s(Horizon, by = Model, k = 3, bs = "sz") + s(Model, bs = "re")` with `s(Horizon, k = 4) + s(Horizon, Model, k = 4, bs = "fs")`, following `R/sensitivity/check-horizon-spec.qmd`: one horizon curve shared by all models, and each model's curve penalised towards it. Both terms use k = 4, the maximum basis for four horizons; the sensitivity check has `fs` arms with k = 3 and k = 4 in both terms (the k = 4 arm is not yet fitted). The `fs` term carries each model's level, so the model random effect is dropped. A model's adjusted effect is now its `fs` deviation averaged over the horizons it forecast (`model_horizon_effects()`); `results$model_h1` holds the same at horizon 1 for the supplement. The univariate horizon fit is the shared curve alone. Outputs are not yet refitted.
+
+## Unreleased — Sensitivity to the model-by-horizon specification
+
+`R/sensitivity/check-horizon-spec.R`, `R/sensitivity/check-horizon-spec.qmd`
+
+The primary model writes the horizon term as `s(Horizon, by = Model, k = 3, bs = "sz")`, but mgcv ignores `bs = "sz"` when the factor is a `by` variable and fits ordinary thin-plate smooths, so the per-model curves were never constrained to sum to zero across models (#57 was closed by d3c3299 without taking effect). Because performance is known to degrade with horizon, the horizon terms should include a shared curve with penalised per-model deviations; specifications are judged on that, not on fit statistics. A reduced model, LWIS ~ outcome + model + horizon, is fitted under seven specifications (additive, by-model, `sz`, `sz` with the model random effect, `fs` with k = 3 and with k = 4 in both terms, and a factor random effect) to show how each behaves, comparing each model's level and horizon gradient against the by-model specification used in the primary analysis. Only `fs` meets the requirements with an ordered horizon.
+Under the by-model term, the models not forecasting all four horizons (#180) have their level absorbed by the unpenalised part of their horizon curve, so the five forecasting only horizon 1 have adjusted model effects at the prior in the primary fit.
+
 ## Unreleased — Future work split: Hub extensions and evaluation-design sketch
 
 `attic/future-work.qmd`, `attic/evaluation-design-sketch.qmd`

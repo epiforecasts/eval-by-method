@@ -138,3 +138,41 @@ ranks |>
   ) |>
   kable_styling(full_width = FALSE)
 ```
+
+## Individual model effects at one week ahead {#model-h1}
+
+```{r}
+#| label: fig-supp-model-h1
+#| fig-cap: >-
+#|   Individual model effects evaluated at one week ahead, the horizon every model
+#|   forecast, against the effect averaged over the horizons each model forecast
+#|   (main text). Each point is a model, as the exponentiated deviation from the
+#|   shared horizon curve; the dashed line marks equality.
+#| fig-height: 4
+#| fig-width: 5
+
+model_h1 <- results$effects |>
+  filter(model == "Adjusted", group_var == "Model") |>
+  select(group, average = value) |>
+  inner_join(select(results$model_h1, group, h1 = value), by = "group") |>
+  left_join(
+    scores |>
+      group_by(group = as.character(Model)) |>
+      summarise(horizons = factor(n_distinct(Horizon), levels = 1:4)),
+    by = "group"
+  )
+h1_spearman <- cor(model_h1$average, model_h1$h1, method = "spearman")
+
+ggplot(model_h1, aes(x = exp(average), y = exp(h1), colour = horizons)) +
+  geom_abline(slope = 1, intercept = 0, lty = 2, colour = "grey50") +
+  geom_point() +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_colour_viridis_d(end = 0.85, drop = FALSE) +
+  labs(x = "Ratio, averaged over forecast horizons",
+       y = "Ratio at one week ahead",
+       colour = "Horizons forecast") +
+  theme(legend.position = "bottom")
+```
+
+Spearman correlation between the two: `r round(h1_spearman, 2)`.
