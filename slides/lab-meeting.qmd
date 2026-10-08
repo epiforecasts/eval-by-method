@@ -494,7 +494,7 @@ plot_model_ranks(ranks) + theme_classic(base_size = 13) +
 :::
 
 Spearman `r sprintf("%.2f", rank_summary$spearman)`.
-`r rank_summary$n_moved` of `r rank_summary$n` models move at least `r rank_summary$threshold` places; the furthest moves `r rank_summary$max_change`.
+`r rank_summary$n_quartile_changed` of `r rank_summary$n` models (`r round(rank_summary$pct_quartile_changed, 1)`%) change rank quartile; 75% expected if rankings were unrelated.
 
 ## Conceptual limitations {.smaller}
 

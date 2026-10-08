@@ -103,7 +103,7 @@ results$method_by_target |>
 Individual models can be ranked by their partial effect on the score, either from a univariate model containing only individual model identity, or from the fully adjusted model.
 The first ranks models by observed performance, and so by a combination of the method used and the difficulty of the targets each model chose to forecast.
 The second ranks them by performance after the target-related covariates are held fixed.
-The comparison is reported in the main text; the table below gives the models that move furthest between the two.
+The comparison is reported in the main text; the tables below give the number of models moving between quartiles of the ranking, and the models that move furthest between the two.
 
 ```{r}
 #| label: supplement-ranks-data
@@ -111,12 +111,31 @@ The comparison is reported in the main text; the table below gives the models th
 
 ranks <- rank_models(results$effects)
 rank_summary <- summarise_ranks(ranks)
+rank_quartile_caption <- paste0(
+  "Number of models by quartile of rank before (rows) and after (columns) ",
+  "adjustment, of ", rank_summary$n, " models. Models off the diagonal ",
+  "changed quartile (", rank_summary$n_quartile_changed, ", ",
+  round(rank_summary$pct_quartile_changed, 1), "%; ",
+  rank_summary$pct_quartile_chance, "% expected if the two rankings were ",
+  "unrelated), of which ", rank_summary$n_quartile_2plus,
+  " moved two or more quartiles."
+)
 rank_caption <- paste0(
   "The ten models whose rank changes most under adjustment, of ",
   rank_summary$n, " models. A positive change means a model ranks better ",
   "once the difficulty of its targets is accounted for. Models are ",
   "anonymised and numbered within model structure."
 )
+```
+
+```{r}
+#| label: tbl-supp-ranks-quartile
+#| tbl-cap: !expr rank_quartile_caption
+
+tabulate_rank_quartiles(ranks) |>
+  as.data.frame.matrix() |>
+  kable(align = rep("r", 4)) |>
+  kable_styling(full_width = FALSE)
 ```
 
 ```{r}

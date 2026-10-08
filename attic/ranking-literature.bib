@@ -1,0 +1,305 @@
+@article{merkle2016,
+  author = {Merkle, Edgar C. and Steyvers, Mark and Mellers, Barbara and Tetlock, Philip E.},
+  title = {Item response models of probability judgments: Application to a geopolitical forecasting tournament.},
+  journal = {Decision},
+  year = {2016},
+  volume = {3},
+  number = {1},
+  pages = {1--19},
+  publisher = {American Psychological Association (APA)},
+  doi = {10.1037/dec0000032},
+  abstract = {In this article, we develop and study methods for evaluating forecasters and forecasting questions in dynamic environments. These methods, based on item response models, are useful in situations where items vary in difficulty, and we wish to evaluate forecasters based on the difficulty of the items that they forecasted correctly. In addition, the methods are useful in situations where we need to compare forecasters who make predictions at different points in time or for different items. We first extend traditional models to handle subjective probabilities, and we then apply a specific model to geopolitical forecasts. We evaluate the model’s ability to accommodate the data, compare the model’s estimates of forecaster ability to estimates of forecaster ability based on scoring rules, and externally validate the model’s item estimates. We also highlight some shortcomings of the traditional models and discuss some further extensions. The analyses illustrate the models’ potential for widespread use in forecasting and subjective probability evaluation.}
+}
+
+@article{bo2017,
+  author = {Emily Bo, Yuanchao and Budescu, David V. and Lewis, Charles and Tetlock, Philip E. and Mellers, Barbara},
+  title = {An IRT forecasting model: linking proper scoring rules to item response theory},
+  journal = {Judgment and Decision Making},
+  year = {2017},
+  volume = {12},
+  number = {2},
+  pages = {90--103},
+  publisher = {Cambridge University Press (CUP)},
+  doi = {10.1017/s1930297500005647},
+  abstract = {This article proposes an Item Response Theoretical (IRT) forecasting model that incorporates proper scoring rules and provides evaluations of forecasters’ expertise in relation to the features of the specific questions they answer. We illustrate the model using geopolitical forecasts obtained by the Good Judgment Project (GJP) (see Mellers, Ungar, Baron, Ramos, Gurcay, Fincher, Scott, Moore, Atanasov, Swift, Murray, Stone \& Tetlock, 2014). The expertise estimates from the IRT model, which take into account variation in the difficulty and discrimination power of the events, capture the underlying construct being measured and are highly correlated with the forecasters’ Brier scores. Furthermore, our expertise estimates based on the first three years of the GJP data are better predictors of both the forecasters’ fourth year Brier scores and their activity level than the overall Brier scores obtained and Merkle’s (2016) predictions, based on the same period. Lastly, we discuss the benefits of using event-characteristic information in forecasting.}
+}
+
+@article{merkle2018,
+  author = {Merkle, Edgar C. and Hartman, Robert},
+  title = {Weighted Brier score decompositions for topically heterogenous forecasting tournaments},
+  journal = {Judgment and Decision Making},
+  year = {2018},
+  volume = {13},
+  number = {2},
+  pages = {185--201},
+  publisher = {Cambridge University Press (CUP)},
+  doi = {10.1017/s1930297500007099},
+  abstract = {Brier score decompositions, including those attributed to Murphy and to Yates, provide popular metrics for estimating forecast performance attributes like calibration and discrimination. However, the decompositions are generally limited to situations where forecasters make successive forecast judgments against the same class of substantive event (e.g., rain vs. no rain). They do not readily translate to common situations where: forecasts are weighted unequally; forecasts can be made against a range of heterogeneous topics and events over varying time horizons; forecasts can be updated over time until an event occurs or an event deadline is reached; or outcome alternatives can vary in number and nature (e.g., ordered vs. unordered outcomes) across forecast questions. In this paper, we propose extensions of the Murphy and Yates decompositions to address these features. The extensions involve new analytic expressions for the decompositions of weighted Brier scores, along with proposed resampling methods. We use data from a recent forecasting tournament to illustrate the methods.}
+}
+
+@article{martinezplumed2019,
+  author = {Martínez-Plumed, Fernando and Prudêncio, Ricardo B.C. and Martínez-Usó, Adolfo and Hernández-Orallo, José},
+  title = {Item response theory in AI: Analysing machine learning classifiers at the instance level},
+  journal = {Artificial Intelligence},
+  year = {2019},
+  volume = {271},
+  pages = {18--42},
+  publisher = {Elsevier BV},
+  doi = {10.1016/j.artint.2018.09.004},
+  abstract = {AI systems are usually evaluated on a range of problem instances and compared to other AI systems that use different strategies. These instances are rarely independent. Machine learning, and supervised learning in particular, is a very good example of this. Given a machine learning model, its behaviour for a single instance cannot be understood in isolation but rather in relation to the rest of the data distribution or dataset. In a dual way, the results of one machine learning model for an instance can be analysed in comparison to other models. While this analysis is relative to a population or distribution of models, it can give much more insight than an isolated analysis. Item response theory (IRT) combines this duality between items and respondents to extract latent variables of the items (such as discrimination or difficulty) and the respondents (such as ability). IRT can be adapted to the analysis of machine learning experiments (and by extension to any other artificial intelligence experiments). In this paper, we see that IRT suits classification tasks perfectly, where instances correspond to items and classifiers correspond to respondents. We perform a series of experiments with a range of datasets and classification methods to fully understand what the IRT parameters such as discrimination, difficulty and guessing mean for classification instances (and their relation to instance hardness measures) and how the estimated classifier ability can be used to compare classifier performance in a different way through classifier characteristic curves.}
+}
+
+@inproceedings{rodriguez2021,
+  author = {Rodriguez, Pedro and Barrow, Joe and Hoyle, Alexander Miserlis and Lalor, John P. and Jia, Robin and Boyd-Graber, Jordan},
+  title = {Evaluation Examples are not Equally Informative: How should that change NLP Leaderboards?},
+  booktitle = {Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)},
+  year = {2021},
+  pages = {4486--4503},
+  publisher = {Association for Computational Linguistics},
+  doi = {10.18653/v1/2021.acl-long.346},
+  abstract = {Leaderboards are widely used in NLP and push the field forward. While leaderboards are a straightforward ranking of NLP models, this simplicity can mask nuances in evaluation items (examples) and subjects (NLP models). Rather than replace leaderboards, we advocate a re-imagining so that they better highlight if and where progress is made. Building on educational testing, we create a Bayesian leaderboard model where latent subject skill and latent item difficulty predict correct responses. Using this model, we analyze the ranking reliability of leaderboards. Afterwards, we show the model can guide what to annotate, identify annotation errors, detect overfitting, and identify informative examples. We conclude with recommendations for future benchmark tasks.}
+}
+
+@misc{polo2024,
+  author = {Polo, Felipe Maia and Weber, Lucas and Choshen, Leshem and Sun, Yuekai and Xu, Gongjun and Yurochkin, Mikhail},
+  title = {tinyBenchmarks: evaluating LLMs with fewer examples},
+  year = {2024},
+  eprint = {2402.14992},
+  archiveprefix = {arXiv},
+  howpublished = {arXiv preprint arXiv:2402.14992},
+  doi = {10.48550/arXiv.2402.14992},
+  url = {https://arxiv.org/abs/2402.14992},
+  abstract = {The versatility of large language models (LLMs) led to the creation of diverse benchmarks that thoroughly test a variety of language models' abilities. These benchmarks consist of tens of thousands of examples making evaluation of LLMs very expensive. In this paper, we investigate strategies to reduce the number of evaluations needed to assess the performance of an LLM on several key benchmarks. For example, we show that to accurately estimate the performance of an LLM on MMLU, a popular multiple-choice QA benchmark consisting of 14K examples, it is sufficient to evaluate this LLM on 100 curated examples. We release evaluation tools and tiny versions of popular benchmarks: Open LLM Leaderboard, MMLU, HELM, and AlpacaEval 2.0. Our empirical analysis demonstrates that these tools and tiny benchmarks are sufficient to reliably and efficiently reproduce the original evaluation results.}
+}
+
+@misc{chiang2024,
+  author = {Chiang, Wei-Lin and Zheng, Lianmin and Sheng, Ying and Angelopoulos, Anastasios Nikolas and Li, Tianle and Li, Dacheng and Zhang, Hao and Zhu, Banghua and Jordan, Michael and Gonzalez, Joseph E. and Stoica, Ion},
+  title = {Chatbot Arena: An Open Platform for Evaluating LLMs by Human Preference},
+  year = {2024},
+  eprint = {2403.04132},
+  archiveprefix = {arXiv},
+  howpublished = {arXiv preprint arXiv:2403.04132},
+  doi = {10.48550/arXiv.2403.04132},
+  url = {https://arxiv.org/abs/2403.04132},
+  abstract = {Large Language Models (LLMs) have unlocked new capabilities and applications; however, evaluating the alignment with human preferences still poses significant challenges. To address this issue, we introduce Chatbot Arena, an open platform for evaluating LLMs based on human preferences. Our methodology employs a pairwise comparison approach and leverages input from a diverse user base through crowdsourcing. The platform has been operational for several months, amassing over 240K votes. This paper describes the platform, analyzes the data we have collected so far, and explains the tried-and-true statistical methods we are using for efficient and accurate evaluation and ranking of models. We confirm that the crowdsourced questions are sufficiently diverse and discriminating and that the crowdsourced human votes are in good agreement with those of expert raters. These analyses collectively establish a robust foundation for the credibility of Chatbot Arena. Because of its unique value and openness, Chatbot Arena has emerged as one of the most referenced LLM leaderboards, widely cited by leading LLM developers and companies. Our demo is publicly available at \url{https://chat.lmsys.org}.}
+}
+
+@misc{madaan2024,
+  author = {Madaan, Lovish and Singh, Aaditya K. and Schaeffer, Rylan and Poulton, Andrew and Koyejo, Sanmi and Stenetorp, Pontus and Narang, Sharan and Hupkes, Dieuwke},
+  title = {Quantifying Variance in Evaluation Benchmarks},
+  year = {2024},
+  eprint = {2406.10229},
+  archiveprefix = {arXiv},
+  howpublished = {arXiv preprint arXiv:2406.10229},
+  doi = {10.48550/arXiv.2406.10229},
+  url = {https://arxiv.org/abs/2406.10229},
+  abstract = {Evaluation benchmarks are the cornerstone of measuring capabilities of large language models (LLMs), as well as driving progress in said capabilities. Originally designed to make claims about capabilities (or lack thereof) in fully pretrained models, evaluation benchmarks are now also extensively used to decide between various training choices. Despite this widespread usage, we rarely quantify the variance in our evaluation benchmarks, which dictates whether differences in performance are meaningful. Here, we define and measure a range of metrics geared towards measuring variance in evaluation benchmarks, including seed variance across initialisations, and monotonicity during training. By studying a large number of models -- both openly available and pretrained from scratch -- we provide empirical estimates for a variety of variance metrics, with considerations and recommendations for practitioners. We also evaluate the utility and tradeoffs of continuous versus discrete performance measures and explore options for better understanding and reducing this variance. We find that simple changes, such as framing choice tasks (like MMLU) as completion tasks, can often reduce variance for smaller scale ($\sim$7B) models, while more involved methods inspired from human testing literature (such as item analysis and item response theory) struggle to meaningfully reduce variance. Overall, our work provides insights into variance in evaluation benchmarks, suggests LM-specific techniques to reduce variance, and more generally encourages practitioners to carefully factor in variance when comparing models.}
+}
+
+@misc{dehghani2021,
+  author = {Dehghani, Mostafa and Tay, Yi and Gritsenko, Alexey A. and Zhao, Zhe and Houlsby, Neil and Diaz, Fernando and Metzler, Donald and Vinyals, Oriol},
+  title = {The Benchmark Lottery},
+  year = {2021},
+  eprint = {2107.07002},
+  archiveprefix = {arXiv},
+  howpublished = {arXiv preprint arXiv:2107.07002},
+  doi = {10.48550/arXiv.2107.07002},
+  url = {https://arxiv.org/abs/2107.07002},
+  abstract = {The world of empirical machine learning (ML) strongly relies on benchmarks in order to determine the relative effectiveness of different algorithms and methods. This paper proposes the notion of "a benchmark lottery" that describes the overall fragility of the ML benchmarking process. The benchmark lottery postulates that many factors, other than fundamental algorithmic superiority, may lead to a method being perceived as superior. On multiple benchmark setups that are prevalent in the ML community, we show that the relative performance of algorithms may be altered significantly simply by choosing different benchmark tasks, highlighting the fragility of the current paradigms and potential fallacious interpretation derived from benchmarking ML methods. Given that every benchmark makes a statement about what it perceives to be important, we argue that this might lead to biased progress in the community. We discuss the implications of the observed phenomena and provide recommendations on mitigating them using multiple machine learning domains and communities as use cases, including natural language processing, computer vision, information retrieval, recommender systems, and reinforcement learning.}
+}
+
+@inproceedings{rofin2023,
+  author = {Rofin, Mark and Mikhailov, Vladislav and Florinsky, Mikhail and Kravchenko, Andrey and Shavrina, Tatiana and Tutubalina, Elena and Karabekyan, Daniel and Artemova, Ekaterina},
+  title = {Vote’n’Rank: Revision of Benchmarking with Social Choice Theory},
+  booktitle = {Proceedings of the 17th Conference of the European Chapter of the Association for Computational Linguistics},
+  year = {2023},
+  pages = {670--686},
+  publisher = {Association for Computational Linguistics},
+  doi = {10.18653/v1/2023.eacl-main.48},
+  abstract = {The development of state-of-the-art systems in different applied areas of machine learning (ML) is driven by benchmarks, which have shaped the paradigm of evaluating generalisation capabilities from multiple perspectives. Although the paradigm is shifting towards more fine-grained evaluation across diverse tasks, the delicate question of how to aggregate the performances has received particular interest in the community. In general, benchmarks follow the unspoken utilitarian principles, where the systems are ranked based on their mean average score over task-specific metrics. Such aggregation procedure has been viewed as a sub-optimal evaluation protocol, which may have created the illusion of progress. This paper proposes Vote’n’Rank, a framework for ranking systems in multi-task benchmarks under the principles of the social choice theory. We demonstrate that our approach can be efficiently utilised to draw new insights on benchmarking in several ML sub-fields and identify the best-performing systems in research and development case studies. The Vote’n’Rank’s procedures are more robust than the mean average while being able to handle missing performance scores and determine conditions under which the system becomes the winner.}
+}
+
+@misc{zhang2024,
+  author = {Zhang, Guanhua and Hardt, Moritz},
+  title = {Inherent Trade-Offs between Diversity and Stability in Multi-Task Benchmarks},
+  year = {2024},
+  eprint = {2405.01719},
+  archiveprefix = {arXiv},
+  howpublished = {arXiv preprint arXiv:2405.01719},
+  doi = {10.48550/arXiv.2405.01719},
+  url = {https://arxiv.org/abs/2405.01719},
+  abstract = {We examine multi-task benchmarks in machine learning through the lens of social choice theory. We draw an analogy between benchmarks and electoral systems, where models are candidates and tasks are voters. This suggests a distinction between cardinal and ordinal benchmark systems. The former aggregate numerical scores into one model ranking; the latter aggregate rankings for each task. We apply Arrow's impossibility theorem to ordinal benchmarks to highlight the inherent limitations of ordinal systems, particularly their sensitivity to the inclusion of irrelevant models. Inspired by Arrow's theorem, we empirically demonstrate a strong trade-off between diversity and sensitivity to irrelevant changes in existing multi-task benchmarks. Our result is based on new quantitative measures of diversity and sensitivity that we introduce. Sensitivity quantifies the impact that irrelevant changes to tasks have on a benchmark. Diversity captures the degree of disagreement in model rankings across tasks. We develop efficient approximation algorithms for both measures, as exact computation is computationally challenging. Through extensive experiments on seven cardinal benchmarks and eleven ordinal benchmarks, we demonstrate a clear trade-off between diversity and stability: The more diverse a multi-task benchmark, the more sensitive to trivial changes it is. Additionally, we show that the aggregated rankings of existing benchmarks are highly unstable under irrelevant changes. The codes and data are available at https://socialfoundations.github.io/benchbench/.}
+}
+
+@misc{gordienko2026,
+  author = {Gordienko, Polina and Schollmeyer, Georg and Kreuter, Frauke and Jansen, Christoph},
+  title = {How Hard is it to Rig a Benchmark? A Social Choice Analysis of Leaderboard Robustness},
+  year = {2026},
+  eprint = {2605.23628},
+  archiveprefix = {arXiv},
+  howpublished = {arXiv preprint arXiv:2605.23628},
+  doi = {10.48550/arXiv.2605.23628},
+  url = {https://arxiv.org/abs/2605.23628},
+  abstract = {Multi-task benchmarks have become a central pillar of machine learning research, yet their growing influence has incentivised benchmark gaming -- strategic actions taken to improve the leaderboard rank of a specific model. Treating datasets as voters and models as candidates, we consider benchmark-specific training -- the inclusion of benchmark data in training -- as a form of election manipulation. For any ordinal benchmark, the problem of choosing datasets to train on so that a target model becomes top-ranked corresponds to shift bribery, a class of manipulation problems from computational social choice. Leveraging this identification, we show that the benchmark-specific training problem is NP-hard under Borda count and mean win rate. Complementing this worst-case perspective, we introduce the instance-level robustness, the minimum number of datasets a model developer must include in training to top a given leaderboard, and derive expressions for it under arithmetic mean, median, mean win rate and pairwise majority. We evaluate these expressions on MMLU under HELM and on BIG-Bench Hard (BBH) under the Open LLM Leaderboard. Across both suites, mean win rate is hardest to manipulate: this gap is clear on BBH (24 tasks, 4507 models), where its median robustness is 22 tasks (92\%), compared with 13 (54\%) under arithmetic mean and 12 (50\%) under median and pairwise majority.}
+}
+
+@article{goldstein1996,
+  note = {Discussion paper; abstract not available from open metadata},
+  author = {Goldstein, Harvey and Spiegelhalter, David J.},
+  title = {League Tables and Their Limitations: Statistical Issues in Comparisons of Institutional Performance},
+  journal = {Journal of the Royal Statistical Society. Series A (Statistics in Society)},
+  year = {1996},
+  volume = {159},
+  number = {3},
+  pages = {385},
+  publisher = {Oxford University Press (OUP)},
+  doi = {10.2307/2983325}
+}
+
+@article{lin2006,
+  author = {Lin, Rongheng and Louis, Thomas A. and Paddock, Susan M. and Ridgeway, Greg},
+  title = {Loss function based ranking in two-stage, hierarchical models},
+  journal = {Bayesian Analysis},
+  year = {2006},
+  volume = {1},
+  number = {4},
+  publisher = {Institute of Mathematical Statistics},
+  doi = {10.1214/06-ba130},
+  abstract = {Performance evaluations of health services providers burgeons. Similarly, analyzing spatially related health information, ranking teachers and schools, and identification of differentially expressed genes are increasing in prevalence and importance. Goals include valid and efficient ranking of units for profiling and league tables, identification of excellent and poor performers, the most differentially expressed genes, and determining "exceedances" (how many and which unit-specific true parameters exceed a threshold). These data and inferential goals require a hierarchical, Bayesian model that accounts for nesting relations and identifies both population values and random effects for unit-specific parameters. Furthermore, the Bayesian approach coupled with optimizing a loss function provides a framework for computing non-standard inferences such as ranks and histograms.Estimated ranks that minimize Squared Error Loss (SEL) between the true and estimated ranks have been investigated. The posterior mean ranks minimize SEL and are "general purpose," relevant to a broad spectrum of ranking goals. However, other loss functions and optimizing ranks that are tuned to application-specific goals require identification and evaluation. For example, when the goal is to identify the relatively good (e.g., in the upper 10\%) or relatively poor performers, a loss function that penalizes classification errors produces estimates that minimize the error rate. We construct loss functions that address this and other goals, developing a unified framework that facilitates generating candidate estimates, comparing approaches and producing data analytic performance summaries. We compare performance for a fully parametric, hierarchical model with Gaussian sampling distribution under Gaussian and a mixture of Gaussians prior distributions. We illustrate approaches via analysis of standardized mortality ratio data from the United States Renal Data System.Results show that SEL-optimal ranks perform well over a broad class of loss functions but can be improved upon when classifying units above or below a percentile cut-point. Importantly, even optimal rank estimates can perform poorly in many real-world settings; therefore, data-analytic performance summaries should always be reported.}
+}
+
+@article{mogstad2024,
+  author = {Mogstad, Magne and Romano, Joseph P and Shaikh, Azeem M and Wilhelm, Daniel},
+  title = {Inference for Ranks with Applications to Mobility across Neighbourhoods and Academic Achievement across Countries},
+  journal = {Review of Economic Studies},
+  year = {2024},
+  volume = {91},
+  number = {1},
+  pages = {476--518},
+  publisher = {Oxford University Press (OUP)},
+  doi = {10.1093/restud/rdad006},
+  abstract = {It is often desired to rank different populations according to the value of some feature of each population. For example, it may be desired to rank neighbourhoods according to some measure of intergenerational mobility or countries according to some measure of academic achievement. These rankings are invariably computed using estimates rather than the true values of these features. As a result, there may be considerable uncertainty concerning the rank of each population. In this paper, we consider the problem of accounting for such uncertainty by constructing confidence sets for the rank of each population. We consider both the problem of constructing marginal confidence sets for the rank of a particular population as well as simultaneous confidence sets for the ranks of all populations. We show how to construct such confidence sets under weak assumptions. An important feature of all of our constructions is that they remain computationally feasible even when the number of populations is very large. We apply our theoretical results to re-examine the rankings of both neighbourhoods in the U.S. in terms of intergenerational mobility and developed countries in terms of academic achievement. The conclusions about which countries do best and worst at reading, math, and science are fairly robust to accounting for uncertainty. The confidence sets for the ranking of the fifty most populous commuting zones by measures of mobility are also found to be small. These confidence sets, however, become much less informative if one includes all commuting zones, if one considers neighbourhoods at a more granular level (counties, census tracts), or if one uses movers across areas to address concerns about selection.}
+}
+
+@article{voorhees2000,
+  note = {Abstract not available from open metadata},
+  author = {Voorhees, Ellen M.},
+  title = {Variations in relevance judgments and the measurement of retrieval effectiveness},
+  journal = {Information Processing \& Management},
+  year = {2000},
+  volume = {36},
+  number = {5},
+  pages = {697--716},
+  publisher = {Elsevier BV},
+  doi = {10.1016/s0306-4573(00)00010-8}
+}
+
+@inproceedings{buckley2000,
+  note = {Abstract not available from open metadata},
+  author = {Buckley, Chris and Voorhees, Ellen M.},
+  title = {Evaluating evaluation measure stability},
+  booktitle = {Proceedings of the 23rd annual international ACM SIGIR conference on Research and development in information retrieval},
+  year = {2000},
+  pages = {33--40},
+  publisher = {ACM},
+  doi = {10.1145/345508.345543}
+}
+
+@inproceedings{sakai2006,
+  author = {Sakai, Tetsuya},
+  title = {Evaluating evaluation metrics based on the bootstrap},
+  booktitle = {Proceedings of the 29th annual international ACM SIGIR conference on Research and development in information retrieval},
+  year = {2006},
+  pages = {525--532},
+  publisher = {ACM},
+  doi = {10.1145/1148170.1148261},
+  abstract = {This paper describes how the Bootstrap approach to statistics can be applied to the evaluation of IR effectiveness metrics. First, we argue that Bootstrap Hypothesis Tests deserve more attention from the IR community, as they are based on fewer assumptions than traditional statistical significance tests. We then describe straightforward methods for comparing the sensitivity of IR metrics based on Bootstrap Hypothesis Tests. Unlike the heuristics-based "swap" method proposed by Voorhees and Buckley, our method estimates the performance difference required to achieve a given significance level directly from Bootstrap Hypothesis Test results. In addition, we describe a simple way of examining the accuracy of rank correlation between two metrics based on the Bootstrap Estimate of Standard Error. We demonstrate the usefulness of our methods using test collections and runs from the NTCIR CLIR track for comparing seven IR metrics, including those that can handle graded relevance and those based on the Geometric Mean.}
+}
+
+@article{webber2010,
+  author = {Webber, William and Moffat, Alistair and Zobel, Justin},
+  title = {A similarity measure for indefinite rankings},
+  journal = {ACM Transactions on Information Systems},
+  year = {2010},
+  volume = {28},
+  number = {4},
+  pages = {1--38},
+  publisher = {Association for Computing Machinery (ACM)},
+  doi = {10.1145/1852102.1852106},
+  abstract = {Ranked lists are encountered in research and daily life and it is often of interest to compare these lists even when they are incomplete or have only some members in common. An example is document rankings returned for the same query by different search engines. A measure of the similarity between incomplete rankings should handle nonconjointness, weight high ranks more heavily than low, and be monotonic with increasing depth of evaluation; but no measure satisfying all these criteria currently exists. In this article, we propose a new measure having these qualities, namely rank-biased overlap (RBO). The RBO measure is based on a simple probabilistic user model. It provides monotonicity by calculating, at a given depth of evaluation, a base score that is non-decreasing with additional evaluation, and a maximum score that is nonincreasing. An extrapolated score can be calculated between these bounds if a point estimate is required. RBO has a parameter which determines the strength of the weighting to top ranks. We extend RBO to handle tied ranks and rankings of different lengths. Finally, we give examples of the use of the measure in comparing the results produced by public search engines and in assessing retrieval systems in the laboratory.}
+}
+
+@article{diebold1995,
+  author = {Diebold, Francis X. and Mariano, Roberto S.},
+  title = {Comparing Predictive Accuracy},
+  journal = {Journal of Business \& Economic Statistics},
+  year = {1995},
+  volume = {13},
+  number = {3},
+  pages = {253--263},
+  publisher = {Informa UK Limited},
+  doi = {10.1080/07350015.1995.10524599},
+  abstract = {We propose and evaluate explicit tests of the null hypothesis of no difference in the accuracy of two competing forecasts. In contrast to previously developed tests, a wide variety of accuracy measures can be used (in particular, the loss function need not be quadratic and need not even be symmetric), and forecast errors can be non-Gaussian, nonzero mean, serially correlated, and contemporaneously correlated. Asymptotic and exact finite-sample tests are proposed, evaluated, and illustrated.}
+}
+
+@article{hansen2011,
+  author = {Hansen, Peter R. and Lunde, Asger and Nason, James M.},
+  title = {The Model Confidence Set},
+  journal = {Econometrica},
+  year = {2011},
+  volume = {79},
+  number = {2},
+  pages = {453--497},
+  publisher = {The Econometric Society},
+  doi = {10.3982/ecta5771},
+  abstract = {This paper introduces the model confidence set (MCS) and applies it to the selection of models. A MCS is a set of models that is constructed such that it will contain the best model with a given level of confidence. The MCS is in this sense analogous to a confidence interval for a parameter. The MCS acknowledges the limitations of the data, such that uninformative data yield a MCS with many models, whereas informative data yield a MCS with only a few models. The MCS procedure does not assume that a particular model is the true model; in fact, the MCS procedure can be used to compare more general objects, beyond the comparison of models. We apply the MCS procedure to two empirical problems. First, we revisit the inflation forecasting problem posed by Stock and Watson (1999), and compute the MCS for their set of inflation forecasts. Second, we compare a number of Taylor rule regressions and determine the MCS of the best regression in terms of in-sample likelihood criteria.}
+}
+
+@article{salanti2011,
+  author = {Salanti, Georgia and Ades, A.E. and Ioannidis, John P.A.},
+  title = {Graphical methods and numerical summaries for presenting results from multiple-treatment meta-analysis: an overview and tutorial},
+  journal = {Journal of Clinical Epidemiology},
+  year = {2011},
+  volume = {64},
+  number = {2},
+  pages = {163--171},
+  publisher = {Elsevier BV},
+  doi = {10.1016/j.jclinepi.2010.03.016},
+  abstract = {Objective: To present some simple graphical and quantitative ways to assist interpretation and improve presentation of results from multiple-treatment meta-analysis (MTM). Study design and setting: We reanalyze a published network of trials comparing various antiplatelet interventions regarding the incidence of serious vascular events using Bayesian approaches for random effects MTM, and we explore the advantages and drawbacks of various traditional and new forms of quantitative displays and graphical presentations of results. Results: We present the results under various forms, conventionally based on the mean of the distribution of the effect sizes; based on predictions; based on ranking probabilities; and finally, based on probabilities to be within an acceptable range from a reference. We show how to obtain and present results on ranking of all treatments and how to appraise the overall ranks. Conclusions: Bayesian methodology offers a multitude of ways to present results from MTM models, as it enables a natural and easy estimation of all measures based on probabilities, ranks, or predictions.}
+}
+
+@article{veroniki2018,
+  note = {Abstract not available from open metadata},
+  author = {Veroniki, Areti Angeliki and Straus, Sharon E. and Rücker, Gerta and Tricco, Andrea C.},
+  title = {Is providing uncertainty intervals in treatment ranking helpful in a network meta-analysis?},
+  journal = {Journal of Clinical Epidemiology},
+  year = {2018},
+  volume = {100},
+  pages = {122--129},
+  publisher = {Elsevier BV},
+  doi = {10.1016/j.jclinepi.2018.02.009}
+}
+
+@article{demsar2006,
+  author = {Dem{\v{s}}ar, Janez},
+  title = {Statistical Comparisons of Classifiers over Multiple Data Sets},
+  journal = {Journal of Machine Learning Research},
+  year = {2006},
+  volume = {7},
+  number = {1},
+  pages = {1--30},
+  url = {https://jmlr.org/papers/v7/demsar06a.html},
+  abstract = {While methods for comparing two learning algorithms on a single data set have been scrutinized for quite some time already, the issue of statistical tests for comparisons of more algorithms on multiple data sets, which is even more essential to typical machine learning studies, has been all but ignored. This article reviews the current practice and then theoretically and empirically examines several suitable tests. Based on that, we recommend a set of simple, yet safe and robust non-parametric tests for statistical comparisons of classifiers: the Wilcoxon signed ranks test for comparison of two classifiers and the Friedman test with the corresponding post-hoc tests for comparison of more classifiers over multiple data sets. Results of the latter can also be neatly presented with the newly introduced CD (critical difference) diagrams.}
+}
+
+@article{benavoli2016,
+  author = {Benavoli, Alessio and Corani, Giorgio and Mangili, Francesca},
+  title = {Should We Really Use Post-Hoc Tests Based on Mean-Ranks?},
+  journal = {Journal of Machine Learning Research},
+  year = {2016},
+  volume = {17},
+  number = {5},
+  pages = {1--10},
+  url = {https://jmlr.org/papers/v17/benavoli16a.html},
+  abstract = {The statistical comparison of multiple algorithms over multiple data sets is fundamental in machine learning. This is typically carried out by the Friedman test. When the Friedman test rejects the null hypothesis, multiple comparisons are carried out to establish which are the significant differences among algorithms. The multiple comparisons are usually performed using the mean-ranks test. The aim of this technical note is to discuss the inconsistencies of the mean-ranks post-hoc test with the goal of discouraging its use in machine learning as well as in medicine, psychology, etc.. We show that the outcome of the mean-ranks test depends on the pool of algorithms originally included in the experiment. In other words, the outcome of the comparison between algorithms $A$ and $B$ depends also on the performance of the other algorithms included in the original experiment. This can lead to paradoxical situations. For instance the difference between $A$ and $B$ could be declared significant if the pool comprises algorithms $C,D,E$ and not significant if the pool comprises algorithms $F,G,H$. To overcome these issues, we suggest instead to perform the multiple comparison using a test whose outcome only depends on the two algorithms being compared, such as the sign-test or the Wilcoxon signed-rank test.}
+}

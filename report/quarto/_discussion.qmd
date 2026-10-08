@@ -29,6 +29,7 @@ For example, real-time data were frequently updated retrospectively, with differ
 Nonetheless, varying the inclusion of some covariates and the link function left the effects of model structure essentially unchanged (see Supplement).
 The error family mattered more: a Gaussian fit changed the size of every structure-by-outcome estimate and the direction of two, as it is dominated by the largest scores, which fall disproportionately among case forecasts.
 Any single structure-by-outcome contrast should be read with this sensitivity in mind.
+Our comparison of model rankings also counted every change in rank equally, including between models whose performance was indistinguishable; ranking distances that account for uncertainty in each model's performance would be more robust [@carterette2009].
 
 Two further sources of bias follow from the observational design.
 We had no information on how forecasters chose which targets to predict and when to participate, so we could only adjust for the observed features of those targets.

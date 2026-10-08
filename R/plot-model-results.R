@@ -148,7 +148,9 @@ rank_models <- function(random_effects, anonymise = TRUE) {
     mutate(
       rank_unadjusted = rank(Unadjusted, ties.method = "first"),
       rank_adjusted = rank(Adjusted, ties.method = "first"),
-      rank_change = rank_unadjusted - rank_adjusted
+      rank_change = rank_unadjusted - rank_adjusted,
+      quartile_unadjusted = ntile(rank_unadjusted, 4),
+      quartile_adjusted = ntile(rank_adjusted, 4)
     ) |>
     left_join(classification, by = "group")
   if (anonymise) {
@@ -164,15 +166,27 @@ rank_models <- function(random_effects, anonymise = TRUE) {
 }
 
 # Summary statistics for the ranking comparison, so the text tracks the fit.
-summarise_ranks <- function(ranks, threshold = 10) {
+# Quartile changes are set against 75%, the share expected to change quartile
+# if the two rankings were unrelated (1 - 1/4).
+summarise_ranks <- function(ranks) {
+  quartile_change <- abs(ranks$quartile_unadjusted - ranks$quartile_adjusted)
   list(
     n = nrow(ranks),
     spearman = cor(ranks$rank_unadjusted, ranks$rank_adjusted,
                    method = "spearman"),
-    n_moved = sum(abs(ranks$rank_change) >= threshold),
-    threshold = threshold,
-    max_change = max(abs(ranks$rank_change)),
-    max_model = ranks$label[which.max(abs(ranks$rank_change))]
+    n_quartile_changed = sum(quartile_change > 0),
+    pct_quartile_changed = 100 * mean(quartile_change > 0),
+    pct_quartile_chance = 75,
+    n_quartile_2plus = sum(quartile_change >= 2)
+  )
+}
+
+# Models by quartile of unadjusted (rows) and adjusted (columns) rank
+tabulate_rank_quartiles <- function(ranks) {
+  quartile_labels <- c("Q1 (best)", "Q2", "Q3", "Q4 (worst)")
+  table(
+    Unadjusted = factor(ranks$quartile_unadjusted, 1:4, quartile_labels),
+    Adjusted = factor(ranks$quartile_adjusted, 1:4, quartile_labels)
   )
 }
 
@@ -180,13 +194,17 @@ plot_model_ranks <- function(ranks) {
   # Unadjusted against adjusted rank. Distance from the diagonal is how far a
   # model moved once the difficulty of its targets was accounted for; a
   # scatter avoids the crossing lines of a slope chart at this many models.
-  rank_summary <- summarise_ranks(ranks)
-  n_models <- rank_summary$n
+  # Faint lines mark quartile boundaries: points off the diagonal blocks
+  # changed quartile.
+  n_models <- nrow(ranks)
+  quartile_breaks <- n_models / 4 * 1:3 + 0.5
 
   p <- ggplot(
     ranks,
     aes(x = rank_unadjusted, y = rank_adjusted, colour = classification, shape = classification)
   ) +
+    geom_vline(xintercept = quartile_breaks, colour = "grey85") +
+    geom_hline(yintercept = quartile_breaks, colour = "grey85") +
     geom_abline(slope = 1, intercept = 0, lty = 2, colour = "grey50") +
     geom_point(size = 1.8, alpha = 0.9) +
     scale_x_continuous(

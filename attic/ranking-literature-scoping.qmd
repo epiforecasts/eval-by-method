@@ -1,0 +1,140 @@
+---
+title: >-
+  Is ranking the right way to compare forecasters?
+  Literature scoping
+author: "Kath Sherratt"
+date: 2026-10-07
+format: html
+bibliography: ranking-literature.bib
+---
+
+Scoping notes for `attic/evaluation-design-sketch.qmd`.
+Started from adding Spearman's rho to scoringutils; widened to wanting to look at other literature exploring using ranks for comparative evaluation.
+Citations checked against OpenAlex or Crossref on 2026-10-07; full entries with abstracts in `attic/ranking-literature.bib`.
+
+## Design of comparative evaluation
+
++-------------------------------------+-------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
+| Purpose of comparison               | Question                                                                            | Candidate tools                                                                                             | scoringutils                                                                                       | eval-by-method                                                                      |
++=====================================+=====================================================================================+=============================================================================================================+====================================================================================================+=====================================================================================+
+| Explaining variation                | Why do models differ, given target difficulty?                                      | Multilevel / value-added models; IRT                                                                        | None                                                                                               | GAMM with model random effects and difficulty terms                                 |
++-------------------------------------+-------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
+| Model selection                     | Which models could be best?                                                         | Model Confidence Set; multiple comparisons with the best; rank confidence sets                              | `get_pairwise_comparisons()`; #1055 MCS open; #1140 open (finding useful models among many scores) | Not done                                                                            |
++-------------------------------------+-------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
+| Demonstrating evaluation robustness | Does the conclusion survive a different choice of design, metric, scale, or subset? | Rank correlation (Kendall's tau, rank-biased overlap); spread of ranks across designs; rank confidence sets | None;                                                                                              | `rank_models()`, `plot_model_ranks()` in `R/plot-model-results.R`; sketch section 6 |
++-------------------------------------+-------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------+-------------------------------------------------------------------------------------+
+
+## Issues with comparing ranks
+
+- A rank keeps order and drops magnitude (two models 1% apart and two models 50% apart both differ by one place).
+- A point rank carries no uncertainty, and with tens of models the middle ranks are mostly noise (league-table literature).
+- A rank still depends on the evaluation design and metric.
+  So comparing ranks across evaluation designs might answer "do two different types of evaluation designs agree on the ordering"
+
+## Item response theory and benchmark evaluation
+
+IRT models a response as a function of examinee ability and item difficulty.
+This is theoretically interesting because it is a much more well established literature addressing exactly the problem of the comparative evaluation piece here.
+I also think there might be something really practical in the potential for *target selection* as a way of getting to more informative *model selection*.
+A target that every model scores equally on, carries no information on relative model performance, so if we are designing an evaluation for the purpose of model selection we might do well to think a little carefully about the potential for selecting among different more or less informative targets.
+In IRT this is described as "discrimination".
+
+Mapping to a forecast hub evaluation:
+
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| IRT                              | Forecast hub                                                       | Present in the GAMM                                          |
++==================================+====================================================================+==============================================================+
+| Examinee                         | Model                                                              | Yes, model x horizon                                         |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Item                             | Target: location x date x horizon                                  | Yes, via outcome, location, horizon                          |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Ability                          | Skill                                                              | Yes, residual individual model effect                        |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Difficulty                       | Target difficulty                                                  | Yes, adjusted for                                            |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Discrimination                   | How well a target separates good from poor models                  | No                                                           |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Missing responses                | Targets a model didn't forecast                                    | OK, if non-differential / missing at random given covariates |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Adaptive testing, item selection | Which targets are most informative for comparing models            | No                                                           |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+| Differential item functioning    | Targets that favour one model type (e.g. mechanistic) beyond skill | structure x covariate interactions                           |
++----------------------------------+--------------------------------------------------------------------+--------------------------------------------------------------+
+
+Some IRT literature, suggested by an LLM working in this project context.
+
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| Reference           | Relevance                                                                                                                |
++=====================+==========================================================================================================================+
+| @merkle2016         | IRT for probability forecasts in a geopolitical tournament; forecaster ability and question difficulty jointly estimated |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @bo2017             | Links proper scoring rules to IRT; closest precedent for an IRT model of scores                                          |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @merkle2018         | Weighted Brier decompositions for tournaments with heterogeneous questions                                               |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @martinezplumed2019 | IRT for ML classifiers at instance level; difficulty and discrimination of individual test cases                         |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @rodriguez2021      | IRT leaderboards; ranks change once items are weighted by discrimination                                                 |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @polo2024           | IRT to choose a small informative item set; analogue to choosing informative targets                                     |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @chiang2024         | Bradley-Terry ratings from incomplete pairwise comparisons; analogue to pairwise relative skill                          |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @madaan2024         | Seed and item variance in benchmark scores; how much a rank difference means                                             |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @dehghani2021       | Choice of benchmark set decides the winner; design dependence of ranks                                                   |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @rofin2023          | Social choice rules to aggregate ranks across tasks                                                                      |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @zhang2024          | Arrow-type trade-off: aggregating diverse tasks makes rankings unstable                                                  |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+| @gordienko2026      | Robustness of leaderboard aggregation to manipulation; recent, not read                                                  |
++---------------------+--------------------------------------------------------------------------------------------------------------------------+
+
+## Other strands of evaluation literature: deferred to later
+
++-------------------------------+--------------------------------------------------------+------------------------------------------------------------------+
+| Strand                        | Analogy                                                | References                                                       |
++===============================+========================================================+==================================================================+
+| League tables, rank inference | Schools and hospitals ranked on noisy outcomes         | @goldstein1996;                                                  |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @lin2006 (ranks from hierarchical models);                       |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @mogstad2024 (confidence sets for ranks; applied to PISA scores) |
++-------------------------------+--------------------------------------------------------+------------------------------------------------------------------+
+| Information retrieval         | Systems scored on topics; stability of system rankings | @voorhees2000 (Kendall's tau between system rankings);           |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @buckley2000 (measure stability);                                |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @sakai2006 (discriminative power);                               |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @webber2010 (rank-biased overlap)                                |
++-------------------------------+--------------------------------------------------------+------------------------------------------------------------------+
+| Forecast comparison           | Testing accuracy differences                           | @diebold1995;                                                    |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @hansen2011 (Model Confidence Set)                               |
++-------------------------------+--------------------------------------------------------+------------------------------------------------------------------+
+| ML across datasets            | Average ranks across benchmark datasets                | @demsar2006 (Friedman/Nemenyi, critical-difference diagrams);    |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @benavoli2016 (against mean-rank post-hoc tests)                 |
++-------------------------------+--------------------------------------------------------+------------------------------------------------------------------+
+| Network meta-analysis         | Treatments compared over an incomplete set of studies  | @salanti2011 (SUCRA, rankograms);                                |
+|                               |                                                        |                                                                  |
+|                               |                                                        | @veroniki2018 (uncertainty in treatment ranks)                   |
++-------------------------------+--------------------------------------------------------+------------------------------------------------------------------+
+
+## Links
+
+- `attic/evaluation-design-sketch.qmd`: ladder of designs; rank spread across rungs as design uncertainty.
+- `rank_models()`, `plot_model_ranks()` in `R/plot-model-results.R`.
+- scoringutils #1055 (Model Confidence Set), #1140 (useful models from many scores), #1121 (model importance).
+
+## Open questions
+
+- What would item discrimination look like here?
+- Whether/what to develop in scoringutils?
+
+## References
+
+::: {#refs}
+:::
