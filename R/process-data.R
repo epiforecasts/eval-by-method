@@ -39,7 +39,15 @@ classify_models <- function(file = here("data", "model-classification.csv"),
 
 # Prepare data for analysis -----------------------------
 # Get scores for all forecasts; and add explanatory variables in a single dframe
-process_data <- function(scoring_scale = "log") {
+# covariate_date: which week the target-specific covariates (incidence, trend,
+#   variant phase) describe.
+#   - "target": the target week being forecast (uses the observed outcome)
+#   - "forecast": the last complete week observed when the forecast was made
+#     (target_end_date - horizon weeks), so covariates use only information
+#     available to the forecaster. See issue #187 (forecaster's dilemma).
+process_data <- function(scoring_scale = "log",
+                         covariate_date = c("target", "forecast")) {
+  covariate_date <- match.arg(covariate_date)
   # Get raw interval scores ----------------------------------------
   # scores data created in: R/process-score.r
   scores_files <- list.files(here("data"), pattern = "scores-raw-.*\\.csv")
@@ -86,9 +94,20 @@ process_data <- function(scoring_scale = "log") {
   variant_phase <- classify_variant_phases()
 
   # Combine all data -----------------------------------------------------
+  # Date at which to join target-specific covariates
+  scores_raw <- scores_raw |>
+    mutate(covariate_end_date = if (covariate_date == "target") {
+      target_end_date
+    } else {
+      target_end_date - weeks(horizon)
+    })
+
   data <- scores_raw |>
-    left_join(obs, by = c("location", "target_end_date", "epi_target")) |>
-    left_join(variant_phase, by = c("location", "target_end_date")) |>
+    left_join(obs, by = c("location", "covariate_end_date" = "target_end_date",
+                          "epi_target")) |>
+    left_join(variant_phase, by = c("location",
+                                    "covariate_end_date" = "target_end_date")) |>
+    select(-covariate_end_date) |>
     left_join(country_targets, by = "model") |>
     left_join(methods, by = "model") |>
     # set to factors

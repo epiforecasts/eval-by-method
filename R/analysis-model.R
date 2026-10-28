@@ -57,18 +57,26 @@ m.formula_joint <- wis ~
 
 # --- Functional model ---
 # Function: fits the joint model and univariate models, extracts random effects,
-# and saves results. Takes a spec_label to archive diagnostics for comparison
+# and saves results. Takes a spec_label to archive diagnostics for comparison.
+# covariate_date ("target" or "forecast") sets which week incidence, trend and
+# variant phase describe; see process_data() and issue #187.
 model_wis <- function(
   scoring_scale = "log",
   family_link = "log",
   output_dir = "output",
-  spec_label = NULL
+  spec_label = NULL,
+  covariate_date = "target"
 ) {
   # --- Data handling
-  m.data <- process_data(scoring_scale = scoring_scale)
+  m.data <- process_data(scoring_scale = scoring_scale,
+                         covariate_date = covariate_date)
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly
+    # drop forecasts missing a covariate explicitly, so saved data matches the
+    # fit (none at the target date; a few at the forecast date, where the
+    # observed week before the forecast is missing)
+    filter(!is.na(Incidence), !is.na(Trend), !is.na(VariantPhase)) |>
     mutate(Epi_target = as.factor(epi_target))
 
   # Settings for log or natural scale

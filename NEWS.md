@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased — Covariates at the forecast date (sensitivity, #187)
+
+`R/process-data.R`, `R/analysis-model.R`, `R/sensitivity/check-covariate-date.R`, `output/sensitivity/covariate-date/`
+
+Incidence, trend and variant phase are measured in the target week, which uses the observed outcome. Conditioning the evaluation on the outcome breaks propriety (the forecaster's dilemma, Lerch et al. 2017): with a Tweedie log link, each forecast's score is weighted by a function of how hard its realised target was. `process_data()` and `model_wis()` gain `covariate_date = c("target", "forecast")`. `"forecast"` joins the same covariates at the last complete week observed when the forecast was made (`target_end_date - horizon` weeks). The default stays `"target"`, so primary outputs are unchanged. `model_wis()` now drops rows with a missing covariate explicitly, which removes none at the target date and a few at the forecast date. `R/sensitivity/check-covariate-date.R` tabulates how far the two sets of covariates agree by horizon, fits the forecast-date model on both scales into `output/sensitivity/covariate-date/`, and compares adjusted effects with the primary fit. Which version becomes primary is undecided; both are kept.
+
 ## Unreleased — Rank comparison by quartile
 
 `R/plot-model-results.R`, `report/quarto/_results.qmd`, `_discussion.qmd`, `report/quarto/supplement/_estimates.qmd`, `report/references.bib`, `slides/lab-meeting.qmd`

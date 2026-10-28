@@ -43,7 +43,7 @@ Evaluating across multiple forecast targets requires explicit accounting for the
   - Isolates impact of Method (model structure) and CountryTargets (geographic specificity)
   - Uses `mgcv`, `gammit`, and `gratia` packages
   - Outputs (per scale, under scale-named subdirs of `output/` — `log/`, `natural/`): `results.rds` (includes fitted `data`), `fit_obs.rds`, and diagnostic plots (`plots/check_joint.png`)
-  - Defines `model_wis(scoring_scale, family_link = "log", output_dir, spec_label)`; sourcing alone fits nothing. Call it once per scale (`log`, `natural`) to write outputs. Must be run separately before rendering — it is **not** sourced by `report/quarto/_results.qmd`, which only reads `output/log/results.rds`
+  - Defines `model_wis(scoring_scale, family_link = "log", output_dir, spec_label, covariate_date = "target")`; sourcing alone fits nothing. `covariate_date = "forecast"` measures target covariates at the last observed week before the forecast (see `process_data()`). Call it once per scale (`log`, `natural`) to write outputs. Must be run separately before rendering — it is **not** sourced by `report/quarto/_results.qmd`, which only reads `output/log/results.rds`
   - `spec_label` archives that fit's `appraise()` panel and residual/fit statistics under `output/diagnostics/`, upserting a row in `fit-summary.csv` keyed on (`spec_label`, `scale`) so successive model specifications stay comparable. Pass a new label whenever the specification changes.
 
 - **analysis-descriptive.R**: Descriptive statistics and summary tables
@@ -62,6 +62,7 @@ Evaluating across multiple forecast targets requires explicit accounting for the
 
 - **check-autocorrelation.R**: Temporal autocorrelation diagnostic
 - **check-link-robustness.R**: Robustness of results to the model link function
+- **check-covariate-date.R**: Covariates (incidence, trend, variant phase) at the forecast date instead of the target date, for propriety (#187). Fits via `model_wis(covariate_date = "forecast")` into `output/sensitivity/covariate-date/<scale>/`; compares effects with the primary fit
 - **check-horizon-spec.R** / **check-horizon-spec.qmd**: Sensitivity to the model-by-horizon specification (reduced model, six specifications; cached fits in `output/sensitivity/horizon-spec/`)
 - **model-building.qmd**: Notebook documenting model specifications tried
 
