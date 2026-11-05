@@ -48,8 +48,11 @@ A guide to the codebase:
 
 - `R/` --- analysis and utility scripts:
   - `process-score.R` scores forecasts; `process-data.R` joins scores to explanatory variables; `analysis-model.R` fits the GAMM; `analysis-descriptive.R` builds summary tables; `plot-model-results.R` and `plot-model-flow.R` make the figures; `dag-check.R` defines the confounding DAG.
-  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` --- data access, model metadata, and variant-phase classification.
-  - `R/sensitivity/` --- robustness checks (autocorrelation, link function, log-response model, model-building notebook).
+  - `analysis-supplement.R` builds the supplement's descriptive tables and figures.
+  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` --- data access, model metadata, and variant-phase classification; `utils-effects.R` extracts effects and contrasts from the fitted GAMM.
+  - `R/sensitivity/` --- robustness checks (response family, family by interaction, horizon specification, link function, autocorrelation).
+  - `diy-model.qmd` and `utils-diy.R` refit the GAMM under your own specification (see [Try a model spec](#try-a-model-spec)).
+  - See [R/README](R/README.md) for inputs, outputs, and data flow.
 - `data/` --- forecasts (`covid19-forecast-hub-europe.parquet`), observed incidence, populations, model classification, and computed scores.
 - `report/quarto/` --- the manuscript section files; `report/quarto/supplement/` the supplement.
 - `output/` --- fitted model results and diagnostic plots, under scale-named subdirectories (`log/`, `natural/`).
@@ -70,6 +73,7 @@ To re-run the analysis end to end:
 3. Score forecasts on the log and natural scales (writes to `data/`):
 
    ```{r}
+      library(here)
       source(here("R", "process-score.R"))
    ```
 
@@ -79,10 +83,15 @@ To re-run the analysis end to end:
       source(here("R", "process-data.R"))
    ```
 
-5. Fit the GAMM to the weighted interval score (writes to `output/`):
+5. Fit the GAMM to the weighted interval score, once per scoring scale (writes to `output/log/` and `output/natural/`).
+   Sourcing the script only defines `model_wis()`; the calls do the fitting, and take several minutes each.
 
    ```{r}
       source(here("R", "analysis-model.R"))
+      model_wis(scoring_scale = "log", output_dir = here("output", "log"),
+                spec_label = "primary-fs")
+      model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
+                spec_label = "primary-fs")
    ```
 
 6. Render the manuscript, or the full site (manuscript, supplement PDF, and supplement pages):
@@ -94,7 +103,13 @@ To re-run the analysis end to end:
 
    Render `index.qmd`, not `report/manuscript.qmd`: the latter's includes are project-root-relative and only resolve when a file at the repo root is the top-level document.
 
-   `analysis-model.R` must be run before rendering --- it is not sourced by the results section.
+   Run `model_wis()` before rendering. The results section reads `output/log/results.rds` and does not refit.
+
+#### Try a model spec
+
+To see how the estimates move when the model changes, open [R/diy-model.qmd](R/diy-model.qmd).
+It refits the GAMM on a within-model subsample of the saved analysis data (about a minute per fit), and compares effects across specifications: adjustment set, scoring scale, response family, and horizon term.
+Edit the `update()` calls to try your own.
 
 --------------------------------------------------------------------------------
 

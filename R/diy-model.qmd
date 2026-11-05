@@ -1,0 +1,120 @@
+---
+title: "Try a model spec"
+format:
+  html:
+    toc: true
+execute:
+  warning: false
+  message: false
+---
+
+Refit the GAMM under alternative specifications and see how the effects move.
+Each fit uses a subsample of the saved analysis data (half the rows within each model), so a fit takes about a minute.
+Smaller subsamples are faster but unreliable: at 25% the Method x target variance collapses and every structure effect shrinks to zero.
+Fits are cached to `output/diy/`; editing a formula under an existing label refits it.
+
+Effects are on the log link, so `exp(value)` is the WIS ratio against the average: 1.2 is 20% worse than average.
+Estimates on the subsample are close to, not identical with, the paper's. Set `frac = 1` in `load_diy_data()` to reproduce them exactly (about 100 s per fit; render detached, as in `CLAUDE.md`).
+
+Requires `output/log/results.rds` and `output/natural/results.rds` from `model_wis()`.
+
+```{r setup}
+library(here)
+source(here("R", "analysis-model.R")) # m.formula_joint
+source(here("R", "utils-diy.R"))
+
+data_log <- load_diy_data("log", frac = 0.5)
+baseline <- fit_spec("baseline", m.formula_joint, data_log)
+m.formula_joint
+```
+
+## 1. Adjustment
+
+Method alone (with the target, since the Method cells are by target) against the full model.
+The gap is what the adjustment set does to the structure estimates.
+`Method_by_target` shows the cells behind each pooled effect.
+
+```{r adjustment}
+#| fig-height: 7
+method_only <- fit_spec(
+  "method only",
+  wis ~ s(Method, Epi_target, bs = "re") + Epi_target,
+  data_log
+)
+compare_specs(list(baseline, method_only), c("Method", "Method_by_target"))
+```
+
+## 2. Drop one adjustment at a time
+
+Which confounder moves the Method effects most?
+
+```{r drop-one}
+drop_terms <- list(
+  "no location" = . ~ . - s(Location, bs = "re"),
+  "no variant" = . ~ . - s(VariantPhase, bs = "re"),
+  "no incidence" = . ~ . - s(Incidence),
+  "no trend" = . ~ . - s(Trend, bs = "re")
+)
+dropped <- imap(drop_terms, \(term, label) {
+  fit_spec(label, update(m.formula_joint, term), data_log)
+})
+compare_specs(c(list(baseline), dropped), "Method")
+spec_stats(c(list(baseline), dropped))
+```
+
+## 3. Scoring scale
+
+The same formula on WIS scored on the natural scale.
+Natural-scale WIS grows with incidence, so large countries and peaks weigh more.
+
+```{r scale}
+data_natural <- load_diy_data("natural", frac = 0.5)
+natural <- fit_spec("natural scale", m.formula_joint, data_natural)
+compare_specs(list(baseline, natural), c("Method", "CountryTargets"))
+```
+
+## 4. Response family
+
+Gaussian with a log link against the primary Tweedie.
+A log-link Gaussian cannot start from scores of exactly zero, so this arm adds 1e-7 to every score, as `R/sensitivity/check-family.R` does.
+See that script for why the primary fit is Tweedie.
+
+```{r family}
+data_offset <- load_diy_data("log", frac = 0.5, wis_offset = 1e-7)
+gaussian_fit <- fit_spec("gaussian", m.formula_joint, data_offset,
+                         family = gaussian(link = "log"))
+compare_specs(list(baseline, gaussian_fit), "Method")
+```
+
+## 5. Horizon term
+
+A model random effect with one shared horizon curve, against the primary per-model horizon deviations (`fs`).
+The `fs` term shrinks models that forecast few horizons towards the shared curve.
+
+```{r horizon}
+#| fig-height: 10
+model_re <- fit_spec(
+  "model re",
+  update(m.formula_joint,
+         . ~ . - s(Horizon, Model, k = 4, bs = "fs") + s(Model, bs = "re")),
+  data_log
+)
+compare_specs(list(baseline, model_re), "Model")
+```
+
+## Your own
+
+Copy a chunk, change the `update()`, give it a new label.
+
+```{r own}
+#| eval: false
+mine <- fit_spec("mine", update(m.formula_joint, . ~ . + s(Horizon, by = Epi_target, k = 4)), data_log)
+compare_specs(list(baseline, mine), c("Method", "CountryTargets"))
+```
+
+## Fits
+
+```{r stats}
+spec_stats(c(list(baseline, method_only), dropped,
+             list(natural, gaussian_fit, model_re)))
+```

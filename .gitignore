@@ -91,3 +91,7 @@ README_files/
 # Rendered sensitivity notebooks (render locally from the .qmd)
 /R/sensitivity/*.html
 /R/sensitivity/*_files/
+# DIY model fits (R/diy-model.qmd)
+/output/diy/
+/R/diy-model.html
+/R/diy-model_files/

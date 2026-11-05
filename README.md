@@ -20,40 +20,46 @@ Becker (3), Jamie McLean (1), Sam Abbott (1), Sebastian Funk (1)
 Abstract
 </summary>
 
-Forecasters predicting infectious disease outbreaks have met with
-varying success. Some of this variation in performance comes from the
-method used to make a forecast, when different models are better or
-worse at prediction. The rest comes from the target being forecast, when
-some outbreaks are easier or harder to predict than others. However,
-when many forecasters each predict many different targets, it becomes
-difficult to trace the impact of these factors shaping performance. Here
-we use a regression model to separate the effect of the forecasting
-method, from the difficulty of the target, in forecast performance.
+Forecasters predicting infectious disease outbreaks meet with varying
+success. When many forecasters each predict many different targets, it
+is difficult to identify why their performance varies. Considering this
+variation, we separate the process of creating a forecast from the
+process generating the target it predicts. Comparing across combinations
+of the two conflates the method a forecaster used with the difficulty of
+the targets they chose, while stratifying by these factors leaves too
+few comparable forecasts. We identify common strategies for this
+problem, and demonstrate a regression-based approach to evaluation with
+sparse data.
 
-We evaluated forecasts of weekly COVID-19 cases and deaths over two
-years across 32 European countries, scoring them against observed data
-with the Weighted Interval Score (WIS). We expected a model’s structure
-to shape how well it predicted, so we classified 48 models by structure
-(agent-based, mechanistic, semi-mechanistic, statistical, or human
-judgement) and estimated how much structure alone affected performance.
-A generalised additive mixed model let us adjust for everything that
-makes a target easier or harder to predict: the outcome being forecast,
-its level and trend, the dominant variant, the country, the forecast
-horizon, and differences between individual models.
+We evaluated 207,713 forecasts of weekly COVID-19 cases and deaths from
+48 models over two years across 32 European countries, scored against
+observed data with the weighted interval score of log-transformed values
+(LWIS). We classified models by structure (agent-based, mechanistic,
+semi-mechanistic, statistical, or human judgement), and estimated the
+effect of model structure in a generalised additive mixed model
+adjusting for the epidemiological outcome, its level and trend, the
+dominant pathogen variant, the country, the forecast horizon, whether a
+model forecast for one or many countries, and differences between
+individual models. No model structure was clearly different from the
+overall average (ratios 0.96 to 1.08 of the average LWIS, all intervals
+spanning 1). Instead, performance was driven by factors varying between
+forecast targets, such as the epidemic trend. We left substantial
+variation in individual model performance unexplained. When ranking
+individual models by their performance relative to others in the sample,
+we noted an individual model’s ordinal position was only weakly
+persistent before-and-after adjustment (Spearman’s rank correlation
+0.37).
 
-Once we accounted for the difficulty of the target, no single type of
-model performed best. That overall result concealed structures that
-predicted one outcome relatively well and the other relatively poorly,
-differences that cancelled out when we averaged across case and death
-forecasts. Differences in European COVID-19 forecast performance were
-driven more by which targets were hard to predict than by which
-modelling approach a forecaster used.
-
-This approach sits between informal and fully formal ways of handling
-bias in evaluation studies. As infectious disease forecasting grows, we
-encourage evaluators to choose from a wider range of study designs,
-matching the formality of the method to the question, so they can
-isolate the part of performance they actually want to measure.
+Our model-based approach sits between informal and fully formal ways of
+handling bias in observational studies of forecast performance. Less
+formal designs such as stratification suffice with a single target or a
+structured sample of forecasters, while going further could include
+propensity weighting or a fully specified causal estimand. As infectious
+disease forecasting grows, we encourage evaluators to match the
+formality of the design to the question and the data available.
+Evaluating across multiple forecast targets requires explicit accounting
+for the variation producing each target, before considering what varies
+within the forecasting process.
 
 </details>
 
@@ -73,12 +79,43 @@ Read the work as it stands:
   [report/supplement.qmd](./report/supplement.qmd) combines them into a
   single PDF, and [report/supplement/](./report/supplement/) renders
   them as separate website pages.
-- The pre-print is on
-  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611).
+- The former pre-print is on
+  [medRxiv](https://doi.org/10.1101/2025.04.10.25325611); note, this is
+  out of date.
+  - See an [overview of what’s
+    changed](submission/development-since-first-submission.md)
+
+#### Explore
+
+A guide to the codebase:
+
+- `R/` — analysis and utility scripts:
+  - `process-score.R` scores forecasts; `process-data.R` joins scores to
+    explanatory variables; `analysis-model.R` fits the GAMM;
+    `analysis-descriptive.R` builds summary tables;
+    `plot-model-results.R` and `plot-model-flow.R` make the figures;
+    `dag-check.R` defines the confounding DAG.
+  - `analysis-supplement.R` builds the supplement’s descriptive tables
+    and figures.
+  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` — data
+    access, model metadata, and variant-phase classification;
+    `utils-effects.R` extracts effects and contrasts from the fitted
+    GAMM.
+  - `R/sensitivity/` — robustness checks (response family, family by
+    interaction, horizon specification, link function, autocorrelation).
+  - `diy-model.qmd` and `utils-diy.R` refit the GAMM under your own
+    specification (see [Try a model spec](#try-a-model-spec)).
+  - See [R/README](R/README.md) for inputs, outputs, and data flow.
+- `data/` — forecasts (`covid19-forecast-hub-europe.parquet`), observed
+  incidence, populations, model classification, and computed scores.
+- `report/quarto/` — the manuscript section files;
+  `report/quarto/supplement/` the supplement.
+- `output/` — fitted model results and diagnostic plots, under
+  scale-named subdirectories (`log/`, `natural/`).
 
 #### Reproduce
 
-To re-run the analysis end to end, without editing anything:
+To re-run the analysis end to end:
 
 1.  Restore the package environment
     ([renv](https://rstudio.github.io/renv/articles/renv.html)):
@@ -93,6 +130,7 @@ To re-run the analysis end to end, without editing anything:
 3.  Score forecasts on the log and natural scales (writes to `data/`):
 
     ``` r
+       library(here)
        source(here("R", "process-score.R"))
     ```
 
@@ -102,10 +140,17 @@ To re-run the analysis end to end, without editing anything:
        source(here("R", "process-data.R"))
     ```
 
-5.  Fit the GAMM to the weighted interval score (writes to `output/`):
+5.  Fit the GAMM to the weighted interval score, once per scoring scale
+    (writes to `output/log/` and `output/natural/`). Sourcing the script
+    only defines `model_wis()`; the calls do the fitting, and take
+    several minutes each.
 
     ``` r
        source(here("R", "analysis-model.R"))
+       model_wis(scoring_scale = "log", output_dir = here("output", "log"),
+                 spec_label = "primary-fs")
+       model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
+                 spec_label = "primary-fs")
     ```
 
 6.  Render the manuscript, or the full site (manuscript, supplement PDF,
@@ -120,29 +165,17 @@ To re-run the analysis end to end, without editing anything:
     includes are project-root-relative and only resolve when a file at
     the repo root is the top-level document.
 
-    `analysis-model.R` must be run before rendering — it is not sourced
-    by the results section.
+    Run `model_wis()` before rendering. The results section reads
+    `output/log/results.rds` and does not refit.
 
-#### Explore
+#### Try a model spec
 
-A guide to the codebase:
-
-- `R/` — analysis and utility scripts:
-  - `process-score.R` scores forecasts; `process-data.R` joins scores to
-    explanatory variables; `analysis-model.R` fits the GAMM;
-    `analysis-descriptive.R` builds summary tables;
-    `plot-model-results.R` and `plot-model-flow.R` make the figures;
-    `dag-check.R` defines the confounding DAG.
-  - `utils-data.R`, `utils-metadata.R`, `utils-variants.R` — data
-    access, model metadata, and variant-phase classification.
-  - `R/sensitivity/` — robustness checks (autocorrelation, link
-    function, log-response model, model-building notebook).
-- `data/` — forecasts (`covid19-forecast-hub-europe.parquet`), observed
-  incidence, populations, model classification, and computed scores.
-- `report/quarto/` — the manuscript section files;
-  `report/quarto/supplement/` the supplement.
-- `output/` — fitted model results and diagnostic plots, under
-  scale-named subdirectories (`log/`, `log-resp/`, `natural/`).
+To see how the estimates move when the model changes, open
+[R/diy-model.qmd](R/diy-model.qmd). It refits the GAMM on a within-model
+subsample of the saved analysis data (about a minute per fit), and
+compares effects across specifications: adjustment set, scoring scale,
+response family, and horizon term. Edit the `update()` calls to try your
+own.
 
 ------------------------------------------------------------------------
 

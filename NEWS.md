@@ -9,6 +9,13 @@ Newest first.
 
 `R/sensitivity/check-horizon-spec.qmd` is now part of the site render, under a new Sensitivity navbar menu (Horizon). It reads the cached fits in `output/sensitivity/horizon-spec/` and fits nothing at render. The supplement's model page links to it; the PDF keeps the file path.
 
+## Unreleased: README refresh and a page for trying model specs
+
+`README.qmd`, `README.md`, `R/README.md`, `R/diy-model.qmd`, `R/utils-diy.R`, `.gitignore`
+
+The READMEs are brought up to date with the Tweedie family, the Method x Epi_target interaction, the fs horizon term and the current sensitivity scripts. The reproduce steps now call `model_wis()` once per scale, since sourcing `analysis-model.R` fits nothing.
+`R/diy-model.qmd` refits the GAMM on a within-model subsample of the saved analysis data and compares effects across five changes: adjustment set, dropping one confounder, scoring scale, response family, and horizon term. `R/utils-diy.R` provides `load_diy_data()`, `fit_spec()` (cached to `output/diy/`, refitted when the formula or family changes), `spec_stats()` and `compare_specs()`. The page is not part of the site render.
+
 ## Unreleased — Rank comparison by quartile
 
 `R/plot-model-results.R`, `report/quarto/_results.qmd`, `_discussion.qmd`, `report/quarto/supplement/_estimates.qmd`, `report/references.bib`, `slides/lab-meeting.qmd`

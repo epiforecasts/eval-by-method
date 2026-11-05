@@ -161,7 +161,7 @@ model_wis <- function(
   method_by_target <- method_target_effects(m.fits_joint) |>
     mutate(model = "Adjusted")
 
-  # Model effects at horizon 1 only, the horizon every model forecast.
+  # Model effects at horizon 1 only (which every model forecast).
   # Kept out of `effects` for the same reason (supplement only).
   model_h1 <- model_horizon_effects(m.fits_joint, horizons = 1) |>
     mutate(model = "Adjusted")
