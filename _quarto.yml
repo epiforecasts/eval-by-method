@@ -5,6 +5,7 @@ project:
     - index.qmd
     - report/supplement.qmd
     - report/supplement/*.qmd
+    - R/sensitivity/check-horizon-spec.qmd
     - slides/lab-meeting.qmd
 
 bibliography: report/references.bib
@@ -32,6 +33,10 @@ website:
             href: report/supplement/sensitivity.html
           - text: "Full supplement (PDF)"
             href: report/supplement.pdf
+      - text: "Sensitivity"
+        menu:
+          - text: "Horizon"
+            href: R/sensitivity/check-horizon-spec.html
       - text: "Slides"
         href: slides/lab-meeting.html
 

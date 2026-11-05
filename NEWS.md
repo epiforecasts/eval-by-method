@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased: Horizon sensitivity page on the site
+
+`_quarto.yml`
+
+`R/sensitivity/check-horizon-spec.qmd` is now part of the site render, under a new Sensitivity navbar menu (Horizon). It reads the cached fits in `output/sensitivity/horizon-spec/` and fits nothing at render.
+
 ## Unreleased — Rank comparison by quartile
 
 `R/plot-model-results.R`, `report/quarto/_results.qmd`, `_discussion.qmd`, `report/quarto/supplement/_estimates.qmd`, `report/references.bib`, `slides/lab-meeting.qmd`
