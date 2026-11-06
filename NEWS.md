@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased: Covariate timing and epidemic growth notebook (#187)
+
+`R/sensitivity/check-trend-spec.qmd`, `output/sensitivity/trend-spec/`, `_quarto.yml`
+
+A notebook builds from the primary model to a candidate replacement in steps, each changing one thing: covariates at the forecast date; incidence by outcome; the categorical trend replaced by continuous growth (average weekly change in log incidence over the past three weeks, the same weeks the trend reads); growth by outcome; and a growth-by-incidence interaction with shrinkage margins (`ti(..., bs = c("ts", "ts"))`), so the interaction can shrink to near zero. A diagnostic fit with growth from the forecast date to the target week shows how much adjusting for the outcome explains. Weeks with negative counts, which `download_obs()` sets to missing, are carried forward from the last observed week, so all 207,713 forecasts keep their covariates at both dates. Each fit's summary is cached in `output/sensitivity/trend-spec/`, keyed on formula and number of forecasts, so the page fits nothing at render once the cache exists. The page is listed under the site's Sensitivity menu. The primary model is unchanged.
+
 ## Unreleased: Horizon sensitivity page on the site
 
 `_quarto.yml`, `report/quarto/supplement/_model.qmd`

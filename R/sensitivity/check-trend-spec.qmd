@@ -1,0 +1,593 @@
+---
+title: "Sensitivity: covariate timing and epidemic growth"
+format:
+  html:
+    code-fold: true
+    toc: true
+execute:
+  warning: false
+  message: false
+---
+
+<!-- Fits are cached in output/sensitivity/trend-spec/<label>.rds and reused when the formula and n match. The first render fits every specification (slow); run it detached: -->
+<!-- nohup caffeinate -is quarto render R/sensitivity/check-trend-spec.qmd > output/logs/trend-spec_$(date +%F-%H%M).log 2>&1 & -->
+
+```{r setup}
+library(here)
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(readr)
+library(lubridate)
+library(ggplot2)
+library(knitr)
+library(mgcv)
+# m.formula_joint, process_data(), and the effect extractors used for the main results
+source(here("R", "analysis-model.R"))
+cache_dir <- here("output", "sensitivity", "trend-spec")
+```
+
+```{r covariates}
+# Observed weekly counts by outcome. download_obs() set weeks with negative
+# counts to NA; carry the last observed week forward so every specification
+# fits the same forecasts.
+obs <- c(Cases = "case", Deaths = "death") |>
+  map(\(x) read_csv(here("data", paste0("observed-", x, ".csv")),
+                    show_col_types = FALSE)) |>
+  list_rbind(names_to = "Epi_target") |>
+  arrange(Epi_target, location, target_end_date) |>
+  group_by(Epi_target, location) |>
+  mutate(
+    carried = is.na(observed),
+    observed = zoo::na.locf(observed, na.rm = FALSE),
+    # Trend as in download_obs(): ratio of 3-week moving averages one week
+    # apart, cut at ±5%
+    ma = zoo::rollmean(observed, k = 3, align = "right", fill = NA),
+    ratio = ma / lag(ma),
+    Trend_new = ifelse(is.nan(ratio), "Stable",
+                       ifelse(ratio >= 1.05, "Increasing",
+                              ifelse(ratio <= 0.95, "Decreasing", "Stable"))),
+    Incidence = log(observed + 1),
+    # any carried-forward week among the four read by trend and growth
+    carried_window = zoo::rollapply(carried, 4, any, align = "right",
+                                    fill = NA)
+  ) |>
+  ungroup()
+
+# Recomputed trend matches download_obs() wherever no week was carried forward
+stopifnot(with(filter(obs, !is.na(trend), !carried_window),
+               all(Trend_new == trend)))
+
+# Growth: average weekly change in log incidence over the past 3 weeks
+obs <- obs |>
+  left_join(
+    transmute(obs, Epi_target, location,
+              target_end_date = target_end_date + weeks(3),
+              Incidence_lag3 = Incidence),
+    by = c("Epi_target", "location", "target_end_date")
+  ) |>
+  left_join(
+    ungroup(classify_variant_phases()),
+    by = c("location", "target_end_date")
+  ) |>
+  transmute(Epi_target, location, week = target_end_date, Incidence,
+            Trend = Trend_new, VariantPhase,
+            growth = (Incidence - Incidence_lag3) / 3, carried_window)
+
+# Join covariates to each forecast at the target week and at the forecast date
+# (the last complete week before the forecast: target week minus horizon)
+at_week <- function(d, week_col, suffix) {
+  cov <- rename_with(obs, \(x) paste0(x, suffix),
+                     -c(Epi_target, location, week))
+  left_join(d, cov, by = c("Epi_target", Location = "location",
+                           setNames("week", week_col)))
+}
+scores <- process_data("log") |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model), !is.na(wis)) |>
+  select(-any_of(c("Incidence", "Trend", "VariantPhase"))) |>
+  mutate(Epi_target = epi_target,
+         forecast_week = target_end_date - weeks(Horizon))
+trend_levels <- c("Stable", "Increasing", "Decreasing")
+covariates <- scores |>
+  at_week("target_end_date", "_target") |>
+  at_week("forecast_week", "_forecast") |>
+  mutate(
+    growth_realised = (Incidence_target - Incidence_forecast) / Horizon,
+    Epi_target = factor(Epi_target),
+    Location = factor(Location),
+    across(starts_with("Trend_"), \(x) factor(x, levels = trend_levels)),
+    across(starts_with("VariantPhase_"), factor)
+  )
+n_scored <- nrow(covariates)
+covariates <- covariates |>
+  filter(if_all(c(Incidence_target, Trend_target, VariantPhase_target,
+                  Incidence_forecast, Trend_forecast, VariantPhase_forecast,
+                  growth_forecast), \(x) !is.na(x)))
+```
+
+```{r specifications}
+# Each step changes one thing from the previous one. Step 0 is the primary
+# model as specified in R/analysis-model.R.
+specs <- tribble(
+  ~step, ~label, ~previous, ~dates, ~growth, ~terms, ~change,
+  "0", "current", NA, "target", NA,
+  's(Incidence) + s(Trend, bs = "re")',
+  "Current primary model",
+  "1", "forecast-date", "current", "forecast", NA,
+  's(Incidence) + s(Trend, bs = "re")',
+  "Covariates at the forecast date",
+  "2", "incidence-by", "forecast-date", "forecast", NA,
+  's(Incidence, by = Epi_target) + s(Trend, bs = "re")',
+  "Incidence by outcome",
+  "3", "growth", "incidence-by", "forecast", "forecast",
+  "s(Incidence, by = Epi_target) + s(growth)",
+  "Trend replaced by growth",
+  "4", "growth-by", "growth", "forecast", "forecast",
+  "s(Incidence, by = Epi_target) + s(growth, by = Epi_target)",
+  "Growth by outcome",
+  "5", "growth-incidence", "growth-by", "forecast", "forecast",
+  paste("s(Incidence, by = Epi_target) + s(growth, by = Epi_target)",
+        '+ ti(Incidence, growth, by = Epi_target, bs = c("ts", "ts"))'),
+  "Growth by incidence interaction",
+  "R", "realised-growth", "growth", "forecast", "realised",
+  "s(Incidence, by = Epi_target) + s(growth)",
+  "Step 3 with growth from the forecast date to the target week"
+)
+
+base_formula <- update(m.formula_joint,
+                       . ~ . - s(Incidence) - s(Trend, bs = "re"))
+spec_formula <- function(terms) {
+  update(base_formula, as.formula(paste(". ~ . +", terms)))
+}
+spec_data <- function(dates, growth) {
+  covariates |>
+    mutate(
+      Incidence = .data[[paste0("Incidence_", dates)]],
+      Trend = .data[[paste0("Trend_", dates)]],
+      VariantPhase = .data[[paste0("VariantPhase_", dates)]],
+      growth = if (is.na(growth)) NA_real_ else .data[[paste0("growth_", growth)]]
+    )
+}
+# Step 0 has the same terms as the primary model (order aside)
+term_labels <- \(f) attr(terms(f), "term.labels")
+stopifnot(setequal(term_labels(spec_formula(specs$terms[1])),
+                   term_labels(m.formula_joint)))
+```
+
+```{r fits}
+# Fit one specification and keep a small summary; reuse the cache when the
+# formula and number of forecasts match
+fit_spec <- function(spec) {
+  f <- spec_formula(spec$terms)
+  d <- spec_data(spec$dates, spec$growth)
+  path <- file.path(cache_dir, paste0(spec$label, ".rds"))
+  if (file.exists(path)) {
+    out <- readRDS(path)
+    if (identical(out$formula, deparse1(f)) && out$n == nrow(d)) return(out)
+    message("cache stale, refitting: ", spec$label)
+  }
+  message("-------- fitting: ", spec$label)
+  time <- system.time(
+    fit <- bam(f, data = d, family = tw(link = "log"),
+               method = "fREML", discrete = TRUE)
+  )[["elapsed"]]
+  smooth_labels <- keep(map_chr(fit$smooth, "label"),
+                        \(x) grepl("Incidence|growth", x))
+  out <- list(
+    label = spec$label,
+    formula = deparse1(f),
+    n = nrow(d),
+    time_s = time,
+    edf = sum(fit$edf),
+    dev_expl = summary(fit)$dev.expl,
+    aic = AIC(fit),
+    tweedie_p = fit$family$getTheta(TRUE),
+    converged = fit$converged,
+    s_table = as_tibble(summary(fit)$s.table, rownames = "term"),
+    method = method_pooled_effects(fit),
+    method_by_target = method_target_effects(fit),
+    model = model_horizon_effects(fit),
+    ranef = extract_ranef_terms(fit),
+    smooths = bind_rows(
+      gratia::smooth_estimates(fit, n = 200,
+                               select = discard(smooth_labels, \(x) grepl("^ti", x))),
+      if (any(grepl("^ti", smooth_labels)))
+        gratia::smooth_estimates(fit, n = 60,
+                                 select = keep(smooth_labels, \(x) grepl("^ti", x)))
+    ),
+    concurvity = tryCatch(concurvity(fit, full = TRUE),
+                          error = \(e) conditionMessage(e))
+  )
+  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+  saveRDS(out, path)
+  rm(fit)
+  gc()
+  out
+}
+fits <- specs |>
+  split(seq_len(nrow(specs))) |>
+  map(fit_spec) |>
+  set_names(specs$label)
+```
+
+## Summary
+
+<!-- P0 purpose: what changed, step by step; each step changes one thing from the previous one -->
+
+<!-- S1 headline: model structure effects ___; model ranks ___ -->
+
+<!-- S2 recommended primary specification: step ___ -->
+
+```{r summary-table}
+compare_fits <- function(a, b) {
+  m <- inner_join(a$method, b$method, by = "group", suffix = c("", "_ref"))
+  r <- inner_join(a$model, b$model, by = "group", suffix = c("", "_ref"))
+  tibble(aic_change = a$aic - b$aic,
+         method_shift = max(abs(m$value - m$value_ref)),
+         rank_cor = cor(r$value, r$value_ref, method = "spearman"))
+}
+specs |>
+  mutate(
+    dev_expl = map_dbl(label, \(l) 100 * fits[[l]]$dev_expl),
+    vs_previous = map2(label, previous, \(l, p) {
+      if (is.na(p)) tibble(aic_change = NA, method_shift = NA, rank_cor = NA)
+      else compare_fits(fits[[l]], fits[[p]])
+    }),
+    vs_current = map(label, \(l) compare_fits(fits[[l]], fits[["current"]]))
+  ) |>
+  unnest_wider(vs_previous) |>
+  unnest_wider(vs_current, names_sep = "_") |>
+  select(Step = step, Change = change,
+         `Deviance explained (%)` = dev_expl,
+         `AIC change` = aic_change,
+         `Max structure shift` = method_shift,
+         `Rank correlation` = rank_cor,
+         `Max structure shift vs current` = vs_current_method_shift,
+         `Rank correlation vs current` = vs_current_rank_cor) |>
+  kable(digits = c(0, 0, 1, 0, 3, 2, 3, 2),
+        caption = "Each step compared with the previous step (step R with step 3) and with the current model. Structure shift: largest change in a pooled model structure effect, log scale. Rank correlation: Spearman correlation of individual model effects.")
+```
+
+```{r summary-structure}
+#| fig-cap: "Pooled model structure effects at each step, as ratios of expected LWIS with 95% intervals."
+#| fig-height: 5
+fits[specs$label[specs$step != "R"]] |>
+  map(\(f) f$method) |>
+  list_rbind(names_to = "label") |>
+  left_join(select(specs, label, step, change), by = "label") |>
+  mutate(step = paste(step, change, sep = ": "),
+         step = factor(step, rev(unique(step)))) |>
+  ggplot(aes(x = exp(value), y = group, colour = step)) +
+  geom_vline(xintercept = 1, linetype = "dashed", colour = "grey50") +
+  geom_pointrange(aes(xmin = exp(lower_2.5), xmax = exp(upper_97.5)),
+                  position = position_dodge(width = 0.7), size = 0.2) +
+  scale_colour_grey(start = 0.8, end = 0, guide = guide_legend(reverse = TRUE)) +
+  labs(x = "Ratio of expected LWIS", y = NULL, colour = NULL) +
+  theme_minimal()
+```
+
+## Forecaster's dilemma
+
+### The dilemma
+
+<!-- P1 purpose: the problem -->
+
+<!-- S1 claim: the primary model joins incidence, trend and variant phase at the target week, so it adjusts for the outcome being scored -->
+
+<!-- S2 consequence: forecaster's dilemma (Lerch et al. 2017): ___ -->
+
+<!-- S3 agreed in #187 (2-6 Nov): covariates at the forecast date; target-week version kept as realised difficulty -->
+
+| Question | Covariate timing | Use here |
+|------------------------|------------------------|------------------------|
+| Does model structure matter? | either; forecast date is stricter | forecast date primary; target week as robustness |
+| Why does performance vary across targets? | forecast date: foreseeable difficulty; target week: realised difficulty | forecast date primary; target week in supplement |
+| Which model to trust? | forecast date only | forecast date |
+
+### Variables affected
+
+<!-- P2 purpose: which covariates move, and by how much -->
+
+<!-- S1 incidence, trend and variant phase all join on target_end_date (R/process-data.R) -->
+
+<!-- S2 evidence: agreement between the two dates falls with horizon for all three (table) -->
+
+<!-- S3 variant phase: handled by the date change only -->
+
+<!-- S4 weeks with negative counts carried forward from the last observed week: ___ forecasts (table, last column) -->
+
+```{r covariate-agreement}
+covariates |>
+  group_by(Outcome = Epi_target, Horizon) |>
+  summarise(
+    Forecasts = n(),
+    `Trend agrees (%)` = 100 * mean(Trend_target == Trend_forecast),
+    `Variant phase agrees (%)` =
+      100 * mean(VariantPhase_target == VariantPhase_forecast),
+    `Log incidence correlation` = cor(Incidence_target, Incidence_forecast),
+    `Carried-forward week` = sum(carried_window_forecast, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  kable(digits = c(0, 0, 0, 0, 0, 2, 0),
+        caption = paste0("Agreement between each covariate at the forecast date and in the target week. Carried-forward week: forecasts whose forecast-date covariates read a week with negative counts. ",
+                         n_scored - nrow(covariates), " of ", n_scored,
+                         " scored forecasts excluded for a missing covariate."))
+```
+
+## Handling incidence
+
+### Current
+
+<!-- P3 S1: log(Incidence + 1) of raw weekly counts in the target week; one s(Incidence) shared by cases and deaths (R/analysis-model.R) -->
+
+### Forecast date
+
+<!-- P4 S1: same term, incidence in the last complete week before the forecast date -->
+
+<!-- S2 evidence: log incidence correlation between dates (table above) -->
+
+<!-- S3 effect on estimates: ___ (figure, steps 0 and 1) -->
+
+### As an epidemic process
+
+<!-- P5 purpose: log scale -->
+
+<!-- S1 claim: incidence is logged to mirror the log-transformed scores; already in the current model; the natural-scale fit keeps counts -->
+
+<!-- S2 ___ -->
+
+<!-- P6 purpose: by outcome -->
+
+<!-- S1 problem: a shared curve gives deaths the cases shape, shifted by a constant -->
+
+<!-- S2 problem: death counts are about 100-fold below case counts, so the outcomes barely overlap (rug); the low end of the curve competes with the Epi_target intercept -->
+
+<!-- S3 fix: s(Incidence, by = Epi_target) -->
+
+<!-- S4 effect on estimates: ___ (figure, step 2) -->
+
+```{r incidence-effects}
+#| fig-cap: "Incidence effect at steps 0 to 2, as ratios of expected LWIS with 95% intervals. Steps 0 and 1 share one curve across outcomes. Ticks: incidence of a sample of forecasts by outcome, at the forecast date."
+#| fig-height: 4
+inc_rug <- covariates |>
+  slice_sample(n = 2000) |>
+  transmute(Outcome = Epi_target, Incidence = Incidence_forecast)
+# Smooths by outcome are evaluated over the pooled range; show each outcome
+# only over its own observed range
+observed_range <- covariates |>
+  group_by(Outcome = as.character(Epi_target)) |>
+  summarise(inc_min = min(Incidence_forecast), inc_max = max(Incidence_forecast),
+            .groups = "drop")
+fits[c("current", "forecast-date", "incidence-by")] |>
+  map(\(f) filter(f$smooths, grepl("Incidence", .smooth))) |>
+  list_rbind(names_to = "label") |>
+  left_join(select(specs, label, step, change), by = "label") |>
+  mutate(panel = factor(paste(step, change, sep = ": ")),
+         Outcome = coalesce(as.character(Epi_target), "Shared")) |>
+  left_join(observed_range, by = "Outcome") |>
+  filter(Outcome == "Shared" | between(Incidence, inc_min, inc_max)) |>
+  ggplot(aes(x = Incidence, y = exp(.estimate))) +
+  geom_ribbon(aes(ymin = exp(.estimate - 1.96 * .se),
+                  ymax = exp(.estimate + 1.96 * .se), fill = Outcome),
+              alpha = 0.2) +
+  geom_line(aes(colour = Outcome)) +
+  geom_rug(data = inc_rug, aes(x = Incidence, colour = Outcome),
+           inherit.aes = FALSE, alpha = 0.2, sides = "b") +
+  facet_wrap(~panel, labeller = label_wrap_gen(30)) +
+  scale_y_log10() +
+  scale_colour_manual(values = c(Cases = "grey20", Deaths = "firebrick",
+                                 Shared = "grey50")) +
+  scale_fill_manual(values = c(Cases = "grey20", Deaths = "firebrick",
+                               Shared = "grey50")) +
+  labs(x = "Log incidence, log(count + 1)", y = "Ratio of expected LWIS") +
+  theme_minimal()
+```
+
+## Handling trend
+
+### Current
+
+<!-- P7 S1: ratio of 3-week moving averages one week apart, cut at ±5% into increasing, stable, decreasing (R/utils-data.R); measured in the target week -->
+
+<!-- S2 fact: under steady growth the ratio equals exp(weekly growth), so "stable" is weekly log growth between -0.05 and 0.05 -->
+
+<!-- S3 role (Kath, old table): reference: realised difficulty -->
+
+### Forecast date
+
+<!-- P8 S1 evidence: trend at the forecast date matches the target-week trend less often at longer horizons (table above; heatmap) -->
+
+<!-- S2 link: the further ahead the target, the more its trend describes what happened rather than what was knowable -->
+
+<!-- S3 effect on estimates: ___ (trend effects table) -->
+
+<!-- S4 limit (Kath, old table): fixes forecaster's dilemma but is still a weak identification of trend (±5% is arbitrary and doesn't work well across the epicurve) -->
+
+```{r trend-transition}
+#| fig-cap: "Trend at the forecast date (rows) against trend in the target week (columns), by outcome and horizon. Each row sums to 100%."
+#| fig-height: 5
+covariates |>
+  count(Epi_target, Horizon, Trend_forecast, Trend_target) |>
+  group_by(Epi_target, Horizon, Trend_forecast) |>
+  mutate(p = n / sum(n)) |>
+  ungroup() |>
+  ggplot(aes(x = Trend_target, y = Trend_forecast, fill = p)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = scales::percent(p, accuracy = 1)), size = 2.8) +
+  facet_grid(Epi_target ~ Horizon, labeller = labeller(Horizon = label_both)) +
+  scale_fill_gradient(low = "white", high = "firebrick", guide = "none") +
+  labs(x = "Trend in target week", y = "Trend at forecast date") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        panel.grid = element_blank())
+```
+
+```{r trend-effects}
+fits[c("current", "forecast-date", "incidence-by")] |>
+  map(\(f) filter(f$ranef, group_var == "Trend")) |>
+  list_rbind(names_to = "label") |>
+  left_join(select(specs, label, step), by = "label") |>
+  transmute(Trend = group, Step = paste("Step", step),
+            ratio = sprintf("%.2f (%.2f to %.2f)", exp(value),
+                            exp(lower_2.5), exp(upper_97.5))) |>
+  pivot_wider(names_from = Step, values_from = ratio) |>
+  kable(caption = "Trend effects as ratios of expected LWIS (95% interval). Step 0: target week; steps 1 and 2: forecast date.")
+```
+
+### As an epidemic process
+
+<!-- P9 purpose: define growth -->
+
+<!-- S1 definition: average weekly change in log incidence over the past 3 weeks, ending in the last complete week before the forecast date (sbfnk, #187) -->
+
+<!-- S2 notation, after the words: growth = (log(y_t + 1) - log(y_{t-3} + 1)) / 3 -->
+
+<!-- S3 rationale (Kath, old table): categories to continuous -->
+
+<!-- S4 why 3 weeks: reads the same four weeks of data as the current trend; chosen by principle, not fit -->
+
+<!-- S5 data: finalised counts, not those forecasters saw at the time -->
+
+```{r growth-schematic}
+#| fig-cap: "Weeks of data read by each trend or growth measure, for a forecast at horizon 2. Week 0 is the last complete week before the forecast date (red line). Schematic."
+#| fig-height: 2.5
+schematic <- tribble(
+  ~measure, ~weeks,
+  "Trend, target week (current)", -1:2,
+  "Trend, forecast date", -3:0,
+  "Growth, forecast date", c(-3, 0),
+  "Realised growth", c(0, 2)
+) |>
+  unnest_longer(weeks) |>
+  mutate(measure = factor(measure, rev(unique(measure))))
+ggplot(schematic, aes(x = weeks, y = measure)) +
+  geom_tile(data = expand_grid(weeks = -3:2, measure = levels(schematic$measure)),
+            fill = "grey95", colour = "white") +
+  geom_tile(fill = "grey30", colour = "white") +
+  geom_vline(xintercept = 0.5, colour = "firebrick", linewidth = 1) +
+  scale_x_continuous(breaks = -3:2,
+                     labels = c("-3", "-2", "-1", "0", "1", "2\ntarget")) +
+  labs(x = "Week", y = NULL) +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
+```
+
+<!-- P10 purpose: by outcome -->
+
+<!-- S1 claim: growth is scale-free, so both outcomes span the same range; pooling is a choice about effect modification, not a confounded estimate -->
+
+<!-- S2 fit: s(growth, by = Epi_target) -->
+
+<!-- S3 effect on estimates: ___ (figure, steps 3 and 4) -->
+
+<!-- P11 purpose: realised growth, an extended demonstration of why the forecaster's dilemma matters compared to what we have now (Kath, old table) -->
+
+<!-- S1 fit: step 3 with growth from the forecast date to the target week in place of growth before it; diagnostic only, never a candidate -->
+
+<!-- S2 evidence: deviance explained ___ vs ___ for step 3 (summary table, step R) -->
+
+<!-- S3 link: the difference is variation "explained" by information no forecaster had -->
+
+```{r growth-effects}
+#| fig-cap: "Growth effect at steps 3 and 4, and for realised growth (step R), as ratios of expected LWIS with 95% intervals. Shown over the central 98% of observed growth."
+#| fig-height: 4
+growth_range <- quantile(c(covariates$growth_forecast, covariates$growth_realised),
+                         c(0.01, 0.99))
+fits[c("growth", "growth-by", "realised-growth")] |>
+  map(\(f) filter(f$smooths, grepl("^s\\(growth", .smooth))) |>
+  list_rbind(names_to = "label") |>
+  left_join(select(specs, label, step, change), by = "label") |>
+  mutate(panel = factor(paste(step, change, sep = ": "),
+                        unique(paste(step, change, sep = ": "))),
+         Outcome = coalesce(as.character(Epi_target), "Shared")) |>
+  filter(between(growth, growth_range[1], growth_range[2])) |>
+  ggplot(aes(x = growth, y = exp(.estimate))) +
+  geom_vline(xintercept = 0, linetype = "dashed", colour = "grey60") +
+  geom_ribbon(aes(ymin = exp(.estimate - 1.96 * .se),
+                  ymax = exp(.estimate + 1.96 * .se), fill = Outcome),
+              alpha = 0.2) +
+  geom_line(aes(colour = Outcome)) +
+  facet_wrap(~panel, labeller = label_wrap_gen(30)) +
+  scale_y_log10() +
+  scale_colour_manual(values = c(Cases = "grey20", Deaths = "firebrick",
+                                 Shared = "grey50")) +
+  scale_fill_manual(values = c(Cases = "grey20", Deaths = "firebrick",
+                               Shared = "grey50")) +
+  labs(x = "Weekly growth in log incidence", y = "Ratio of expected LWIS") +
+  theme_minimal()
+```
+
+## Additions and interactions
+
+### Current
+
+<!-- P12 S1: additive; no interaction between incidence and trend -->
+
+### Growth and incidence
+
+<!-- P13 S1 question (Kath, old table): whether growth matters differently at high and low incidence -->
+
+<!-- S2 term: ti(Incidence, growth, by = Epi_target, bs = c("ts", "ts")); shrinkage margins let the interaction shrink to near zero, so one fit shows whether it is needed -->
+
+<!-- S3 positivity: surface shown only where at least 10 forecasts fall in a cell -->
+
+<!-- S4 effect on estimates: ___ (table, figure) -->
+
+```{r interaction-table}
+conc <- fits[["growth-incidence"]]$concurvity
+conc <- if (is.matrix(conc)) {
+  tibble(term = colnames(conc), concurvity = conc["estimate", ])
+} else {
+  tibble(term = character(), concurvity = numeric())
+}
+fits[["growth-incidence"]]$s_table |>
+  filter(grepl("Incidence|growth", term)) |>
+  left_join(conc, by = "term") |>
+  select(Term = term, edf, `p-value`, Concurvity = concurvity) |>
+  kable(digits = c(0, 2, 3, 2),
+        caption = "Incidence and growth terms at step 5. An interaction term with edf near zero has been shrunk out. Concurvity: how far each term can be approximated by the rest of the model (0 none, 1 entirely).")
+```
+
+```{r interaction-surface}
+#| fig-cap: "Interaction between incidence and growth at step 5, on the log scale (0: no interaction), by outcome. Shown over the central 98% of observed growth; cells with fewer than 10 forecasts are blank; colours capped at ±1."
+#| fig-height: 4
+surface <- fits[["growth-incidence"]]$smooths |>
+  filter(grepl("^ti", .smooth))
+support <- covariates |>
+  transmute(Epi_target, Incidence = Incidence_forecast, growth = growth_forecast)
+surface |>
+  group_by(Epi_target) |>
+  group_modify(\(s, key) {
+    d <- filter(support, Epi_target == key$Epi_target)
+    breaks_i <- seq(min(s$Incidence), max(s$Incidence), length.out = 31)
+    breaks_g <- seq(min(s$growth), max(s$growth), length.out = 31)
+    cells <- count(tibble(i = findInterval(d$Incidence, breaks_i, all.inside = TRUE),
+                          g = findInterval(d$growth, breaks_g, all.inside = TRUE)),
+                   i, g)
+    s |>
+      mutate(i = findInterval(Incidence, breaks_i, all.inside = TRUE),
+             g = findInterval(growth, breaks_g, all.inside = TRUE)) |>
+      left_join(cells, by = c("i", "g"))
+  }) |>
+  ungroup() |>
+  filter(coalesce(n, 0L) >= 10,
+         between(growth, growth_range[1], growth_range[2])) |>
+  ggplot(aes(x = Incidence, y = growth, fill = .estimate)) +
+  geom_raster() +
+  facet_wrap(~Epi_target, scales = "free_x") +
+  scale_fill_gradient2(low = "grey20", mid = "white", high = "firebrick",
+                       limits = c(-1, 1), oob = scales::squish) +
+  labs(x = "Log incidence, log(count + 1)", y = "Weekly growth in log incidence",
+       fill = "Interaction\n(log scale)") +
+  theme_minimal() +
+  theme(panel.background = element_rect(fill = "grey85", colour = NA),
+        panel.grid = element_blank())
+```
+
+### Considered, not fitted
+
+<!-- P14 change in growth and growth variability -->
+
+<!-- S1 rationale (Kath, old table): considered as change in growth and its variability are also considered part if its "entropy" (predictability) -->
+
+<!-- S2 decision (Kath, old table): against, due to concurvity - change and variability both depend on / overlap with effects of absolute incident counts, so effects wouldn't be identifiable between change/variability and growth/level -->
