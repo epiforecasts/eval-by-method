@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased: Horizon sensitivity page on the site
+
+`_quarto.yml`, `report/quarto/supplement/_model.qmd`
+
+`R/sensitivity/check-horizon-spec.qmd` is now part of the site render, under a new Sensitivity navbar menu (Horizon). It reads the cached fits in `output/sensitivity/horizon-spec/` and fits nothing at render. The supplement's model page links to it; the PDF keeps the file path.
+
 ## Unreleased — Covariates at the forecast date (sensitivity, #187)
 
 `R/process-data.R`, `R/analysis-model.R`, `R/sensitivity/check-covariate-date.R`, `output/sensitivity/covariate-date/`
