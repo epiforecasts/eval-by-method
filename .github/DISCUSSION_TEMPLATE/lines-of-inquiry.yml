@@ -1,0 +1,41 @@
+title: "Line of inquiry: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One thread per question that runs across several Issues or notebooks.
+        Issues hold codebase work; this thread holds the reasoning.
+        Edit this opening post as the line moves; add dated replies for each step.
+        Not yet tested? Add it as a reply in Ideas/leads (#95) instead, and open a thread once it has an Issue or notebook.
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What this line sets out to find out, and why, in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: position
+    attributes:
+      label: Current position
+      description: What is decided, and what is still open. Update as the line moves.
+    validations:
+      required: true
+  - type: textarea
+    id: issues
+    attributes:
+      label: Issues
+      description: Parent Issue and sub-issues for the codebase work.
+      placeholder: "- #"
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Notebooks and code
+      description: Rendered pages, notebooks, scripts, key commits.
+  - type: markdown
+    attributes:
+      value: |
+        Replies: dated entries with three parts.
+        Intent (in your own words); what changed, including anything dropped; what is still uncertain.
+        Agent-drafted replies open with "LLM-drafted, reviewed by @handle".
+        Close the thread as resolved or outdated when the line concludes.
