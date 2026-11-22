@@ -55,6 +55,21 @@ m.formula_joint <- wis ~
 # (model_horizon_effects()).
 # See R/sensitivity/check-horizon-spec.qmd
 
+# --- Fitting ---
+# Settings shared by every fit of the joint model, including the sensitivity
+# notebooks. tw() deparses its `link` argument, so do.call passes on the value.
+# `...` goes to bam(), e.g. `control`.
+fit_wis <- function(formula, data, family_link = "log", ...) {
+  bam(
+    formula = formula,
+    data = data,
+    family = do.call(tw, list(link = family_link)),
+    method = "fREML",
+    discrete = TRUE,
+    ...
+  )
+}
+
 # --- Functional model ---
 # Function: fits the joint model and univariate models, extracts random effects,
 # and saves results. Takes a spec_label to archive diagnostics for comparison.
@@ -87,8 +102,6 @@ model_wis <- function(
   } else if (scoring_scale != "natural") {
     stop("scoring_scale must be either 'log' or 'natural'")
   }
-  # tw() deparses its `link` argument, so use do.call to pass on the value
-  m.family <- do.call(tw, list(link = family_link))
 
   # --- Model fitting
   # univariate per effect
@@ -105,14 +118,8 @@ model_wis <- function(
     model = wis ~ s(Model, bs = "re")
   )
   m.fit <- function(m.formula) {
-    bam(
-      formula = m.formula,
-      data = m.data,
-      family = m.family,
-      method = "fREML",
-      control = gam.control(trace = TRUE),
-      discrete = TRUE
-    )
+    fit_wis(m.formula, m.data, family_link,
+            control = gam.control(trace = TRUE))
   }
   m.fits_uni <- map(m.formulas_uni, m.fit)
 
