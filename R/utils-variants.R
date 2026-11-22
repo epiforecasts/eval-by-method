@@ -78,8 +78,12 @@ classify_variant_phases <- function() {
     week = isoweek(target_end_date)) |>
     group_by(year, week) |>
     filter(target_end_date == min(target_end_date)) |>
+    # From the week ending 27 Feb 2021: the covariate week of the first
+    # forecasts (7 Mar 2021) when covariates are lagged a week before the
+    # forecast date (process_data()). Starting a week earlier leaves every
+    # later phase unchanged.
     filter(between(target_end_date,
-                   as.Date("2021-03-01"), as.Date("2023-03-17"))) |>
+                   as.Date("2021-02-22"), as.Date("2023-03-17"))) |>
     mutate(year_week = paste0(year, "-",
                               str_pad(week, width = 2, side = "left", pad = "0")))
   locs <- unique(read_csv(here("data", "populations.csv"))$location)
