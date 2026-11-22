@@ -1,27 +1,35 @@
-# Sensitivity: covariates at the target date vs the forecast date (issue #187)
+# Sensitivity: covariates before the forecast date vs at the target date (#187)
 #
-# The primary model adjusts for incidence, trend and variant phase in the target
-# week, which uses the observed outcome. That conditions the evaluation on
+# The primary model adjusts for incidence, trend and variant phase in the week
+# ending 8 days before the forecast date (target_end_date - (horizon + 1)
+# weeks; see process_data()). That uses only information the forecaster could
+# have had: the week ending the day before the forecast date was at best partly
+# reported when the forecast was made.
+#
+# The earlier primary model joined the same covariates at the target week,
+# which uses the observed outcome. That conditions the evaluation on
 # information the forecaster did not have (a "forecaster's dilemma", Lerch et
 # al. 2017), and with a Tweedie log-link GAM it weights each score by a function
-# of the outcome, which breaks propriety. The alternative joins the same
-# covariates at the last complete week observed when the forecast was made
-# (target_end_date - horizon weeks), which keeps propriety.
+# of the outcome, which breaks propriety. It is kept here as a sensitivity
+# analysis: it adjusts for realised rather than predictable difficulty.
 #
 # This script:
 #   1. describes how far the two sets of covariates agree, by horizon
-#   2. fits the joint model with forecast-date covariates (both scales)
-#   3. compares adjusted effects against the target-date fit in output/<scale>/
+#   2. fits the joint model with target-date covariates (both scales); only
+#      needed if the archived fit in output/sensitivity/covariate-date/target/
+#      is missing
+#   3. compares adjusted effects of the primary fit in output/<scale>/ against
+#      the target-date fit
 #
 # Outputs: output/sensitivity/covariate-date/
 #   - covariate-agreement.csv
-#   - <scale>/results.rds, fit_obs.rds  (forecast-date fit)
-#   - effects-comparison.csv, effects-comparison.png
+#   - target/<scale>/results.rds, fit_obs.rds  (target-date fit)
+#   - effects-comparison-<scale>.csv, effects-comparison-<scale>.png
 #
 # Run: source(here::here("R", "sensitivity", "check-covariate-date.R"))
 #      check_covariate_agreement()
-#      fit_covariate_date()          # slow: one joint + univariate fits per scale
-#      compare_covariate_date()
+#      fit_target_date()             # slow; skip while the archive exists
+#      compare_covariate_date("log"); compare_covariate_date("natural")
 
 library(here)
 library(dplyr)
@@ -33,33 +41,35 @@ source(here("R", "process-data.R"))
 
 sens_dir <- here("output", "sensitivity", "covariate-date")
 
-# 1. Agreement between target- and forecast-date covariates ------------------
+# 1. Agreement between target-date and primary covariates ---------------------
 check_covariate_agreement <- function(scoring_scale = "log") {
   dir.create(sens_dir, recursive = TRUE, showWarnings = FALSE)
   target <- process_data(scoring_scale, covariate_date = "target")
-  forecast <- process_data(scoring_scale, covariate_date = "forecast")
-  stopifnot(nrow(target) == nrow(forecast))
+  primary <- process_data(scoring_scale, covariate_date = "forecast",
+                          covariate_lag_weeks = 1)
+  stopifnot(nrow(target) == nrow(primary))
 
   # Rows align (same scores, only covariates differ), so compare row-wise
   agreement <- tibble(
     Epi_target = target$epi_target,
     Horizon = target$Horizon,
     trend_target = target$Trend,
-    trend_forecast = forecast$Trend,
+    trend_primary = primary$Trend,
     variant_target = target$VariantPhase,
-    variant_forecast = forecast$VariantPhase,
+    variant_primary = primary$VariantPhase,
     log_inc_target = log(target$Incidence + 1),
-    log_inc_forecast = log(forecast$Incidence + 1)
+    log_inc_primary = log(primary$Incidence + 1)
   ) |>
     group_by(Epi_target, Horizon) |>
     summarise(
       n = n(),
-      trend_agree = mean(trend_target == trend_forecast, na.rm = TRUE),
-      variant_agree = mean(variant_target == variant_forecast, na.rm = TRUE),
-      log_incidence_cor = cor(log_inc_target, log_inc_forecast,
+      trend_agree = mean(trend_target == trend_primary, na.rm = TRUE),
+      variant_agree = mean(variant_target == variant_primary, na.rm = TRUE),
+      log_incidence_cor = cor(log_inc_target, log_inc_primary,
                               use = "complete.obs"),
-      forecast_covariate_missing = sum(is.na(trend_forecast) |
-                                         is.na(log_inc_forecast)),
+      primary_covariate_missing = sum(is.na(trend_primary) |
+                                        is.na(log_inc_primary) |
+                                        is.na(variant_primary)),
       .groups = "drop"
     )
 
@@ -67,23 +77,24 @@ check_covariate_agreement <- function(scoring_scale = "log") {
   agreement
 }
 
-# 2. Fit with forecast-date covariates ----------------------------------------
-fit_covariate_date <- function(scales = c("log", "natural")) {
+# 2. Fit with target-date covariates ------------------------------------------
+fit_target_date <- function(scales = c("log", "natural")) {
   source(here("R", "analysis-model.R"))
   walk(scales, \(scale) {
     model_wis(
       scoring_scale = scale,
-      output_dir = file.path(sens_dir, scale),
-      spec_label = "covariate-forecast-date",
-      covariate_date = "forecast"
+      output_dir = file.path(sens_dir, "target", scale),
+      spec_label = "covariate-target-date",
+      covariate_date = "target"
     )
   })
 }
 
 # 3. Compare adjusted effects --------------------------------------------------
-# target_dir holds the target-date fit (the primary output by default)
 compare_covariate_date <- function(scale = "log",
-                                   target_dir = here("output", scale)) {
+                                   primary_dir = here("output", scale),
+                                   target_dir = file.path(sens_dir, "target",
+                                                          scale)) {
   read_effects <- function(dir) {
     results <- readRDS(file.path(dir, "results.rds"))
     results$effects |>
@@ -95,14 +106,14 @@ compare_covariate_date <- function(scale = "log",
 
   comparison <- bind_rows(
     target = read_effects(target_dir),
-    forecast = read_effects(file.path(sens_dir, scale)),
+    primary = read_effects(primary_dir),
     .id = "covariate_date"
   )
 
   wide <- comparison |>
     pivot_wider(names_from = covariate_date,
                 values_from = c(value, lower_2.5, upper_97.5)) |>
-    mutate(difference = value_forecast - value_target)
+    mutate(difference = value_primary - value_target)
   write_csv(wide, file.path(sens_dir, paste0("effects-comparison-", scale, ".csv")))
 
   # Plot effects on the ratio scale (exp of log-link effect), excluding the
@@ -112,15 +123,17 @@ compare_covariate_date <- function(scale = "log",
   plot <- comparison |>
     filter(group_var %in% focal) |>
     mutate(group_var = factor(group_var, levels = focal),
-           covariate_date = factor(covariate_date, levels = c("target", "forecast"),
-                                   labels = c("Target date", "Forecast date"))) |>
+           covariate_date = factor(covariate_date,
+                                   levels = c("target", "primary"),
+                                   labels = c("Target week",
+                                              "Week before forecast date"))) |>
     ggplot(aes(x = exp(value), y = group, colour = covariate_date)) +
     geom_vline(xintercept = 1, linetype = "dashed", colour = "grey50") +
     geom_pointrange(aes(xmin = exp(lower_2.5), xmax = exp(upper_97.5)),
                     position = position_dodge(width = 0.5), size = 0.3) +
     facet_grid(group_var ~ ., scales = "free_y", space = "free_y") +
-    scale_colour_manual(values = c("Target date" = "#b2182b",
-                                   "Forecast date" = "#2166ac")) +
+    scale_colour_manual(values = c("Target week" = "#b2182b",
+                                   "Week before forecast date" = "#2166ac")) +
     labs(x = "Ratio of expected LWIS (adjusted)", y = NULL,
          colour = "Covariates measured at") +
     theme_minimal() +
@@ -131,7 +144,7 @@ compare_covariate_date <- function(scale = "log",
   # Rank agreement of individual model effects across the two fits
   model_cor <- wide |>
     filter(group_var == "Model") |>
-    summarise(spearman = cor(value_target, value_forecast, method = "spearman"),
+    summarise(spearman = cor(value_target, value_primary, method = "spearman"),
               max_abs_difference = max(abs(difference)))
 
   list(comparison = wide, model_rank_correlation = model_cor, plot = plot)
