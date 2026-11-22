@@ -67,6 +67,18 @@ get_forecasts <- function(data_type = "death") {
 }
 
 # Observed data ---------------------------------------------------------
+# Epidemic trend from weekly counts in date order: ratio of 3-week moving
+# averages one week apart, cut at ±5%. A ratio of 0/0 is "Stable"; a window
+# with a missing week gives NA. Under steady growth the ratio is exp(weekly
+# growth), so "Stable" is weekly log growth from log(0.95) to log(1.05).
+classify_trend <- function(observed) {
+  ma <- zoo::rollmean(observed, k = 3, align = "right", fill = NA)
+  ratio <- ma / lag(ma, n = 1)
+  ifelse(is.nan(ratio), "Stable",
+         ifelse(ratio >= 1.05, "Increasing",
+                ifelse(ratio <= 0.95, "Decreasing", "Stable")))
+}
+
 download_obs <- function(data_type = "death") {
   file_name <- paste0("truth_JHU-Incident%20", str_to_title(data_type), "s.csv")
   obs <- read_csv(paste0(
@@ -94,19 +106,7 @@ download_obs <- function(data_type = "death") {
 
   # Add "trend" as change in 3-week moving average
   obs <- obs |>
-    mutate(
-      ma = zoo::rollmean(observed,
-        align = "right", k = 3, fill = NA
-      ),
-      trend = ma / lag(ma, n = 1),
-      trend = as.factor(ifelse(is.nan(trend), "Stable",
-        ifelse(trend >= 1.05, "Increasing",
-          ifelse(trend <= 0.95, "Decreasing",
-            "Stable"
-          )
-        )
-      ))
-    )
+    mutate(trend = as.factor(classify_trend(observed)))
   obs <- obs |>
     select(location, target_end_date, observed, trend)
   write_csv(obs, here("data", paste0("observed-", data_type, ".csv")))
