@@ -214,8 +214,6 @@ fits <- specs |>
 
 <!-- P0 purpose: what changed, step by step; each step changes one thing from the previous one -->
 
-<!-- S1 headline: model structure effects ___; model ranks ___ -->
-
 <!-- S2 recommended primary specification: step ___ -->
 
 ```{r summary-table}
@@ -270,13 +268,13 @@ fits[specs$label[specs$step != "R"]] |>
 
 ### The dilemma
 
-<!-- P1 purpose: the problem -->
-
-<!-- S1 claim: the primary model joins incidence, trend and variant phase at the target week, so it adjusts for the outcome being scored -->
+This is a problem where we adjust for incidence, trend and variant phase.
+In the first version of this work, we modelled these outcome-linked covariates at the target week, thereby conditioning on the outcome.
 
 <!-- S2 consequence: forecaster's dilemma (Lerch et al. 2017): ___ -->
 
-<!-- S3 agreed in #187 (2-6 Nov): covariates at the forecast date; target-week version kept as realised difficulty -->
+After some discussion (#187), we decided to do things properly and include covariates at the forecast date. 
+At the same time, there is still a meaningful interpretation of values by target date. It helps to adjust for performance as realised difficulty, versus predictable difficulty.
 
 | Question | Covariate timing | Use here |
 |------------------------|------------------------|------------------------|
@@ -340,7 +338,7 @@ covariates |>
 
 <!-- S1 problem: a shared curve gives deaths the cases shape, shifted by a constant -->
 
-<!-- S2 problem: death counts are about 100-fold below case counts, so the outcomes barely overlap (rug); the low end of the curve competes with the Epi_target intercept -->
+<!-- S2 problem: death counts are 172-fold below case counts (median across 32 countries of each country's median weekly cases over median weekly deaths, weeks ending 7 March 2021 to 10 March 2023), so the outcomes barely overlap (rug); the low end of the curve competes with the Epi_target intercept -->
 
 <!-- S3 fix: s(Incidence, by = Epi_target) -->
 
@@ -389,7 +387,7 @@ fits[c("current", "forecast-date", "incidence-by")] |>
 
 <!-- P7 S1: ratio of 3-week moving averages one week apart, cut at ±5% into increasing, stable, decreasing (R/utils-data.R); measured in the target week -->
 
-<!-- S2 fact: under steady growth the ratio equals exp(weekly growth), so "stable" is weekly log growth between -0.05 and 0.05 -->
+<!-- S2 fact: under steady growth the ratio equals exp(weekly growth) of the 3-week moving average of counts, so "stable" is weekly log growth from log(0.95) = -0.051 to log(1.05) = 0.049 -->
 
 <!-- S3 role (Kath, old table): reference: realised difficulty -->
 
@@ -444,12 +442,12 @@ fits[c("current", "forecast-date", "incidence-by")] |>
 
 <!-- S3 rationale (Kath, old table): categories to continuous -->
 
-<!-- S4 why 3 weeks: reads the same four weeks of data as the current trend; chosen by principle, not fit -->
+<!-- S4 why 3 weeks: spans the same four weeks as the current trend (weeks -3 to 0), though growth reads only the first and last of them and the trend averages all four (schematic); chosen by principle, not fit -->
 
 <!-- S5 data: finalised counts, not those forecasters saw at the time -->
 
 ```{r growth-schematic}
-#| fig-cap: "Weeks of data read by each trend or growth measure, for a forecast at horizon 2. Week 0 is the last complete week before the forecast date (red line). Schematic."
+#| fig-cap: "Weeks of data read by each trend or growth measure, for a forecast at horizon 2. Week 0 is the last complete week before the forecast date; the red line marks the forecast date. Schematic."
 #| fig-height: 2.5
 schematic <- tribble(
   ~measure, ~weeks,
@@ -588,6 +586,6 @@ surface |>
 
 <!-- P14 change in growth and growth variability -->
 
-<!-- S1 rationale (Kath, old table): considered as change in growth and its variability are also considered part if its "entropy" (predictability) -->
+<!-- S1 rationale (Kath, old table): considered as change in growth and its variability are also considered part of its "entropy" (predictability) -->
 
 <!-- S2 decision (Kath, old table): against, due to concurvity - change and variability both depend on / overlap with effects of absolute incident counts, so effects wouldn't be identifiable between change/variability and growth/level -->
