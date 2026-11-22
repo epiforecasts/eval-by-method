@@ -5,6 +5,7 @@ library(purrr)
 library(readr)
 library(lubridate)
 source(here("R", "utils-variants.R"))
+source(here("R", "utils-data.R"))
 
 # Metadata ----------------------------------------------------------------
 # Get classification of model types
@@ -35,6 +36,47 @@ classify_models <- function(file = here("data", "model-classification.csv"),
     ungroup()
 
   return(methods)
+}
+
+# Weekly covariates per target series ----------------------------------
+# One row per outcome, location and week, from the observed counts written by
+# download_obs() (R/utils-data.R):
+#   - Incidence: weekly count; NA where download_obs() removed a negative count
+#   - Trend: classify_trend() of those counts
+#   - growth: average weekly change in log(count + 1) over the past 3 weeks
+#   - VariantPhase: dominant variant phase
+# Missing weeks stay missing: Trend and growth are NA wherever the weeks they
+# read include one. Used by R/sensitivity/check-trend-spec.qmd; process_data()
+# still reads incidence and trend as stored (issue #187).
+observed_covariates <- function() {
+  obs <- c(Cases = "case", Deaths = "death") |>
+    map(\(x) {
+      read_csv(here("data", paste0("observed-", x, ".csv")),
+               show_col_types = FALSE)
+    }) |>
+    list_rbind(names_to = "epi_target") |>
+    arrange(epi_target, location, target_end_date) |>
+    group_by(epi_target, location) |>
+    mutate(Trend = classify_trend(observed)) |>
+    ungroup()
+  # Recomputed trend matches the stored one, so the stored file is current
+  stopifnot(identical(obs$Trend, as.character(obs$trend)))
+
+  # Join on date rather than row position, so a missing week cannot shift it
+  lagged <- transmute(obs, epi_target, location,
+                      target_end_date = target_end_date + weeks(3),
+                      observed_lag3 = observed)
+  obs |>
+    left_join(lagged, by = c("epi_target", "location", "target_end_date")) |>
+    left_join(ungroup(classify_variant_phases()),
+              by = c("location", "target_end_date")) |>
+    transmute(
+      epi_target, location, target_end_date,
+      Incidence = observed,
+      Trend = factor(Trend, levels = c("Stable", "Increasing", "Decreasing")),
+      growth = (log(observed + 1) - log(observed_lag3 + 1)) / 3,
+      VariantPhase
+    )
 }
 
 # Prepare data for analysis -----------------------------
