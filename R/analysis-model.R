@@ -73,24 +73,27 @@ fit_wis <- function(formula, data, family_link = "log", ...) {
 # --- Functional model ---
 # Function: fits the joint model and univariate models, extracts random effects,
 # and saves results. Takes a spec_label to archive diagnostics for comparison.
-# covariate_date ("target" or "forecast") sets which week incidence, trend and
-# variant phase describe; see process_data() and issue #187.
+# covariate_date ("target" or "forecast") and covariate_lag_weeks set which
+# week incidence, trend and variant phase describe. The primary model uses the
+# week ending 8 days before the forecast date; see process_data() and #187.
 model_wis <- function(
   scoring_scale = "log",
   family_link = "log",
   output_dir = "output",
   spec_label = NULL,
-  covariate_date = "target"
+  covariate_date = "forecast",
+  covariate_lag_weeks = 1
 ) {
   # --- Data handling
   m.data <- process_data(scoring_scale = scoring_scale,
-                         covariate_date = covariate_date)
+                         covariate_date = covariate_date,
+                         covariate_lag_weeks = covariate_lag_weeks)
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly
     # drop forecasts missing a covariate explicitly, so saved data matches the
-    # fit (none at the target date; a few at the forecast date, where the
-    # observed week before the forecast is missing)
+    # fit (none at the target date; a few before the forecast date, where a
+    # week the covariates read had a negative count)
     filter(!is.na(Incidence), !is.na(Trend), !is.na(VariantPhase)) |>
     mutate(Epi_target = as.factor(epi_target))
 

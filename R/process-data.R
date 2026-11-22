@@ -84,11 +84,19 @@ observed_covariates <- function() {
 # covariate_date: which week the target-specific covariates (incidence, trend,
 #   variant phase) describe.
 #   - "target": the target week being forecast (uses the observed outcome)
-#   - "forecast": the last complete week observed when the forecast was made
-#     (target_end_date - horizon weeks), so covariates use only information
-#     available to the forecaster. See issue #187 (forecaster's dilemma).
+#   - "forecast": a week before the forecast date, so covariates use only
+#     information available to the forecaster. See issue #187 (forecaster's
+#     dilemma).
+# covariate_lag_weeks: with "forecast", how many weeks before the week ending
+#   the day before the forecast date. That week was at best partly reported
+#   when the forecast was made, so the model uses 1: the week ending 8 days
+#   before the forecast date (target_end_date - (horizon + 1) weeks). 0 gives
+#   the week ending the day before. Ignored with "target".
+# The default here is "target", which describes the target week, for the
+# descriptive tables and figures; model_wis() sets its own default.
 process_data <- function(scoring_scale = "log",
-                         covariate_date = c("target", "forecast")) {
+                         covariate_date = c("target", "forecast"),
+                         covariate_lag_weeks = 1) {
   covariate_date <- match.arg(covariate_date)
   # Get raw interval scores ----------------------------------------
   # scores data created in: R/process-score.r
@@ -141,7 +149,7 @@ process_data <- function(scoring_scale = "log",
     mutate(covariate_end_date = if (covariate_date == "target") {
       target_end_date
     } else {
-      target_end_date - weeks(horizon)
+      target_end_date - weeks(horizon + covariate_lag_weeks)
     })
 
   data <- scores_raw |>
