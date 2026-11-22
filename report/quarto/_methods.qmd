@@ -33,6 +33,11 @@ We include two epidemiological outcomes, incident cases or deaths, and considere
 We then considered observed data associated with our view of important transmission dynamics.
 Upstream of transmission, we include the target country, as a proxy for population-level transmission behaviour and policy; and dominant circulating pathogen variant, classified from public sequence data into a discrete sequence of phases [@variant-data].
 Downstream of transmission, we identified the count of incident outcomes in the target week, and the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average (with a change of +/-5% as "Stable").
+<!-- TODO #187 (Kath to write): S1 above says "in the target week"; the model now measures incidence, trend and variant phase in the week ending 8 days before the forecast date (target week minus horizon plus one week) -->
+<!-- S2 why not the target week: it uses the observed outcome the forecast is scored against (forecaster's dilemma, Lerch et al. 2017) -->
+<!-- S3 why a week earlier than the forecast date: the week ending the day before was at best partly reported when the forecast was made -->
+<!-- S4 caveat: covariates use finalised counts, not those available in real time; 571 of 207,713 forecasts dropped for a missing covariate -->
+<!-- S5 pointer: target-week version as sensitivity analysis (realised rather than predictable difficulty), Supplement -->
 We fully detail each included covariate in the Supplement.
 
 #### Residual confounding
@@ -55,7 +60,7 @@ library(dplyr)
 # Tweedie power parameter of the primary fit, so the text tracks the fit
 tweedie_p <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
                       show_col_types = FALSE) |>
-  filter(spec_label == "primary-fs", scale == "log") |>
+  filter(spec_label == "forecast-lag1", scale == "log") |>
   pull(family) |>
   (\(x) as.numeric(sub(".*p=([0-9.]+).*", "\\1", x)))()
 ```
