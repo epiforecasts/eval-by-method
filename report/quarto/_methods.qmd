@@ -25,23 +25,27 @@ Four authors (KS, SF, FB, JM) classified models independently, with at least two
 The majority vote determined the final classification, ties were resolved by an additional independent rater, and two investigators (SF, KS) reviewed all classifications.
 
 We classified each model as forecasting for a single country, or for more than one (noting that forecasters changed the number of targets they submitted over time).
-We included the length of forecast horizon to represent increasing uncertainty of forecasting further ahead. We included this as both an effect shared by all models, and also allowed for a per-model variation (as each model's penalised deviation from the shared horizon effect, with respect to the overall level of each model).
+We included the length of forecast horizon to represent increasing uncertainty of forecasting further ahead.
+We included this as both an effect shared by all models, and also allowed for a per-model variation (as each model's penalised deviation from the shared horizon effect, including the overall level of each model).
+This per-model term also separates the contribution of model structure from variation between individual models.
 
 #### Target processes
 
-We included the epidemiological outcome of incident cases or deaths as a fixed effect acting on forecast scores. We then allowed the effect of model structure to differ between outcomes. 
+We included the epidemiological outcome of incident cases or deaths as a fixed effect acting on forecast scores.
+We then allowed the effect of model structure to differ between outcomes.
 We also included a random effect for target country, to account for residual population-level epidemic variation.
 We then considered observable time-varying factors associated with transmission dynamics.
 We included the count of incident outcomes; the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average, with a change of +/-5% as "Stable"); and the dominant pathogen variant in the target country (classified from public viral sequencing data into discrete variant phases [@variant-data]).
 
 We considered whether these time-varying factors (incidence, trend and variant phase) should be considered prospectively, from the forecaster's perspective, or retrospectively, from the perspective of the target outcome.
-Here, we include covariates in the week ending eight days before the forecast date, using finalised counts.
+Here, we included covariates in the week ending eight days before the forecast date, using finalised counts.
 This accounted for information available to forecasters as they produced predictions.
 We conservatively used the most recent week likely to have been fully reported.
-Alternatively, we considered using covariates as observed at the target date. This would help demonstrate the difficulty of a target in retrospect.
+Alternatively, we considered using covariates as observed at the target date.
+This would help demonstrate the difficulty of a target in retrospect.
 However, conditioning on values that were not available in the forecaster's information set would weight scores by realised outcomes, therefore biasing an evaluation of forecaster accuracy independent of that outcome (analogous to the "forecaster's dilemma" [@lerch2017]).
 We intended to account for prospective, predictable difficulty shared among forecasters, therefore we included covariates as known before the forecast date.
-We include the alternative view referenced to the target date, in the Supplement.
+We report the alternative view referenced to the target date in the Supplement.
 
 <!-- move to Discussion :
 #### Residual confounding
