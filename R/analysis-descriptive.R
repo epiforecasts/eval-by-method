@@ -127,6 +127,15 @@ plot_wis_over_time <- function(scores) {
     theme(strip.placement = "outside")
 }
 
+# Ratio with interval, from effects on the log-link scale ---------
+# "1.05 (0.98, 1.13)": the multiplicative ratio of expected LWIS relative to
+# the average level of the factor, with its interval.
+format_ratio <- function(value, lower, upper, digits = 2) {
+  fmt <- paste0("%.", digits, "f")
+  sprintf(paste0(fmt, " (", fmt, ", ", fmt, ")"),
+          exp(value), exp(lower), exp(upper))
+}
+
 # Table: structure effects by epidemiological target ---------
 # One row per model structure, one column per target, from the
 # s(Method, Epi_target) cells.
