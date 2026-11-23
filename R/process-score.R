@@ -10,7 +10,11 @@ walk(c("case", "death"), \(target) {
   forecasts_raw <- get_forecasts(data_type = target)
 
   # Observed data
-  obs <- read_csv(here("data", paste0("observed-", target, ".csv")))
+  # Keep only what scoring needs: score() drops rows with an NA in any column
+  # (scoringutils na.omit), so extra columns such as trend would silently drop
+  # forecasts that have an observed value
+  obs <- read_csv(here("data", paste0("observed-", target, ".csv"))) |>
+    select(location, target_end_date, observed)
   pop <- read_csv(here("data", "populations.csv")) |>
     rename(pop = population)
   obs <- left_join(obs, pop, by = "location")
@@ -45,6 +49,13 @@ walk(c("case", "death"), \(target) {
       predicted = "prediction", quantile_level = "quantile"
     ) |>
     score()
+
+  # Every forecast with an observed value is scored, on both scales
+  n_scorable <- forecasts |>
+    filter(!is.na(observed)) |>
+    distinct(model, location, forecast_date, horizon, target_end_date) |>
+    nrow()
+  stopifnot(nrow(scores) == 2 * n_scorable)
 
   write_csv(scores, here("data", paste0("scores-raw-", target, ".csv")))
 })
