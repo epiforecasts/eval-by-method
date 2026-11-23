@@ -1,7 +1,7 @@
 ### Study design
 
 We aimed to estimate the effect of model structure on forecast performance.
-We evaluated forecasts of incident COVID-19 cases and deaths for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European COVID-19 Forecast Hub [@euroHub2021].
+We evaluated weekly forecasts of COVID-19 outcomes of incident cases and deaths, for 32 European countries between 8 March 2021 and 10 March 2023, collected by the public European COVID-19 Forecast Hub [@euroHub2021].
 The Hub solicited real-time forecasts one to four weeks ahead.
 Any forecaster was eligible for inclusion, with no selection criteria.
 For this analysis, we excluded forecasts that did not report the full set of 23 quantiles or that were more than four weeks ahead.
@@ -20,30 +20,43 @@ We report this log-transformed data evaluated with the WIS as the LWIS, and sepa
 #### Forecasting processes
 
 We classified model structures as "Agent-based" (detailed individual-level interactions), "Mechanistic" (broadly compartmental), "Semi-mechanistic" (statistical models with epidemiological elements such as delay distributions or generation intervals), "Statistical" (context-agnostic time-series), and "Judgement" (ensembles of human-judgement predictions).
-Classification used self-reported metadata: an optional description of methods, and links to model code, website or publication (schema and example in the Supplement).
-Four of us (KS, SF, FB, JM) classified models independently, with at least two rating each model.
+Classification used self-reported metadata, which included an optional description of methods, and links to model code, website or publication (schema and example in the Supplement).
+Four authors (KS, SF, FB, JM) classified models independently, with at least two rating each model.
 The majority vote determined the final classification, ties were resolved by an additional independent rater, and two investigators (SF, KS) reviewed all classifications.
 
-We classified each model as forecasting for a single country or for more than one, using a binary classification ("CountryTargets") rather than a count of countries because few models submitted for between 2 and 32 countries, and because forecasters changed the number of targets they submitted over time.
-A random effect for individual model identity separates the contribution of model structure from variation between individual implementations.
+We classified each model as forecasting for a single country, or for more than one (noting that forecasters changed the number of targets they submitted over time).
+We included the length of forecast horizon to represent increasing uncertainty of forecasting further ahead.
+We included this as both an effect shared by all models, and also allowed for a per-model variation (as each model's penalised deviation from the shared horizon effect, including the overall level of each model).
+This per-model term also separates the contribution of model structure from variation between individual models.
 
-#### Epidemiological target processes
+#### Target processes
 
-We include two epidemiological outcomes, incident cases or deaths, and considered these to separately interact with the effect of model structure.
-We then considered observed data associated with our view of important transmission dynamics.
-Upstream of transmission, we include the target country, as a proxy for population-level transmission behaviour and policy; and dominant circulating pathogen variant, classified from public sequence data into a discrete sequence of phases [@variant-data].
-Downstream of transmission, we identified the count of incident outcomes in the target week, and the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average (with a change of +/-5% as "Stable").
-We fully detail each included covariate in the Supplement.
+We included the epidemiological outcome of incident cases or deaths as a fixed effect acting on forecast scores.
+We then allowed the effect of model structure to differ between outcomes.
+We also included a random effect for target country, to account for residual population-level epidemic variation.
+We then considered observable time-varying factors associated with transmission dynamics.
+We included the count of incident outcomes; the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average, with a change of +/-5% as "Stable"); and the dominant pathogen variant in the target country (classified from public viral sequencing data into discrete variant phases [@variant-data]).
 
+We considered whether these time-varying factors (incidence, trend and variant phase) should be considered prospectively, from the forecaster's perspective, or retrospectively, from the perspective of the target outcome.
+Here, we included covariates in the week ending eight days before the forecast date, using finalised counts.
+This accounted for information available to forecasters as they produced predictions.
+We conservatively used the most recent week likely to have been fully reported.
+Alternatively, we considered using covariates as observed at the target date.
+This would help demonstrate the difficulty of a target in retrospect.
+However, conditioning on values that were not available in the forecaster's information set would weight scores by realised outcomes, therefore biasing an evaluation of forecaster accuracy independent of that outcome (analogous to the "forecaster's dilemma" [@lerch2017]).
+We intended to account for prospective, predictable difficulty shared among forecasters, therefore we included covariates as known before the forecast date.
+We report the alternative view referenced to the target date in the Supplement.
+
+<!-- move to Discussion :
 #### Residual confounding
 
-We include the length of forecast horizon (from 1 to 4 weeks) as a common confounding variable representing increasing uncertainty of forecasting further ahead; we allow this effect to vary for each individual model.
-
 We did not adjust for unobserved characteristics of the forecasting team, such as capacity, infrastructure, or experience, although these plausibly shape both the choice of model structure and realised performance.
-We therefore treat the estimand as a direct rather than a total effect, considering possible unmeasured confounders.
-We illustrate our approach as a directed acyclic graph in the Supplement, and consider this work exploratory rather than fully causal.
+-->
 
 ### Model-based analysis
+
+We assessed the direct effect of model structure on WIS.
+We illustrate our approach with a directed acyclic graph (Supplement).
 
 ```{r}
 #| label: methods-setup
@@ -55,7 +68,7 @@ library(dplyr)
 # Tweedie power parameter of the primary fit, so the text tracks the fit
 tweedie_p <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
                       show_col_types = FALSE) |>
-  filter(spec_label == "primary-fs", scale == "log") |>
+  filter(spec_label == "forecast-lag1", scale == "log") |>
   pull(family) |>
   (\(x) as.numeric(sub(".*p=([0-9.]+).*", "\\1", x)))()
 ```
@@ -75,13 +88,18 @@ The estimated $p$ was `r round(tweedie_p, 2)`, close to a Gamma, but a Gamma has
 The linear predictor decomposed into a fixed intercept, a fixed effect for the epidemiological outcome, random-effect contributions from categorical covariates, and two smooths for continuous covariates:
 
 $$
-  \eta_i = \beta_0 \;+\; \beta_{\text{outcome}}\,\mathbb{1}[\text{Deaths}_i] \;+\; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;+\; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f_{\text{Horizon}}(\mathrm{Horizon}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+  \eta_i
+  = \beta_0 \; + \; \beta_{\text{outcome}}\,\mathbb{1}[\text{Deaths}_i] \;
+    + \; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;
+    + \; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f_{\text{Horizon}}(\mathrm{Horizon}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
 $$
 
 Here $\beta_{\text{outcome}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
 
 $$
-  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g \in \mathcal{G} = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location}\}.
+  u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g
+  \in \mathcal{G}
+  = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location}\}.
 $$
 
 Model structure enters as a single grouping factor crossing with epidemiological outcome, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.

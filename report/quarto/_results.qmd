@@ -128,7 +128,7 @@ Mechanistic and semi-mechanistic models contributed `r p_by_method[["Mechanistic
 ```{r}
 #| label: fig-error-vs-obs
 #| fig-cap: >-
-#|   Log-transform weighted interval score (LWIS), against the magnitude of observed incidence per 100,000 population, for COVID-19 cases and deaths across 32 European countries.
+#|   Log-transform weighted interval score (LWIS), against the magnitude of observed incidence per 100,000 population in the target week, for COVID-19 cases and deaths across 32 European countries.
 #|   Lower LWIS indicates better performance.
 #|   Ribbons show the 5th, 25th, and 75th percentiles of LWIS (y axis), summarised within increasing bands of observed incidence spaced across the log scale (x axis).
 #|   Ribbons are coloured by forecast horizon.
@@ -189,11 +189,17 @@ Against the Hub ensemble, constructed from the median of the forecasts we assess
 #| label: results-sparsity
 
 # How thin the sample becomes once cross-classified by the categorical
-# covariates, i.e. what a stratified analysis would have to work with
+# covariates, i.e. what a stratified analysis would have to work with.
+# Uses the covariates as the model does: a week before the forecast date,
+# forecasts missing a covariate dropped (as in model_wis()).
 strata_vars <- c("epi_target", "Horizon", "Location", "Trend",
                  "VariantPhase", "CountryTargets", "Method")
-strata_possible <- prod(sapply(scores[strata_vars], n_distinct))
-strata_obs <- count(scores, across(all_of(strata_vars)))
+strata_data <- process_data(scoring_scale = "log",
+                            covariate_date = "forecast") |>
+  filter(!grepl("EuroCOVIDhub-ensemble", Model), !is.na(wis),
+         !is.na(Incidence), !is.na(Trend), !is.na(VariantPhase))
+strata_possible <- prod(sapply(strata_data[strata_vars], n_distinct))
+strata_obs <- count(strata_data, across(all_of(strata_vars)))
 strata_filled <- round(nrow(strata_obs) / strata_possible * 100)
 strata_median <- median(strata_obs$n)
 strata_thin <- round(mean(strata_obs$n < 5) * 100)

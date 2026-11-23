@@ -91,7 +91,7 @@ We report the Tweedie fit because a Gamma has no support at zero: fitting it req
 
 The choice of family matters a great deal more the log scale than the natural scale.
 On the log scale, moving from Gaussian to Tweedie reduces residual skew from `r stat_of("family-gaussian-log", "log", "resid_skew")` to `r stat_of("family-tweedie-log", "log", "resid_skew")` and kurtosis from `r stat_of("family-gaussian-log", "log", "resid_kurtosis")` to `r stat_of("family-tweedie-log", "log", "resid_kurtosis")`.
-On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("primary-fs", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
+On the natural scale, the WIS is heavily skewed, and the residual skew is essentially unchanged (`r stat_of("forecast-lag1", "natural", "resid_skew", 2)`); there the change resolves the convergence failure rather than improving the distributional fit.
 
 ```{r}
 #| label: tbl-supp-family-comparison

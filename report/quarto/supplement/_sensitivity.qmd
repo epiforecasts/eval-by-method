@@ -58,6 +58,24 @@ We tried several alternative model specifications.
 
 \* Covariates included in V2 were added based on reviewer feedback.
 
+### Covariate timing
+
+<!-- TODO #187 (Kath to write) -->
+<!-- S1 what: refit with incidence, trend and variant phase in the target week, as in the first submission, instead of the week ending 8 days before the forecast date -->
+<!-- S2 interpretation: target-week covariates adjust for realised difficulty; the primary adjusts for difficulty predictable at the time -->
+<!-- S3 agreement: trend agrees in 38-61% of forecasts and variant phase in 75-91%, falling with horizon (output/sensitivity/covariate-date/covariate-agreement.csv) -->
+<!-- S4 result: structure effects ___; Spearman correlation of individual model effects ___ -->
+
+```{r}
+#| label: fig-supp-covariate-timing
+#| fig-cap: >-
+#|   Adjusted effects with covariates in the target week and in the week
+#|   ending 8 days before the forecast date (primary), as ratios of expected
+#|   LWIS with 95% intervals.
+knitr::include_graphics(here("output", "sensitivity", "covariate-date",
+                             "effects-comparison-log.png"))
+```
+
 ### Error family and link
 
 We first used a Gaussian distribution with a log link.

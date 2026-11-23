@@ -55,20 +55,47 @@ m.formula_joint <- wis ~
 # (model_horizon_effects()).
 # See R/sensitivity/check-horizon-spec.qmd
 
+# --- Fitting ---
+# Settings shared by every fit of the joint model, including the sensitivity
+# notebooks. tw() deparses its `link` argument, so do.call passes on the value.
+# `...` goes to bam(), e.g. `control`.
+fit_wis <- function(formula, data, family_link = "log", ...) {
+  bam(
+    formula = formula,
+    data = data,
+    family = do.call(tw, list(link = family_link)),
+    method = "fREML",
+    discrete = TRUE,
+    ...
+  )
+}
+
 # --- Functional model ---
 # Function: fits the joint model and univariate models, extracts random effects,
-# and saves results. Takes a spec_label to archive diagnostics for comparison
+# and saves results. Takes a spec_label to archive diagnostics for comparison.
+# covariate_date ("target" or "forecast") and covariate_lag_weeks set which
+# week incidence, trend and variant phase describe. The primary model uses the
+# week ending 8 days before the forecast date; see process_data() and #187.
 model_wis <- function(
   scoring_scale = "log",
   family_link = "log",
   output_dir = "output",
-  spec_label = NULL
+  spec_label = NULL,
+  covariate_date = "forecast",
+  covariate_lag_weeks = 1
 ) {
   # --- Data handling
-  m.data <- process_data(scoring_scale = scoring_scale)
+  m.data <- process_data(scoring_scale = scoring_scale,
+                         covariate_date = covariate_date,
+                         covariate_lag_weeks = covariate_lag_weeks)
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly
+    # complete cases on the joint model's covariates, so the univariate and
+    # joint fits use the same forecasts (bam() would otherwise drop NAs per
+    # formula). None missing at the target date; a few before the forecast
+    # date, where a week the covariates read had a negative count
+    filter(!is.na(Incidence), !is.na(Trend), !is.na(VariantPhase)) |>
     mutate(Epi_target = as.factor(epi_target))
 
   # Settings for log or natural scale
@@ -79,8 +106,6 @@ model_wis <- function(
   } else if (scoring_scale != "natural") {
     stop("scoring_scale must be either 'log' or 'natural'")
   }
-  # tw() deparses its `link` argument, so use do.call to pass on the value
-  m.family <- do.call(tw, list(link = family_link))
 
   # --- Model fitting
   # univariate per effect
@@ -97,14 +122,8 @@ model_wis <- function(
     model = wis ~ s(Model, bs = "re")
   )
   m.fit <- function(m.formula) {
-    bam(
-      formula = m.formula,
-      data = m.data,
-      family = m.family,
-      method = "fREML",
-      control = gam.control(trace = TRUE),
-      discrete = TRUE
-    )
+    fit_wis(m.formula, m.data, family_link,
+            control = gam.control(trace = TRUE))
   }
   m.fits_uni <- map(m.formulas_uni, m.fit)
 

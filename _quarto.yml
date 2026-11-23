@@ -6,6 +6,7 @@ project:
     - report/supplement.qmd
     - report/supplement/*.qmd
     - R/sensitivity/check-horizon-spec.qmd
+    - R/sensitivity/check-trend-spec.qmd
     - slides/lab-meeting.qmd
 
 bibliography: report/references.bib
@@ -37,6 +38,8 @@ website:
         menu:
           - text: "Horizon"
             href: R/sensitivity/check-horizon-spec.html
+          - text: "Covariate timing"
+            href: R/sensitivity/check-trend-spec.html
       - text: "Slides"
         href: slides/lab-meeting.html
 
