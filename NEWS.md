@@ -3,6 +3,12 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased: Score every forecast with an observed value (#187)
+
+`R/process-score.R`, `data/scores-raw-{case,death}.csv`, `output/log/`, `output/natural/`, `output/diagnostics/`
+
+`scoringutils::score()` drops any row with an NA in any column. Scoring joined the full observed file, including its `trend` column, so forecasts whose target week had no trend went unscored even when the week had an observed value: 283 case and 377 death forecasts, including the ensemble. These forecasts would have been dropped anyway while covariates were measured in the target week, but not now that they are measured before the forecast date. Scoring now passes only `location`, `target_end_date` and `observed`, and checks that every forecast with an observed value is scored. Scored forecasts excluding the ensemble rise from 207,713 to 208,287, of which 745 lack a covariate (was 571), leaving 207,542 in the primary fit (was 207,142). The primary is refitted on both scales under `spec_label = "forecast-lag1"`. On the log scale, structure, trend and variant-phase ratios are unchanged to two decimals, the Spearman correlation of model ranks before and after adjustment stays 0.38, and individual model effects correlate above 0.99 with the previous fit. The sensitivity fits, including the target-date fit in `output/sensitivity/covariate-date/target/`, are not refitted and still use the earlier scores.
+
 ## Unreleased: Covariates a week before the forecast date in the primary model (#187)
 
 `R/process-data.R`, `R/analysis-model.R`, `R/utils-variants.R`, `R/sensitivity/check-covariate-date.R`, `output/`, `report/quarto/_methods.qmd`, `report/quarto/supplement/_model.qmd`, `report/quarto/supplement/_sensitivity.qmd`
