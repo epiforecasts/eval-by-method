@@ -181,7 +181,6 @@ beat_ensemble <- scores |>
 Aggregated performance varied with the epidemiological outcome, its magnitude, the variant phase and the forecast horizon.
 Case forecasts scored a median LWIS of `r median_by_target[["Cases"]]` against `r median_by_target[["Deaths"]]` for deaths.
 For deaths in particular, scores varied non-linearly with the magnitude of the outcome being predicted (@fig-error-vs-obs).
-<!-- TODO #187 (Kath to write): S1 link to model: the figure shows incidence in the target week (the outcome itself); the model instead adjusts for incidence in the week ending 8 days before the forecast date, what was known when forecasting -->
 <!-- S2 optional: supplement figure with that lagged incidence on the x axis -->
 Across variant phases, forecasts were most accurate during the `r phase_best` phase and least accurate during `r phase_worst`, the period of steepest change in reported incidence.
 Scores worsened with forecast horizon (@fig-error-vs-obs), from a median LWIS of `r median_by_horizon[["Cases 1"]]` at one week to `r median_by_horizon[["Cases 4"]]` at four weeks for cases, and `r median_by_horizon[["Deaths 1"]]` to `r median_by_horizon[["Deaths 4"]]` for deaths.
