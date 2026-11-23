@@ -91,9 +91,10 @@ model_wis <- function(
   m.data <- m.data |>
     filter(!grepl("EuroCOVIDhub-ensemble", Model)) |>
     filter(!is.na(wis)) |> # drop unscored forecasts explicitly
-    # drop forecasts missing a covariate explicitly, so saved data matches the
-    # fit (none at the target date; a few before the forecast date, where a
-    # week the covariates read had a negative count)
+    # complete cases on the joint model's covariates, so the univariate and
+    # joint fits use the same forecasts (bam() would otherwise drop NAs per
+    # formula). None missing at the target date; a few before the forecast
+    # date, where a week the covariates read had a negative count
     filter(!is.na(Incidence), !is.na(Trend), !is.na(VariantPhase)) |>
     mutate(Epi_target = as.factor(epi_target))
 
