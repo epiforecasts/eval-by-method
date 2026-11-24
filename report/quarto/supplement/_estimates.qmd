@@ -23,11 +23,24 @@ plot_effects(results$effects, variables = c("CountryTargets", "Location"))
 ```{r}
 #| label: fig-supp-plot-temporal-effects
 #| fig-cap: >-
-#|   Epidemic trend and variant phase both shifted performance, with increasing
-#|   trends and the Omicron BA.1 phase hardest to predict. Partial effects
+#|   Variant phase shifted performance, with the Omicron BA.1 phase hardest to
+#|   predict. Partial effects
 #|   (95% CI) as a ratio of the expected LWIS relative to the average level.
 
-plot_effects(results$effects, variables = c("Trend", "VariantPhase"))
+plot_effects(results$effects, variables = "VariantPhase")
+```
+
+```{r}
+#| label: fig-supp-incidence
+#| fig-cap: >-
+#|   Adjusted performance by log incidence in the week ending eight days before
+#|   the forecast date, for cases and deaths. Ratio of expected LWIS to each
+#|   outcome's average (95% CI), over the central 98% of observed incidence.
+#| fig-height: 3
+#| fig-width: 6
+
+plot_covariate_smooth(results$smooths, results$data, "Incidence") +
+  labs(x = "Log incidence, log(count + 1)")
 ```
 
 ## Partial effects on the raw scale

@@ -43,11 +43,10 @@ classify_models <- function(file = here("data", "model-classification.csv"),
 # download_obs() (R/utils-data.R):
 #   - Incidence: weekly count; NA where download_obs() removed a negative count
 #   - Trend: classify_trend() of those counts
-#   - growth: average weekly change in log(count + 1) over the past 3 weeks
+#   - Growth: average weekly change in log(count + 1) over the past 3 weeks
 #   - VariantPhase: dominant variant phase
-# Missing weeks stay missing: Trend and growth are NA wherever the weeks they
-# read include one. Used by R/sensitivity/check-trend-spec.qmd; process_data()
-# still reads incidence and trend as stored (issue #187).
+# Missing weeks stay missing: Trend and Growth are NA wherever the weeks they
+# read include one. Joined to each forecast by process_data() (#187, #201).
 observed_covariates <- function() {
   obs <- c(Cases = "case", Deaths = "death") |>
     map(\(x) {
@@ -74,7 +73,7 @@ observed_covariates <- function() {
       epi_target, location, target_end_date,
       Incidence = observed,
       Trend = factor(Trend, levels = c("Stable", "Increasing", "Decreasing")),
-      growth = (log(observed + 1) - log(observed_lag3 + 1)) / 3,
+      Growth = (log(observed + 1) - log(observed_lag3 + 1)) / 3,
       VariantPhase
     )
 }
@@ -130,33 +129,24 @@ process_data <- function(scoring_scale = "log",
   methods <- classify_models() |>
     select(model, Method = classification, agreement)
 
-  # Incidence level + trend (observed data from: R/utils-data.r)
-  obs <- names(scores_files) |>
-    set_names() |>
-    map(~ read_csv(here("data", paste0("observed-", .x, ".csv")))) |>
-    bind_rows(.id = "epi_target") |>
-    mutate(Trend = factor(trend,
-                          levels = c("Stable", "Increasing", "Decreasing"))) |>
-    rename(Incidence = observed) |>
-    select(target_end_date, location, epi_target, Trend, Incidence)
-
-  # Variant phase
-  variant_phase <- classify_variant_phases()
+  # Incidence, trend, growth and variant phase per outcome, location and week
+  covariates <- observed_covariates()
 
   # Combine all data -----------------------------------------------------
   # Date at which to join target-specific covariates
   scores_raw <- scores_raw |>
-    mutate(covariate_end_date = if (covariate_date == "target") {
-      target_end_date
-    } else {
-      target_end_date - weeks(horizon + covariate_lag_weeks)
-    })
+    mutate(
+      epi_target = paste0(str_to_title(epi_target), "s"),
+      covariate_end_date = if (covariate_date == "target") {
+        target_end_date
+      } else {
+        target_end_date - weeks(horizon + covariate_lag_weeks)
+      }
+    )
 
   data <- scores_raw |>
-    left_join(obs, by = c("location", "covariate_end_date" = "target_end_date",
-                          "epi_target")) |>
-    left_join(variant_phase, by = c("location",
-                                    "covariate_end_date" = "target_end_date")) |>
+    left_join(covariates, by = c("epi_target", "location",
+                                 "covariate_end_date" = "target_end_date")) |>
     select(-covariate_end_date) |>
     left_join(country_targets, by = "model") |>
     left_join(methods, by = "model") |>
@@ -165,8 +155,7 @@ process_data <- function(scoring_scale = "log",
     mutate(
       Horizon = ifelse(!Horizon %in% 1:4, NA_integer_, Horizon),
       Model = as.factor(Model),
-      Location = as.factor(Location),
-      epi_target = paste0(str_to_title(epi_target), "s")) |>
+      Location = as.factor(Location)) |>
     # Scores of exactly 0 are kept as they are: the Tweedie family used in
     # analysis-model.R has a point mass at zero, so no constant is needed to
     # make them representable on a log link.

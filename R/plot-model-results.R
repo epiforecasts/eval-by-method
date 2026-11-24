@@ -61,6 +61,55 @@ plot_method_target <- function(method_by_target) {
     coord_flip()
 }
 
+# Smooth effect of a continuous covariate (Growth or Incidence), one panel
+# per outcome, as a ratio of expected LWIS to that outcome's average.
+# `smooths` is results$smooths; `data` is results$data, used to limit each
+# curve to the central `coverage` of that outcome's observed values.
+plot_covariate_smooth <- function(smooths, data, covariate = "Growth",
+                                  coverage = 0.98) {
+  tails <- (1 - coverage) / 2
+  observed_range <- data |>
+    group_by(Epi_target = as.character(Epi_target)) |>
+    summarise(lo = quantile(.data[[covariate]], tails),
+              hi = quantile(.data[[covariate]], 1 - tails), .groups = "drop")
+  smooths |>
+    filter(grepl(paste0("^s\\(", covariate, "\\)"), .smooth)) |>
+    mutate(Epi_target = as.character(Epi_target),
+           x = .data[[covariate]]) |>
+    left_join(observed_range, by = "Epi_target") |>
+    filter(between(x, lo, hi)) |>
+    mutate(Epi_target = factor(Epi_target, levels = plot_config$epi_levels)) |>
+    ggplot(aes(x = x, y = exp(.estimate))) +
+    geom_hline(yintercept = 1, lty = 2, alpha = 0.4) +
+    geom_ribbon(aes(ymin = exp(.estimate - 1.96 * .se),
+                    ymax = exp(.estimate + 1.96 * .se), fill = Epi_target),
+                alpha = 0.3) +
+    geom_line(aes(colour = Epi_target)) +
+    facet_wrap(~Epi_target, scales = "free_x") +
+    scale_y_log10() +
+    scale_colour_manual(values = plot_config$epi_colours, guide = "none") +
+    scale_fill_manual(values = plot_config$epi_colours, guide = "none") +
+    labs(x = covariate, y = "Adjusted performance ratio") +
+    theme(strip.background = element_blank())
+}
+
+# Ratio of expected LWIS (95% CI) read off a smooth at given covariate values,
+# by linear interpolation on the saved grid
+smooth_ratio_at <- function(smooths, covariate = "Growth",
+                            at = c(-0.2, 0, 0.2)) {
+  smooths |>
+    filter(grepl(paste0("^s\\(", covariate, "\\)"), .smooth)) |>
+    group_by(Epi_target = as.character(Epi_target)) |>
+    reframe(
+      at = at,
+      est = approx(.data[[covariate]], .estimate, xout = at)$y,
+      se = approx(.data[[covariate]], .se, xout = at)$y
+    ) |>
+    mutate(ratio = exp(est), lower = exp(est - 1.96 * se),
+           upper = exp(est + 1.96 * se),
+           ratio_ci = sprintf("%.2f (%.2f-%.2f)", ratio, lower, upper))
+}
+
 # All effects (used in supplement)
 plot_effects <- function(random_effects,
                          variables = NULL) {

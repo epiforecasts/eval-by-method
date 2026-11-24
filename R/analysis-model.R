@@ -23,10 +23,11 @@ m.formula_joint <- wis ~
   Epi_target +
   # CountryTargets: model predicts for single- vs multi-country
   s(CountryTargets, bs = "re") +
-  # Incidence: log of current incidence level (smooth)
-  s(Incidence) +
-  # Trend: epidemic trend (stable, increasing, decreasing)
-  s(Trend, bs = "re") +
+  # Incidence: log of incidence level, one smooth per outcome (#201)
+  s(Incidence, by = Epi_target) +
+  # Growth: average weekly change in log incidence over the past three
+  # weeks, one smooth per outcome (#201)
+  s(Growth, by = Epi_target) +
   # Location: country location (random effect)
   s(Location, bs = "re") +
   # VariantPhase: dominant variant phase (random effect)
@@ -95,7 +96,7 @@ model_wis <- function(
     # joint fits use the same forecasts (bam() would otherwise drop NAs per
     # formula). None missing at the target date; a few before the forecast
     # date, where a week the covariates read had a negative count
-    filter(!is.na(Incidence), !is.na(Trend), !is.na(VariantPhase)) |>
+    filter(!is.na(Incidence), !is.na(Growth), !is.na(VariantPhase)) |>
     mutate(Epi_target = as.factor(epi_target))
 
   # Settings for log or natural scale
@@ -115,7 +116,7 @@ model_wis <- function(
     epi_target = wis ~ Epi_target,
     target = wis ~ s(CountryTargets, bs = "re"),
     incidence = wis ~ s(Incidence),
-    trend = wis ~ s(Trend, bs = "re"),
+    growth = wis ~ s(Growth),
     location = wis ~ s(Location, bs = "re"),
     variant = wis ~ s(VariantPhase, bs = "re"),
     horizon = wis ~ s(Horizon, k = 4),
@@ -154,7 +155,7 @@ model_wis <- function(
 
   # Univariate random effects (exclude smooth-only and the fixed target fit)
   random_effects_uni <- m.fits_uni[
-    !grepl("horizon|incidence|epi_target", names(m.fits_uni))
+    !grepl("horizon|incidence|growth|epi_target", names(m.fits_uni))
   ] |>
     map(extract_ranef_terms) |>
     list_rbind() |>
@@ -185,6 +186,15 @@ model_wis <- function(
   model_h1 <- model_horizon_effects(m.fits_joint, horizons = 1) |>
     mutate(model = "Adjusted")
 
+  # Incidence and growth curves per outcome, on the link (log) scale, for
+  # plotting. Each smooth is centred, so it reads as a ratio to the outcome's
+  # average once exponentiated.
+  smooths <- gratia::smooth_estimates(
+    m.fits_joint, n = 200,
+    select = grep("^s\\((Incidence|Growth)\\)", gratia::smooths(m.fits_joint),
+                  value = TRUE)
+  )
+
   # Extract model checks
   checks <- k.check(m.fits_joint)
   formula <- m.fits_joint$formula
@@ -193,6 +203,7 @@ model_wis <- function(
     effects = random_effects,
     method_by_target = method_by_target,
     model_h1 = model_h1,
+    smooths = smooths,
     checks = checks,
     formula = formula
   )

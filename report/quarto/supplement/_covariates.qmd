@@ -21,54 +21,6 @@ model_classifier |>
     kable()
 ```
 
-## Epidemic trend identification
-
-We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
-
-```{r}
-#| label: fig-supp-trends
-#| fig-cap: >-
-#|   Weekly incidence of reported cases in each country, coloured by the epidemic
-#|   trend assigned to that week ("Stable", "Increasing" or "Decreasing"), from the
-#|   change in a three-week moving average.
-#| fig-height: 8
-#| fig-width: 10
-
-trends_plot <- function(scores) {
-    trends <- scores |>
-        select(Location, target_end_date, Incidence, Trend) |>
-        distinct()
-    p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
-        geom_point(mapping = aes(colour = Trend), size = 1) +
-        geom_line() +
-        scale_colour_brewer(palette = "Set2", na.value = "grey") +
-        theme(legend.position = "bottom") +
-        facet_wrap(~Location, scales = "free_y") +
-        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-        xlab("")
-    return(p)
-}
-
-scores |>
-  filter(epi_target == "Cases") |>
-  trends_plot() +
-  ggtitle("Cases")
-```
-
-```{r}
-#| label: fig-supp-death-trends
-#| fig-cap: >-
-#|   Weekly incidence of reported deaths in each country, coloured by the epidemic
-#|   trend assigned to that week, derived as for cases.
-#| fig-height: 8
-#| fig-width: 10
-
-scores |>
-  filter(epi_target == "Deaths") |>
-  trends_plot() +
-  ggtitle("Deaths")
-```
-
 ## Variant phase identification
 
 Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
