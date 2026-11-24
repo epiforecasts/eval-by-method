@@ -3,6 +3,22 @@
 Notable changes to the analysis, manuscript, and repository.
 Newest first.
 
+## Unreleased: Continuous epidemic growth by outcome replaces the categorical trend (#201)
+
+`R/process-data.R`, `R/analysis-model.R`, `R/utils-effects.R`, `R/plot-model-results.R`, `R/dag-check.R`, `output/`, `report/quarto/`, `report/quarto/supplement/_covariates.qmd`
+
+The primary model replaces `s(Incidence) + s(Trend, bs = "re")` with `s(Incidence, by = Epi_target) + s(Growth, by = Epi_target)`, step 4 of `check-trend-spec.qmd`. Growth is the average weekly change in log(count + 1) over the two weeks to the covariate week (the week ending 8 days before the forecast date). `process_data()` now joins `observed_covariates()`, which returns the same incidence, trend and variant phase as before (checked row for row) plus `Growth`. Growth reads two weeks where the trend read four, so fewer forecasts lack a covariate and the primary fit rises from 207,542 to 207,905 forecasts. The primary `spec_label` becomes `primary` (was `forecast-lag1`).
+
+mgcv centres a factor-`by` smooth over both outcomes' covariate values, not within each outcome, so the `Epi_target` coefficient alone compared deaths with cases at an incidence deaths rarely reach (1.42, 0.71–2.83). The deaths-versus-cases ratio is now the coefficient plus each outcome's incidence and growth smooths averaged over its own forecasts (`outcome_average_contrast()`), and `results$smooths` holds each curve relative to its outcome's average forecast (`outcome_smooth_curves()`).
+
+On the log scale: deviance explained 35.7% to 37.7%; structure ratios 0.96–1.07 to 0.93–1.12 (all intervals still spanning 1); deaths versus cases 0.34 to 0.29 (0.24–0.35); Omicron BA.1 1.20 to 1.15; Spearman correlation of model ranks before and after adjustment 0.38 to 0.39. Growth runs in opposite directions by outcome: at the 25th and 75th percentiles of growth, case forecasts score 1.05 and 0.90 of the cases average, death forecasts 0.94 and 1.03.
+
+The growth window is two weeks, set per outcome by `growth_weeks` in `observed_covariates()` and `process_data()`. Three weeks had kept the four weeks the ±5% trend read, a reason that lapsed with the trend. Windows of 1 to 4 weeks were compared on observed data only, by the Spearman correlation of past growth with realised growth from the forecast week to each horizon (supplement, `fig-supp-growth-window`): four weeks, matching the longest horizon, was worst for both outcomes; one week best for cases, two for deaths; two weeks the best single window and better than three for both. Against the three-week fit, every reported effect is unchanged to two decimals and model effects correlate 0.9997; the log-scale fit is slightly worse (AIC 836 higher, deviance explained 37.9% to 37.7%) and the natural-scale fit slightly better (AIC 315 lower). The window was chosen on the score-free comparison before the refit.
+
+A basis of k = 20 for the incidence and growth smooths gained 944 AIC, left the low k-index (0.84–0.85 to 0.82–0.83) and the effects essentially unchanged, and gave wiggly incidence curves, so the primary keeps k = 10. Residuals are shared within target weeks (33% of residual variance) and forecast origins (32%). This clustering is not modelled (Discussion #200): structure intervals are conservative without it, while intervals for target-level effects (growth, incidence, variant, outcome) understate uncertainty.
+
+Manuscript: Methods equation updated; new growth figure in Results (`fig-growth`) and incidence figure in the supplement (`fig-supp-incidence`); supplement trend figures removed; the Results sparsity strata keep the ±5% trend as the binning a stratified analysis would need; the DAG's Trend node is now Growth. Sentence plans mark the prose to rewrite in Methods, Results and the abstract. The sensitivity fits, including `check-trend-spec.qmd`, are not refitted and still use the trend specification.
+
 ## Unreleased: Score every forecast with an observed value (#187)
 
 `R/process-score.R`, `data/scores-raw-{case,death}.csv`, `output/log/`, `output/natural/`, `output/diagnostics/`

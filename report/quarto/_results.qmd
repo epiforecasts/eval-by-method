@@ -190,6 +190,8 @@ Against the Hub ensemble, constructed from the median of the forecasts we assess
 
 # How thin the sample becomes once cross-classified by the categorical
 # covariates, i.e. what a stratified analysis would have to work with.
+# The model uses continuous growth (#201); a stratified analysis would have to
+# bin it, so the strata use the +/-5% categorical trend in its place.
 # Uses the covariates as the model does: a week before the forecast date,
 # forecasts missing a covariate dropped (as in model_wis()).
 strata_vars <- c("epi_target", "Horizon", "Location", "Trend",
@@ -208,6 +210,7 @@ strata_thin <- round(mean(strata_obs$n < 5) * 100)
 #### Effect of model structure
 
 Participation between model structures was unevenly distributed across forecast targets.
+<!-- S (#201) say epidemic trend here is the +/-5% categorical trend, standing in for how a stratified analysis would bin the model's continuous growth -->
 To assess the sparse-data problem for these forecasts, we cross-classified them by epidemiological outcome, forecast horizon, location, epidemic trend, variant phase, single or multiple countries, and model structure.
 This gives `r format(strata_possible, big.mark = ",")` possible strata, of which `r strata_filled`% contain any forecast.
 Among these, each non-empty stratum holds a median of only `r strata_median` forecasts and `r strata_thin`% hold fewer than five.
@@ -307,7 +310,29 @@ plot_method_target(results$method_by_target)
 #### Wider influences on forecast performance
 
 Epidemiological processes generating the forecast target explained more variation in performance than features of the forecasting process.
-Performance was best during stable periods of the epidemic curve (ratio `r table_effects["Adjusted_Stable","ratio_ci"]`) and worst during increasing trends (ratio `r table_effects["Adjusted_Increasing","ratio_ci"]`).
+<!-- S (#201) replaces the stable/increasing trend sentence: growth effect by outcome (@fig-growth); quote growth_ratios (chunk below) at each outcome's growth quartiles, e.g. growth_ratios["Cases_q25", "ratio_ci"]; shape: opposite by outcome, case forecasts worse in decline (q25 1.05, q75 0.90) and death forecasts worse in growth (q25 0.94, q75 1.03); intervals too narrow given residuals shared within target weeks (Discussion #200) -->
+
+```{r}
+#| label: fig-growth
+#| fig-cap: >-
+#|   Adjusted performance by epidemic growth before the forecast date, for
+#|   cases and deaths. Growth: average weekly change in log incidence over the
+#|   two weeks to the week ending eight days before the forecast date.
+#|   Ratio of expected LWIS to each outcome's average (95% CI), over the central
+#|   98% of observed growth.
+#| fig-height: 3
+#| fig-width: 6
+
+plot_covariate_smooth(results$smooths, results$data, "Growth") +
+  labs(x = "Weekly growth in log incidence")
+# Ratios at each outcome's own growth quartiles, e.g.
+# growth_ratios["Cases_q25", "ratio_ci"]; growth value in column `at`
+growth_ratios <- smooth_ratio_quantiles(results$smooths, results$data,
+                                        "Growth") |>
+  mutate(key = paste(Epi_target, quantile, sep = "_")) |>
+  tibble::column_to_rownames("key")
+```
+
 Performance was better in the earlier Alpha and Delta phases (ratios `r table_effects["Adjusted_Alpha","ratio_ci"]` and `r table_effects["Adjusted_Delta","ratio_ci"]`) and worst under Omicron BA.1 (ratio `r table_effects["Adjusted_Omicron-BA.1","ratio_ci"]`), and death forecasts scored lower than case forecasts (ratio `r table_effects["Adjusted_Deaths","ratio_ci"]`).
 We report the total set of modelled effects in the Supplement.
 

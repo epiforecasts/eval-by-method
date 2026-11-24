@@ -9,6 +9,8 @@ execute:
   message: false
 ---
 
+<!-- Stale (#201): the primary now uses step 4 with covariates in the week ending 8 days before the forecast date and missing weeks left missing; this notebook still uses the week ending the day before, carries missing weeks forward, and the scores before #203. To be reworked with the sensitivity refits. -->
+
 <!-- Fits are cached in output/sensitivity/trend-spec/<label>.rds and reused when the formula and n match. The first render fits every specification (slow); run it detached: -->
 <!-- nohup caffeinate -is quarto render R/sensitivity/check-trend-spec.qmd > output/logs/trend-spec_$(date +%F-%H%M).log 2>&1 & -->
 

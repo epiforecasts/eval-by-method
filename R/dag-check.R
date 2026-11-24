@@ -32,20 +32,20 @@ Country [adjusted,pos="-0.231,-0.950"]
 Horizon [adjusted,pos="2.155,1.907"]
 Model [adjusted,pos="1.658,3.000"]
 Prediction [pos="3.418,3.058"]
-Trend [adjusted,pos="3.262,-0.164"]
+Growth [adjusted,pos="3.262,-0.164"]
 Variant [adjusted,pos="0.210,-1.794"]
 "Epi outcome" -> "Accuracy score"
 "Epi outcome" -> "Observed incidence"
 "Epi outcome" -> Prediction
 "Epidemic dynamics" -> "Observed incidence"
-"Epidemic dynamics" -> Trend
+"Epidemic dynamics" -> Growth
 "Model structure" -> "Single/multi-country"
 "Model structure" -> Model
 "Modeller strategy" -> "Epi outcome"
 "Modeller strategy" -> "Model structure"
 "Modeller strategy" -> "Single/multi-country"
 "Observed incidence" -> "Accuracy score"
-"Observed incidence" <-> Trend
+"Observed incidence" <-> Growth
 "Single/multi-country" -> Prediction
 Country -> "Epidemic dynamics"
 Country -> "Observed incidence"

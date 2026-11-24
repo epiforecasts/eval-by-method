@@ -35,6 +35,7 @@ We included the epidemiological outcome of incident cases or deaths as a fixed e
 We then allowed the effect of model structure to differ between outcomes.
 We also included a random effect for target country, to account for residual population-level epidemic variation.
 We then considered observable time-varying factors associated with transmission dynamics.
+<!-- S (#201) replace the trend definition below: Growth = average weekly change in log(count + 1) over the past two weeks, (log(y_t + 1) - log(y_{t-2} + 1)) / 2, in the same week as incidence (ending 8 days before the forecast date); continuous, replacing the +/-5% categorical trend; reasoning in Discussion #200; why two weeks: of windows of 1-4 weeks, best predicted subsequent growth across both outcomes, without using the scores (@fig-supp-growth-window) -->
 We included the count of incident outcomes; the trend of incidence ("Stable", "Increasing" or "Decreasing", from a three-week moving average, with a change of +/-5% as "Stable"); and the dominant pathogen variant in the target country (classified from public viral sequencing data into discrete variant phases [@variant-data]).
 
 We considered whether these time-varying factors (incidence, trend and variant phase) should be considered prospectively, from the forecaster's perspective, or retrospectively, from the perspective of the target outcome.
@@ -68,7 +69,7 @@ library(dplyr)
 # Tweedie power parameter of the primary fit, so the text tracks the fit
 tweedie_p <- read_csv(here("output", "diagnostics", "fit-summary.csv"),
                       show_col_types = FALSE) |>
-  filter(spec_label == "forecast-lag1", scale == "log") |>
+  filter(spec_label == "primary", scale == "log") |>
   pull(family) |>
   (\(x) as.numeric(sub(".*p=([0-9.]+).*", "\\1", x)))()
 ```
@@ -91,15 +92,16 @@ $$
   \eta_i
   = \beta_0 \; + \; \beta_{\text{outcome}}\,\mathbb{1}[\text{Deaths}_i] \;
     + \; \underbrace{\sum_{g \in \mathcal{G}} u^{g}_{j_g(i)}}_{\text{random effects}} \;
-    + \; \underbrace{f_{\text{Inc}}(\mathrm{Incidence}_i) \;+\; f_{\text{Horizon}}(\mathrm{Horizon}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
+    + \; \underbrace{f^{\text{Inc}}_{o(i)}(\mathrm{Incidence}_i) \;+\; f^{\text{Growth}}_{o(i)}(\mathrm{Growth}_i) \;+\; f_{\text{Horizon}}(\mathrm{Horizon}_i) \;+\; f^{\text{Horizon}}_{k(i)}(\mathrm{Horizon}_i)}_{\text{smooths}}.
 $$
 
 Here $\beta_{\text{outcome}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
+<!-- S (#201) with incidence and growth per outcome, beta_outcome alone compares outcomes at equal incidence, which deaths rarely reach (mgcv centres by-factor smooths over both outcomes' values); the reported deaths-versus-cases ratio is beta_outcome plus each outcome's incidence and growth smooths averaged over its own forecasts (outcome_average_contrast(), R/utils-effects.R); the curves in @fig-growth are likewise relative to each outcome's average forecast -->
 
 $$
   u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g
   \in \mathcal{G}
-  = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Trend},\, \text{Variant},\, \text{Location}\}.
+  = \{\text{Method} \times \text{Outcome},\, \text{CountryTargets},\, \text{Variant},\, \text{Location}\}.
 $$
 
 Model structure enters as a single grouping factor crossing with epidemiological outcome, giving one effect per cell, so a structure may predict cases relatively better than deaths or the reverse.
@@ -109,6 +111,7 @@ Being unpenalised, this absorbs any difference common to all structures, leaving
 Both choices are set out in the Supplement.
 
 $f_{\text{Inc}}$ was a penalised thin-plate regression spline over log-transformed incidence.
+<!-- S (#201) now two smooths per outcome o(i): f^Inc over log incidence and f^Growth over growth, each a penalised thin-plate spline, so deaths get their own curve rather than the cases shape shifted by the outcome intercept; also say the linear predictor now has four smooth terms, not two (line above the equation says 'two smooths for continuous covariates') -->
 Forecast performance is known to worsen with horizon, so $f_{\text{Horizon}}$ was a smooth of horizon shared by all models.
 Each model $k$ had its own deviation from this curve, $f^{\text{Horizon}}_k$, with its level and slope penalised towards zero.
 Both smooths used four basis functions.

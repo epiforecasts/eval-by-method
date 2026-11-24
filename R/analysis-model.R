@@ -23,10 +23,11 @@ m.formula_joint <- wis ~
   Epi_target +
   # CountryTargets: model predicts for single- vs multi-country
   s(CountryTargets, bs = "re") +
-  # Incidence: log of current incidence level (smooth)
-  s(Incidence) +
-  # Trend: epidemic trend (stable, increasing, decreasing)
-  s(Trend, bs = "re") +
+  # Incidence: log of incidence level, one smooth per outcome (#201)
+  s(Incidence, by = Epi_target) +
+  # Growth: average weekly change in log incidence over the past two
+  # weeks, one smooth per outcome (#201)
+  s(Growth, by = Epi_target) +
   # Location: country location (random effect)
   s(Location, bs = "re") +
   # VariantPhase: dominant variant phase (random effect)
@@ -95,7 +96,7 @@ model_wis <- function(
     # joint fits use the same forecasts (bam() would otherwise drop NAs per
     # formula). None missing at the target date; a few before the forecast
     # date, where a week the covariates read had a negative count
-    filter(!is.na(Incidence), !is.na(Trend), !is.na(VariantPhase)) |>
+    filter(!is.na(Incidence), !is.na(Growth), !is.na(VariantPhase)) |>
     mutate(Epi_target = as.factor(epi_target))
 
   # Settings for log or natural scale
@@ -115,7 +116,7 @@ model_wis <- function(
     epi_target = wis ~ Epi_target,
     target = wis ~ s(CountryTargets, bs = "re"),
     incidence = wis ~ s(Incidence),
-    trend = wis ~ s(Trend, bs = "re"),
+    growth = wis ~ s(Growth),
     location = wis ~ s(Location, bs = "re"),
     variant = wis ~ s(VariantPhase, bs = "re"),
     horizon = wis ~ s(Horizon, k = 4),
@@ -154,12 +155,16 @@ model_wis <- function(
 
   # Univariate random effects (exclude smooth-only and the fixed target fit)
   random_effects_uni <- m.fits_uni[
-    !grepl("horizon|incidence|epi_target", names(m.fits_uni))
+    !grepl("horizon|incidence|growth|epi_target", names(m.fits_uni))
   ] |>
     map(extract_ranef_terms) |>
     list_rbind() |>
     mutate(model = "Unadjusted") |>
     bind_rows(extract_target_effect(m.fits_uni$epi_target, "Unadjusted"))
+
+  # Linear-predictor mean over each outcome's forecasts, for the outcome
+  # contrast and the incidence and growth curves (R/utils-effects.R)
+  mean_rows <- outcome_mean_rows(m.fits_joint, m.data)
 
   # Drop the raw interaction cells from `effects`: reported per target
   # via `method_by_target`
@@ -169,7 +174,9 @@ model_wis <- function(
     bind_rows(method_pooled_effects(m.fits_joint)) |>
     bind_rows(model_horizon_effects(m.fits_joint)) |>
     mutate(model = "Adjusted") |>
-    bind_rows(extract_target_effect(m.fits_joint, "Adjusted"))
+    # Averaged over each outcome's own forecasts; see outcome_average_contrast()
+    bind_rows(outcome_average_contrast(m.fits_joint, mean_rows) |>
+                mutate(model = "Adjusted"))
 
   random_effects <- random_effects_joint |>
     bind_rows(random_effects_uni)
@@ -185,6 +192,10 @@ model_wis <- function(
   model_h1 <- model_horizon_effects(m.fits_joint, horizons = 1) |>
     mutate(model = "Adjusted")
 
+  # Incidence and growth curves per outcome, relative to that outcome's
+  # average forecast, on the link (log) scale
+  smooths <- outcome_smooth_curves(m.fits_joint, m.data, mean_rows)
+
   # Extract model checks
   checks <- k.check(m.fits_joint)
   formula <- m.fits_joint$formula
@@ -193,6 +204,7 @@ model_wis <- function(
     effects = random_effects,
     method_by_target = method_by_target,
     model_h1 = model_h1,
+    smooths = smooths,
     checks = checks,
     formula = formula
   )

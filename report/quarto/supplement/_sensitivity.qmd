@@ -40,12 +40,14 @@ We tried several alternative model specifications.
 
 ### Covariate selection
 
+<!-- #201: Growth replaced the categorical Trend (all earlier versions); check V3 label and footnote -->
+
 | Domain              | Variable         | Model version | Impact   |
 |---------------------|------------------|---------------|----------|
 | Forecast target     |                  |               |          |
 |                     | `EpiTarget`      | V2\*          | None     |
 |                     | `VariantPhase`   | V2\*          | Some     |
-|                     | `Trend`          | All           | Untested |
+|                     | `Growth`         | V3            | Untested |
 |                     | `Horizon`        | All           | Untested |
 |                     | `Incidence`      | All           | Untested |
 |                     | `Location`       | All           | Untested |

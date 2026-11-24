@@ -38,10 +38,10 @@ Evaluating across multiple forecast targets requires explicit accounting for the
   - Combines scores with explanatory variables (model classification, variant phases, country targets)
   - Calls utility functions for metadata, variants, and location data
   - `process_data(covariate_date, covariate_lag_weeks)`: `"forecast"` with lag 1 (the model's setting) joins incidence, trend and variant phase at the week ending 8 days before the forecast date; the function's own default is `"target"`, for descriptive tables and figures
-  - `observed_covariates()`: weekly incidence, trend, growth and variant phase per outcome and location, missing weeks left missing; not yet used by `process_data()`
+  - `observed_covariates()`: weekly incidence, trend, growth and variant phase per outcome and location, missing weeks left missing; `process_data()` joins it to each forecast
 
 - **analysis-model.R**: Main statistical analysis using Generalized Additive Mixed Models (GAMM)
-  - Models WIS adjusting for: trend, location, time, horizon, model-specific effects
+  - Models WIS adjusting for: incidence and growth (one smooth per outcome, #201), variant phase, location, horizon, model-specific effects
   - Isolates impact of Method (model structure) and CountryTargets (geographic specificity)
   - Uses `mgcv`, `gammit`, and `gratia` packages
   - Outputs (per scale, under scale-named subdirs of `output/` — `log/`, `natural/`): `results.rds` (includes fitted `data`), `fit_obs.rds`, and diagnostic plots (`plots/check_joint.png`)
@@ -66,7 +66,7 @@ Evaluating across multiple forecast targets requires explicit accounting for the
 - **check-autocorrelation.R**: Temporal autocorrelation diagnostic
 - **check-link-robustness.R**: Robustness of results to the model link function
 - **check-covariate-date.R**: Primary (covariates a week before the forecast date) against covariates in the target week (#187). The target-date fit is archived in `output/sensitivity/covariate-date/target/<scale>/` (`fit_target_date()` refits it); writes covariate agreement and effects comparisons
-- **check-trend-spec.qmd**: Covariate timing and epidemic growth (#187), exploratory. Cumulative fits from the target-date model (step 0) to covariates at the week ending the day before the forecast date, incidence and growth by outcome, and a growth-by-incidence interaction, plus a realised-growth diagnostic. Built before the one-week lag and with missing weeks carried forward, so it does not match the primary; to be reworked with the growth work. Cached fit summaries in `output/sensitivity/trend-spec/`, reused when formula and n match
+- **check-trend-spec.qmd**: Covariate timing and epidemic growth (#187), exploratory. Cumulative fits from the target-date model (step 0) to covariates at the week ending the day before the forecast date, incidence and growth by outcome, and a growth-by-incidence interaction, plus a realised-growth diagnostic. Built before the one-week lag and with missing weeks carried forward, so it does not match the primary (step 4 is now the primary, #201); to be reworked with the sensitivity refits. Cached fit summaries in `output/sensitivity/trend-spec/`, reused when formula and n match
 - **check-horizon-spec.R** / **check-horizon-spec.qmd**: Sensitivity to the model-by-horizon specification (reduced model, six specifications; cached fits in `output/sensitivity/horizon-spec/`)
 - **model-building.qmd**: Notebook documenting model specifications tried
 
@@ -135,9 +135,9 @@ source(here("R", "process-data.R"))
 #    Sourcing only DEFINES model_wis(); call it per scale to write output/<scale>/.
 source(here("R", "analysis-model.R"))
 model_wis(scoring_scale = "log",     output_dir = here("output", "log"),
-          spec_label = "forecast-lag1")
+          spec_label = "primary")
 model_wis(scoring_scale = "natural", output_dir = here("output", "natural"),
-          spec_label = "forecast-lag1")
+          spec_label = "primary")
 
 # 4. Render the manuscript alone (supplement is a separate page)
 #    Render index.qmd, NOT report/manuscript.qmd — the latter's includes are
@@ -175,7 +175,7 @@ Major R packages:
 Outstanding issues.
 Status: [ ] not started, [x] done.
 - [x] Update manuscript text to clarify what the structure term reports. Superseded by the structure-by-outcome interaction (#158): the pooled effect is now a contrast across a structure's two cells and carries real estimates, so the text reports imprecision rather than a term shrunk to nothing.
-- [ ] Model fitting outputs are labelled `forecast-lag1` in `output/diagnostics/fit-summary.csv` (was `primary-fs` before #187). Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row. Rename once the term for the covariate week is settled.
+- [ ] Model fitting outputs are labelled `primary` in `output/diagnostics/fit-summary.csv` (was `forecast-lag1` before #201, `primary-fs` before #187). Pass that `spec_label` when refitting the primary specification, or the Methods chunk reading the Tweedie power parameter finds no row. Rename once the term for the covariate week is settled.
 - [x] Untrack the Quarto freeze cache on branch `supplementary-descriptive`. Done on that branch only (commit 6553f40, not pushed): 46 files untracked, `/_freeze/` added to `.gitignore`, `NEWS.md` noted. `main` never tracked the cache.
 - [ ] Add `crossref` numbering configuration for the `fig-supp-*`/`tbl-supp-*` labels introduced by the modular supplement split, once the chapter-lettered numbering scheme (so labels match between the web pages and the PDF) is finalised in a local spike.
 

@@ -21,54 +21,6 @@ model_classifier |>
     kable()
 ```
 
-## Epidemic trend identification
-
-We categorised each week as "Stable", "Decreasing", or "Increasing", based on the difference over a three-week moving average of incidence (with a change of +/-5% as "Stable").
-
-```{r}
-#| label: fig-supp-trends
-#| fig-cap: >-
-#|   Weekly incidence of reported cases in each country, coloured by the epidemic
-#|   trend assigned to that week ("Stable", "Increasing" or "Decreasing"), from the
-#|   change in a three-week moving average.
-#| fig-height: 8
-#| fig-width: 10
-
-trends_plot <- function(scores) {
-    trends <- scores |>
-        select(Location, target_end_date, Incidence, Trend) |>
-        distinct()
-    p <- ggplot(trends, aes(x = target_end_date, y = Incidence)) +
-        geom_point(mapping = aes(colour = Trend), size = 1) +
-        geom_line() +
-        scale_colour_brewer(palette = "Set2", na.value = "grey") +
-        theme(legend.position = "bottom") +
-        facet_wrap(~Location, scales = "free_y") +
-        theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
-        xlab("")
-    return(p)
-}
-
-scores |>
-  filter(epi_target == "Cases") |>
-  trends_plot() +
-  ggtitle("Cases")
-```
-
-```{r}
-#| label: fig-supp-death-trends
-#| fig-cap: >-
-#|   Weekly incidence of reported deaths in each country, coloured by the epidemic
-#|   trend assigned to that week, derived as for cases.
-#| fig-height: 8
-#| fig-width: 10
-
-scores |>
-  filter(epi_target == "Deaths") |>
-  trends_plot() +
-  ggtitle("Deaths")
-```
-
 ## Variant phase identification
 
 Genomic surveillance data were obtained from three sources: ECDC (covering 30 European countries), UKHSA (Great Britain), and the Swiss Federal Office of Public Health (Switzerland).
@@ -91,4 +43,99 @@ variant_phases |>
     labs(x = NULL, y = "Location", fill = "Variant phase") +
     theme_minimal() +
     theme(legend.position = "bottom")
+```
+
+## Epidemic growth window
+
+<!-- S (#201) why growth is averaged over two weeks: windows of 1-4 weeks compared by how well past growth predicted realised growth over each forecast horizon, using observed data only, not the scores; 4 weeks (matching the longest horizon) worst for both outcomes; 1 week best for cases, 2 weeks for deaths; 2 weeks best single window across both, better than 3 (the four weeks the old +/-5% trend read) for both -->
+
+```{r}
+#| label: fig-supp-growth-window
+#| fig-cap: >-
+#|   Correlation between past epidemic growth and the growth that followed, by
+#|   the number of weeks past growth was averaged over. Past growth: average
+#|   weekly change in log(count + 1) over k weeks to the covariate week (ending
+#|   eight days before the forecast date). Realised growth: average weekly
+#|   change from the week ending the day before the forecast date to the target
+#|   week at each horizon. Spearman correlation over each outcome, location and
+#|   covariate week used by at least one forecast, with 90% intervals from
+#|   resampling locations (200 draws). Grey band: three weeks, the window
+#|   before this comparison.
+#| fig-height: 3
+#| fig-width: 7
+
+# Spearman correlation by window k (x), small multiples by horizon, outcome by
+# colour and direct label; observed data only, no scores
+growth_obs <- c(Cases = "case", Deaths = "death") |>
+  map(\(x) read_csv(here("data", paste0("observed-", x, ".csv")),
+                    show_col_types = FALSE)) |>
+  list_rbind(names_to = "epi_target") |>
+  transmute(epi_target, location, date = target_end_date,
+            ly = log(observed + 1))
+# log(count + 1) w weeks after each week, joined on date
+growth_shift <- function(w) {
+  transmute(growth_obs, epi_target, location, date = date - weeks(w),
+            !!paste0("ly_", w + 4) := ly)
+}
+covariate_weeks <- scores |>
+  filter(!is.na(Horizon)) |>
+  distinct(epi_target, location = as.character(Location),
+           date = target_end_date - weeks(Horizon + 1))
+growth_windows <- reduce(map(c(-4:-1, 1:5), growth_shift), left_join,
+                         by = c("epi_target", "location", "date"),
+                         .init = growth_obs) |>
+  semi_join(covariate_weeks, by = c("epi_target", "location", "date"))
+# ly is the covariate week t, ly_j the week t + (j - 4); ly_5 is the week
+# ending the day before the forecast date
+for (k in 1:4) {
+  growth_windows[[paste0("past_", k)]] <-
+    (growth_windows$ly - growth_windows[[paste0("ly_", 4 - k)]]) / k
+  growth_windows[[paste0("future_", k)]] <-
+    (growth_windows[[paste0("ly_", 5 + k)]] - growth_windows$ly_5) / k
+}
+growth_window_rho <- function(dat) {
+  expand_grid(k = 1:4, h = 1:4) |>
+    pmap(\(k, h) {
+      dat |>
+        group_by(epi_target) |>
+        summarise(k = k, h = h,
+                  rho = cor(.data[[paste0("past_", k)]],
+                            .data[[paste0("future_", h)]],
+                            method = "spearman", use = "complete.obs"),
+                  .groups = "drop")
+    }) |>
+    list_rbind()
+}
+set.seed(201)
+growth_by_loc <- split(growth_windows, growth_windows$location)
+growth_window_fit <- map(1:200, \(b) {
+  growth_window_rho(bind_rows(sample(growth_by_loc, replace = TRUE)))
+}) |>
+  list_rbind() |>
+  group_by(epi_target, k, h) |>
+  summarise(lo = quantile(rho, 0.05), hi = quantile(rho, 0.95),
+            .groups = "drop") |>
+  left_join(growth_window_rho(growth_windows),
+            by = c("epi_target", "k", "h"))
+
+dodge <- position_dodge(width = 0.3)
+growth_window_fit |>
+  ggplot(aes(k, rho, colour = epi_target)) +
+  geom_vline(xintercept = 3, colour = "#d4d4d4", linewidth = 3) +
+  geom_hline(yintercept = 0, colour = "#7f7f7f", linewidth = 0.3) +
+  geom_linerange(aes(ymin = lo, ymax = hi), position = dodge) +
+  geom_line(position = dodge, linewidth = 0.4) +
+  geom_point(position = dodge, size = 1.6) +
+  geom_text(data = filter(growth_window_fit, h == 4, k == 4),
+            aes(label = epi_target), hjust = -0.25, size = 3,
+            position = dodge) +
+  facet_wrap(~ h, nrow = 1,
+             labeller = labeller(h = \(x) paste("Horizon", x))) +
+  scale_colour_manual(values = c(Cases = "#1a1a1a", Deaths = "#c0392b"),
+                      guide = "none") +
+  scale_x_continuous(breaks = 1:4, expand = expansion(add = c(0.4, 1.3))) +
+  coord_cartesian(clip = "off") +
+  labs(x = "Weeks averaged over for past growth",
+       y = "Spearman correlation with\nrealised growth") +
+  theme(strip.background = element_blank())
 ```
