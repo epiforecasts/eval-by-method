@@ -62,8 +62,9 @@ plot_method_target <- function(method_by_target) {
 }
 
 # Smooth effect of a continuous covariate (Growth or Incidence), one panel
-# per outcome, as a ratio of expected LWIS to that outcome's average.
-# `smooths` is results$smooths; `data` is results$data, used to limit each
+# per outcome, as a ratio of expected LWIS to that outcome's average forecast.
+# `smooths` is results$smooths (outcome_smooth_curves(), already relative to
+# each outcome's average); `data` is results$data, used to limit each
 # curve to the central `coverage` of that outcome's observed values.
 plot_covariate_smooth <- function(smooths, data, covariate = "Growth",
                                   coverage = 0.98) {
@@ -74,8 +75,7 @@ plot_covariate_smooth <- function(smooths, data, covariate = "Growth",
               hi = quantile(.data[[covariate]], 1 - tails), .groups = "drop")
   smooths |>
     filter(grepl(paste0("^s\\(", covariate, "\\)"), .smooth)) |>
-    mutate(Epi_target = as.character(Epi_target),
-           x = .data[[covariate]]) |>
+    mutate(x = .data[[covariate]]) |>
     left_join(observed_range, by = "Epi_target") |>
     filter(between(x, lo, hi)) |>
     mutate(Epi_target = factor(Epi_target, levels = plot_config$epi_levels)) |>
@@ -99,7 +99,7 @@ smooth_ratio_at <- function(smooths, covariate = "Growth",
                             at = c(-0.2, 0, 0.2)) {
   smooths |>
     filter(grepl(paste0("^s\\(", covariate, "\\)"), .smooth)) |>
-    group_by(Epi_target = as.character(Epi_target)) |>
+    group_by(Epi_target) |>
     reframe(
       at = at,
       est = approx(.data[[covariate]], .estimate, xout = at)$y,

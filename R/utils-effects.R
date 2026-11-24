@@ -210,3 +210,64 @@ model_horizon_effects <- function(fit, horizons = NULL, ci_level = 0.95,
     contrast_effects(fit, contrasts, ci_level, digits)
   )
 }
+
+# Mean row of the linear-predictor matrix over each outcome's own forecasts,
+# as a named list (Cases, Deaths). Rows are processed in chunks to limit memory.
+# Used to centre the per-outcome smooths and to average the outcome contrast.
+outcome_mean_rows <- function(fit, data, chunk = 20000) {
+  map(c(Cases = "Cases", Deaths = "Deaths"), \(o) {
+    d <- data[data$Epi_target == o, ]
+    rows <- split(seq_len(nrow(d)), ceiling(seq_len(nrow(d)) / chunk))
+    total <- Reduce(`+`, map(rows, \(i) {
+      colSums(predict(fit, newdata = d[i, ], type = "lpmatrix"))
+    }))
+    total / nrow(d)
+  })
+}
+
+# Incidence and growth enter as one smooth per outcome (by = Epi_target), and
+# mgcv centres a factor-by smooth over the pooled covariate values of both
+# outcomes, not within its own. Death counts sit far below case counts, so the
+# Epi_target coefficient alone compares the outcomes at an incidence deaths
+# rarely reach, and each raw curve carries a level shared with the intercept.
+# The two helpers below re-express both against each outcome's own forecasts.
+
+# Deaths-versus-cases contrast averaged over each outcome's own forecasts: the
+# outcome coefficient plus each outcome's incidence and growth smooths averaged
+# over its own forecasts (other terms held fixed).
+outcome_average_contrast <- function(fit, mean_rows, ci_level = 0.95,
+                                     digits = 3) {
+  cols <- grepl("^Epi_target|^s\\((Incidence|Growth)\\)", names(coef(fit)))
+  cvec <- mean_rows$Deaths - mean_rows$Cases
+  cvec[!cols] <- 0
+  bind_cols(
+    tibble(group_var = "Epi_target", group = "Deaths"),
+    contrast_effects(fit, list(cvec), ci_level, digits)
+  )
+}
+
+# Each outcome's incidence and growth curve relative to that outcome's average
+# forecast, over its own observed range, on the link (log) scale. Each point
+# is a contrast against the outcome's mean row on that smooth's columns, so the
+# interval excludes the level shared with the intercept. Same columns as
+# gratia::smooth_estimates(): .smooth, Epi_target, the covariate, .estimate, .se.
+outcome_smooth_curves <- function(fit, data, mean_rows,
+                                  covariates = c("Incidence", "Growth"),
+                                  n = 200) {
+  b <- coef(fit)
+  expand_grid(covariate = covariates, Epi_target = c("Cases", "Deaths")) |>
+    pmap(\(covariate, Epi_target) {
+      label <- paste0("s(", covariate, "):Epi_target", Epi_target)
+      cols <- startsWith(names(b), paste0(label, "."))
+      own <- data[data$Epi_target == Epi_target, ]
+      x <- seq(min(own[[covariate]]), max(own[[covariate]]), length.out = n)
+      grid <- own[rep(1, n), ]
+      grid[[covariate]] <- x
+      X <- predict(fit, newdata = grid, type = "lpmatrix")[, cols, drop = FALSE]
+      C <- sweep(X, 2, mean_rows[[Epi_target]][cols])
+      tibble(.smooth = label, Epi_target = Epi_target, !!covariate := x,
+             .estimate = as.numeric(C %*% b[cols]),
+             .se = sqrt(rowSums((C %*% fit$Vp[cols, cols]) * C)))
+    }) |>
+    list_rbind()
+}

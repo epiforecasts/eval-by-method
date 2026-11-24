@@ -162,6 +162,10 @@ model_wis <- function(
     mutate(model = "Unadjusted") |>
     bind_rows(extract_target_effect(m.fits_uni$epi_target, "Unadjusted"))
 
+  # Linear-predictor mean over each outcome's forecasts, for the outcome
+  # contrast and the incidence and growth curves (R/utils-effects.R)
+  mean_rows <- outcome_mean_rows(m.fits_joint, m.data)
+
   # Drop the raw interaction cells from `effects`: reported per target
   # via `method_by_target`
   # Model effects come from the fs horizon term, not a random effect
@@ -170,7 +174,9 @@ model_wis <- function(
     bind_rows(method_pooled_effects(m.fits_joint)) |>
     bind_rows(model_horizon_effects(m.fits_joint)) |>
     mutate(model = "Adjusted") |>
-    bind_rows(extract_target_effect(m.fits_joint, "Adjusted"))
+    # Averaged over each outcome's own forecasts; see outcome_average_contrast()
+    bind_rows(outcome_average_contrast(m.fits_joint, mean_rows) |>
+                mutate(model = "Adjusted"))
 
   random_effects <- random_effects_joint |>
     bind_rows(random_effects_uni)
@@ -186,14 +192,9 @@ model_wis <- function(
   model_h1 <- model_horizon_effects(m.fits_joint, horizons = 1) |>
     mutate(model = "Adjusted")
 
-  # Incidence and growth curves per outcome, on the link (log) scale, for
-  # plotting. Each smooth is centred, so it reads as a ratio to the outcome's
-  # average once exponentiated.
-  smooths <- gratia::smooth_estimates(
-    m.fits_joint, n = 200,
-    select = grep("^s\\((Incidence|Growth)\\)", gratia::smooths(m.fits_joint),
-                  value = TRUE)
-  )
+  # Incidence and growth curves per outcome, relative to that outcome's
+  # average forecast, on the link (log) scale
+  smooths <- outcome_smooth_curves(m.fits_joint, m.data, mean_rows)
 
   # Extract model checks
   checks <- k.check(m.fits_joint)

@@ -96,6 +96,7 @@ $$
 $$
 
 Here $\beta_{\text{outcome}}$ gives the deaths-versus-cases contrast on the log scale (cases as reference) and is not part of the zero-mean Gaussian random-effects set $\mathcal{G}$, and $j_g(i)$ denotes the level of grouping factor $g$ for forecast $i$:
+<!-- S (#201) with incidence and growth per outcome, beta_outcome alone compares outcomes at equal incidence, which deaths rarely reach (mgcv centres by-factor smooths over both outcomes' values); the reported deaths-versus-cases ratio is beta_outcome plus each outcome's incidence and growth smooths averaged over its own forecasts (outcome_average_contrast(), R/utils-effects.R); the curves in @fig-growth are likewise relative to each outcome's average forecast -->
 
 $$
   u^{g}_{j} \sim \mathcal{N}(0,\, \sigma^2_g), \qquad g
