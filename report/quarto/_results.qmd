@@ -310,14 +310,14 @@ plot_method_target(results$method_by_target)
 #### Wider influences on forecast performance
 
 Epidemiological processes generating the forecast target explained more variation in performance than features of the forecasting process.
-<!-- S (#201) replaces the stable/increasing trend sentence: growth effect by outcome (@fig-growth); quote growth_ratios (chunk below) at each outcome's growth quartiles, e.g. growth_ratios["Cases_q25", "ratio_ci"]; shape: opposite by outcome, case forecasts worse in decline (q25 1.05, q75 0.90) and death forecasts worse in growth (q25 0.95, q75 1.02); intervals too narrow given residuals shared within target weeks (Discussion #200) -->
+<!-- S (#201) replaces the stable/increasing trend sentence: growth effect by outcome (@fig-growth); quote growth_ratios (chunk below) at each outcome's growth quartiles, e.g. growth_ratios["Cases_q25", "ratio_ci"]; shape: opposite by outcome, case forecasts worse in decline (q25 1.05, q75 0.90) and death forecasts worse in growth (q25 0.94, q75 1.03); intervals too narrow given residuals shared within target weeks (Discussion #200) -->
 
 ```{r}
 #| label: fig-growth
 #| fig-cap: >-
 #|   Adjusted performance by epidemic growth before the forecast date, for
 #|   cases and deaths. Growth: average weekly change in log incidence over the
-#|   three weeks to the week ending eight days before the forecast date.
+#|   two weeks to the week ending eight days before the forecast date.
 #|   Ratio of expected LWIS to each outcome's average (95% CI), over the central
 #|   98% of observed growth.
 #| fig-height: 3

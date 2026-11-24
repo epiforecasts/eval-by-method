@@ -25,7 +25,7 @@ m.formula_joint <- wis ~
   s(CountryTargets, bs = "re") +
   # Incidence: log of incidence level, one smooth per outcome (#201)
   s(Incidence, by = Epi_target) +
-  # Growth: average weekly change in log incidence over the past three
+  # Growth: average weekly change in log incidence over the past two
   # weeks, one smooth per outcome (#201)
   s(Growth, by = Epi_target) +
   # Location: country location (random effect)

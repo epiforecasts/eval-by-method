@@ -43,11 +43,16 @@ classify_models <- function(file = here("data", "model-classification.csv"),
 # download_obs() (R/utils-data.R):
 #   - Incidence: weekly count; NA where download_obs() removed a negative count
 #   - Trend: classify_trend() of those counts
-#   - Growth: average weekly change in log(count + 1) over the past 3 weeks
+#   - Growth: average weekly change in log(count + 1) over the past
+#     `growth_weeks` weeks, set per outcome. Two weeks for both: of windows of
+#     1 to 4 weeks, it best predicted the growth that followed over the
+#     forecast horizons across both outcomes (one week did better for cases
+#     alone), see report/quarto/supplement/_covariates.qmd
 #   - VariantPhase: dominant variant phase
 # Missing weeks stay missing: Trend and Growth are NA wherever the weeks they
 # read include one. Joined to each forecast by process_data() (#187, #201).
-observed_covariates <- function() {
+observed_covariates <- function(growth_weeks = c(Cases = 2, Deaths = 2)) {
+  stopifnot(setequal(names(growth_weeks), c("Cases", "Deaths")))
   obs <- c(Cases = "case", Deaths = "death") |>
     map(\(x) {
       read_csv(here("data", paste0("observed-", x, ".csv")),
@@ -63,8 +68,9 @@ observed_covariates <- function() {
 
   # Join on date rather than row position, so a missing week cannot shift it
   lagged <- transmute(obs, epi_target, location,
-                      target_end_date = target_end_date + weeks(3),
-                      observed_lag3 = observed)
+                      target_end_date = target_end_date +
+                        weeks(unname(growth_weeks[epi_target])),
+                      observed_lag = observed)
   obs |>
     left_join(lagged, by = c("epi_target", "location", "target_end_date")) |>
     left_join(ungroup(classify_variant_phases()),
@@ -73,7 +79,8 @@ observed_covariates <- function() {
       epi_target, location, target_end_date,
       Incidence = observed,
       Trend = factor(Trend, levels = c("Stable", "Increasing", "Decreasing")),
-      Growth = (log(observed + 1) - log(observed_lag3 + 1)) / 3,
+      Growth = (log(observed + 1) - log(observed_lag + 1)) /
+        unname(growth_weeks[epi_target]),
       VariantPhase
     )
 }
@@ -91,11 +98,14 @@ observed_covariates <- function() {
 #   when the forecast was made, so the model uses 1: the week ending 8 days
 #   before the forecast date (target_end_date - (horizon + 1) weeks). 0 gives
 #   the week ending the day before. Ignored with "target".
+# growth_weeks: weeks over which growth is averaged, per outcome; passed to
+#   observed_covariates().
 # The default here is "target", which describes the target week, for the
 # descriptive tables and figures; model_wis() sets its own default.
 process_data <- function(scoring_scale = "log",
                          covariate_date = c("target", "forecast"),
-                         covariate_lag_weeks = 1) {
+                         covariate_lag_weeks = 1,
+                         growth_weeks = c(Cases = 2, Deaths = 2)) {
   covariate_date <- match.arg(covariate_date)
   # Get raw interval scores ----------------------------------------
   # scores data created in: R/process-score.r
@@ -130,7 +140,7 @@ process_data <- function(scoring_scale = "log",
     select(model, Method = classification, agreement)
 
   # Incidence, trend, growth and variant phase per outcome, location and week
-  covariates <- observed_covariates()
+  covariates <- observed_covariates(growth_weeks)
 
   # Combine all data -----------------------------------------------------
   # Date at which to join target-specific covariates
