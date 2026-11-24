@@ -310,7 +310,7 @@ plot_method_target(results$method_by_target)
 #### Wider influences on forecast performance
 
 Epidemiological processes generating the forecast target explained more variation in performance than features of the forecasting process.
-<!-- S (#201) replaces the stable/increasing trend sentence: growth effect by outcome (@fig-growth); quote growth_ratios (chunk below) at -0.2, 0 and +0.2 per week for cases and deaths, e.g. growth_ratios["Cases_0.2", "ratio_ci"]; shape: ___ once fitted -->
+<!-- S (#201) replaces the stable/increasing trend sentence: growth effect by outcome (@fig-growth); quote growth_ratios (chunk below) at each outcome's growth quartiles, e.g. growth_ratios["Cases_q25", "ratio_ci"]; shape: opposite by outcome, case forecasts worse in decline (q25 1.05, q75 0.90) and death forecasts worse in growth (q25 0.95, q75 1.02); intervals too narrow given residuals shared within target weeks (Discussion #200) -->
 
 ```{r}
 #| label: fig-growth
@@ -325,8 +325,11 @@ Epidemiological processes generating the forecast target explained more variatio
 
 plot_covariate_smooth(results$smooths, results$data, "Growth") +
   labs(x = "Weekly growth in log incidence")
-growth_ratios <- smooth_ratio_at(results$smooths, "Growth") |>
-  mutate(key = paste(Epi_target, at, sep = "_")) |>
+# Ratios at each outcome's own growth quartiles, e.g.
+# growth_ratios["Cases_q25", "ratio_ci"]; growth value in column `at`
+growth_ratios <- smooth_ratio_quantiles(results$smooths, results$data,
+                                        "Growth") |>
+  mutate(key = paste(Epi_target, quantile, sep = "_")) |>
   tibble::column_to_rownames("key")
 ```
 

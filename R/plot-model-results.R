@@ -86,7 +86,7 @@ plot_covariate_smooth <- function(smooths, data, covariate = "Growth",
                 alpha = 0.3) +
     geom_line(aes(colour = Epi_target)) +
     facet_wrap(~Epi_target, scales = "free_x") +
-    scale_y_log10() +
+    scale_y_log10(breaks = c(0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.25, 1.5, 2)) +
     scale_colour_manual(values = plot_config$epi_colours, guide = "none") +
     scale_fill_manual(values = plot_config$epi_colours, guide = "none") +
     labs(x = covariate, y = "Adjusted performance ratio") +
@@ -108,6 +108,19 @@ smooth_ratio_at <- function(smooths, covariate = "Growth",
     mutate(ratio = exp(est), lower = exp(est - 1.96 * se),
            upper = exp(est + 1.96 * se),
            ratio_ci = sprintf("%.2f (%.2f-%.2f)", ratio, lower, upper))
+}
+
+# Ratios at each outcome's own quantiles of the covariate, labelled by
+# quantile (e.g. q25), for quoting in the text
+smooth_ratio_quantiles <- function(smooths, data, covariate = "Growth",
+                                   probs = c(0.25, 0.5, 0.75)) {
+  map(c("Cases", "Deaths"), \(o) {
+    x <- data[[covariate]][as.character(data$Epi_target) == o]
+    smooth_ratio_at(filter(smooths, Epi_target == o), covariate,
+                    at = unname(quantile(x, probs))) |>
+      mutate(quantile = paste0("q", probs * 100))
+  }) |>
+    list_rbind()
 }
 
 # All effects (used in supplement)
